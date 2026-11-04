@@ -24,6 +24,8 @@ import { getEventTitle, isPendingDecisionEvent, isTransferRumor } from "@/lib/ev
 import { DIGEST_TYPE, digestItems, type DigestItem } from "@/lib/inbox-digest"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { PERSONALITY_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
+import { intlLocale, isTextRef, t, tn, tRef, type TextRef } from "@/lib/i18n"
+import { newsContent, newsTitle } from "@/lib/news-text"
 
 export type InboxKind = "decision" | "message" | "news"
 export type DecisionKind = "choice" | "job_offer" | "transfer_offer"
@@ -44,6 +46,8 @@ export interface NewsFeedLike {
     id: string
     title: string
     content: string
+    titleRef?: TextRef
+    contentRef?: TextRef
     week: number
     category?: string
 }
@@ -133,57 +137,57 @@ export function isFolded(event: GameEventSaveData): boolean {
 
 function playerLabel(data: AnyData, ctx: InboxContext): string {
     const id = data.playerId != null ? String(data.playerId) : ""
-    return (id && ctx.playerName(id)) || data.playerName || "A player"
+    return (id && ctx.playerName(id)) || data.playerName || t("ib.aPlayer")
 }
 
 /** Who the message is from — a person or department, not an event type. */
 export function getEventSender(event: GameEventSaveData, ctx: InboxContext): string {
     const data = dataOf(event)
     switch (event.type as string) {
-        case "CONTRACT": return "Contracts office"
-        case "MORALE": return data.playerId ? playerLabel(data, ctx) : "Dressing room"
+        case "CONTRACT": return t("ib.from.contracts")
+        case "MORALE": return data.playerId ? playerLabel(data, ctx) : t("ib.from.dressingRoom")
         case "INJURY":
-        case "RECOVERY": return "Medical team"
+        case "RECOVERY": return t("ib.from.medical")
         case "FINANCE":
-        case "BUDGET_WARNING": return "Finance director"
+        case "BUDGET_WARNING": return t("ib.from.finance")
         case "win_streak":
-        case "loss_streak": return "Assistant coach"
-        case "TRANSFER_OFFER": return data.teamName || "Transfer office"
-        case "JOB_OFFER": return data.offeringTeamName || "Club board"
-        case "CAREER_UPDATE": return "Club board"
+        case "loss_streak": return t("ib.from.assistantCoach")
+        case "TRANSFER_OFFER": return data.teamName || t("ib.from.transferOffice")
+        case "JOB_OFFER": return data.offeringTeamName || t("ib.from.board")
+        case "CAREER_UPDATE": return t("ib.from.board")
         case "TOURNAMENT":
-        case "TOURNAMENT_UPDATE": return data.tournamentName || "Tournament office"
-        case "MEDIA": return data.outlet || (data.proAwards ? "Pro awards" : "Press office")
-        case "FAN": return "Fan club"
-        case "PRESS": return "Press office"
+        case "TOURNAMENT_UPDATE": return data.tournamentName || t("ib.from.tournamentOffice")
+        case "MEDIA": return data.outlet || (data.proAwards ? t("ib.from.proAwards") : t("ib.from.press"))
+        case "FAN": return t("ib.from.fanClub")
+        case "PRESS": return t("ib.from.press")
         case "STORYLINE":
             switch (data.storyKind) {
-                case "CONTRACT_STANDOFF": return `${playerLabel(data, ctx)}'s agent`
+                case "CONTRACT_STANDOFF": return t("ib.from.agent", { name: playerLabel(data, ctx) })
                 case "LAST_DANCE": return playerLabel(data, ctx)
-                case "RIFT": return "Dressing room"
+                case "RIFT": return t("ib.from.dressingRoom")
                 case "SLUMP":
-                case "RISING_STAR": return "Assistant manager"
-                default: return "Club office"
+                case "RISING_STAR": return t("ib.from.assistantManager")
+                default: return t("ib.from.clubOffice")
             }
         case "SPONSOR":
-        case "SPONSOR_OFFER": return data.brand || "Commercial team"
+        case "SPONSOR_OFFER": return data.brand || t("ib.from.commercial")
         case "TRAINING_START":
         case "TRAINING_COMPLETE":
         case "TRAINING_CANCEL":
-        case "PLAYER_LEVEL_UP": return "Training staff"
-        case "STAFF_LEVEL_UP": return "Staff"
-        case "TEAM_UPDATE": return "Team manager"
+        case "PLAYER_LEVEL_UP": return t("ib.from.training")
+        case "STAFF_LEVEL_UP": return t("ib.from.staff")
+        case "TEAM_UPDATE": return t("ib.from.teamManager")
         case "SCOUTING_COMPLETE":
-        case "MARKET_ALERT": return "Scouting department"
-        case "STAFF_REPORT": return "Assistant manager"
-        case "MILESTONE": return "Club records"
+        case "MARKET_ALERT": return t("ib.from.scouting")
+        case "STAFF_REPORT": return t("ib.from.assistantManager")
+        case "MILESTONE": return t("ib.from.records")
         case "AI_SIGNING":
         case "AI_TRANSFER":
         case "ROSTER_UPDATE":
-        case "TRANSFER_WINDOW": return "Transfer wire"
-        case "RETIREMENT": return "Esports wire"
-        case DIGEST_TYPE: return "Assistant manager"
-        default: return "Club office"
+        case "TRANSFER_WINDOW": return t("ib.from.transferWire")
+        case "RETIREMENT": return t("ib.from.esportsWire")
+        case DIGEST_TYPE: return t("ib.from.assistantManager")
+        default: return t("ib.from.clubOffice")
     }
 }
 
@@ -193,35 +197,35 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
     const who = playerLabel(data, ctx)
     switch (event.type as string) {
         case "CONTRACT":
-            return num(data.weeksLeft) != null ? `${who}'s contract ends in ${data.weeksLeft} week${data.weeksLeft === 1 ? "" : "s"}` : data.title || `${who}'s contract`
-        case "MORALE": return data.title || `${who} is unhappy`
+            return num(data.weeksLeft) != null ? tn("ib.subj.contractEnds", data.weeksLeft, { name: who }) : data.title || t("ib.subj.contract", { name: who })
+        case "MORALE": return data.title || t("ib.subj.unhappy", { name: who })
         case "INJURY":
             if (data.title && (event.id.startsWith("workload_") || event.id.startsWith("knock_"))) return stripEmoji(String(data.title)).trim()
-            if (data.fatigue) return `${who} is close to burnout`
-            if (event.id.startsWith("recovery_")) return `${who} is fit again`
-            return num(data.weeksOut) != null ? `${who} out for ${data.weeksOut} week${data.weeksOut === 1 ? "" : "s"}` : `${who} injured`
-        case "win_streak": return `${data.streak ?? 3}-match win streak`
-        case "loss_streak": return `${data.streak ?? 3}-match losing run`
+            if (data.fatigue) return t("ib.subj.burnout", { name: who })
+            if (event.id.startsWith("recovery_")) return t("ib.subj.fit", { name: who })
+            return num(data.weeksOut) != null ? tn("ib.subj.out", data.weeksOut, { name: who }) : t("ib.subj.injured", { name: who })
+        case "win_streak": return t("ib.subj.winStreak", { n: data.streak ?? 3 })
+        case "loss_streak": return t("ib.subj.lossStreak", { n: data.streak ?? 3 })
         case "TRANSFER_OFFER":
-            return num(data.offerAmount) != null ? `Bid for ${who}: ${formatCurrency(data.offerAmount, "$", false)}` : `Bid for ${who}`
-        case "JOB_OFFER": return `${data.offeringTeamName || "A club"} want you as manager`
-        case "FAN": return data.title || "Fans want a meetup"
-        case "SPONSOR": return data.title || "Sponsor progress review"
-        case "AI_SIGNING": return `${data.teamName || "A club"} sign ${data.playerName || "a free agent"}`
-        case "AI_TRANSFER": return `${data.playerName || "A player"} joins ${data.toTeamName || "a new club"}`
-        case "RETIREMENT": return `${who} retires`
+            return num(data.offerAmount) != null ? t("ib.subj.bidAmount", { name: who, amount: formatCurrency(data.offerAmount, "$", false) }) : t("ib.subj.bid", { name: who })
+        case "JOB_OFFER": return t("ib.subj.jobOffer", { club: data.offeringTeamName || t("ib.aClub") })
+        case "FAN": return data.title || t("ib.subj.fans")
+        case "SPONSOR": return data.title || t("ib.subj.sponsor")
+        case "AI_SIGNING": return t("ib.subj.aiSigning", { club: data.teamName || t("ib.aClub"), name: data.playerName || t("ib.aFreeAgent") })
+        case "AI_TRANSFER": return t("ib.subj.aiTransfer", { name: data.playerName || t("ib.aPlayer"), club: data.toTeamName || t("ib.aNewClub") })
+        case "RETIREMENT": return t("ib.subj.retires", { name: who })
         case "MEDIA":
-            if (data.proAwards?.year != null) return (typeof data.proAwards.minMaps === "number" ? `Pro Top 20 of season ${data.proAwards.year}` : `Pro Top 20 of ${data.proAwards.year}`)
-            return data.title || "Media update"
+            if (data.proAwards?.year != null) return (typeof data.proAwards.minMaps === "number" ? t("ib.subj.proTop20Season", { n: data.proAwards.year }) : t("ib.subj.proTop20Year", { n: data.proAwards.year }))
+            return data.title || t("ib.subj.media")
         case DIGEST_TYPE: {
             const items = digestItems(event)
             const weeks = [...new Set(items.map(i => i.week))].sort((a, b) => a - b)
-            const span = weeks.length > 1 ? `weeks ${weeks[0]}–${weeks[weeks.length - 1]}` : weeks.length ? `week ${weeks[0]}` : ""
-            return `Round-up: ${items.length} smaller update${items.length === 1 ? "" : "s"}${span ? ` (${span})` : ""}`
+            const span = weeks.length > 1 ? t("ib.weeksSpan", { from: weeks[0], to: weeks[weeks.length - 1] }) : weeks.length ? t("ib.weekOne", { n: weeks[0] }) : ""
+            return span ? tn("ib.subj.digestSpan", items.length, { span }) : tn("ib.subj.digest", items.length)
         }
         default: {
-            const title = data.title || getEventTitle(event)
-            return stripEmoji(String(title)).trim() || "Notification"
+            const title = isTextRef(data.titleRef) ? getEventTitle(event) : data.title || getEventTitle(event)
+            return stripEmoji(String(title)).trim() || t("ib.subj.notification")
         }
     }
 }
@@ -244,10 +248,13 @@ export function digestLine(item: DigestItem, ctx: InboxContext): string {
     switch (item.type) {
         case "PLAYER_LEVEL_UP": {
             if (text(d.message)) return text(d.message)
-            return `${d.playerName || playerLabel(d, ctx)} reached level ${d.newLevel ?? "?"}${num(d.breakthroughPotential) != null ? ` (potential now ${d.breakthroughPotential})` : ""}`
+            const name = d.playerName || playerLabel(d, ctx)
+            return num(d.breakthroughPotential) != null
+                ? t("ib.digest.levelPotential", { name, level: d.newLevel ?? "?", potential: d.breakthroughPotential })
+                : t("ib.digest.level", { name, level: d.newLevel ?? "?" })
         }
-        case "STAFF_LEVEL_UP": return `${d.staffName || "A staff member"} reached level ${d.newLevel ?? "?"}`
-        case "FAN": return text(d.title) || text(d.message) || "Fan milestone"
+        case "STAFF_LEVEL_UP": return t("ib.digest.level", { name: d.staffName || t("ib.aStaffMember"), level: d.newLevel ?? "?" })
+        case "FAN": return text(d.title) || text(d.message) || t("ib.digest.fan")
         case "INJURY": return getEventSubject(asEvent(), ctx)
         default: {
             const line = text(d.description) || text(d.message) || text(d.title) || getEventSubject(asEvent(), ctx)
@@ -261,39 +268,50 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
     const who = playerLabel(data, ctx)
     switch (event.type as string) {
         case "CONTRACT":
-            if (num(data.weeksLeft) != null) return `${who}'s contract runs out in ${data.weeksLeft} week${data.weeksLeft === 1 ? "" : "s"}. Offer new terms on the player's page, or plan for their departure.`
-            return data.message || data.description || "Contract update."
+            if (num(data.weeksLeft) != null) return tn("ib.body.contractEnds", data.weeksLeft, { name: who })
+            return data.message || data.description || t("ib.body.contract")
         case "MORALE":
-            if (num(data.morale) != null) return `${who} is unhappy (morale ${Math.round(data.morale)}%).${data.reason && data.reason !== "Player unhappy" ? ` Reason: ${data.reason}.` : ""}`
-            return data.message || `${who} is unhappy.`
+            if (num(data.morale) != null) {
+                const base = t("ib.body.unhappyMorale", { name: who, morale: Math.round(data.morale) })
+                return data.reason && data.reason !== "Player unhappy" ? `${base} ${t("ib.body.reason", { reason: data.reason })}` : base
+            }
+            return data.message || t("ib.body.unhappy", { name: who })
         case "INJURY":
-            if (data.fatigue) return `${who} is exhausted (fatigue ${Math.round(data.fatigue)}). Pushing on raises the injury risk.`
-            return data.message || data.description || `${who} is injured${data.weeksOut ? ` and out for ${data.weeksOut} week${data.weeksOut === 1 ? "" : "s"}` : ""}.`
-        case "FAN": return data.message || "Fans are asking to see more of the team. Pick how the club responds."
+            if (data.fatigue) return t("ib.body.exhausted", { name: who, fatigue: Math.round(data.fatigue) })
+            return data.message || data.description || (data.weeksOut ? tn("ib.body.injuredOut", data.weeksOut, { name: who }) : t("ib.body.injured", { name: who }))
+        case "FAN": return data.message || t("ib.body.fans")
         case "SPONSOR": {
             const n = num(data.currentSponsors)
-            return data.message || `Your sponsors want a progress review${n != null ? ` (${n} active deal${n === 1 ? "" : "s"})` : ""}. Pick how to handle it.`
+            return data.message || (n != null ? tn("ib.body.sponsorDeals", n) : t("ib.body.sponsor"))
         }
-        case "win_streak": return `The team has won ${data.streak ?? 3} in a row.`
-        case "loss_streak": return `The team has lost ${data.streak ?? 3} in a row.`
+        case "win_streak": return t("ib.body.winStreak", { n: data.streak ?? 3 })
+        case "loss_streak": return t("ib.body.lossStreak", { n: data.streak ?? 3 })
         case "TRANSFER_OFFER": {
-            const fee = num(data.offerAmount) != null ? formatCurrency(data.offerAmount, "$", false) : "an undisclosed fee"
-            return `${data.teamName || "A club"} has bid ${fee} for ${who}.`
+            const club = data.teamName || t("ib.aClub")
+            return num(data.offerAmount) != null
+                ? t("ib.body.bid", { club, amount: formatCurrency(data.offerAmount, "$", false), name: who })
+                : t("ib.body.bidUndisclosed", { club, name: who })
         }
         case "JOB_OFFER": {
-            const where = [data.offeringTeamRegion, data.offeringTeamRank ? `world #${data.offeringTeamRank}` : null].filter(Boolean).join(", ")
+            const where = [data.offeringTeamRegion, data.offeringTeamRank ? t("ib.worldRank", { rank: data.offeringTeamRank }) : null].filter(Boolean).join(", ")
             const deadline = num(data.deadlineWeek)
-            return `${data.offeringTeamName || "A club"}${where ? ` (${where})` : ""} want you as their manager.${deadline != null ? ` The offer stands until the end of week ${deadline}.` : ""}`
+            const club = data.offeringTeamName || t("ib.aClub")
+            const head = where ? t("ib.body.jobWhere", { club, where }) : t("ib.body.job", { club })
+            return deadline != null ? `${head} ${t("ib.body.jobDeadline", { week: deadline })}` : head
         }
-        case "AI_SIGNING": return `${data.teamName || "A club"} has signed ${data.playerName || "a player"} from the free-agent pool.`
-        case "AI_TRANSFER": return `${data.toTeamName || "A club"} has signed ${data.playerName || "a player"}${data.fromTeamName ? ` from ${data.fromTeamName}` : ""}${num(data.fee) != null ? ` for ${formatCurrency(data.fee, "$", false)}` : " for an undisclosed fee"}.`
-        case "RETIREMENT": return data.message || `${who} has retired from professional play.`
+        case "AI_SIGNING": return t("ib.body.aiSigning", { club: data.teamName || t("ib.aClub"), name: data.playerName || t("ib.aPlayerLower") })
+        case "AI_TRANSFER": {
+            const vars = { club: data.toTeamName || t("ib.aClub"), name: data.playerName || t("ib.aPlayerLower"), from: data.fromTeamName ?? "", fee: num(data.fee) != null ? formatCurrency(data.fee, "$", false) : "" }
+            const key = data.fromTeamName ? (vars.fee ? "ib.body.aiTransferFromFee" : "ib.body.aiTransferFrom") : (vars.fee ? "ib.body.aiTransferFee" : "ib.body.aiTransfer")
+            return t(key, vars)
+        }
+        case "RETIREMENT": return data.message || t("ib.body.retired", { name: who })
         case DIGEST_TYPE: {
             const items = digestItems(event)
-            if (items.length === 0) return "Nothing new."
-            const blocks: string[] = ["Smaller updates from around the club, collected here so they don't each take a row in your inbox."]
+            if (items.length === 0) return t("ib.body.nothingNew")
+            const blocks: string[] = [t("ib.body.digestIntro")]
             for (const week of [...new Set(items.map(i => i.week))]) {
-                blocks.push([`WEEK ${week}`, ...items.filter(i => i.week === week).map(i => `• ${digestLine(i, ctx)}`)].join("\n"))
+                blocks.push([t("ib.body.digestWeek", { n: week }).toUpperCase(), ...items.filter(i => i.week === week).map(i => `• ${digestLine(i, ctx)}`)].join("\n"))
             }
             return blocks.join("\n\n")
         }
@@ -301,11 +319,13 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
             if (data.proAwards) {
                 const top = data.proAwards.top20?.[0]?.nickname
                 const ours = (data.proAwards.top20 ?? []).filter((p: AnyData) => p.isPlayerTeam).length
-                return `${top ? `${top} is the world's #1.` : "The world's best players have been ranked."}${ours > 0 ? ` ${ours} of your players made the Top 20.` : ""}`
+                const lead = top ? t("ib.body.worldNumberOne", { name: top }) : t("ib.body.ranked")
+                return ours > 0 ? `${lead} ${tn("ib.body.oursTop20", ours)}` : lead
             }
-            return data.message || data.text || data.description || "Media update."
+            return data.message || data.text || data.description || t("ib.body.media")
         default:
-            return data.message || data.content || data.text || data.description || "No further details."
+            if (isTextRef(data.messageRef)) return tRef(data.messageRef)
+            return data.message || data.content || data.text || data.description || t("ib.body.noDetails")
     }
 }
 
@@ -332,7 +352,7 @@ export function parseMessageBody(text: string): BodyBlock[] {
         if (lines.length === 0) continue
         let i = 0
         // A short all-caps first line is a section heading.
-        if (lines[0].length <= 32 && /[A-Z]/.test(lines[0]) && lines[0] === lines[0].toUpperCase()) {
+        if (lines[0].length <= 32 && /\p{Lu}/u.test(lines[0]) && lines[0] === lines[0].toUpperCase()) {
             blocks.push({ kind: "heading", text: lines[0] })
             i = 1
         }
@@ -359,6 +379,8 @@ export interface ChoiceOutcome { chips: EffectChip[]; blockedReason?: string }
 export interface ChoiceLike {
     id: string
     text: string
+    /** The choice as a translation key (storylines): shown in the active language. */
+    ref?: TextRef
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- loose runtime bundle (fatigue/chemistry are not in the save type)
     effects?: Record<string, any>
 }
@@ -379,79 +401,80 @@ export function describeChoice(event: GameEventSaveData, choice: ChoiceLike, bud
         const cost = num(data.salaryCost) ?? 15000
         return {
             chips: [
-                { label: `${formatSignedCurrency(-cost, "$", false)} now`, tone: "negative" },
-                { label: `${formatCurrency(cost, "$", false)}/wk wages`, tone: "negative" },
-                { label: "+10 chemistry", tone: "positive" },
-                { label: "+5 reputation", tone: "positive" },
-                { label: "Replaces your coach", tone: "neutral" },
+                { label: t("ib.fx.now", { amount: formatSignedCurrency(-cost, "$", false) }), tone: "negative" },
+                { label: t("ib.fx.wages", { amount: formatCurrency(cost, "$", false) }), tone: "negative" },
+                { label: t("ib.fx.chemistry", { n: "+10" }), tone: "positive" },
+                { label: t("ib.fx.reputation", { n: "+5" }), tone: "positive" },
+                { label: t("ib.fx.replacesCoach"), tone: "neutral" },
             ],
-            blockedReason: budget < cost ? `Needs ${formatCurrency(cost, "$", false)} up front` : undefined,
+            blockedReason: budget < cost ? t("ib.fx.needsUpFront", { amount: formatCurrency(cost, "$", false) }) : undefined,
         }
     }
 
     const fx = choice.effects ?? {}
     const squad = !data.playerId
-    const scope = squad ? " (squad)" : ""
+    const scoped = (key: string, n: string) => squad ? t(`${key}Squad`, { n }) : t(key, { n })
     const chips: EffectChip[] = []
     let blockedReason: string | undefined
     const money = num(fx.money)
     if (money) {
         chips.push({ label: formatSignedCurrency(money, "$", false), tone: money > 0 ? "positive" : "negative" })
-        if (money < 0 && budget < -money) blockedReason = "Not enough funds"
+        if (money < 0 && budget < -money) blockedReason = t("ib.fx.noFunds")
     }
     const morale = num(fx.morale)
-    if (morale) chips.push({ label: `${signed(morale)} morale${scope}`, tone: morale > 0 ? "positive" : "negative" })
+    if (morale) chips.push({ label: scoped("ib.fx.morale", signed(morale)), tone: morale > 0 ? "positive" : "negative" })
     const loyalty = num(fx.loyalty)
-    if (loyalty) chips.push({ label: `${signed(loyalty)} loyalty${scope}`, tone: loyalty > 0 ? "positive" : "negative" })
+    if (loyalty) chips.push({ label: scoped("ib.fx.loyalty", signed(loyalty)), tone: loyalty > 0 ? "positive" : "negative" })
     const fatigue = num(fx.fatigue) != null ? clamp(fx.fatigue, -10, 10) : 0
-    if (fatigue) chips.push({ label: `${signed(fatigue)} fatigue${scope}`, tone: fatigue < 0 ? "positive" : "negative" })
+    if (fatigue) chips.push({ label: scoped("ib.fx.fatigue", signed(fatigue)), tone: fatigue < 0 ? "positive" : "negative" })
     const chemistry = num(fx.chemistry) != null ? clamp(fx.chemistry, -5, 5) : 0
-    if (chemistry) chips.push({ label: `${signed(chemistry)} chemistry`, tone: chemistry > 0 ? "positive" : "negative" })
+    if (chemistry) chips.push({ label: t("ib.fx.chemistry", { n: signed(chemistry) }), tone: chemistry > 0 ? "positive" : "negative" })
     const reputation = num(fx.reputation)
-    if (reputation) chips.push({ label: `${signed(reputation)} reputation`, tone: reputation > 0 ? "positive" : "negative" })
+    if (reputation) chips.push({ label: t("ib.fx.reputation", { n: signed(reputation) }), tone: reputation > 0 ? "positive" : "negative" })
     // Phase 5.2 (engine/event-choice.ts): transfer list, promise.
-    if (fx.transferList) chips.push({ label: "Transfer-listed at market value", tone: "neutral" })
+    if (fx.transferList) chips.push({ label: t("ib.fx.transferListed"), tone: "neutral" })
     if (fx.promise === "START" || fx.promise === "COMPETE") {
         const kind = fx.promise as PromiseKind
-        chips.push({ label: `Promise “${PROMISE_LABEL[kind].promise}” for ${promiseWindow(kind)} wks`, tone: "neutral" })
+        chips.push({ label: t("ib.fx.promise", { promise: PROMISE_LABEL[kind].promise, weeks: promiseWindow(kind) }), tone: "neutral" })
     }
     // Phase 5.3 (engine/event-choice.ts): named players, board, fans, renewal, bench, retirement, mentor.
     for (const p of Array.isArray(fx.players) ? fx.players : []) {
-        const who = typeof p?.name === "string" ? p.name : "player"
+        const who = typeof p?.name === "string" ? p.name : t("ib.playerLower")
         const m = num(p?.morale), l = num(p?.loyalty)
-        if (m) chips.push({ label: `${signed(m)} morale (${who})`, tone: m > 0 ? "positive" : "negative" })
-        if (l) chips.push({ label: `${signed(l)} loyalty (${who})`, tone: l > 0 ? "positive" : "negative" })
+        if (m) chips.push({ label: t("ib.fx.moraleWho", { n: signed(m), name: who }), tone: m > 0 ? "positive" : "negative" })
+        if (l) chips.push({ label: t("ib.fx.loyaltyWho", { n: signed(l), name: who }), tone: l > 0 ? "positive" : "negative" })
     }
     const board = num(fx.board)
-    if (board) chips.push({ label: `${signed(board)} board confidence`, tone: board > 0 ? "positive" : "negative" })
+    if (board) chips.push({ label: t("ib.fx.board", { n: signed(board) }), tone: board > 0 ? "positive" : "negative" })
     const fans = num(fx.fans)
-    if (fans) chips.push({ label: `${fans > 0 ? "+" : "-"}${Math.abs(fans).toLocaleString("en-US")} fans`, tone: fans > 0 ? "positive" : "negative" })
+    if (fans) chips.push({ label: t("ib.fx.fans", { n: `${fans > 0 ? "+" : "-"}${Math.abs(fans).toLocaleString(intlLocale())}` }), tone: fans > 0 ? "positive" : "negative" })
     const renew = fx.renew as { salary?: unknown; weeks?: unknown; current?: unknown } | undefined
     if (renew && num(renew.salary) && num(renew.weeks)) {
-        chips.push({ label: `New deal: ${formatCurrency(renew.salary as number, "$", false)}/wk, +${renew.weeks} wks`, tone: "neutral" })
+        chips.push({ label: t("ib.fx.newDeal", { wage: formatCurrency(renew.salary as number, "$", false), weeks: renew.weeks as number }), tone: "neutral" })
         const raise = Math.max(0, (renew.salary as number) - (num(renew.current) ?? 0)) * STORY_TUNING.STANDOFF_RUNWAY_WEEKS
-        if (num(renew.current) != null && budget < raise) blockedReason = `Needs ${formatCurrency(raise, "$", false)} in the bank`
+        if (num(renew.current) != null && budget < raise) blockedReason = t("ib.fx.needsInBank", { amount: formatCurrency(raise, "$", false) })
     }
-    if (fx.bench) chips.push({ label: "Leaves the starting five", tone: "negative" })
+    if (fx.bench) chips.push({ label: t("ib.fx.bench"), tone: "negative" })
     const persuade = fx.persuade as { from?: unknown; to?: unknown } | undefined
-    if (persuade && num(persuade.from) != null && num(persuade.to) != null) chips.push({ label: `Retirement chance ${persuade.from}% → ${persuade.to}%`, tone: "positive" })
+    if (persuade && num(persuade.from) != null && num(persuade.to) != null) chips.push({ label: t("ib.fx.retireChance", { from: persuade.from as number, to: persuade.to as number }), tone: "positive" })
     const mentor = fx.mentor as { name?: unknown } | undefined
-    if (mentor) chips.push({ label: `Mentors ${typeof mentor.name === "string" ? mentor.name : "a team-mate"}: training +${Math.round((PERSONALITY_TUNING.MENTOR_TRAINING - 1) * 100)}%`, tone: "positive" })
+    if (mentor) chips.push({ label: t("ib.fx.mentor", { name: typeof mentor.name === "string" ? mentor.name : t("ib.aTeammate"), pct: Math.round((PERSONALITY_TUNING.MENTOR_TRAINING - 1) * 100) }), tone: "positive" })
     // C5 (engine/workload.ts): rest week, play through a knock.
     const rest = fx.rest as { fatigue?: unknown; morale?: unknown } | undefined
     if (rest && num(rest.fatigue)) {
-        chips.push({ label: `-${Math.abs(rest.fatigue as number)} fatigue`, tone: "positive" })
-        if (num(rest.morale)) chips.push({ label: `${signed(rest.morale as number)} morale`, tone: "positive" })
-        chips.push({ label: "Sits out this week if a substitute is free", tone: "neutral" })
+        chips.push({ label: t("ib.fx.fatigue", { n: `-${Math.abs(rest.fatigue as number)}` }), tone: "positive" })
+        if (num(rest.morale)) chips.push({ label: t("ib.fx.morale", { n: signed(rest.morale as number) }), tone: "positive" })
+        chips.push({ label: t("ib.fx.sitsOut"), tone: "neutral" })
     }
     const through = fx.playThrough as { escalateChance?: unknown; form?: unknown } | undefined
     if (through && num(through.escalateChance) != null) {
-        chips.push({ label: "Back for the next match", tone: "positive" })
-        if (num(through.form)) chips.push({ label: `${signed(through.form as number)} form`, tone: "negative" })
-        chips.push({ label: `${Math.round((through.escalateChance as number) * 100)}% chance it worsens (2–4 wks out)`, tone: "negative" })
+        chips.push({ label: t("ib.fx.backNext"), tone: "positive" })
+        if (num(through.form)) chips.push({ label: t("ib.fx.form", { n: signed(through.form as number) }), tone: "negative" })
+        chips.push({ label: t("ib.fx.worsens", { pct: Math.round((through.escalateChance as number) * 100) }), tone: "negative" })
     }
-    if (typeof fx.follows === "string" && fx.follows) chips.push({ label: fx.follows, tone: "neutral" })
-    if (chips.length === 0) chips.push({ label: "No effect", tone: "neutral" })
+    if (isTextRef(fx.follows)) chips.push({ label: tRef(fx.follows), tone: "neutral" })
+    else if (typeof fx.follows === "string" && fx.follows) chips.push({ label: fx.follows, tone: "neutral" })
+    if (chips.length === 0) chips.push({ label: t("ib.fx.none"), tone: "neutral" })
     return { chips, blockedReason }
 }
 
@@ -464,6 +487,7 @@ const EFFECT_SUFFIX = new RegExp(String.raw`:\s*${EFFECT_TOKEN}(?:\s*,\s*${EFFEC
  * state the effect the store really applies.
  */
 export function choiceLabel(choice: ChoiceLike): string {
+    if (isTextRef(choice.ref)) return tRef(choice.ref)
     const trimmed = choice.text.replace(/\s*\([^()]*\)\s*$/, "").replace(EFFECT_SUFFIX, "").trim()
     return trimmed || choice.text
 }
@@ -500,10 +524,10 @@ export function eventToItem(event: GameEventSaveData, ctx: InboxContext): InboxI
 export function buildInboxItems(sources: InboxSources, ctx: InboxContext): InboxItem[] {
     const items: InboxItem[] = sources.eventsLog.filter(e => !isFolded(e)).map(e => eventToItem(e, ctx))
     for (const n of sources.newsFeed ?? []) {
-        items.push({ key: `news:${n.id}`, source: "news", kind: "news", decision: null, week: n.week, unread: false, sender: "Esports wire", subject: n.title, preview: n.content, news: n })
+        items.push({ key: `news:${n.id}`, source: "news", kind: "news", decision: null, week: n.week, unread: false, sender: t("ib.from.esportsWire"), subject: newsTitle(n), preview: newsContent(n), news: n })
     }
     for (const p of sources.socialFeed ?? []) {
-        items.push({ key: `social:${p.id}`, source: "social", kind: "news", decision: null, week: p.week, unread: false, sender: p.user?.handle || p.user?.name || "Social", subject: p.user?.name || "Social post", preview: p.content, social: p })
+        items.push({ key: `social:${p.id}`, source: "social", kind: "news", decision: null, week: p.week, unread: false, sender: p.user?.handle || p.user?.name || t("ib.social"), subject: p.user?.name || t("ib.socialPost"), preview: p.content, social: p })
     }
     return items.sort(sortNewestFirst)
 }
@@ -546,7 +570,7 @@ export function inboxBadgeCount(counts: InboxCounts): number {
 }
 
 export function weekLabel(week: number, currentWeek: number): string {
-    if (week === currentWeek) return "This week"
-    if (week === currentWeek - 1) return "Last week"
-    return `Week ${week}`
+    if (week === currentWeek) return t("ib.thisWeek")
+    if (week === currentWeek - 1) return t("ib.lastWeek")
+    return t("common.week", { n: week })
 }

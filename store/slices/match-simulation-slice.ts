@@ -39,6 +39,7 @@ import {
     SeededRNG,
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { getAnalystXpMultiplier, LOSS_XP_BASE, WIN_XP_BASE } from "@/engine/processors/match-manager-xp"
 import { applyFormResult, applyMoraleResult, resultSurpriseFactor } from "@/engine/player-lifecycle"
 import { expectedScore } from "@/engine/world-ranking"
 import { isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "@/engine/personality"
@@ -540,7 +541,9 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     firstTournamentParticipation: !!match.tournamentId && match.tournamentId !== "SCRIM",
                 })
 
-                ManagerProgression.gainXP(state, pWon ? 100 : 25)
+                // Same base and analyst talent bonus as a match the week auto-plays.
+                const xpMultiplier = state.playerTeamId ? getAnalystXpMultiplier(state as unknown as GameSave, state.playerTeamId) : 1
+                ManagerProgression.gainXP(state, Math.round((pWon ? WIN_XP_BASE : LOSS_XP_BASE) * xpMultiplier))
             }
 
             // Tournament bracket progression — kept inside the immer set so

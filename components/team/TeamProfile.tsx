@@ -16,8 +16,10 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { cn } from "@/lib/utils"
 import { formatScoutedRating, fuzzyBand } from "@/engine/scouting-system"
+import { t, tn } from "@/lib/i18n"
 
 const RESULTS_SHOWN = 10
+const TIER_KEYS = new Set(["ELITE", "PRO", "SEMI_PRO", "AMATEUR"])
 
 /**
  * A club's page: standing, roster (exact ratings only once scouted, the
@@ -58,11 +60,11 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                     <TeamLogoImage src={team.logoPath} alt="" size={52} team={team} />
                 </div>
                 <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">{isOwn ? "Your club" : "Club"}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">{isOwn ? t("ct.yourClub") : t("player.row.club")}</p>
                     <h1 className="font-display text-4xl font-bold uppercase leading-none text-ink-1">{team.name}</h1>
                     <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-ink-3">
-                        {team.worldRanking != null && <span className="font-semibold text-ink-2">World #{team.worldRanking}</span>}
-                        <span aria-hidden="true">·</span><span>{tier.label}</span>
+                        {team.worldRanking != null && <span className="font-semibold text-ink-2">{t("rk.worldN", { n: team.worldRanking })}</span>}
+                        <span aria-hidden="true">·</span><span>{TIER_KEYS.has(String(team.tier)) ? t(`tier.${team.tier}`) : tier.label}</span>
                         {team.region && <><span aria-hidden="true">·</span><CountryFlag country={team.region} showName size={14} /></>}
                     </p>
                 </div>
@@ -70,21 +72,21 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
 
             <KpiStrip className="w-fit max-w-full flex-wrap">
                 <Kpi label="Elo" value={Math.round(team.elo ?? 0)} />
-                {team.peakWorldRanking != null && <Kpi label="Best rank" value={`#${team.peakWorldRanking}`} />}
-                <Kpi label="Record" value={`${record.wins}–${record.losses}`} hint="Official matches this career" />
-                <Kpi label="Trophies" value={trophies.length} />
-                {h2h && <Kpi label="Against you" value={`${h2h.losses}–${h2h.wins}`} hint={h2h.played ? `${h2h.played} meetings` : "Never met"} />}
+                {team.peakWorldRanking != null && <Kpi label={t("teamPage.bestRank")} value={`#${team.peakWorldRanking}`} />}
+                <Kpi label={t("lg.col.record")} value={`${record.wins}–${record.losses}`} hint={t("teamPage.recordHint")} />
+                <Kpi label={t("common.trophies")} value={trophies.length} />
+                {h2h && <Kpi label={t("teamPage.againstYou")} value={`${h2h.losses}–${h2h.wins}`} hint={h2h.played ? tn("teamPage.meetings", h2h.played) : t("teamPage.neverMet")} />}
             </KpiStrip>
 
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-                <Panel title="Roster" padded={false}>
+                <Panel title={t("nav.roster")} padded={false}>
                     <table data-slot="table" className="w-full border-collapse text-left">
                         <thead data-slot="table-header">
                             <tr className="border-b border-line">
-                                <th data-slot="table-head" className="pl-4">Player</th>
-                                <th data-slot="table-head" className="px-3">Role</th>
-                                <th data-slot="table-head" className="px-3 text-right">Age</th>
-                                <th data-slot="table-head" className="pr-4 text-right">OVR</th>
+                                <th data-slot="table-head" className="pl-4">{t("squad.col.player")}</th>
+                                <th data-slot="table-head" className="px-3">{t("common.role")}</th>
+                                <th data-slot="table-head" className="px-3 text-right">{t("squad.col.age")}</th>
+                                <th data-slot="table-head" className="pr-4 text-right">{t("common.ovr")}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,7 +111,7 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                         <td className="pr-4 text-right">
                                             {exact
                                                 ? <RatingChip value={ovr} size="sm" />
-                                                : <span className="text-sm tabular-nums text-ink-3" title="Scout this player to see the exact rating">{formatScoutedRating(fuzzyBand(ovr, 20, `${player.id}:ovr`))}</span>}
+                                                : <span className="text-sm tabular-nums text-ink-3" title={t("teamPage.scoutHint")}>{formatScoutedRating(fuzzyBand(ovr, 20, `${player.id}:ovr`))}</span>}
                                         </td>
                                     </tr>
                                 )
@@ -119,9 +121,9 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                 </Panel>
 
                 <div className="min-w-0 space-y-4">
-                    <Panel title="Recent results" padded={false}>
+                    <Panel title={t("home.recentResults")} padded={false}>
                         {results.length === 0
-                            ? <p className="px-4 py-3 text-sm text-ink-3">No official matches yet.</p>
+                            ? <p className="px-4 py-3 text-sm text-ink-3">{t("teamPage.noMatches")}</p>
                             : (
                                 <ul className="divide-y divide-line">
                                     {results.slice(0, RESULTS_SHOWN).map(m => {
@@ -135,15 +137,15 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                         const involvesYou = m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId
                                         return (
                                             <li key={m.id} className="flex items-center gap-3 px-4 py-2 text-sm">
-                                                <span className={cn("w-5 font-semibold", won ? "text-positive" : "text-negative")}>{won ? "W" : "L"}</span>
+                                                <span className={cn("w-5 font-semibold", won ? "text-positive" : "text-negative")}>{won ? t("common.win.short") : t("common.loss.short")}</span>
                                                 <span className="w-12 tabular-nums text-ink-1">{us}–{them}</span>
                                                 <span className="min-w-0 flex-1 truncate">
-                                                    <span className="text-ink-3">vs </span>
-                                                    <TeamLink id={opponent ? opponentId : null} className="font-semibold text-ink-1">{opponent?.name ?? "Unknown club"}</TeamLink>
+                                                    <span className="text-ink-3">{t("common.vsLower")} </span>
+                                                    <TeamLink id={opponent ? opponentId : null} className="font-semibold text-ink-1">{opponent?.name ?? t("teamPage.unknownClub")}</TeamLink>
                                                     {competition && <> <span className="text-ink-3">·</span> <TournamentLink id={competition.id} className="text-ink-3">{competition.name}</TournamentLink></>}
                                                 </span>
                                                 <span className="shrink-0 text-xs tabular-nums text-ink-3">
-                                                    {involvesYou ? <Link href={`/match/${m.id}/result`} className="hover:text-gold">Wk {m.week}</Link> : `Wk ${m.week}`}
+                                                    {involvesYou ? <Link href={`/match/${m.id}/result`} className="hover:text-gold">{t("common.weekShort", { n: m.week })}</Link> : t("common.weekShort", { n: m.week })}
                                                 </span>
                                             </li>
                                         )
@@ -152,17 +154,17 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                             )}
                     </Panel>
 
-                    <Panel title="Trophies" padded={false}>
+                    <Panel title={t("common.trophies")} padded={false}>
                         {trophies.length === 0
-                            ? <p className="px-4 py-3 text-sm text-ink-3">No trophies yet.</p>
+                            ? <p className="px-4 py-3 text-sm text-ink-3">{t("teamPage.noTrophies")}</p>
                             : (
                                 <ul className="divide-y divide-line">
-                                    {trophies.map(t => (
-                                        <li key={`${t.tournamentId}-${t.week}`} className="flex items-center justify-between gap-3 px-4 py-2 text-sm">
-                                            <TournamentLink id={tournamentById.has(t.tournamentId) ? t.tournamentId : null} className="min-w-0 truncate font-semibold text-ink-1">{t.tournamentName}</TournamentLink>
+                                    {trophies.map(tr => (
+                                        <li key={`${tr.tournamentId}-${tr.week}`} className="flex items-center justify-between gap-3 px-4 py-2 text-sm">
+                                            <TournamentLink id={tournamentById.has(tr.tournamentId) ? tr.tournamentId : null} className="min-w-0 truncate font-semibold text-ink-1">{tr.tournamentName}</TournamentLink>
                                             <span className="shrink-0 text-xs text-ink-3">
-                                                {t.mvpId && playerById.get(t.mvpId) && <>MVP <PlayerLink id={t.mvpId} className="text-ink-2">{playerById.get(t.mvpId)!.nickname}</PlayerLink> · </>}
-                                                Wk {t.week}
+                                                {tr.mvpId && playerById.get(tr.mvpId) && <>MVP <PlayerLink id={tr.mvpId} className="text-ink-2">{playerById.get(tr.mvpId)!.nickname}</PlayerLink> · </>}
+                                                {t("common.weekShort", { n: tr.week })}
                                             </span>
                                         </li>
                                     ))}

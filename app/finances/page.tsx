@@ -1,5 +1,6 @@
 "use client"
 import { intlLocale, t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
 import { useMemo } from "react"
 import Link from "next/link"
@@ -228,7 +229,7 @@ export default function FinancesPage() {
                       {recentLedger.map(e => (
                         <tr key={e.id} data-slot="table-row" className="h-10 border-b border-line">
                           <td className="pl-4 text-sm tabular-nums text-ink-3">{e.week}</td>
-                          <td className="max-w-[320px] truncate px-3 text-sm text-ink-1">{e.description}</td>
+                          <td className="max-w-[320px] truncate px-3 text-sm text-ink-1">{storedText(e.description)}</td>
                           <td className="px-3 text-xs text-ink-3">{LEDGER_CATEGORIES.has(e.category) ? t(`fin.cat.${e.category}`) : e.category}</td>
                           <td className={cn("px-3 text-right text-sm tabular-nums", e.type === "INCOME" ? "text-positive" : "text-ink-2")}>
                             {e.type === "INCOME" ? "+" : "−"}{money(e.amount)}

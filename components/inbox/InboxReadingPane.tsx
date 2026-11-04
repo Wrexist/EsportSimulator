@@ -18,6 +18,8 @@ import { ChoiceDecision, DrawerLink, JobOfferDecision, TransferOfferDecision } f
 import { PressConferenceDecision, PressConferenceRecord } from "@/components/storylines/PressConference"
 import { StoryContext } from "@/components/storylines/StoryContext"
 import { pressDataOf } from "@/engine/storylines/press-view"
+import { intlLocale, t } from "@/lib/i18n"
+import { newsContent } from "@/lib/news-text"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
 type AnyData = Record<string, any>
@@ -51,9 +53,9 @@ function PlayerStrip({ playerId, linkLabel }: { playerId: string; linkLabel: str
                     <RoleTag role={player.role} />
                 </div>
                 <div className="mt-0.5 flex gap-3 text-xs tabular-nums text-ink-3">
-                    <span>Morale <span className="font-semibold text-ink-2">{Math.round(player.morale)}</span></span>
-                    <span>Fatigue <span className="font-semibold text-ink-2">{Math.round(player.fatigue)}</span></span>
-                    <span>Loyalty <span className="font-semibold text-ink-2">{Math.round(player.loyalty ?? 0)}</span></span>
+                    <span>{t("ib.morale")} <span className="font-semibold text-ink-2">{Math.round(player.morale)}</span></span>
+                    <span>{t("ib.fatigue")} <span className="font-semibold text-ink-2">{Math.round(player.fatigue)}</span></span>
+                    <span>{t("ib.loyalty")} <span className="font-semibold text-ink-2">{Math.round(player.loyalty ?? 0)}</span></span>
                 </div>
             </div>
             <DrawerLink href={`/player/${player.id}`}>{linkLabel}</DrawerLink>
@@ -63,30 +65,30 @@ function PlayerStrip({ playerId, linkLabel }: { playerId: string; linkLabel: str
 
 function ResolvedNote({ event }: { event: GameEventSaveData }) {
     const data = (event.data ?? {}) as AnyData
-    if (data.isWithdrawn && !event.selectedChoiceId) return <p className="text-xs font-medium text-ink-3">This is no longer open.</p>
+    if (data.isWithdrawn && !event.selectedChoiceId) return <p className="text-xs font-medium text-ink-3">{t("ib.noLongerOpen")}</p>
     if (!event.selectedChoiceId || event.selectedChoiceId === "dismiss") return null
     const choice = ((event as { choices?: ChoiceLike[] }).choices ?? []).find(c => c.id === event.selectedChoiceId)
     // Settled by its stated default when the deadline passed (Phase 4.9).
     const unanswered = data.unanswered as { week?: number } | undefined
-    const text = unanswered ? (choice ? `Unanswered: the club went with “${choiceLabel(choice)}” in week ${unanswered.week}` : `Unanswered: it lapsed in week ${unanswered.week}`)
-        : event.selectedChoiceId === "expired" ? "Expired before it was answered"
-        : choice ? `You chose: ${choiceLabel(choice)}`
-            : event.selectedChoiceId === "reject" ? "You rejected it"
-                : event.selectedChoiceId === "ACCEPT" || event.selectedChoiceId === "accept" ? "You accepted"
-                    : event.selectedChoiceId === "DECLINE" ? "You declined" : "Answered"
+    const text = unanswered ? (choice ? t("ib.res.defaulted", { choice: choiceLabel(choice), week: unanswered.week ?? "" }) : t("ib.res.lapsed", { week: unanswered.week ?? "" }))
+        : event.selectedChoiceId === "expired" ? t("ib.res.expired")
+        : choice ? t("ib.res.chose", { choice: choiceLabel(choice) })
+            : event.selectedChoiceId === "reject" ? t("ib.res.rejected")
+                : event.selectedChoiceId === "ACCEPT" || event.selectedChoiceId === "accept" ? t("ib.res.accepted")
+                    : event.selectedChoiceId === "DECLINE" ? t("ib.res.declined") : t("ib.res.answered")
     return <p className="rounded-md border border-line px-3 py-2 text-xs font-medium text-ink-2">{text}</p>
 }
 
 function EventLinks({ event }: { event: GameEventSaveData }) {
     const data = (event.data ?? {}) as AnyData
     const links: [string, string][] = []
-    if (data.matchId) links.push([`/match/${data.matchId}/tactics`, "Go to match"])
-    else if (data.tournamentId) links.push([`/tournaments/${data.tournamentId}`, "View tournament"])
-    if (event.type === "FINANCE" || event.type === "BUDGET_WARNING") links.push(["/finances", "Finances"])
-    if (event.type === "SCOUTING_COMPLETE") links.push(["/scouting", "Scouting"])
-    if (event.type === "STAFF_REPORT") links.push(["/staff#delegation", "Change what staff handle"])
-    if (event.type === "MARKET_ALERT") links.push([data.searchId ? `/transfers?search=${encodeURIComponent(String(data.searchId))}` : "/transfers", "Open in the market"])
-    if (["AI_SIGNING", "AI_TRANSFER", "ROSTER_UPDATE", "TRANSFER_WINDOW"].includes(event.type as string)) links.push(["/transfers", "Transfer market"])
+    if (data.matchId) links.push([`/match/${data.matchId}/tactics`, t("ib.link.match")])
+    else if (data.tournamentId) links.push([`/tournaments/${data.tournamentId}`, t("ib.link.tournament")])
+    if (event.type === "FINANCE" || event.type === "BUDGET_WARNING") links.push(["/finances", t("nav.finances")])
+    if (event.type === "SCOUTING_COMPLETE") links.push(["/scouting", t("nav.scouting")])
+    if (event.type === "STAFF_REPORT") links.push(["/staff#delegation", t("ib.link.delegation")])
+    if (event.type === "MARKET_ALERT") links.push([data.searchId ? `/transfers?search=${encodeURIComponent(String(data.searchId))}` : "/transfers", t("ib.link.market")])
+    if (["AI_SIGNING", "AI_TRANSFER", "ROSTER_UPDATE", "TRANSFER_WINDOW"].includes(event.type as string)) links.push(["/transfers", t("ib.link.transfers")])
     if (links.length === 0) return null
     return (
         <div className="flex flex-wrap gap-2">
@@ -105,7 +107,7 @@ function PaneHeader({ sender, subject, meta, onBack, actions }: {
     return (
         <header className="flex items-start gap-3 border-b border-line px-6 py-4">
             {onBack && (
-                <Button variant="ghost" size="icon-sm" onClick={onBack} aria-label="Back to list" className="-ml-2 md:hidden">
+                <Button variant="ghost" size="icon-sm" onClick={onBack} aria-label={t("ib.backToList")} className="-ml-2 md:hidden">
                     <ArrowLeft size={16} />
                 </Button>
             )}
@@ -127,7 +129,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
     onOpenAwards: (season: number) => void
 }) {
     const { budget, acknowledgeEvent, recordBook } = useGameStore(useShallow(s => ({
-        budget: s.teams.find(t => t.id === s.playerTeamId)?.budget ?? 0,
+        budget: s.teams.find(tm => tm.id === s.playerTeamId)?.budget ?? 0,
         acknowledgeEvent: s.acknowledgeEvent,
         recordBook: s.recordBook,
     })))
@@ -136,7 +138,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
         return (
             <article className="flex h-full min-h-0 flex-col">
                 <PaneHeader sender={item.sender} subject={item.subject} meta={weekLabel(item.week, ctx.currentWeek)} onBack={onBack} />
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"><MessageBody text={item.news.content} /></div>
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"><MessageBody text={newsContent(item.news)} /></div>
             </article>
         )
     }
@@ -145,12 +147,12 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
         const post = item.social
         return (
             <article className="flex h-full min-h-0 flex-col">
-                <PaneHeader sender={post.user?.handle ?? "Social"} subject={post.user?.name ?? "Social post"} meta={weekLabel(item.week, ctx.currentWeek)} onBack={onBack} />
+                <PaneHeader sender={post.user?.handle ?? t("ib.social")} subject={post.user?.name ?? t("ib.socialPost")} meta={weekLabel(item.week, ctx.currentWeek)} onBack={onBack} />
                 <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5">
                     <p className="text-sm leading-relaxed text-ink-1">{post.content}</p>
                     <p className="flex gap-4 text-xs tabular-nums text-ink-3">
-                        <span className="flex items-center gap-1"><Heart size={13} /> {post.likes.toLocaleString("en-US")}</span>
-                        <span className="flex items-center gap-1"><Repeat2 size={13} /> {post.retweets.toLocaleString("en-US")}</span>
+                        <span className="flex items-center gap-1"><Heart size={13} /> {post.likes.toLocaleString(intlLocale())}</span>
+                        <span className="flex items-center gap-1"><Repeat2 size={13} /> {post.retweets.toLocaleString(intlLocale())}</span>
                     </p>
                 </div>
             </article>
@@ -161,7 +163,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
     if (!event) return null
     const data = (event.data ?? {}) as AnyData
     const deadline = item.decision ? answerByWeek(event) : null
-    const meta = [weekLabel(event.week, ctx.currentWeek), deadline != null ? `Answer by week ${deadline}` : null].filter(Boolean).join(" · ")
+    const meta = [weekLabel(event.week, ctx.currentWeek), deadline != null ? t("ib.answerBy", { week: deadline }) : null].filter(Boolean).join(" · ")
     const playerId = data.playerId != null && ctx.rosterIds.has(String(data.playerId)) ? String(data.playerId) : null
     // The awards replay from the season's stored honours (kept for the last seasons only).
     const awardsSeason = event.type === "MEDIA" && isRealAwards(data.proAwards) && recordBook?.honours.some(h => h.season === data.proAwards.year) ? data.proAwards.year as number : null
@@ -181,21 +183,21 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
                         className="shrink-0 text-xs"
                     >
                         {event.acknowledged ? <Mail size={14} /> : <MailOpen size={14} />}
-                        {event.acknowledged ? "Mark unread" : "Mark read"}
+                        {event.acknowledged ? t("ib.markUnread") : t("ib.markRead")}
                     </Button>
                 }
             />
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
                 <MessageBody text={getEventBody(event, ctx)} />
                 {typeof data.storyArcId === "string" && <StoryContext arcId={data.storyArcId} />}
-                {playerId && <PlayerStrip playerId={playerId} linkLabel={event.type === "CONTRACT" ? "Open contract" : "Profile"} />}
+                {playerId && <PlayerStrip playerId={playerId} linkLabel={event.type === "CONTRACT" ? t("ib.openContract") : t("ib.profile")} />}
                 {item.decision === "choice" && (pressDataOf(event) ? <PressConferenceDecision event={event} /> : <ChoiceDecision event={event} budget={budget} />)}
                 {!item.decision && pressDataOf(event) && <PressConferenceRecord event={event} />}
                 {item.decision === "transfer_offer" && <TransferOfferDecision event={event} ctx={ctx} />}
                 {item.decision === "job_offer" && <JobOfferDecision event={event} />}
                 {!item.decision && !pressDataOf(event) && <ResolvedNote event={event} />}
                 {awardsSeason != null && (
-                    <Button variant="outline" onClick={() => onOpenAwards(awardsSeason)}>Open the awards ceremony</Button>
+                    <Button variant="outline" onClick={() => onOpenAwards(awardsSeason)}>{t("ib.openAwards")}</Button>
                 )}
                 {item.decision !== "transfer_offer" && <EventLinks event={event} />}
             </div>

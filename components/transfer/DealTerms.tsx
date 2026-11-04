@@ -110,7 +110,7 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
                         <p className="text-xs text-ink-3">{t("terms.signedBody", { club: n.myTeam?.name ?? "" })}</p>
                     </div>
                 </div>
-                <Button className="h-10 w-full" onClick={() => { router.push("/squad"); onDone?.() }}>Go to squad</Button>
+                <Button className="h-10 w-full" onClick={() => { router.push("/squad"); onDone?.() }}>{t("deal.toSquad")}</Button>
             </div>
         )
     }
@@ -142,7 +142,7 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
                     <CircleAlert size={18} className="mt-0.5 shrink-0 text-caution" />
                     <p className="text-xs leading-relaxed text-ink-2">{squadFullMessage(squadSize)}</p>
                 </div>
-                <Button variant="outline" className="h-10 w-full" onClick={() => { router.push("/squad"); onDone?.() }}>Go to squad</Button>
+                <Button variant="outline" className="h-10 w-full" onClick={() => { router.push("/squad"); onDone?.() }}>{t("deal.toSquad")}</Button>
             </div>
         )
     }

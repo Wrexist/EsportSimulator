@@ -504,8 +504,8 @@
     },
     {
       "path": "app/finances/page.tsx",
-      "sha256": "911e96c9674d567b46b510cd2382ce2a4f7f401b34fbe521cf2519ac8cfa3af9",
-      "bytes": 22523,
+      "sha256": "9ad2be61ed4ea0a90b2b2404ada51165f9abe066646190836f5d111bcb9bea45",
+      "bytes": 22582,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -558,6 +558,11 @@
           "date": "2026-11-03",
           "previousSha256": "9515b48571733631e21d36ac6f89fb57ede71e9bff767bd38eab78599e002a9f",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "911e96c9674d567b46b510cd2382ce2a4f7f401b34fbe521cf2519ac8cfa3af9",
+          "change": "weekly report translations"
         }
       ]
     },
@@ -2407,8 +2412,8 @@
     },
     {
       "path": "components/dashboard/NewsFeed.tsx",
-      "sha256": "c3c185ab117b25a7cb00a30162ca12d83546504b504cd55f9ff852168887560c",
-      "bytes": 4217,
+      "sha256": "aba29336f0950f4d7c9654fbfa4678f5d61eb7b865ed76315bde4e893e3c26f5",
+      "bytes": 4289,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2422,6 +2427,11 @@
           "date": "2026-11-03",
           "previousSha256": "a1d3da856078031835c0da3ab30db208ac743d2379796dd9f8ee4910c89fffca",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "c3c185ab117b25a7cb00a30162ca12d83546504b504cd55f9ff852168887560c",
+          "change": "storylines"
         }
       ]
     },
@@ -2839,8 +2849,8 @@
     },
     {
       "path": "components/layout/MatchNavigationGuard.tsx",
-      "sha256": "066ad7992cb3599d503cffc2772a740a80691501ff5c46f2f55a771f625bc15a",
-      "bytes": 5691,
+      "sha256": "eb55c3c8862565f0aac0549fbc45924c6c24baa214f6037a9e64f9a6f9d1c10d",
+      "bytes": 5637,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2854,13 +2864,18 @@
           "date": "2026-11-03",
           "previousSha256": "27cd0e5ceb9611a696ba096027f5c166d67445e705f1ec27858a2bdcfdb5d537",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "066ad7992cb3599d503cffc2772a740a80691501ff5c46f2f55a771f625bc15a",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
     {
       "path": "components/layout/NavigationSearch.tsx",
-      "sha256": "056f10ffa71ca62c8b8d629abcf94ac790d890c35b3a097772b64e3d7809f74c",
-      "bytes": 4776,
+      "sha256": "fe40579d8b64e7970e6258030f852e6df5fe74f846659af361dffe533894f678",
+      "bytes": 4751,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2874,6 +2889,11 @@
           "date": "2026-11-03",
           "previousSha256": "10164884cd3a02806e5544924b79377dc858dbd869766a4f9b6481eae1753457",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "056f10ffa71ca62c8b8d629abcf94ac790d890c35b3a097772b64e3d7809f74c",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -4219,8 +4239,8 @@
     },
     {
       "path": "components/ui/BugReportButton.tsx",
-      "sha256": "d0f6c523110babf6eec4153e7986f1a21dd7da762b7b0b473082042437545458",
-      "bytes": 20087,
+      "sha256": "d20afd6428fed26eefe5d572b79a536fecb425a919258ad772a68427268d6f81",
+      "bytes": 20359,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4234,6 +4254,11 @@
           "date": "2026-11-03",
           "previousSha256": "6e6a81e314c012bdf3761b69db2153c15ad59d02aa9d541dc1bab260448d08da",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "d0f6c523110babf6eec4153e7986f1a21dd7da762b7b0b473082042437545458",
+          "change": "Bug report, error screen, moments and Continue stops translated"
         }
       ]
     },
@@ -4338,8 +4363,8 @@
     },
     {
       "path": "components/ui/ImageUploader.tsx",
-      "sha256": "72c4525c1ef6d28fbbc994b4c3b9f518c16f8d0050571c7bfdd1e2a94b474e8a",
-      "bytes": 10915,
+      "sha256": "a0943263f5eee921dd45ac825a7710b25468c3bc5fddcc551bb72411dd16a551",
+      "bytes": 10974,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4353,6 +4378,11 @@
           "date": "2026-11-03",
           "previousSha256": "c572aea79a2e2e0d1feb35920447059318de180c9f5a29391457d1fe8196eaca",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "72c4525c1ef6d28fbbc994b4c3b9f518c16f8d0050571c7bfdd1e2a94b474e8a",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -4911,8 +4941,8 @@
     },
     {
       "path": "components/ui/confirm-dialog.tsx",
-      "sha256": "4ec11e9c82aa83a88214555c6e2e3a147cf7a85f2a87f70e4a07324f64c1d97b",
-      "bytes": 4895,
+      "sha256": "7c44a7eb6ec5815eea1aea423ba64b5b897aa031b90406351a0c3fd366af99a4",
+      "bytes": 4930,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4926,6 +4956,11 @@
           "date": "2026-11-03",
           "previousSha256": "40440730e4812f02bc0317b2d0d35ebaed36bbfae5899f544c79f320e31a438b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "4ec11e9c82aa83a88214555c6e2e3a147cf7a85f2a87f70e4a07324f64c1d97b",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -4944,8 +4979,8 @@
     },
     {
       "path": "components/ui/dialog.tsx",
-      "sha256": "2a8acca9b1fb8122ef756f055aba0a4cf06f6339a4ad7ec350f129d71b9ab6e2",
-      "bytes": 4223,
+      "sha256": "a407a80f447e022312eb3b9454bbd4febca1309a20a071ce50b7db7b0bae06a8",
+      "bytes": 4268,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4972,6 +5007,11 @@
           "date": "2026-11-03",
           "previousSha256": "cbc36bc8d15da5e597c2fe45b894f89661c35d1d53ccdc4a0dc40a779d386391",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2a8acca9b1fb8122ef756f055aba0a4cf06f6339a4ad7ec350f129d71b9ab6e2",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -5016,8 +5056,8 @@
     },
     {
       "path": "components/ui/error-boundary.tsx",
-      "sha256": "8bf4ad97f5cfc32ee3fc6e1d03afd11ca5daa95716d71ce254859a88d168d395",
-      "bytes": 6534,
+      "sha256": "1cd6e4e465174b620e7096c9bfa823ded11112b28a42d23e22f08b827eb24934",
+      "bytes": 6479,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -5031,6 +5071,11 @@
           "date": "2026-11-03",
           "previousSha256": "07238dd186d39d2d3798c7d7e431b4bc3ca6760134ce2cc9acf409fe1eaa5cc2",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8bf4ad97f5cfc32ee3fc6e1d03afd11ca5daa95716d71ce254859a88d168d395",
+          "change": "Bug report, error screen, moments and Continue stops translated"
         }
       ]
     },
@@ -5062,8 +5107,8 @@
     },
     {
       "path": "components/ui/help-system.tsx",
-      "sha256": "2de59c8f18ebafb0c4853b0144a2e42a0d97bf846f698327db652e9f290a5bda",
-      "bytes": 20506,
+      "sha256": "ddc06a068e180ad40ccb634e2627803809e3fe624cbe786060b413ebf6ab0277",
+      "bytes": 12098,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -5116,6 +5161,11 @@
           "date": "2026-11-03",
           "previousSha256": "f7e47a5c9c851eadad16602aa8dc65e54d7581c4bd0bca45e38d18c72c8cbcc7",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2de59c8f18ebafb0c4853b0144a2e42a0d97bf846f698327db652e9f290a5bda",
+          "change": "Help and game guide translated"
         }
       ]
     },
@@ -5481,8 +5531,8 @@
     },
     {
       "path": "components/ui/sheet.tsx",
-      "sha256": "ff9c88235b2d48cc36202bc49cfa9adeb4e919d41e3133c31515dd78e1738802",
-      "bytes": 4104,
+      "sha256": "f8a1ff851ea4bf5d9ad845cab27b63b529feb6b114f0e827430ce3de4bf2cfb3",
+      "bytes": 4149,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -5496,6 +5546,11 @@
           "date": "2026-11-03",
           "previousSha256": "7b138e70def26f2953466431e39a7cc520abe63ac6b6f22a8ecefbc49f8d533b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ff9c88235b2d48cc36202bc49cfa9adeb4e919d41e3133c31515dd78e1738802",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -7634,8 +7689,8 @@
     },
     {
       "path": "engine/job-offer-generator.ts",
-      "sha256": "a13f48a05c4e4f77d9961d3d3a39bf69fc47e898f27788fe2a97e6fbfdd8e852",
-      "bytes": 25244,
+      "sha256": "98595c4d010e1831e4ad951eb2aa7c0d32f2ebe729c5b9f4357ae0ab02fe5109",
+      "bytes": 25019,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7662,6 +7717,11 @@
           "date": "2026-11-03",
           "previousSha256": "72b0ef696fb0a3a14688e79d336f0bee0626e9e3c066b279f2f926f7ebb4ecc3",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "a13f48a05c4e4f77d9961d3d3a39bf69fc47e898f27788fe2a97e6fbfdd8e852",
+          "change": "inbox translations"
         }
       ]
     },
@@ -8548,8 +8608,8 @@
     },
     {
       "path": "engine/processors/match-manager-xp.ts",
-      "sha256": "a5300981751afb467c287469ed81349e72d3f8a98f6de70fc33eeadc29cd81ca",
-      "bytes": 3654,
+      "sha256": "2791b48c135a00c0ec83039cb80792f51c2a81272f8d2848305b0b2b111566d0",
+      "bytes": 3668,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8563,6 +8623,11 @@
           "date": "2026-11-03",
           "previousSha256": "03dcf3827e6d540850156a913167fa096b39797f9bdd458e536c2b47baa7fc63",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "a5300981751afb467c287469ed81349e72d3f8a98f6de70fc33eeadc29cd81ca",
+          "change": "Help and game guide translated"
         }
       ]
     },
@@ -8661,8 +8726,8 @@
     },
     {
       "path": "engine/processors/player-contract-bonuses.ts",
-      "sha256": "4e3947d98d94d450b7db7d3571f979289baf0f25141c4132afe826037f817376",
-      "bytes": 1708,
+      "sha256": "d0d8333ef2a8876c0db389a9f1e82a554e8dffbd8d41de490efe5baf432503f0",
+      "bytes": 1809,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8676,6 +8741,11 @@
           "date": "2026-11-03",
           "previousSha256": "2ab790ddb0acbf35eab898482594ad5ccb92bd56f9bbdbf4420a4faef76c748f",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "4e3947d98d94d450b7db7d3571f979289baf0f25141c4132afe826037f817376",
+          "change": "weekly report translations"
         }
       ]
     },
@@ -8880,8 +8950,8 @@
     },
     {
       "path": "engine/processors/standings-processor.ts",
-      "sha256": "9ad509132dca5139a6805b55bca65207e0c1981719a37a77c5cdb5737aae29b8",
-      "bytes": 23180,
+      "sha256": "1b71beb6d34f27389e4db42ff05e6d4662adedbe084414022e248c3e51ae87ce",
+      "bytes": 23246,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8908,6 +8978,11 @@
           "date": "2026-11-03",
           "previousSha256": "1504bc49c87d0d761dc8798edfe198610eca408d312499aaeba7ccc62f33dd3c",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "9ad509132dca5139a6805b55bca65207e0c1981719a37a77c5cdb5737aae29b8",
+          "change": "weekly report translations"
         }
       ]
     },
@@ -9301,8 +9376,8 @@
     },
     {
       "path": "engine/save-types.ts",
-      "sha256": "e4f64cb64b9a0a505fb86d4adc545ffd2eb7061f815d188458d978134ee4dbec",
-      "bytes": 55356,
+      "sha256": "4151e4175b364d9fcce44a4f5ff227b695392c03048c79be97420065155f1f9f",
+      "bytes": 55563,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9329,6 +9404,11 @@
           "date": "2026-11-03",
           "previousSha256": "72e62b2ab3a51ac4f8992a23f65a93780440b4bcd295eb609430995c37eff7e2",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e4f64cb64b9a0a505fb86d4adc545ffd2eb7061f815d188458d978134ee4dbec",
+          "change": "storylines"
         }
       ]
     },
@@ -10689,8 +10769,8 @@
     },
     {
       "path": "lib/event-format.ts",
-      "sha256": "d04e5626b00097007ff7beab00b49e4e0d9b2e48572e4817013b18832cf0428e",
-      "bytes": 3706,
+      "sha256": "27f1ebf5e37b4c5546fe686d1cee12308b95dc2b87ca71020a53245e636ef366",
+      "bytes": 3903,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10717,6 +10797,11 @@
           "date": "2026-11-03",
           "previousSha256": "e27b9469d7e4c3b606cd7a1d435312bf98f73ab087eb0858677ca312c3bfc6cc",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "d04e5626b00097007ff7beab00b49e4e0d9b2e48572e4817013b18832cf0428e",
+          "change": "storylines"
         }
       ]
     },
@@ -10775,8 +10860,8 @@
     },
     {
       "path": "lib/i18n.ts",
-      "sha256": "c106a15a7a82a5d410f0c1da18f433c23cffc3fca2731c7ab6773b213660adcb",
-      "bytes": 7656,
+      "sha256": "4a4049a80ff03626a577b262077c6dad7b6a9bdae238cf062000e0c767e336da",
+      "bytes": 10952,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10803,6 +10888,21 @@
           "date": "2026-11-03",
           "previousSha256": "3aa0f859d067fb42ca12d72bb2639d65bf154102728ee2414123e36f9039ce99",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "c106a15a7a82a5d410f0c1da18f433c23cffc3fca2731c7ab6773b213660adcb",
+          "change": "Bug report, error screen, moments and Continue stops translated"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "495fa7a5c0422a38740c48bda3cbf123fde42b05c94b67e31148f50ce99774ec",
+          "change": "press conferences"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "12cebf418d1c6e93e9d4dee1008494666bc85671f9a90145b2912da59c83cf78",
+          "change": "storylines"
         }
       ]
     },
@@ -91474,8 +91574,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "fcb1b4155c88c09ec90e2f4b38e3ba649fea3d12490cd7e8034b4452cda6aa37",
-      "bytes": 268375,
+      "sha256": "a73ca3f10f67cf08a2780819f293aca829987ace5c9b5a4854724e139b52d051",
+      "bytes": 343852,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91567,16 +91667,56 @@
           "change": "Interface languages, Batch 6: roster builder, season review, storylines, sandbox, Workshop import: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-04",
+          "date": "2026-11-03",
           "previousSha256": "e24e6c3e7284f0d36b835e77e69c06bd2c5f70e57602144ed40c1161b503e920",
+          "change": "Interface languages, inbox translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "40afdbb824f178f40f893d4a4c2fa924d9d860897a62fcac590b8186423bcf6b",
+          "change": "Interface languages, weekly report translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8012eac9e8498ca5890f3cd33050bdbe4eadc115461b34d2cff361ae4234302a",
+          "change": "Interface languages, Help and game guide translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ea8900db187e95f8be74e25e5845532c09c3517bcf974df8779671be5129715b",
+          "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "250e4e26de5f661ca84d41c8aa07ef2bf5716df7ae708e8a0a827c4fe2e867f8",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "06c7f008800a553cb489e8c01461c1fa9b76370095a823147cb1fe219862b484",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8d46c8fab63dc8bcf8bb213834c2e44903c33fa5914e25b8cf31d565ac4626e2",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2111dee293e4789ce6854880e5794f33dbf7ecf55743fcef1ef9d83fe015ec23",
+          "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e4ef1600ad9f1b8f5100862ce4cfa0f222af0dccb02a53f5847e5cdc8d5c4897",
           "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "ca1b25e64c14c661e40d2e6d8bfcc0eadbe7f116fe45a4c9429bd4df4d4e7522",
-      "bytes": 280904,
+      "sha256": "7026b1c0546383d3a500e2ebef50099563baa6d798ec648fdc24c294d1bf508d",
+      "bytes": 361845,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91668,16 +91808,51 @@
           "change": "Interface languages, Batch 6: roster builder, season review, storylines, sandbox, Workshop import: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-04",
+          "date": "2026-11-03",
           "previousSha256": "4e7d1b3ba5a844f4c710b95272c4ed10f64ea239015741df8ac8377de9fe86ad",
+          "change": "Interface languages, inbox translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "1cd2563f37372958aac57374097ddea5314813458b73c1ae726dd0c581afb0a5",
+          "change": "Interface languages, weekly report translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "b732e1a7c123afb775e7438dc3eb244edf7c7fdbe8def0ef184b9e6116c16e9b",
+          "change": "Interface languages, Help and game guide translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "f5521afc0924008b1b63d8310fc398c084ca682bdd1df1645125a6cfca372760",
+          "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "831f2d9e28765a79a5ed0f6de498e92584831f96ccc58307f034e9720f2f9bbe",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ef59041a572d4b8b233f2574cdd014bbcac481e9dc8cc705b94d609152bdd6a5",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "17af9f39ef08068c57f5a23109c29a5a84a85ddd46103f6d480e1acc1f9c3ee3",
+          "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "90a224122c699e2d07a6df99475e00d95719eaec85c3e4fb02a2938394e62603",
           "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "3e5aeddf8a9716afa4c0222fe6a5f0848a9be4b707eab55700eb53cdff6e293b",
-      "bytes": 286963,
+      "sha256": "7e37240d9f168a9b8ccd88e3f6a131f71f35a8ac8d079a1f2be3f78bd4bf4eae",
+      "bytes": 368900,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91769,16 +91944,51 @@
           "change": "Interface languages, Batch 6: roster builder, season review, storylines, sandbox, Workshop import: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-04",
+          "date": "2026-11-03",
           "previousSha256": "8ae82fc3ba138822750c6d808e9b1aabc696e51e8752639c2449d994bc1bde92",
+          "change": "Interface languages, inbox translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "fe7923691d6ac34be74bbcfa82cd3c09455c7add95397e71d70cd88afdc4c68a",
+          "change": "Interface languages, weekly report translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "6ed950b33e358a8a1507e77f464e8eb23e06c640021d21849d87541b18dcc433",
+          "change": "Interface languages, Help and game guide translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "30591721f31150e8af0c399794b05f57cf452c36f74af3dc67e82edc5655d4be",
+          "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8a9794afd9b3b1c45f7dcb660dd244d71c1e51bd019f743801f630bae091c35f",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "d9783ef4997c27312ef81a25591b686dd6bb8c540a69d3ac96d47282b754cc1b",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "4214ce5854aaee966e4953fbc58fe89624c20a278cef3be9c81319e247010361",
+          "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "ad1e0c972ab7ff01f874b44c08195726eef89f135fcd02cef036cc267f757280",
           "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "5606a719ee0d586636d6ab12f8708a96b426ed93ea831b9f3afa3b8973cda492",
-      "bytes": 283943,
+      "sha256": "520ac346cfab26bc750b504f0186876ad842d214844ac89949f0ed5c52bc034f",
+      "bytes": 367479,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91865,16 +92075,51 @@
           "change": "Interface languages, Batch 6: roster builder, season review, storylines, sandbox, Workshop import: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-04",
+          "date": "2026-11-03",
           "previousSha256": "b6ef9ff1e91bf8e10a555ccbc8b3982a17a7df7a12f7f850fa500233622644b7",
+          "change": "Interface languages, inbox translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "867bd93abd960f0e409ca6d19b08721d96f313272074270f2de8e806ca3c994d",
+          "change": "Interface languages, weekly report translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "655f64b5b5848b7eb37ede3edc936d7449351615f4d9ec47e80852893c631c4b",
+          "change": "Interface languages, Help and game guide translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "1254c4e91322f9130cd05dcaf42b6fbd676610a749a440e0857c902c5e9c424f",
+          "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "30b79049907415713a9b9dcbc3aa942c175dbda4284ee892097dfca73c1d9b4b",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "c31ff83660bf56d1de59dd17ac22200a5659ec118cd13308a81bfd474d2d8a43",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5793b17bc378a6db2a11e99e61c001853571e97134ac222ffbb9e4201a913117",
+          "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "08cea2d118cac7de0707a9220c327765a02f008e0ad3094ba2e6957a557f6fcb",
           "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "ec3a92ebd425c9884a133a2fbfb53e7ed30af46e5fce16a7458d245b1d4d8f5d",
-      "bytes": 276838,
+      "sha256": "e8c5d81efcab810389e84d33a626aff761ec6518eb3daaae5eda5a6b824ed0b9",
+      "bytes": 356756,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91961,16 +92206,51 @@
           "change": "Interface languages, Batch 6: roster builder, season review, storylines, sandbox, Workshop import: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-04",
+          "date": "2026-11-03",
           "previousSha256": "ff084b0072e23af58471b5765efb71d284ad1845875ee44ec16fe237368ba16f",
+          "change": "Interface languages, inbox translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "39679b27d0350f301204b6817db4d508744d44097bb433164823592f61560116",
+          "change": "Interface languages, weekly report translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "437af4b3619efa557eb11059fe86f156a544e28d1a7aa4fd832cdb68e4cf898b",
+          "change": "Interface languages, Help and game guide translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "dff1e49c970a58d87446ee1188a499a69bc5311cf70206ba765b13081aee0038",
+          "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e080c22fb861d3cd3e5189e2625ce4165c3a12061bcb94dda4df9efe51654162",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "def30e1fead2f1b4d59af579df147090ddb639b995bdaaac02f0d91179c58ed8",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "9b7cc3ccb1acbff4b87151380ecbc4c8567fd68958327e86545953bad44a7b29",
+          "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "78796c78a3ac98bc71eac7bb519a5331a282de41cda5d9a987a853aec4a9c237",
           "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "6a549bbd5de19480c5340d7a6f77c4021a861f715787b0bbd0d97e9cd0b56253",
-      "bytes": 385556,
+      "sha256": "182b833bdff1897faa08ca35fd0ab1a5d7b928e54686046b8d9343982575efe4",
+      "bytes": 498879,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92057,8 +92337,43 @@
           "change": "Interface languages, Batch 6: roster builder, season review, storylines, sandbox, Workshop import: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-04",
+          "date": "2026-11-03",
           "previousSha256": "d66738fadd82fb4f5cc57cc9bce5be94900f5a6e0a264e48e9f8b637e7c199a3",
+          "change": "Interface languages, inbox translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "b03be5e1697e44998008f041e8a3cedabbe5cdc733e876fbf930f8ad4bd00fe5",
+          "change": "Interface languages, weekly report translations: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "240487de5cd40564c391cce30c2827c0f611ec7e3a91bc1d84cb529836d1a8b5",
+          "change": "Interface languages, Help and game guide translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "903758453784c56b8cb1939249f039178394f708bec4358a24c61370b4c23b0f",
+          "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "fa8e961f98d78248461478e5af5cbcdf07b51140fa244b352a2b23fbe76f4185",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5bc5994ac7e0b85fad4065d58a66605b001513cd158bd8ef070767ff61cfb162",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5eaf97432f1486b035167bc619cd4fe8729cd416257f4aaa1a4032163308d149",
+          "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "2940eeb2b22a36f82e4a0c55e4dbc61256a22959fc0964f4029a5416afa68baf",
           "change": "Audit fixes: squad, players, training and staff"
         }
       ]
@@ -94775,8 +95090,8 @@
     },
     {
       "path": "store/slices/events-slice.ts",
-      "sha256": "f89921287a18835183bcc72ac217b9ecbe9a06d5483d66b01464c0bbef454719",
-      "bytes": 15443,
+      "sha256": "bfc565329a5a828185b0e5306b7a5ffd0c16c1dfcdc562aae6c3887ecd81fb50",
+      "bytes": 15482,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -94803,6 +95118,11 @@
           "date": "2026-11-03",
           "previousSha256": "7aa9bf774e185eb4550e83172e5a87ac4af6c0119cde2eda1e73b9dfb2eb7a62",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "f89921287a18835183bcc72ac217b9ecbe9a06d5483d66b01464c0bbef454719",
+          "change": "inbox translations"
         }
       ]
     },
@@ -94861,8 +95181,8 @@
     },
     {
       "path": "store/slices/match-simulation-slice.ts",
-      "sha256": "75989eaf957f75751100eef91f326b55dd1c1f52c793ef1923a8ab767610b2c6",
-      "bytes": 41905,
+      "sha256": "d897e4f3baa90213f00a34fd442c23b8bc276c741fb488fd1dc7a22e492f20d3",
+      "bytes": 42278,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -94889,6 +95209,11 @@
           "date": "2026-11-03",
           "previousSha256": "6b8ffef5f141e564fdbb30428f9486760cc36f7e7118cf0bfa100f31c1448bf8",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "75989eaf957f75751100eef91f326b55dd1c1f52c793ef1923a8ab767610b2c6",
+          "change": "Help and game guide translated"
         }
       ]
     },

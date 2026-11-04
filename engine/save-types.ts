@@ -492,8 +492,11 @@ export interface QualificationStatus {
  */
 export interface NewsFeedItem {
     id: string
+    /** In English (kept for older readers); `titleRef` / `contentRef`, when set, show it in the active language. */
     title: string
     content: string
+    titleRef?: import("@/lib/i18n").TextRef
+    contentRef?: import("@/lib/i18n").TextRef
     week: number
     category: "MATCH" | "TRANSFER" | "TOURNAMENT" | "ACHIEVEMENT" | "LEVEL_UP" | "INJURY" | "FINANCE" | "FACILITY" | "STAFF" | "RETIREMENT"
     imageUrl?: string

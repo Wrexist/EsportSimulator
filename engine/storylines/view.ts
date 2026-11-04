@@ -5,6 +5,8 @@
 
 import type { StoryArc, StoryArcKind } from "./types"
 import { BOARD_TUNING, STORY_TUNING as S } from "@/lib/balance-tuning"
+import { t, type TextRef } from "@/lib/i18n"
+import { lineText } from "@/lib/news-text"
 
 export const STORY_KIND_LABEL: Record<StoryArcKind, string> = {
     CONTRACT_STANDOFF: "Contract standoff",
@@ -22,16 +24,16 @@ const IMPORTANCE: Record<StoryArcKind, number> = {
     BOARD_PRESSURE: 8, CONTRACT_STANDOFF: 7, RIVALRY: 6, LAST_DANCE: 5, RIFT: 4, SLUMP: 3, RISING_STAR: 2, GIANT_KILLER: 1,
 }
 
-/** What the next beat of an active arc is, in a few words. */
+/** What the next beat of an active arc is, in a few words (active language). */
 const NEXT_HINT: Record<StoryArcKind, (arc: StoryArc) => string> = {
-    CONTRACT_STANDOFF: a => a.beat <= 1 ? "Contract talks next week" : a.choice === "wait" ? `Transfer request in Week ${a.facts.requestWeek} if still unrenewed` : a.choice === "sell" ? "On the transfer list" : "Talks under way",
-    RISING_STAR: a => a.beat <= 1 ? "The market reacts next week" : a.choice === "promise" ? "Your promise is running" : a.choice === "list" ? "On the transfer list" : "Watching his form",
-    SLUMP: a => a.beat <= 1 ? "The press wants an answer next week" : `Over once he averages ${S.RECOVERY_RATING.toFixed(2)}+ over ${S.RECOVERY_MAPS} maps`,
-    RIVALRY: a => `Match in Week ${a.facts.matchWeek}`,
-    LAST_DANCE: a => a.beat <= 1 ? "Decision next week" : "Retirement check in week 52",
-    RIFT: a => a.beat <= 1 ? "Your call next week" : `Settles ${S.RIFT_RESOLVE_WEEKS} weeks after your call`,
-    GIANT_KILLER: () => "Next official result",
-    BOARD_PRESSURE: a => a.beat <= 1 ? "The board's demand next" : `Over once confidence is back to ${BOARD_TUNING.RECOVERED_AT}`,
+    CONTRACT_STANDOFF: a => a.beat <= 1 ? t("sl.next.talks") : a.choice === "wait" ? t("sl.next.request", { week: String(a.facts.requestWeek) }) : a.choice === "sell" ? t("sl.next.listed") : t("sl.next.underWay"),
+    RISING_STAR: a => a.beat <= 1 ? t("sl.next.market") : a.choice === "promise" ? t("sl.next.promise") : a.choice === "list" ? t("sl.next.listed") : t("sl.next.watching"),
+    SLUMP: a => a.beat <= 1 ? t("sl.next.press") : t("sl.next.recovery", { rating: S.RECOVERY_RATING.toFixed(2), maps: S.RECOVERY_MAPS }),
+    RIVALRY: a => t("sl.next.match", { week: String(a.facts.matchWeek) }),
+    LAST_DANCE: a => a.beat <= 1 ? t("sl.next.decision") : t("sl.next.retireCheck"),
+    RIFT: a => a.beat <= 1 ? t("sl.next.yourCall") : t("sl.next.settles", { weeks: S.RIFT_RESOLVE_WEEKS }),
+    GIANT_KILLER: () => t("sl.next.result"),
+    BOARD_PRESSURE: a => a.beat <= 1 ? t("sl.next.demand") : t("sl.next.confidence", { n: BOARD_TUNING.RECOVERED_AT }),
 }
 
 export function nextHint(arc: StoryArc): string {
@@ -55,24 +57,25 @@ export function arcsForPlayer(storylines: readonly StoryArc[] | undefined, playe
 
 /** The latest beat line. */
 export function arcHeadline(arc: StoryArc): string {
-    return arc.log[arc.log.length - 1]?.text ?? STORY_KIND_LABEL[arc.kind]
+    const last = arc.log[arc.log.length - 1]
+    return last ? lineText(last) : t(`story.kind.${arc.kind}`)
 }
 
 /**
  * The most important storyline beat of the managed club logged in
  * [fromWeek, toWeek], for the weekly report headline.
  */
-export function leadingBeat(storylines: readonly StoryArc[] | undefined, teamId: string, fromWeek: number, toWeek: number): { arc: StoryArc; text: string } | null {
-    let best: { arc: StoryArc; text: string; score: number } | null = null
+export function leadingBeat(storylines: readonly StoryArc[] | undefined, teamId: string, fromWeek: number, toWeek: number): { arc: StoryArc; text: string; ref?: TextRef } | null {
+    let best: { arc: StoryArc; text: string; ref?: TextRef; score: number } | null = null
     for (const arc of storylines ?? []) {
         if (!arc.managed || arc.teamId !== teamId) continue
         for (let i = arc.log.length - 1; i >= 0; i--) {
             const entry = arc.log[i]
             if (entry.week < fromWeek || entry.week > toWeek) continue
             const score = IMPORTANCE[arc.kind] * 100 + (arc.state === "RESOLVED" ? 50 : 0) + entry.week
-            if (!best || score > best.score) best = { arc, text: entry.text, score }
+            if (!best || score > best.score) best = { arc, text: entry.text, ref: entry.ref, score }
             break
         }
     }
-    return best ? { arc: best.arc, text: best.text } : null
+    return best ? { arc: best.arc, text: best.text, ...(best.ref ? { ref: best.ref } : {}) } : null
 }

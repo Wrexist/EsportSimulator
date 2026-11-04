@@ -45,6 +45,13 @@ export function intlLocale(): string {
     return currentLocale === "en" ? "en-US" : currentLocale
 }
 
+/** "A, B and C" in the active language (English keeps the game's no-serial-comma style). */
+export function listJoin(items: readonly string[]): string {
+    if (items.length <= 1) return items[0] ?? ""
+    if (currentLocale === "en") return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`
+    return new Intl.ListFormat(intlLocale(), { type: "conjunction" }).format(items)
+}
+
 /** "1st", "1.", "1er", "1-е": a position in a table, in the active language. */
 export function ordinalLabel(n: number): string {
     switch (currentLocale) {
@@ -104,6 +111,71 @@ export function tn(key: string, count: number, params?: Record<string, string | 
     const dict = translations[currentLocale] || translations.en
     const chosen = dict[`${key}.${form}`] !== undefined ? `${key}.${form}` : `${key}.other`
     return t(chosen, { count, ...params })
+}
+
+/**
+ * A translatable line kept in a save: the key and its values, so the text is
+ * shown in whatever language is active when it is read. `count` picks the
+ * plural form (tn).
+ */
+export interface TextRef {
+    key: string
+    /** Values; a nested TextRef is shown in the same language (a division, a head-to-head line). */
+    params?: Record<string, TextParam>
+    count?: number
+}
+export type TextParam = string | number | TextRef
+
+/** Key of a TextRef that shows `count` as an ordinal in the active language ("3rd", "3.", "3e"). */
+export const ORDINAL_REF = "@ordinal"
+/** Key of a TextRef that shows `count` as a number with the language's digit grouping ("2,000", "2.000"). */
+export const NUMBER_REF = "@number"
+/** Key of a TextRef that joins its params' values as a list ("A, B and C") in the active language. */
+export const LIST_REF = "@list"
+/** Key of a TextRef whose `text` param is English stored by older code: shown through lib/stored-text when loaded. */
+export const STORED_REF = "@stored"
+let storedResolver: ((english: string) => string) | null = null
+/** lib/stored-text registers itself here (i18n cannot import it: it imports i18n). */
+export function setStoredTextResolver(fn: (english: string) => string): void {
+    storedResolver = fn
+}
+/** Key of a TextRef that joins its params' values (but `sep`) with `sep`: a paragraph built from parts. */
+export const JOIN_REF = "@join"
+
+export function isTextRef(v: unknown): v is TextRef {
+    return !!v && typeof v === "object" && typeof (v as TextRef).key === "string"
+}
+
+/** A TextRef in the active language. */
+export function tRef(ref: TextRef): string {
+    if (ref.key === ORDINAL_REF) return ordinalLabel(ref.count ?? 0)
+    if (ref.key === NUMBER_REF) return (ref.count ?? 0).toLocaleString(intlLocale())
+    if (ref.key === STORED_REF) {
+        const english = String(ref.params?.text ?? "")
+        return storedResolver && currentLocale !== "en" ? storedResolver(english) : english
+    }
+    if (ref.key === JOIN_REF) {
+        const { sep, ...parts } = ref.params ?? {}
+        return Object.values(parts).map(v => (isTextRef(v) ? tRef(v) : String(v))).join(typeof sep === "string" ? sep : " ")
+    }
+    if (ref.key === LIST_REF) return listJoin(Object.values(ref.params ?? {}).map(v => (isTextRef(v) ? tRef(v) : String(v))))
+    let params: Record<string, string | number> | undefined
+    if (ref.params) {
+        params = {}
+        for (const [k, v] of Object.entries(ref.params)) params[k] = isTextRef(v) ? tRef(v) : v
+    }
+    return ref.count !== undefined ? tn(ref.key, ref.count, params) : t(ref.key, params)
+}
+
+/** A TextRef in English, for the plain-text copy a save keeps next to it (logs, older readers). */
+export function tRefEn(ref: TextRef): string {
+    const was = currentLocale
+    currentLocale = "en"
+    try {
+        return tRef(ref)
+    } finally {
+        currentLocale = was
+    }
 }
 
 /**

@@ -50,7 +50,7 @@ export interface ChoiceEffects {
     /** Phase 5.3: the event player mentors this team-mate (Phase 5.2 mentorship). */
     mentor?: { menteeId: string; name?: string }
     /** Phase 5.3: what the storyline does next because of this answer (the arc applies it; stated here). */
-    follows?: string
+    follows?: string | import("@/lib/i18n").TextRef
     /**
      * C5: rest the event player this week: fatigue down by `fatigue` (not the
      * ±10 answer clamp), morale up, and out of the starting five when a fit

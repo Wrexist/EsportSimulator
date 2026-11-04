@@ -5,9 +5,10 @@
  */
 
 import type { ChangeEntry } from "@/lib/week-changes"
-import { fmtDelta, formatMoney, moneyNet, signedDelta, type WeekReport } from "@/lib/week-report"
+import { fmtDelta, formatMoney, moneyNet, signedDelta, weekHeadline, type WeekReport } from "@/lib/week-report"
 import { choiceLabel } from "@/components/inbox/inbox-model"
-import { t } from "@/lib/i18n"
+import { getLocale, t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
 export type Tone = "up" | "down" | "neutral"
 
@@ -26,7 +27,7 @@ export interface PlayerGroup {
 }
 
 const CONDITION_ORDER = ["morale", "form", "energy", "fatigue"] as const
-const CONDITION_LABEL: Record<string, string> = { morale: "Morale", form: "Form", energy: "Energy", fatigue: "Fatigue" }
+const conditionLabel = (kind: string) => t(`svd.${kind}`)
 
 /** Positive is good, except fatigue. */
 function toneOf(kind: string, delta: number): Tone {
@@ -37,10 +38,13 @@ function toneOf(kind: string, delta: number): Tone {
 
 function causeParts(entries: ChangeEntry[], withDelta: boolean, max = 3): string {
     const byCause = new Map<string, number>()
-    for (const e of entries) byCause.set(e.cause.label, (byCause.get(e.cause.label) ?? 0) + e.delta)
+    for (const e of entries) {
+        const label = storedText(e.cause.label)
+        byCause.set(label, (byCause.get(label) ?? 0) + e.delta)
+    }
     const parts = [...byCause.entries()].filter(([, d]) => Math.abs(d) >= 0.05).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
     const shown = parts.slice(0, max).map(([label, d]) => (withDelta ? `${label} ${signedDelta(d)}` : label))
-    return shown.join(" · ") + (parts.length > max ? ` · +${parts.length - max} more` : "")
+    return shown.join(" · ") + (parts.length > max ? ` · ${t("wr.more", { n: parts.length - max })}` : "")
 }
 
 export function playerGroups(report: WeekReport): PlayerGroup[] {
@@ -59,11 +63,11 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
         const rows: ChangeRow[] = []
         for (const e of entries.filter(x => x.kind === "injury")) {
             rows.push(e.delta > 0
-                ? { change: `${e.label} · out ${e.delta} week${e.delta === 1 ? "" : "s"}`, cause: e.cause.label, tone: "down" }
-                : { change: e.label.startsWith("Recovered") ? e.label : `${e.label} · ${fmtDelta(e.delta)} week${Math.abs(e.delta) === 1 ? "" : "s"} closer`, cause: e.cause.label, tone: "up" })
+                ? { change: `${storedText(e.label)} · ${tn("wr.outWeeks", e.delta)}`, cause: storedText(e.cause.label), tone: "down" }
+                : { change: e.label.startsWith("Recovered") ? storedText(e.label) : `${storedText(e.label)} · ${tn("wr.weeksCloser", Math.abs(e.delta), { n: fmtDelta(e.delta) })}`, cause: storedText(e.cause.label), tone: "up" })
         }
         for (const e of entries.filter(x => x.kind === "contract")) {
-            rows.push({ change: e.label, cause: e.cause.label, tone: e.delta < 0 ? "down" : "up" })
+            rows.push({ change: storedText(e.label), cause: storedText(e.cause.label), tone: e.delta < 0 ? "down" : "up" })
         }
         // Attributes: one row per cause, listing every stat it moved.
         const attrByCause = new Map<string, ChangeEntry[]>()
@@ -75,7 +79,7 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
         for (const [cause, list] of attrByCause) {
             const sorted = [...list].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
             const total = sorted.reduce((s, e) => s + e.delta, 0)
-            rows.push({ change: sorted.map(e => `${e.label} ${signedDelta(e.delta)}`).join(" · "), cause, tone: toneOf("attribute", total) })
+            rows.push({ change: sorted.map(e => `${storedText(e.label)} ${signedDelta(e.delta)}`).join(" · "), cause: storedText(cause), tone: toneOf("attribute", total) })
         }
         // Condition values: net change with its causes; values that share
         // exactly the same causes (e.g. morale and form both drifting) share a row.
@@ -85,7 +89,7 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
             if (list.length === 0) continue
             const net = list.reduce((s, e) => s + e.delta, 0)
             if (!list.some(e => Math.abs(e.delta) >= 0.5) && Math.abs(net) < 0.5) continue
-            const text = `${CONDITION_LABEL[kind]} ${Math.abs(net) < 0.05 ? "±0" : signedDelta(net)}`
+            const text = `${conditionLabel(kind)} ${Math.abs(net) < 0.05 ? "±0" : signedDelta(net)}`
             const tone = toneOf(kind, net)
             const cause = causeParts(list, list.length > 1)
             const same = conditionRows.find(r => r.cause === cause && list.length === 1)
@@ -98,7 +102,7 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
             }
         }
         rows.push(...conditionRows)
-        if (rows.length) groups.push({ id, name: report.names[id] ?? "Player", rows })
+        if (rows.length) groups.push({ id, name: report.names[id] ?? t("wr.player"), rows })
     }
     return groups
 }
@@ -112,7 +116,7 @@ export function moneyLines(report: WeekReport): { income: MoneyLine[]; expenses:
         const key = `${e.label}|${e.cause.label}|${e.delta >= 0 ? "+" : "-"}`
         const prev = lines.get(key)
         if (prev) prev.amount += e.delta
-        else lines.set(key, { label: e.label, cause: e.cause.label, amount: e.delta })
+        else lines.set(key, { label: storedText(e.label), cause: storedText(e.cause.label), amount: e.delta })
     }
     const all = [...lines.values()]
     return {
@@ -132,23 +136,23 @@ export function teamRows(report: WeekReport): TeamRow[] {
     const rank = group("ranking", "World rank")
     const [r0, r1] = report.kpis.rank
     if (rank.length && r0 != null && r1 != null && r0 !== r1) {
-        rows.push({ label: "World rank", change: `#${r0} → #${r1}`, cause: causeParts(rank, false), tone: r1 < r0 ? "up" : "down" })
+        rows.push({ label: t("svd.worldRank"), change: `#${r0} → #${r1}`, cause: causeParts(rank, false), tone: r1 < r0 ? "up" : "down" })
     }
     const elo = group("ranking", "Elo")
     if (elo.length) {
         const net = elo.reduce((s, e) => s + e.delta, 0)
-        rows.push({ label: "Elo", change: Math.abs(net) < 0.5 ? "±0" : signedDelta(Math.round(net)), cause: causeParts(elo, elo.length > 1), tone: toneOf("elo", net) })
+        rows.push({ label: t("svd.elo"), change: Math.abs(net) < 0.5 ? "±0" : signedDelta(Math.round(net)), cause: causeParts(elo, elo.length > 1), tone: toneOf("elo", net) })
     }
-    for (const [kind, label] of [["board", "Board confidence"], ["chemistry", "Chemistry"], ["reputation", "Reputation"]] as const) {
+    for (const [kind, label, key] of [["board", "Board confidence", "svd.boardConfidence"], ["chemistry", "Chemistry", "svd.chemistry"], ["reputation", "Reputation", "svd.reputation"]] as const) {
         const list = group(kind, label)
         if (!list.length) continue
         const net = list.reduce((s, e) => s + e.delta, 0)
         if (Math.abs(net) < 0.05 && !list.some(e => Math.abs(e.delta) >= 0.5)) continue
-        rows.push({ label, change: signedDelta(net), cause: causeParts(list, list.length > 1), tone: toneOf(kind, net) })
+        rows.push({ label: t(key), change: signedDelta(net), cause: causeParts(list, list.length > 1), tone: toneOf(kind, net) })
     }
     const [m0, m1] = report.kpis.morale
     if (m0 != null && m1 != null && Math.abs(m1 - m0) >= 0.5) {
-        rows.push({ label: "Morale (avg)", change: `${Math.round(m0)} → ${Math.round(m1)}`, cause: "See player changes", tone: m1 > m0 ? "up" : "down" })
+        rows.push({ label: t("wr.moraleAvg"), change: `${Math.round(m0)} → ${Math.round(m1)}`, cause: t("wr.seePlayers"), tone: m1 > m0 ? "up" : "down" })
     }
     return rows
 }
@@ -163,9 +167,9 @@ export function topPlayerChanges(report: WeekReport, max = 3): { name: string; c
     const seen = new Set<string>()
     const picked: ChangeEntry[] = [...injuries, ...attr].filter(e => !seen.has(e.subjectId) && !!seen.add(e.subjectId)).slice(0, max)
     return picked.map(e => ({
-        name: report.names[e.subjectId] ?? "Player",
-        change: e.kind === "injury" ? `Injured · ${e.delta} wk` : `${e.label} ${signedDelta(e.delta)}`,
-        cause: e.cause.label,
+        name: report.names[e.subjectId] ?? t("wr.player"),
+        change: e.kind === "injury" ? t("wr.injuredWk", { n: e.delta }) : `${storedText(e.label)} ${signedDelta(e.delta)}`,
+        cause: storedText(e.cause.label),
         tone: e.kind === "injury" ? "down" : toneOf(e.kind, e.delta),
     }))
 }
@@ -173,8 +177,8 @@ export function topPlayerChanges(report: WeekReport, max = 3): { name: string; c
 /** Unanswered decisions with the default the club applied, without the inline effect note. */
 export function unansweredRows(report: WeekReport): { label: string; outcome: string }[] {
     return (report.unanswered ?? []).map(u => ({
-        label: u.label,
-        outcome: u.outcome === "Lapsed" ? "Lapsed, no effect" : choiceLabel({ id: "", text: u.outcome }),
+        label: storedText(u.label),
+        outcome: u.outcome === "Lapsed" ? t("wr.lapsed") : storedText(choiceLabel({ id: "", text: u.outcome })),
     }))
 }
 
@@ -183,5 +187,13 @@ export function resultsLabel(report: WeekReport): string {
     const w = report.matches.filter(m => m.won).length
     return `${w}–${report.matches.length - w}`
 }
+
+/** The report's headline in the active language (the save keeps the English one). */
+export function reportHeadline(report: WeekReport): string {
+    return getLocale() === "en" ? report.headline : weekHeadline(report)
+}
+
+/** A warning line in the active language. */
+export const warningText = (label: string) => storedText(label)
 
 export { formatMoney, signedDelta }

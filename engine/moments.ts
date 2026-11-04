@@ -19,6 +19,9 @@
  * waits is queued in front of it, so titles and tier moves are told first.
  */
 
+import { t } from "@/lib/i18n"
+import { divisionName } from "@/lib/display-names"
+
 export type MomentKind = "title" | "league-title" | "promotion" | "relegation" | "signing" | "welcome" | "season-review"
 
 interface MomentBase {
@@ -233,13 +236,13 @@ export function restoreSeenMomentKeys(raw: unknown): string[] {
 /** One line for the moment (Continue's stop reason, screen readers). */
 export function momentHeadline(m: Moment): string {
     switch (m.kind) {
-        case "title": return `Champions: ${m.tournamentName}`
-        case "league-title": return `${m.divisionName} champions`
-        case "promotion": return `Promoted to ${m.toLabel}`
-        case "relegation": return `Relegated to ${m.toLabel}`
-        case "signing": return "New signing"
-        case "welcome": return "Board brief"
-        case "season-review": return `Season ${m.season} review`
+        case "title": return t("mo.hl.title", { name: m.tournamentName })
+        case "league-title": return t("mo.hl.leagueTitle", { division: divisionName(m.divisionName) })
+        case "promotion": return t("mo.hl.promotion", { tier: divisionName(m.toLabel) })
+        case "relegation": return t("mo.hl.relegation", { tier: divisionName(m.toLabel) })
+        case "signing": return t("mo.sign.new")
+        case "welcome": return t("mo.boardBrief")
+        case "season-review": return t("mo.hl.seasonReview", { season: m.season })
     }
 }
 

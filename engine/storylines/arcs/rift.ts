@@ -16,9 +16,14 @@ import type { StoryArc } from "../types"
 import type { PlayerSaveData } from "../../save-types"
 import { PERSONALITY_TUNING as P, STORY_TUNING as S } from "@/lib/balance-tuning"
 import { getArchetype } from "../../personality"
-import { clubOf, logBeat, nameOf, nextBeat, raiseDecision, resolveArc, rosterPlayers, stillAt, storyNews, takeAnswer, usd, waitForDesk } from "../common"
+import { clubRef, joined, logBeat, nameOf, nextBeat, raiseDecision, resolveArc, rosterPlayers, said, stillAt, storyNews, takeAnswer, usd, waitForDesk, type Said } from "../common"
 
 const num = (arc: StoryArc, key: string) => Number(arc.facts[key] ?? 0)
+/** The opening beat, as logged (with its translation key when it has one). */
+const opening = (arc: StoryArc): Said | string | undefined => {
+    const e = arc.log[0]
+    return e ? (e.ref ? { text: e.text, ref: e.ref } : e.text) : undefined
+}
 
 function recentLosses(ctx: StoryContext, teamId: string, n: number): number {
     let seen = 0, lost = 0
@@ -69,14 +74,14 @@ export const rift: ArcDefinition = {
 
     open(ctx, arc) {
         const a = ctx.player(arc.playerIds[0]), b = ctx.player(arc.playerIds[1])
-        const A = nameOf(a), B = nameOf(b), club = clubOf(ctx, arc.teamId)
+        const A = nameOf(a), B = nameOf(b), club = clubRef(ctx, arc.teamId)
         const reason = String(arc.facts.reason)
         const text = reason === "BENCH"
-            ? `${A} has sat out ${num(arc, "benched")} official matches in a row while ${B} starts, and the Hothead is making no secret of it.`
+            ? said("sl.rift.bench", { a: A, b: B }, num(arc, "benched"))
             : reason === "WAGE"
-                ? `${A} earns ${usd(num(arc, "wageA"))} a week, less than ${B} on ${usd(num(arc, "wageB"))}, who is rated ${num(arc, "gap")} OVR lower. The Hothead has noticed.`
-                : `${A} and ${B}, two of the least easy-going players in the squad (amicability ${num(arc, "amicA")} and ${num(arc, "amicB")}), clashed after ${club} lost ${num(arc, "lost")} of their last 3 official matches.`
-        storyNews(ctx, arc, "b0", `Tension at ${club}: ${A} and ${B}`, text)
+                ? said("sl.rift.wage", { a: A, b: B, wageA: usd(num(arc, "wageA")), wageB: usd(num(arc, "wageB")), gap: num(arc, "gap") })
+                : said("sl.rift.clash", { a: A, b: B, amicA: num(arc, "amicA"), amicB: num(arc, "amicB"), club, lost: num(arc, "lost") })
+        storyNews(ctx, arc, "b0", said("sl.rift.newsTitle", { club, a: A, b: B }), text)
         logBeat(arc, ctx.week, text)
         nextBeat(arc, ctx.week)
     },
@@ -86,34 +91,36 @@ export const rift: ArcDefinition = {
         const A = nameOf(ctx.player(ida)), B = nameOf(ctx.player(idb))
         const choice = arc.beat >= 2
             ? takeAnswer(ctx, arc, "clear", (ch, byDefault) =>
-                ch === "side_a" ? `You side with ${A}.` : ch === "side_b" ? `You side with ${B}.`
-                    : byDefault ? "No answer by the deadline, so the club calls a team meeting." : "You clear the air in a team meeting.")
+                ch === "side_a" ? said("sl.rift.ans.side", { name: A }) : ch === "side_b" ? said("sl.rift.ans.side", { name: B })
+                    : said(byDefault ? "sl.rift.ans.clearDefault" : "sl.rift.ans.clear"))
             : null
         const a = stillAt(ctx, ida, arc.teamId), b = stillAt(ctx, idb, arc.teamId)
-        if (!a || !b) return resolveArc(arc, ctx.week, "LEFT", `${!a ? A : B} has left ${clubOf(ctx, arc.teamId)}; the rift goes with him.`)
+        if (!a || !b) return resolveArc(arc, ctx.week, "LEFT", said("sl.rift.left", { name: !a ? A : B, club: clubRef(ctx, arc.teamId) }))
 
         if (arc.beat === 1) {
             const raised = raiseDecision(ctx, arc, {
-                title: `Dressing-room rift: ${A} and ${B}`,
+                title: said("sl.rift.title", { a: A, b: B }),
                 playerId: ida,
-                message: `${arc.log[0]?.text ?? `${A} and ${B} are at odds.`}\n\n`
-                    + `• Side with ${A}: ${A} morale +${S.RIFT_SIDE_WITH}, ${B} morale ${S.RIFT_SIDE_AGAINST}.\n`
-                    + `• Side with ${B}: ${B} morale +${S.RIFT_SIDE_WITH}, ${A} morale ${S.RIFT_SIDE_AGAINST}.\n`
-                    + `• Clear the air in a team meeting: team chemistry ${S.RIFT_CLEAR_CHEMISTRY}, both players morale +${S.RIFT_CLEAR_MORALE}.`,
+                message: joined("\n\n",
+                    opening(arc) ?? said("sl.rift.atOdds", { a: A, b: B }),
+                    joined("\n",
+                        said("sl.rift.optSide", { name: A, other: B, plus: S.RIFT_SIDE_WITH, minus: S.RIFT_SIDE_AGAINST }),
+                        said("sl.rift.optSide", { name: B, other: A, plus: S.RIFT_SIDE_WITH, minus: S.RIFT_SIDE_AGAINST }),
+                        said("sl.rift.optClear", { chemistry: S.RIFT_CLEAR_CHEMISTRY, morale: S.RIFT_CLEAR_MORALE }))),
                 choices: [
-                    { id: "side_a", text: `Side with ${A}`, effects: { players: [{ id: ida, name: A, morale: S.RIFT_SIDE_WITH }, { id: idb, name: B, morale: S.RIFT_SIDE_AGAINST }] } },
-                    { id: "side_b", text: `Side with ${B}`, effects: { players: [{ id: idb, name: B, morale: S.RIFT_SIDE_WITH }, { id: ida, name: A, morale: S.RIFT_SIDE_AGAINST }] } },
-                    { id: "clear", text: "Clear the air in a team meeting", effects: { chemistry: S.RIFT_CLEAR_CHEMISTRY, players: [{ id: ida, name: A, morale: S.RIFT_CLEAR_MORALE }, { id: idb, name: B, morale: S.RIFT_CLEAR_MORALE }] } },
+                    { id: "side_a", text: said("sl.rift.c.side", { name: A }), effects: { players: [{ id: ida, name: A, morale: S.RIFT_SIDE_WITH }, { id: idb, name: B, morale: S.RIFT_SIDE_AGAINST }] } },
+                    { id: "side_b", text: said("sl.rift.c.side", { name: B }), effects: { players: [{ id: idb, name: B, morale: S.RIFT_SIDE_WITH }, { id: ida, name: A, morale: S.RIFT_SIDE_AGAINST }] } },
+                    { id: "clear", text: said("sl.rift.c.clear"), effects: { chemistry: S.RIFT_CLEAR_CHEMISTRY, players: [{ id: ida, name: A, morale: S.RIFT_CLEAR_MORALE }, { id: idb, name: B, morale: S.RIFT_CLEAR_MORALE }] } },
                 ],
                 defaultChoiceId: "clear",
-                consequence: "calls a team meeting to clear the air",
-                label: `Rift (${A} and ${B})`,
+                consequence: said("sl.rift.cons"),
+                label: said("sl.rift.label", { a: A, b: B }),
             })
             if (!raised) {
-                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", `The tension between ${A} and ${B} goes unaddressed.`)
+                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", said("sl.rift.fade", { a: A, b: B }))
                 return
             }
-            logBeat(arc, ctx.week, `The squad waits for your call on ${A} and ${B}.`)
+            logBeat(arc, ctx.week, said("sl.rift.logWait", { a: A, b: B }))
             return nextBeat(arc, ctx.week)
         }
 
@@ -122,8 +129,8 @@ export const rift: ArcDefinition = {
         if (ctx.week < num(arc, "decidedWeek") + S.RIFT_RESOLVE_WEEKS) return
         const chem = Math.round(ctx.team(arc.teamId)?.chemistry ?? 0)
         const settled = a.morale >= 50 && b.morale >= 50
-        const text = `${settled ? "The rift has settled" : "The rift lingers"} (${A} morale ${Math.round(a.morale)}, ${B} morale ${Math.round(b.morale)}, team chemistry ${chem}).`
-        storyNews(ctx, arc, "end", settled ? `Calm returns at ${clubOf(ctx, arc.teamId)}` : `${A} and ${B}: still at odds`, text)
+        const text = said(settled ? "sl.rift.settled" : "sl.rift.lingers", { a: A, moraleA: Math.round(a.morale), b: B, moraleB: Math.round(b.morale), chemistry: chem })
+        storyNews(ctx, arc, "end", settled ? said("sl.rift.calmTitle", { club: clubRef(ctx, arc.teamId) }) : said("sl.rift.oddsTitle", { a: A, b: B }), text)
         resolveArc(arc, ctx.week, settled ? "SETTLED" : "LINGERS", text)
     },
 }

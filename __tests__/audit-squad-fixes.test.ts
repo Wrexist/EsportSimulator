@@ -188,7 +188,7 @@ describe("SQUAD-04 / ENGINE-07 — the five-player minimum", () => {
         expect(collectStopSignals(src).map(s => s.kind)).not.toContain("forfeit")
         const stops = forfeitStops(src, undefined, { wholeWeek: true })
         expect(stops).toHaveLength(1)
-        expect(stops[0].reason).toMatch(/will be forfeited: your roster has 4 active players/)
+        expect(stops[0].reason).toMatch(/your roster has 4 active players/i)
     })
 
     test("the forfeit message gives the real count, not 'injured players'", () => {

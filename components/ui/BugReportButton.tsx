@@ -9,6 +9,8 @@ import { useToast } from "@/lib/toast"
 import { errorTracker } from "@/lib/error-tracking"
 import { soundManager } from "@/lib/sound-manager"
 import { safeParse } from "@/lib/json-safe"
+import { t } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
 import {
   Dialog,
   DialogContent,
@@ -17,17 +19,18 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 
-const GAME_VERSION = "1.0.0"
+const GAME_VERSION = process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"
 
+/** `label` is the English name written into the copied report; the form shows bug.cat.<key>. */
 const CATEGORIES = [
-  { value: "gameplay", label: "Gameplay", color: "text-ink-2" },
-  { value: "ui", label: "UI / Visual", color: "text-ink-2" },
-  { value: "match-engine", label: "Match Engine", color: "text-ink-2" },
-  { value: "transfers", label: "Transfers", color: "text-ink-2" },
-  { value: "economy", label: "Economy", color: "text-ink-2" },
-  { value: "save-load", label: "Save / Load", color: "text-ink-2" },
-  { value: "performance", label: "Performance", color: "text-ink-2" },
-  { value: "other", label: "Other", color: "text-ink-2" },
+  { value: "gameplay", key: "gameplay", label: "Gameplay" },
+  { value: "ui", key: "ui", label: "UI / Visual" },
+  { value: "match-engine", key: "matchEngine", label: "Match Engine" },
+  { value: "transfers", key: "transfers", label: "Transfers" },
+  { value: "economy", key: "economy", label: "Economy" },
+  { value: "save-load", key: "saveLoad", label: "Save / Load" },
+  { value: "performance", key: "performance", label: "Performance" },
+  { value: "other", key: "misc", label: "Other" },
 ] as const
 
 type Category = typeof CATEGORIES[number]["value"]
@@ -201,9 +204,9 @@ export function BugReportButton() {
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
-    if (!form.category) newErrors.category = "Please select a category"
-    if (!form.title.trim()) newErrors.title = "Please enter a title"
-    if (!form.description.trim()) newErrors.description = "Please describe the bug"
+    if (!form.category) newErrors.category = t("bug.err.category")
+    if (!form.title.trim()) newErrors.title = t("bug.err.title")
+    if (!form.description.trim()) newErrors.description = t("bug.err.description")
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -228,8 +231,8 @@ export function BugReportButton() {
       }
 
       toast({
-        title: "Bug Report Copied!",
-        description: "The report has been copied to your clipboard. Paste it in Discord or GitHub.",
+        title: t("bug.copied.title"),
+        description: form.screenshot ? t("bug.copied.descShot") : t("bug.copied.desc"),
       })
 
       setForm({ ...initialForm })
@@ -238,8 +241,8 @@ export function BugReportButton() {
       setOpen(false)
     } catch {
       toast({
-        title: "Copy Failed",
-        description: "Could not copy to clipboard. Please try again.",
+        title: t("bug.copyFailed.title"),
+        description: t("bug.copyFailed.desc"),
         variant: "destructive",
       })
     } finally {
@@ -261,8 +264,8 @@ export function BugReportButton() {
       <button
         onClick={handleOpen}
         className="fixed bottom-6 right-6 z-devtools group select-none touch-manipulation"
-        title="Report a bug"
-        aria-label="Report a bug"
+        title={t("bug.open")}
+        aria-label={t("bug.open")}
       >
         <div className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded border border-line-strong bg-raised text-ink-2 transition-colors group-hover:bg-hover group-hover:text-ink-1">
           <Bug className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -270,7 +273,7 @@ export function BugReportButton() {
 
         {/* Hover tooltip */}
         <div className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded border border-line-strong bg-raised px-2.5 py-1.5 text-xs text-ink-1 opacity-0 transition-opacity group-hover:opacity-100">
-          Report a bug
+          {t("bug.open")}
         </div>
       </button>
 
@@ -286,10 +289,10 @@ export function BugReportButton() {
               <div className="rounded-md bg-negative/10 p-2 text-negative">
                 <Bug className="h-5 w-5" />
               </div>
-              Report a Bug
+              {t("bug.title")}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-sm">
-              Help us improve the game by reporting issues you encounter.
+              {t("bug.desc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -298,7 +301,7 @@ export function BugReportButton() {
             {/* Category */}
             <div>
               <label className="block text-sm font-bold text-ink-1 mb-1.5">
-                Category <span className="text-negative">*</span>
+                {t("bug.category")} <span className="text-negative" aria-hidden="true">*</span>
               </label>
               <select
                 value={form.category}
@@ -307,10 +310,10 @@ export function BugReportButton() {
                   errors.category ? "border-negative/50" : "border-line"
                 }`}
               >
-                <option value="" className="bg-panel">Select a category...</option>
+                <option value="" className="bg-panel">{t("bug.categoryPlaceholder")}</option>
                 {CATEGORIES.map(cat => (
                   <option key={cat.value} value={cat.value} className="bg-panel">
-                    {cat.label}
+                    {t(`bug.cat.${cat.key}`)}
                   </option>
                 ))}
               </select>
@@ -320,13 +323,13 @@ export function BugReportButton() {
             {/* Title */}
             <div>
               <label className="block text-sm font-bold text-ink-1 mb-1.5">
-                Title <span className="text-negative">*</span>
+                {t("bug.titleLabel")} <span className="text-negative" aria-hidden="true">*</span>
               </label>
               <input
                 type="text"
                 value={form.title}
                 onChange={e => updateField("title", e.target.value)}
-                placeholder="Brief summary of the issue..."
+                placeholder={t("bug.titlePlaceholder")}
                 maxLength={120}
                 className={`w-full bg-raised border rounded-lg px-3 py-2.5 text-sm text-ink-1 placeholder:text-ink-3 focus:outline-hidden focus:ring-2 focus:ring-negative/30 focus:border-negative/50 transition-[border-color,box-shadow] duration-100 ease-out ${
                   errors.title ? "border-negative/50" : "border-line"
@@ -338,12 +341,12 @@ export function BugReportButton() {
             {/* Description */}
             <div>
               <label className="block text-sm font-bold text-ink-1 mb-1.5">
-                Description <span className="text-negative">*</span>
+                {t("bug.description")} <span className="text-negative" aria-hidden="true">*</span>
               </label>
               <textarea
                 value={form.description}
                 onChange={e => updateField("description", e.target.value)}
-                placeholder="What happened? What did you expect to happen?"
+                placeholder={t("bug.descriptionPlaceholder")}
                 rows={4}
                 className={`w-full bg-raised border rounded-lg px-3 py-2.5 text-sm text-ink-1 placeholder:text-ink-3 focus:outline-hidden focus:ring-2 focus:ring-negative/30 focus:border-negative/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none ${
                   errors.description ? "border-negative/50" : "border-line"
@@ -355,12 +358,12 @@ export function BugReportButton() {
             {/* Steps to Reproduce */}
             <div>
               <label className="block text-sm font-bold text-ink-1 mb-1.5">
-                Steps to Reproduce <span className="text-ink-3 font-normal">(optional)</span>
+                {t("bug.steps")} <span className="text-ink-3 font-normal">{t("bug.optional")}</span>
               </label>
               <textarea
                 value={form.steps}
                 onChange={e => updateField("steps", e.target.value)}
-                placeholder={"1. Go to...\n2. Click on...\n3. Notice that..."}
+                placeholder={t("bug.stepsPlaceholder")}
                 rows={3}
                 className="w-full bg-raised border border-line rounded-lg px-3 py-2.5 text-sm text-ink-1 placeholder:text-ink-3 focus:outline-hidden focus:ring-2 focus:ring-negative/30 focus:border-negative/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none"
               />
@@ -369,18 +372,20 @@ export function BugReportButton() {
             {/* Screenshot */}
             <div>
               <label className="block text-sm font-bold text-ink-1 mb-1.5">
-                Screenshot <span className="text-ink-3 font-normal">(optional)</span>
+                {t("bug.screenshot")} <span className="text-ink-3 font-normal">{t("bug.optional")}</span>
               </label>
               {form.screenshot ? (
                 <div className="relative group rounded-lg overflow-hidden border border-line bg-raised">
                   {/* eslint-disable-next-line @next/next/no-img-element -- user-captured screenshot data URL */}
                   <img
                     src={form.screenshot}
-                    alt="Bug screenshot"
+                    alt={t("bug.screenshotAlt")}
                     className="w-full max-h-48 object-contain bg-shell"
                   />
                   <button
                     onClick={() => updateField("screenshot", null)}
+                    aria-label={t("bug.removeScreenshot")}
+                    title={t("bug.removeScreenshot")}
                     className="absolute top-2 right-2 p-1.5 rounded-lg bg-ink/90 border border-line text-ink-2 hover:text-ink-1 hover:bg-negative/20 transition-colors duration-100 ease-out active:scale-95 active:duration-0"
                   >
                     <X className="w-4 h-4" />
@@ -393,8 +398,8 @@ export function BugReportButton() {
                 >
                   <ImagePlus className="w-6 h-6 text-ink-3" />
                   <div className="text-center">
-                    <p className="text-sm text-ink-2">Click to browse or <span className="text-negative">Ctrl+V</span> to paste</p>
-                    <p className="text-xs text-ink-3 mt-0.5">PNG, JPG, or GIF</p>
+                    <p className="text-sm text-ink-2"><Trans k="bug.browse" tags={{ key: (text) => <span className="text-negative">{text}</span> }} /></p>
+                    <p className="text-xs text-ink-3 mt-0.5">{t("bug.formats")}</p>
                   </div>
                 </button>
               )}
@@ -415,7 +420,7 @@ export function BugReportButton() {
                   className="w-full flex items-center justify-between px-4 py-3 bg-raised hover:bg-raised transition-colors"
                 >
                   <span className="text-xs font-bold text-ink-2 uppercase tracking-wider">
-                    Debug Info (auto-captured)
+                    {t("bug.debug")}
                   </span>
                   {showDebug ? (
                     <ChevronUp className="w-4 h-4 text-ink-3" />
@@ -468,10 +473,10 @@ export function BugReportButton() {
               className="flex w-full items-center justify-center gap-2 rounded border border-gold bg-gold px-4 py-3 text-sm font-bold text-gold-on transition-colors duration-100 ease-out hover:border-gold-hover hover:bg-gold-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Clipboard className="w-4 h-4" />
-              {submitting ? "Copying..." : "Copy Report to Clipboard"}
+              {submitting ? t("bug.copying") : t("bug.submit")}
             </button>
             <p className="text-center text-xs text-ink-3 mt-2">
-              Report will be copied to your clipboard. Paste it in Discord or GitHub Issues.
+              {t("bug.footer")}
             </p>
           </div>
         </DialogContent>

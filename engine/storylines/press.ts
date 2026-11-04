@@ -25,18 +25,30 @@ import { LEAGUE_TUNING, STORY_TUNING as S } from "@/lib/balance-tuning"
 import { getMatchTone } from "@/lib/match-stakes"
 import { getRivalryBetween, isDerby } from "../history-tracker"
 import { captainId } from "../personality"
-import { divisionOfTeam, isLeagueMatchId, ordinal, tablePosition } from "../season/regional-league"
-import { biggestRival, headToHead } from "./arcs/rivalry"
-import { fmtRating, formOver, logBeat, nameOf } from "./common"
+import { divisionOfTeam, isLeagueMatchId, tablePosition } from "../season/regional-league"
+import { biggestRival } from "./arcs/rivalry"
+import { divisionRef, fmtRating, formOver, logBeat, nameOf } from "./common"
 
-import { PRESS_PREFIX, PRESS_REASON_LABEL, pressDataOf, pressEventId, type PressAnswer, type PressData, type PressQuestion, type PressReason } from "./press-view"
+import { t, tn, tRefEn, ORDINAL_REF, LIST_REF, type TextRef } from "@/lib/i18n"
+import { PRESS_PREFIX, pressDataOf, pressEventId, type PressAnswer, type PressData, type PressQuestion, type PressReason } from "./press-view"
 
 export * from "./press-view"
 
 const official = (m: { isScrim?: boolean; tournamentId?: string | null }) => !m.isScrim && !!m.tournamentId && m.tournamentId !== "SCRIM"
 const rankOf = (t: TeamSaveData | undefined) => (t?.worldRanking && t.worldRanking > 0 ? t.worldRanking : 999)
 
-interface BigMatch { reason: PressReason; detail: string }
+interface BigMatch { reason: PressReason; detail: TextRef | null }
+
+/** A line as a translation key plus its English copy (the copy is what older readers and the ledger keep). */
+function said(key: string, params?: TextRef["params"], count?: number): { text: string; ref: TextRef } {
+    const ref: TextRef = { key, ...(params ? { params } : {}), ...(count !== undefined ? { count } : {}) }
+    return { text: tRefEn(ref), ref }
+}
+const answer = (id: string, key: string, effects: ChoiceEffects, afterResult?: PressAnswer["afterResult"]): PressAnswer =>
+    ({ id, ...said(`press.a.${key}`), effects, ...(afterResult ? { afterResult } : {}) })
+
+const h2hRef = (r: { wins: number; losses: number }): TextRef =>
+    ({ key: r.wins > r.losses ? "press.h2h.lead" : r.wins < r.losses ? "press.h2h.trail" : "press.h2h.level", params: { w: r.wins, l: r.losses } })
 
 /** Why a fixture is a big match for the managed club, or null. */
 export function bigMatchReason(save: Pick<GameSave, "teams" | "tournaments" | "league">, match: Pick<MatchSaveData, "id" | "homeTeamId" | "awayTeamId" | "stage" | "tournamentId">, teamId: string): BigMatch | null {
@@ -45,11 +57,11 @@ export function bigMatchReason(save: Pick<GameSave, "teams" | "tournaments" | "l
     const opp = save.teams.find(t => t.id === oppId)
     if (!team || !opp || !official(match)) return null
     const event = match.tournamentId ? save.tournaments.find(t => t.id === match.tournamentId) : undefined
-    if (!isLeagueMatchId(match.id) && getMatchTone(match.stage ?? undefined, true) === "championship") return { reason: "FINAL", detail: `${event?.name ?? "the"} final` }
+    if (!isLeagueMatchId(match.id) && getMatchTone(match.stage ?? undefined, true) === "championship") return { reason: "FINAL", detail: event?.name ? { key: "press.detail.final", params: { event: event.name } } : { key: "press.detail.finalPlain" } }
     const rival = biggestRival(team)
     const rivalry = getRivalryBetween(team, oppId)
-    if ((rival && rival.opponentTeamId === oppId) || isDerby(rivalry?.intensity)) return { reason: "DERBY", detail: rivalry ? `${team.name} ${headToHead(rivalry)}` : "" }
-    if (rankOf(team) <= 10 && rankOf(opp) <= 10) return { reason: "TOP10", detail: `#${rankOf(team)} v #${rankOf(opp)}` }
+    if ((rival && rival.opponentTeamId === oppId) || isDerby(rivalry?.intensity)) return { reason: "DERBY", detail: rivalry ? { key: "press.detail.derby", params: { team: team.name, h2h: h2hRef(rivalry) } } : null }
+    if (rankOf(team) <= 10 && rankOf(opp) <= 10) return { reason: "TOP10", detail: { key: "press.detail.top10", params: { rank: rankOf(team), oppRank: rankOf(opp) } } }
     if (isLeagueMatchId(match.id)) {
         const division = divisionOfTeam(save, teamId)
         const pos = tablePosition(division, teamId)
@@ -60,7 +72,7 @@ export function bigMatchReason(save: Pick<GameSave, "teams" | "tournaments" | "l
             const promotion = division.level > 1 && Math.abs(pos - LEAGUE_TUNING.PROMOTED) <= 1
             const relegation = division.level < bottomLevel && pos >= n - LEAGUE_TUNING.RELEGATED && pos <= n - LEAGUE_TUNING.RELEGATED + 1
             if (left > 0 && left <= S.PRESS_DECIDER_ROUNDS && (promotion || relegation)) {
-                return { reason: "DECIDER", detail: `${ordinal(pos)} in ${division.name}, ${left} round${left === 1 ? "" : "s"} left, ${promotion ? "promotion" : "survival"} at stake` }
+                return { reason: "DECIDER", detail: { key: promotion ? "press.detail.promotion" : "press.detail.survival", count: left, params: { pos: { key: ORDINAL_REF, count: pos }, division: divisionRef(division.name) } } }
             }
         }
     }
@@ -76,45 +88,34 @@ const boldStakes = (): NonNullable<PressAnswer["afterResult"]> => ({
     loss: { morale: S.PRESS_BOLD_LOSS_MORALE, board: S.PRESS_BOLD_LOSS_BOARD },
 })
 const measured = (): ChoiceEffects => ({ board: S.PRESS_MEASURED_BOARD })
-const NO_COMMENT: PressAnswer = { id: "no_comment", text: "No comment.", effects: {} }
+const NO_COMMENT_ID = "no_comment"
+const noComment = (): PressAnswer => ({ id: NO_COMMENT_ID, ...said("press.noComment"), effects: {} })
 
 function matchQuestion(save: GameSave, team: TeamSaveData, opp: TeamSaveData, match: MatchSaveData, big: BigMatch): PressQuestion {
     const event = match.tournamentId ? save.tournaments.find(t => t.id === match.tournamentId) : undefined
     switch (big.reason) {
         case "FINAL": return {
             id: "match", topic: "MATCH",
-            text: `${event?.name ?? "The"} final against ${opp.name} (#${rankOf(opp)}). What is the target?`,
-            answers: [
-                { id: "bold", text: "We are here to lift the trophy.", effects: bold(), afterResult: boldStakes() },
-                { id: "measured", text: "One match at a time. They are a fine side.", effects: measured() },
-            ],
+            ...(event?.name ? said("press.q.final", { event: event.name, opp: opp.name, rank: rankOf(opp) }) : said("press.q.finalPlain", { opp: opp.name, rank: rankOf(opp) })),
+            answers: [answer("bold", "final.bold", bold(), boldStakes()), answer("measured", "final.measured", measured())],
         }
         case "DERBY": {
             const r = getRivalryBetween(team, opp.id)
             return {
                 id: "match", topic: "MATCH",
-                text: r ? `${opp.name} again: meeting number ${r.matchesPlayed + 1}, and ${team.name} ${headToHead(r)}. What does this one mean?` : `${opp.name} again. What does this one mean?`,
-                answers: [
-                    { id: "bold", text: "It's the one our fans wait for, and we'll win it.", effects: bold(), afterResult: boldStakes() },
-                    { id: "measured", text: "It's one more match. Our preparation doesn't change.", effects: measured() },
-                ],
+                ...(r ? said("press.q.derby", { opp: opp.name, n: r.matchesPlayed + 1, team: team.name, h2h: h2hRef(r) }) : said("press.q.derbyPlain", { opp: opp.name })),
+                answers: [answer("bold", "derby.bold", bold(), boldStakes()), answer("measured", "derby.measured", measured())],
             }
         }
         case "TOP10": return {
             id: "match", topic: "MATCH",
-            text: `${opp.name} are ranked #${rankOf(opp)}, ${team.name} #${rankOf(team)}. Who are the favourites?`,
-            answers: [
-                { id: "bold", text: "We are.", effects: bold(), afterResult: boldStakes() },
-                { id: "measured", text: "They are, on paper. We'll see on the server.", effects: measured() },
-            ],
+            ...said("press.q.top10", { opp: opp.name, oppRank: rankOf(opp), team: team.name, rank: rankOf(team) }),
+            answers: [answer("bold", "top10.bold", bold(), boldStakes()), answer("measured", "top10.measured", measured())],
         }
         case "DECIDER": return {
             id: "match", topic: "MATCH",
-            text: `${team.name} are ${big.detail}. How do you handle the pressure?`,
-            answers: [
-                { id: "bold", text: "We'll go out and take it.", effects: bold(), afterResult: boldStakes() },
-                { id: "measured", text: "We focus on our own job.", effects: measured() },
-            ],
+            ...said("press.q.decider", { team: team.name, detail: big.detail ?? "" }),
+            answers: [answer("bold", "decider.bold", bold(), boldStakes()), answer("measured", "decider.measured", measured())],
         }
     }
 }
@@ -138,11 +139,11 @@ function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryA
                 const r = formOver(p, team.id, S.SLUMP_MAPS)
                 return {
                     id: "story", topic: "STORY", arcId: arc.id,
-                    text: `${n} is rated ${r !== null ? fmtRating(r) : "below 0.90"} over his last ${S.SLUMP_MAPS} official maps. Does he keep his place?`,
+                    ...said(r !== null ? "press.q.slump" : "press.q.slumpBelow", { name: n, rating: r !== null ? fmtRating(r) : "0.90", maps: S.SLUMP_MAPS }),
                     answers: [
-                        { id: "trust", text: "I trust him to come good.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE) } },
-                        { id: "earn", text: "Everyone has to earn their place.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD } },
-                        NO_COMMENT,
+                        answer("trust", "slump.trust", { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE) }),
+                        answer("earn", "slump.earn", { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD }),
+                        noComment(),
                     ],
                 }
             }
@@ -150,11 +151,11 @@ function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryA
                 if (!p) continue
                 return {
                     id: "story", topic: "STORY", arcId: arc.id,
-                    text: `${n}'s contract ends in Week ${arc.facts.endWeek}. Will he sign a new one?`,
+                    ...said("press.q.contract", { name: n, week: String(arc.facts.endWeek) }),
                     answers: [
-                        { id: "want", text: "We want him here for years.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE, S.PRESS_PLAYER_STAY_LOYALTY) } },
-                        { id: "bigger", text: "No player is bigger than the club.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD } },
-                        NO_COMMENT,
+                        answer("want", "contract.want", { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE, S.PRESS_PLAYER_STAY_LOYALTY) }),
+                        answer("bigger", "contract.bigger", { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD }),
+                        noComment(),
                     ],
                 }
             }
@@ -162,11 +163,11 @@ function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryA
                 if (!p) continue
                 return {
                     id: "story", topic: "STORY", arcId: arc.id,
-                    text: `${n} is rated ${fmtRating(Number(arc.facts.rating))} over his last ${arc.facts.maps} official maps. Is he for sale?`,
+                    ...said("press.q.rising", { name: n, rating: fmtRating(Number(arc.facts.rating)), maps: String(arc.facts.maps) }),
                     answers: [
-                        { id: "not", text: "He's not for sale.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE, S.PRESS_PLAYER_STAY_LOYALTY) } },
-                        { id: "price", text: "Every player has a price.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD } },
-                        NO_COMMENT,
+                        answer("not", "rising.not", { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE, S.PRESS_PLAYER_STAY_LOYALTY) }),
+                        answer("price", "rising.price", { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD }),
+                        noComment(),
                     ],
                 }
             }
@@ -174,10 +175,10 @@ function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryA
                 if (!p) continue
                 return {
                     id: "story", topic: "STORY", arcId: arc.id,
-                    text: `${n} is ${p.age}. Is this his last season?`,
+                    ...said("press.q.lastDance", { name: n, age: p.age }),
                     answers: [
-                        { id: "more", text: "He has plenty left to give.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE) } },
-                        NO_COMMENT,
+                        answer("more", "lastDance.more", { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE) }),
+                        noComment(),
                     ],
                 }
             }
@@ -186,11 +187,11 @@ function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryA
                 if (!p || !b) continue
                 return {
                     id: "story", topic: "STORY", arcId: arc.id,
-                    text: `There are reports of tension between ${n} and ${nameOf(b)}. True?`,
+                    ...said("press.q.rift", { a: n, b: nameOf(b) }),
                     answers: [
-                        { id: "united", text: "This squad is united.", effects: { morale: S.PRESS_TEAM_MORALE } },
-                        { id: "healthy", text: "Competition for places is healthy.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD } },
-                        NO_COMMENT,
+                        answer("united", "rift.united", { morale: S.PRESS_TEAM_MORALE }),
+                        answer("healthy", "rift.healthy", { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD }),
+                        noComment(),
                     ],
                 }
             }
@@ -198,20 +199,17 @@ function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryA
                 const c = Math.round(save.boardState?.confidence ?? 0)
                 return {
                     id: "story", topic: "STORY", arcId: arc.id,
-                    text: `Board confidence is at ${c}/100. Is your job at risk?`,
+                    ...said("press.q.board", { confidence: c }),
                     answers: [
-                        { id: "judge", text: "Judge me at the end of the season.", effects: { fans: S.PRESS_FORM_FANS, board: S.PRESS_BOLD_BOARD } },
-                        { id: "accept", text: "The board is right to expect more.", effects: { board: S.PRESS_MEASURED_BOARD, morale: -S.PRESS_TEAM_MORALE } },
+                        answer("judge", "board.judge", { fans: S.PRESS_FORM_FANS, board: S.PRESS_BOLD_BOARD }),
+                        answer("accept", "board.accept", { board: S.PRESS_MEASURED_BOARD, morale: -S.PRESS_TEAM_MORALE }),
                     ],
                 }
             }
             case "GIANT_KILLER": return {
                 id: "story", topic: "STORY", arcId: arc.id,
-                text: `${team.name} have beaten ${arc.clubIds.map(id => save.teams.find(t => t.id === id)?.name ?? "a top side").join(" and ")}. Can the run go on?`,
-                answers: [
-                    { id: "bold", text: "Nobody wants to play us right now.", effects: bold() },
-                    { id: "measured", text: "We stay humble and keep working.", effects: measured() },
-                ],
+                ...said("press.q.giant", { team: team.name, clubs: { key: LIST_REF, params: Object.fromEntries(arc.clubIds.map((id, i) => [i, save.teams.find(x => x.id === id)?.name ?? { key: "press.aTopSide" }])) } }),
+                answers: [answer("bold", "giant.bold", bold()), answer("measured", "giant.measured", measured())],
             }
             default: continue
         }
@@ -230,10 +228,10 @@ function playerQuestion(save: GameSave, team: TeamSaveData): PressQuestion | nul
     if (!best) return null
     return {
         id: "player", topic: "PLAYER",
-        text: `${best.name} is rated ${fmtRating(best.r)} over his last ${S.SLUMP_MAPS} official maps. Is he your key man?`,
+        ...said("press.q.player", { name: best.name, rating: fmtRating(best.r), maps: S.SLUMP_MAPS }),
         answers: [
-            { id: "key", text: "He's our key man.", effects: { players: playerFx(best.id, best.name, S.PRESS_PLAYER_BACK_MORALE) } },
-            { id: "team", text: "It's a team game.", effects: { morale: S.PRESS_TEAM_MORALE } },
+            answer("key", "player.key", { players: playerFx(best.id, best.name, S.PRESS_PLAYER_BACK_MORALE) }),
+            answer("team", "player.team", { morale: S.PRESS_TEAM_MORALE }),
         ],
     }
 }
@@ -246,10 +244,10 @@ function captainQuestion(save: GameSave, team: TeamSaveData): PressQuestion | nu
     const n = nameOf(p)
     return {
         id: "player", topic: "PLAYER",
-        text: `${n} captains the side. What do you need from him?`,
+        ...said("press.q.captain", { name: n }),
         answers: [
-            { id: "heart", text: "He's the heart of this team.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE) } },
-            { id: "everyone", text: "Everyone has to step up, not just him.", effects: { morale: S.PRESS_TEAM_MORALE } },
+            answer("heart", "captain.heart", { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE) }),
+            answer("everyone", "captain.everyone", { morale: S.PRESS_TEAM_MORALE }),
         ],
     }
 }
@@ -265,15 +263,15 @@ function formQuestion(save: GameSave, team: TeamSaveData): PressQuestion | null 
     const good = w * 2 > n
     return {
         id: "form", topic: "FORM",
-        text: `${w} win${w === 1 ? "" : "s"} from your last ${n} official match${n === 1 ? "" : "es"}. ${good ? "Is the momentum with you?" : "What is going wrong?"}`,
+        ...said(good ? "press.q.formGood" : "press.q.formBad", { wins: { key: "press.wins", count: w } }, n),
         answers: good
             ? [
-                { id: "momentum", text: "We're building something here.", effects: { fans: S.PRESS_FORM_FANS, morale: S.PRESS_TEAM_MORALE } },
-                { id: "granted", text: "We take nothing for granted.", effects: measured() },
+                answer("momentum", "form.momentum", { fans: S.PRESS_FORM_FANS, morale: S.PRESS_TEAM_MORALE }),
+                answer("granted", "form.granted", measured()),
             ]
             : [
-                { id: "turn", text: "We'll turn it round. I believe in this group.", effects: { morale: S.PRESS_TEAM_MORALE } },
-                { id: "responsibility", text: "The players must take responsibility.", effects: { board: S.PRESS_MEASURED_BOARD, morale: -S.PRESS_TEAM_MORALE * 2 } },
+                answer("turn", "form.turn", { morale: S.PRESS_TEAM_MORALE }),
+                answer("responsibility", "form.responsibility", { board: S.PRESS_MEASURED_BOARD, morale: -S.PRESS_TEAM_MORALE * 2 }),
             ],
     }
 }
@@ -307,14 +305,20 @@ export function createPressConference(save: GameSave): GameEventSaveData | null 
         if (captain) questions.push(captain)
         if (questions.length < 2) return null
         const press: PressData = { reason: big.reason, matchId: match.id, opponentId: opp.id, questions: questions.slice(0, 3) }
+        const titleRef: TextRef = { key: "press.title", params: { topic: { key: `press.topic.${big.reason}`, params: { opp: opp.name } } } }
+        const messageRef: TextRef = big.detail
+            ? { key: "press.msg", count: press.questions.length, params: { team: team.name, opp: opp.name, detail: big.detail } }
+            : { key: "press.msgPlain", count: press.questions.length, params: { team: team.name, opp: opp.name } }
         const event = {
             id: pressEventId(match.id),
             type: "PRESS",
             week,
             acknowledged: false,
             data: {
-                title: `Press conference: ${opp.name} (${PRESS_REASON_LABEL[big.reason].toLowerCase()})`,
-                message: `${team.name} face ${opp.name} this week${big.detail ? ` (${big.detail})` : ""}. The press has ${press.questions.length} questions. Every answer applies the effects shown next to it; a question you skip changes nothing.`,
+                title: tRefEn(titleRef),
+                titleRef,
+                message: tRefEn(messageRef),
+                messageRef,
                 teamId: team.id,
                 matchId: match.id,
                 deadlineWeek: match.week,
@@ -353,14 +357,14 @@ export function closePressConference(target: Pick<PressTarget, "eventsLog">, mat
 export function answerPressConference(target: PressTarget, eventId: string, answers: Record<string, string>): { ok: boolean; message: string; applied: number } {
     const e = target.eventsLog.find(x => x.id === eventId)
     const press = pressDataOf(e)
-    if (!e || !press) return { ok: false, message: "Press conference not found.", applied: 0 }
+    if (!e || !press) return { ok: false, message: t("press.res.notFound"), applied: 0 }
     const data = (e.data ?? {}) as { isWithdrawn?: boolean; deadlineWeek?: number; teamId?: string }
-    if (e.selectedChoiceId !== undefined || data.isWithdrawn || target.gameOverReason) return { ok: false, message: "This press conference is closed.", applied: 0 }
-    if (typeof data.deadlineWeek === "number" && target.currentWeek > data.deadlineWeek) return { ok: false, message: "This press conference is closed.", applied: 0 }
-    if (data.teamId && data.teamId !== target.playerTeamId) return { ok: false, message: "This press conference is for another club.", applied: 0 }
+    if (e.selectedChoiceId !== undefined || data.isWithdrawn || target.gameOverReason) return { ok: false, message: t("press.res.closed"), applied: 0 }
+    if (typeof data.deadlineWeek === "number" && target.currentWeek > data.deadlineWeek) return { ok: false, message: t("press.res.closed"), applied: 0 }
+    if (data.teamId && data.teamId !== target.playerTeamId) return { ok: false, message: t("press.res.otherClub"), applied: 0 }
     if (target.completedMatches.some(m => m.id === press.matchId) || !target.scheduledMatches.some(m => m.id === press.matchId)) {
         closePressConference(target, press.matchId)
-        return { ok: false, message: "The match has been played; the press room is closed.", applied: 0 }
+        return { ok: false, message: t("press.res.played"), applied: 0 }
     }
     let applied = 0
     const chosen: Record<string, string> = {}
@@ -373,7 +377,7 @@ export function answerPressConference(target: PressTarget, eventId: string, answ
         // The story keeps the line once (the press may ask again before a later match).
         const arc = q.arcId ? target.storylines?.find(x => x.id === q.arcId) : undefined
         const line = `${PRESS_LINE}"${a.text}"`
-        if (arc && a.id !== NO_COMMENT.id && !arc.log.some(l => l.text === line)) logBeat(arc, target.currentWeek, line)
+        if (arc && a.id !== NO_COMMENT_ID && !arc.log.some(l => l.text === line)) logBeat(arc, target.currentWeek, line)
     }
     // A bold claim about the match waits for the result (settlePressStakes).
     const stakes = press.questions.map(q => q.answers.find(x => x.id === chosen[q.id])?.afterResult).find(Boolean)
@@ -381,7 +385,7 @@ export function answerPressConference(target: PressTarget, eventId: string, answ
     e.data = { ...(e.data ?? {}), pressAnswers: chosen, resolvedWeek: target.currentWeek, ...(stakes ? { pressStakes: stakes } : {}) }
     e.acknowledged = true
     if (!target.acknowledgedEventIds.includes(e.id)) target.acknowledgedEventIds.push(e.id)
-    return { ok: true, message: applied ? `You answered ${Object.keys(chosen).length} question${Object.keys(chosen).length === 1 ? "" : "s"}.` : "You faced the press.", applied }
+    return { ok: true, message: applied ? tn("press.res.answered", Object.keys(chosen).length) : t("press.res.faced"), applied }
 }
 
 /**

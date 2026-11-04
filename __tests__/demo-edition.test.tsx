@@ -80,7 +80,7 @@ test('the end screen points to the full game store page and the next week', () =
     expect(html).toContain('https://store.steampowered.com/app/4326170/')
     expect(html).toContain(`week ${DEMO_LAST_WEEK + 1}`)
     expect(html).toContain('Demo Club')
-    expect(html).toContain('The majors')
+    expect(html).toContain('The Majors')
 })
 
 test('the demo package runs Steam as its own app, never as the full game', () => {

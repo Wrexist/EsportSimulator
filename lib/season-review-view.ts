@@ -31,6 +31,7 @@ import { STORY_KIND_LABEL } from "@/engine/storylines/view"
 import { ordinalLabel, t } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 import { storyKindName } from "@/lib/story-names"
+import { lineText } from "@/lib/news-text"
 
 export type ReviewPageId = "club" | "mvp" | "rookie" | "top20" | "team" | "records" | "story"
 
@@ -312,7 +313,7 @@ export function readStorylineArcs(raw: unknown, teamId: string, season: number):
             const ended = arc.state === "RESOLVED" && seasonOfWeek(arc.updatedWeek) === season
             const beats = log.slice(-MAX_BEATS).map((l, i, all): ReviewStoryBeat => ({
                 when: weekOfSeasonLabel(l.week),
-                title: l.text,
+                title: lineText(l),
                 tone: ended && i === all.length - 1 ? OUTCOME_TONE[arc.outcome ?? ""] ?? "neutral" : "neutral",
             }))
             return { title: storyKindName(arc.kind), ...(ended ? {} : { summary: t("sr.stillRunning") }), beats }

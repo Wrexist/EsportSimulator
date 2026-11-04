@@ -1,7 +1,7 @@
 import type { GameSave } from "../save-types"
 
 /** Conditional wages become expenses only for a completed match actually played (appearance bonuses: official matches only, G13). */
-export function settlePlayerContractBonuses(save: Pick<GameSave, "teams" | "contracts" | "financeLedger" | "currentWeek">, matchId: string, teamId: string, won: boolean, playedIds: string[], mvpPlayerId?: string, ledgerIds?: Set<string>, official = false): void {
+export function settlePlayerContractBonuses(save: Pick<GameSave, "teams" | "contracts" | "financeLedger" | "currentWeek"> & { players?: GameSave["players"] }, matchId: string, teamId: string, won: boolean, playedIds: string[], mvpPlayerId?: string, ledgerIds?: Set<string>, official = false): void {
     const team = save.teams.find(t => t.id === teamId)
     if (!team) return
     const played = new Set(playedIds)
@@ -15,7 +15,7 @@ export function settlePlayerContractBonuses(save: Pick<GameSave, "teams" | "cont
             if (ids.has(id)) continue
             team.budget -= amount
             save.financeLedger.push({ id, week: save.currentWeek, teamId, type: "EXPENSE", category: "WAGES_PLAYER", amount,
-                description: `${kind === "win" ? "Match win" : kind === "mvp" ? "MVP" : "Appearance"} contract bonus: ${contract.playerId}`, balance: team.budget })
+                description: `${kind === "win" ? "Match win" : kind === "mvp" ? "MVP" : "Appearance"} contract bonus: ${save.players?.find(p => p.id === contract.playerId)?.nickname ?? contract.playerId}`, balance: team.budget })
             ids.add(id)
         }
     }

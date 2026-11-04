@@ -5,12 +5,8 @@ import type { LucideIcon } from "lucide-react"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 import { cn } from "@/lib/utils"
 import { answerByWeek, weekLabel, type InboxItem } from "./inbox-model"
+import { t } from "@/lib/i18n"
 
-const DECISION_TAG: Record<string, string> = {
-    choice: "Needs an answer",
-    job_offer: "Job offer",
-    transfer_offer: "Transfer bid",
-}
 
 function Row({ item, selected, currentWeek, onSelect }: {
     item: InboxItem
@@ -45,12 +41,12 @@ function Row({ item, selected, currentWeek, onSelect }: {
                     <span className="mt-0.5 block truncate text-xs text-ink-3">{item.preview}</span>
                     {item.decision && (
                         <span className="mt-1.5 flex items-center gap-2 text-[11px] font-semibold">
-                            <span className="rounded-sm bg-caution/15 px-1.5 py-0.5 uppercase tracking-[0.06em] text-caution">{DECISION_TAG[item.decision]}</span>
-                            {deadline != null && <span className="text-ink-3">{deadline <= currentWeek ? "Answer this week" : `By week ${deadline}`}</span>}
+                            <span className="rounded-sm bg-caution/15 px-1.5 py-0.5 uppercase tracking-[0.06em] text-caution">{t(`ib.tag.${item.decision}`)}</span>
+                            {deadline != null && <span className="text-ink-3">{deadline <= currentWeek ? t("ib.answerThisWeek") : t("ib.byWeek", { week: deadline })}</span>}
                         </span>
                     )}
                 </span>
-                {item.unread && <span className="sr-only">Unread</span>}
+                {item.unread && <span className="sr-only">{t("ib.unreadSr")}</span>}
             </button>
         </li>
     )
@@ -81,7 +77,7 @@ export function InboxList({ items, selectedKey, currentWeek, onSelect, empty }: 
     }
 
     return (
-        <ul ref={listRef} onKeyDown={onKeyDown} aria-label="Messages" className="min-h-0 overflow-y-auto">
+        <ul ref={listRef} onKeyDown={onKeyDown} aria-label={t("ib.tab.messages")} className="min-h-0 overflow-y-auto">
             {items.map(item => (
                 <Row key={item.key} item={item} selected={item.key === selectedKey} currentWeek={currentWeek} onSelect={onSelect} />
             ))}

@@ -8,6 +8,7 @@ import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { soundManager } from "@/lib/sound-manager"
 import type { SoundType } from "@/lib/audio-feedback"
 import { cn } from "@/lib/utils"
+import { t } from "@/lib/i18n"
 import { tokens } from "@/src/design/tokens"
 import { useMomentOnScreen } from "./moment-state"
 
@@ -98,7 +99,7 @@ export interface MomentFrameProps {
  * Escape or the button continue (after a short arm delay). Focus is trapped
  * while it is open; reduced motion shows everything at once.
  */
-export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actionLabel = "Continue", onDismiss, children, className }: MomentFrameProps) {
+export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actionLabel, onDismiss, children, className }: MomentFrameProps) {
     const reduce = useAppReducedMotion()
     const [armed, setArmed] = useState(false)
     const armedRef = useRef(false)
@@ -170,9 +171,9 @@ export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actio
                     className="sticky bottom-0 z-10 mt-6 flex w-full flex-col items-center gap-2 bg-linear-to-t from-ink from-60% to-transparent pb-4 pt-6"
                 >
                     <Button ref={buttonRef} onClick={close} disabled={!armed} className="h-12 min-w-[240px] px-10 text-base">
-                        {actionLabel}
+                        {actionLabel ?? t("mo.continue")}
                     </Button>
-                    <p className="text-xs text-ink-3">Enter or Space to continue</p>
+                    <p className="text-xs text-ink-3">{t("mo.keysHint")}</p>
                 </motion.div>
             </div>
         </motion.div>

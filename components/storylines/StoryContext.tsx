@@ -8,6 +8,7 @@
 import { useGameStore } from "@/store/game-store"
 import { storyKindName } from "@/lib/story-names"
 import { t } from "@/lib/i18n"
+import { lineText } from "@/lib/news-text"
 
 export function StoryContext({ arcId }: { arcId: string }) {
     const arc = useGameStore(s => s.storylines?.find(a => a.id === arcId))
@@ -19,7 +20,7 @@ export function StoryContext({ arcId }: { arcId: string }) {
                 {arc.log.map((entry, i) => (
                     <li key={i} className="flex gap-3 text-[13px] leading-snug">
                         <span className="w-12 shrink-0 text-xs tabular-nums text-ink-3">{t("common.weekShort", { n: ((entry.week - 1) % 52) + 1 })}</span>
-                        <span className="min-w-0 text-ink-2">{entry.text}</span>
+                        <span className="min-w-0 text-ink-2">{lineText(entry)}</span>
                     </li>
                 ))}
             </ol>

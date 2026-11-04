@@ -13,10 +13,11 @@ import { useGameStore } from "@/store/game-store"
 import { Button } from "@/components/ui/button"
 import { Panel } from "@/src/components/ui/Panel"
 import type { GameEventSaveData } from "@/engine/save-types"
-import { PRESS_REASON_LABEL, pressDataOf, pressEventId } from "@/engine/storylines/press-view"
+import { pressDataOf, pressEventId, pressReasonLabel, pressText } from "@/engine/storylines/press-view"
 import { describeChoice, type EffectChip } from "@/components/inbox/inbox-model"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
+import { t } from "@/lib/i18n"
 
 function Chips({ chips }: { chips: EffectChip[] }) {
     return (
@@ -49,7 +50,7 @@ export function PressConferenceDecision({ event, compact = false }: { event: Gam
     }
     const skip = () => {
         resolveEventChoice(event.id, "no_one")
-        if (useGameStore.getState().eventsLog.find(e => e.id === event.id)?.selectedChoiceId === "no_one") toast.info("No one from the club attended the press conference")
+        if (useGameStore.getState().eventsLog.find(e => e.id === event.id)?.selectedChoiceId === "no_one") toast.info(t("press.ui.noOneToast"))
     }
 
     return (
@@ -57,9 +58,9 @@ export function PressConferenceDecision({ event, compact = false }: { event: Gam
             {press.questions.map((q, qi) => (
                 <div key={q.id} className="space-y-1.5">
                     <p className={cn("font-semibold leading-snug text-ink-1", compact ? "text-[13px]" : "text-sm")}>
-                        <span className="mr-1.5 tabular-nums text-ink-3">Q{qi + 1}.</span>{q.text}
+                        <span className="mr-1.5 tabular-nums text-ink-3">{t("press.ui.qn", { n: qi + 1 })}</span>{pressText(q)}
                     </p>
-                    <div className="space-y-1.5" role="radiogroup" aria-label={`Question ${qi + 1}`}>
+                    <div className="space-y-1.5" role="radiogroup" aria-label={t("press.ui.qAria", { n: qi + 1 })}>
                         {q.answers.map(a => {
                             const selected = answers[q.id] === a.id
                             const outcome = describeChoice(squadEvent, a, budget)
@@ -75,13 +76,13 @@ export function PressConferenceDecision({ event, compact = false }: { event: Gam
                                         selected ? "border-gold bg-gold/[0.06]" : "border-line bg-raised hover:border-line-strong hover:bg-hover",
                                     )}
                                 >
-                                    <span className={cn("text-[13px]", selected ? "font-semibold text-ink-1" : "text-ink-2")}>“{a.text}”</span>
+                                    <span className={cn("text-[13px]", selected ? "font-semibold text-ink-1" : "text-ink-2")}>{t("press.ui.quote", { text: pressText(a) })}</span>
                                     <Chips chips={outcome.chips} />
                                     {a.afterResult && (
                                         <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-ink-3">
-                                            <span>After the match, if you win:</span>
+                                            <span>{t("press.ui.ifWin")}</span>
                                             <Chips chips={describeChoice(squadEvent, { ...a, effects: a.afterResult.win }, budget).chips} />
-                                            <span>if you lose:</span>
+                                            <span>{t("press.ui.ifLose")}</span>
                                             <Chips chips={describeChoice(squadEvent, { ...a, effects: a.afterResult.loss }, budget).chips} />
                                         </span>
                                     )}
@@ -93,11 +94,11 @@ export function PressConferenceDecision({ event, compact = false }: { event: Gam
             ))}
             <div className="flex flex-wrap items-center gap-2 pt-1">
                 <Button onClick={face} disabled={answered === 0} className="h-9">
-                    Face the press{answered ? ` (${answered} of ${press.questions.length})` : ""}
+                    {answered ? t("press.ui.faceN", { n: answered, total: press.questions.length }) : t("press.ui.face")}
                 </Button>
-                <Button variant="outline" onClick={skip} className="h-9">Send no one</Button>
+                <Button variant="outline" onClick={skip} className="h-9">{t("press.ui.sendNoOne")}</Button>
             </div>
-            <p className="text-xs text-ink-3">A question you leave out changes nothing. Sending no one has no effect.</p>
+            <p className="text-xs text-ink-3">{t("press.ui.note")}</p>
         </section>
     )
 }
@@ -109,7 +110,7 @@ export function PressConferenceRecord({ event }: { event: GameEventSaveData }) {
     if (!press) return null
     if (event.selectedChoiceId !== "answered" || !chosen) {
         const withdrawn = (event.data as { isWithdrawn?: boolean } | undefined)?.isWithdrawn
-        return <p className="rounded-md border border-line px-3 py-2 text-xs font-medium text-ink-2">{withdrawn ? "The match was played before anyone faced the press." : "No one from the club attended."}</p>
+        return <p className="rounded-md border border-line px-3 py-2 text-xs font-medium text-ink-2">{withdrawn ? t("press.ui.playedFirst") : t("press.ui.noOne")}</p>
     }
     return (
         <ul className="space-y-1.5 rounded-md border border-line px-3 py-2.5 text-[13px]">
@@ -117,8 +118,8 @@ export function PressConferenceRecord({ event }: { event: GameEventSaveData }) {
                 const a = q.answers.find(x => x.id === chosen[q.id])
                 return (
                     <li key={q.id} className="leading-snug">
-                        <span className="text-ink-3">{q.text}</span>{" "}
-                        <span className="font-semibold text-ink-1">{a ? `“${a.text}”` : "Skipped."}</span>
+                        <span className="text-ink-3">{pressText(q)}</span>{" "}
+                        <span className="font-semibold text-ink-1">{a ? t("press.ui.quote", { text: pressText(a) }) : t("press.ui.skipped")}</span>
                     </li>
                 )
             })}
@@ -137,7 +138,7 @@ export function PressPanel({ matchId }: { matchId: string }) {
     const data = (event.data ?? {}) as { isWithdrawn?: boolean; deadlineWeek?: number }
     const open = event.selectedChoiceId === undefined && !data.isWithdrawn && (data.deadlineWeek == null || data.deadlineWeek >= currentWeek)
     return (
-        <Panel eyebrow={PRESS_REASON_LABEL[press.reason]} title="Press conference" actions={<span className="text-xs text-ink-3">{open ? "Optional · before the match" : "Done"}</span>}>
+        <Panel eyebrow={pressReasonLabel(press.reason)} title={t("press.ui.panel")} actions={<span className="text-xs text-ink-3">{open ? t("press.ui.optional") : t("press.ui.done")}</span>}>
             {open ? <PressConferenceDecision event={event} compact /> : <PressConferenceRecord event={event} />}
         </Panel>
     )
