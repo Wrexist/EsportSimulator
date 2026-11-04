@@ -17,6 +17,8 @@
  * prize money. The UI says so next to the numbers.
  */
 
+import { t, tn, intlLocale } from "@/lib/i18n"
+import { activityName } from "@/components/schedule/activity-labels"
 import { WEEKLY_ACTIVITIES, weeklyActivityXpBonus, type WeeklyActivityType } from "@/types/activities"
 import { TrainingFocus } from "@/types"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
@@ -143,7 +145,7 @@ function meetingEffects(a: ActivitySaveData): Record<string, number> {
     return ((a.data as { effects?: Record<string, number> } | undefined)?.effects) ?? { morale: 10, xp: 25 }
 }
 
-const signed = (n: number, unit: string) => `${n > 0 ? "+" : "−"}${Math.abs(n)}${unit}`
+const signedN = (n: number) => `${n > 0 ? "+" : "−"}${Math.abs(n)}`
 const money = (n: number) => `${n > 0 ? "+" : "−"}$${Math.abs(Math.round(n)).toLocaleString("en-US")}`
 
 export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
@@ -159,8 +161,8 @@ export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
     if (fixturesToPlay.length > 0) {
         effects.push({
             source: "fixtures",
-            label: `${fixturesToPlay.length} match${fixturesToPlay.length === 1 ? "" : "es"} to play`,
-            effects: [{ text: `+${fixtureFatigue} fatigue for the five who play`, good: false }, { text: "morale and form follow the results", good: true }],
+            label: tn("wkp.toPlay", fixturesToPlay.length),
+            effects: [{ text: t("wkp.fixtureFatigue", { value: fixtureFatigue }), good: false }, { text: t("wkp.followResults"), good: true }],
         })
     }
 
@@ -176,14 +178,14 @@ export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
         const list: PlanEffect["effects"] = []
         if (focus.cost) list.push({ text: money(-focus.cost), good: false })
         if (e.money) list.push({ text: money(e.money), good: true })
-        if (e.morale) list.push({ text: signed(e.morale, " morale"), good: e.morale > 0 })
-        if (e.fatigue) list.push({ text: signed(e.fatigue, " fatigue"), good: e.fatigue < 0 })
-        if (focusXp) list.push({ text: `+${focusXp} XP`, good: true })
-        if (e.synergy) list.push({ text: `+${e.synergy} chemistry`, good: true })
-        if (e.reputation) list.push({ text: `+${e.reputation} reputation`, good: true })
-        if (!focusAffordable) list.push({ text: `cancelled: needs $${focus.cost.toLocaleString("en-US")} at the update`, good: false })
-        if (focusAlreadyUsed) list.push({ text: "already applied this week", good: false })
-        effects.push({ source: "focus", label: `Team focus: ${focus.name}`, effects: list })
+        if (e.morale) list.push({ text: t("fx.morale", { value: signedN(e.morale) }), good: e.morale > 0 })
+        if (e.fatigue) list.push({ text: t("fx.fatigue", { value: signedN(e.fatigue) }), good: e.fatigue < 0 })
+        if (focusXp) list.push({ text: t("fx.xp", { value: focusXp }), good: true })
+        if (e.synergy) list.push({ text: t("fx.chemistry", { value: e.synergy }), good: true })
+        if (e.reputation) list.push({ text: t("fx.reputation", { value: e.reputation }), good: true })
+        if (!focusAffordable) list.push({ text: t("wkp.focusCancelled", { amount: `$${focus.cost.toLocaleString("en-US")}` }), good: false })
+        if (focusAlreadyUsed) list.push({ text: t("wkp.alreadyApplied"), good: false })
+        effects.push({ source: "focus", label: t("wkp.focusLabel", { name: t(`wfocus.${focus.type}`) }), effects: list })
     }
 
     // ---- bookings (staff meetings, bootcamp blocks, marketing) ----
@@ -194,24 +196,24 @@ export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
         if (a.type === "STAFF_MEETING" && a.week === week) {
             const fx = meetingEffects(a)
             const list: PlanEffect["effects"] = []
-            if (fx.morale) list.push({ text: signed(fx.morale, " morale"), good: fx.morale > 0 })
-            if (fx.xp) list.push({ text: `+${fx.xp} XP`, good: true })
-            if (fx.fatigue) list.push({ text: signed(fx.fatigue, " fatigue"), good: fx.fatigue < 0 })
-            if (fx.stressResistance) list.push({ text: `+${fx.stressResistance} composure`, good: true })
-            if (fx.tacticXp) list.push({ text: `+${Math.floor(fx.tacticXp / 5)} tactics`, good: true })
-            if (fx.chemistry && team.chemistry !== undefined) { list.push({ text: `+${fx.chemistry} chemistry`, good: true }); chemistry += fx.chemistry }
-            effects.push({ source: "meeting", activityId: a.id, label: a.name || "Staff meeting", effects: list })
+            if (fx.morale) list.push({ text: t("fx.morale", { value: signedN(fx.morale) }), good: fx.morale > 0 })
+            if (fx.xp) list.push({ text: t("fx.xp", { value: fx.xp }), good: true })
+            if (fx.fatigue) list.push({ text: t("fx.fatigue", { value: signedN(fx.fatigue) }), good: fx.fatigue < 0 })
+            if (fx.stressResistance) list.push({ text: t("fx.composure", { value: fx.stressResistance }), good: true })
+            if (fx.tacticXp) list.push({ text: t("fx.tactics", { value: Math.floor(fx.tacticXp / 5) }), good: true })
+            if (fx.chemistry && team.chemistry !== undefined) { list.push({ text: t("fx.chemistry", { value: fx.chemistry }), good: true }); chemistry += fx.chemistry }
+            effects.push({ source: "meeting", activityId: a.id, label: activityName(a.name) || t("sch.kind.STAFF_MEETING"), effects: list })
         } else if (a.type === "BOOTCAMP" || a.type === "REST" || a.type === "TRAVEL") {
             const list: PlanEffect["effects"] = []
             const xp = Math.max(0, num(a.effect?.trainingBonus))
             const morale = num(a.effect?.morale)
             const fatigue = num(a.fatigue)
-            if (xp) list.push({ text: `+${xp} XP`, good: true })
-            if (morale) list.push({ text: signed(morale, " morale"), good: morale > 0 })
-            if (fatigue) list.push({ text: signed(fatigue, " fatigue"), good: fatigue < 0 })
+            if (xp) list.push({ text: t("fx.xp", { value: xp }), good: true })
+            if (morale) list.push({ text: t("fx.morale", { value: signedN(morale) }), good: morale > 0 })
+            if (fatigue) list.push({ text: t("fx.fatigue", { value: signedN(fatigue) }), good: fatigue < 0 })
             const chem = a.week === week ? (BOOTCAMP_CHEMISTRY_BONUS[a.type] ?? 0) : 0
-            if (chem) { list.push({ text: `+${chem} chemistry`, good: true }); chemistry += chem }
-            if (list.length) effects.push({ source: "bootcamp", activityId: a.id, label: `${a.name || "Bootcamp"}${a.duration > 1 ? ` (week ${week - a.week + 1} of ${a.duration})` : ""}`, effects: list })
+            if (chem) { list.push({ text: t("fx.chemistry", { value: chem }), good: true }); chemistry += chem }
+            if (list.length) effects.push({ source: "bootcamp", activityId: a.id, label: `${activityName(a.name) || t("sch.kind.BOOTCAMP")}${a.duration > 1 ? ` (${t("wk.weekOf", { n: week - a.week + 1, total: a.duration })})` : ""}`, effects: list })
         }
     }
     // Marketing: the update at the end of a week the campaign runs adds its
@@ -225,10 +227,10 @@ export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
         effects.push({
             source: "marketing",
             activityId: a.id,
-            label: a.name || "Marketing campaign",
+            label: activityName(a.name) || t("sch.pick.MARKETING"),
             effects: perWeek > 0
-                ? [{ text: `+${perWeek.toLocaleString("en-US")} followers`, good: true }]
-                : [{ text: "no followers counted at this update", good: false }],
+                ? [{ text: t("fx.followers", { value: perWeek.toLocaleString(intlLocale()) }), good: true }]
+                : [{ text: t("wkp.noFollowers"), good: false }],
         })
     }
     const bookingsPaid = active.filter(a => a.week === week).reduce((s, a) => s + num(a.cost), 0)
@@ -290,18 +292,18 @@ export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
         .filter(s => !roster.find(p => p.id === s.playerId)?.injury)
         .reduce((sum, s) => sum + num(s.weeklyCost), 0)
     if (sessions.length > 0) {
-        effects.push({ source: "training", label: `Role retraining (${sessions.length})`, effects: [{ text: money(-retrainingCost), good: false }, { text: "skips weekly training", good: false }] })
+        effects.push({ source: "training", label: t("wkp.retraining", { count: sessions.length }), effects: [{ text: money(-retrainingCost), good: false }, { text: t("wkp.skipsTraining"), good: false }] })
     }
 
     effects.push({
         source: "recovery",
-        label: `Recovery · ${rest.length} rest day${rest.length === 1 ? "" : "s"}`,
+        label: tn("wkp.recovery", rest.length),
         effects: [
-            { text: `−${BASE_WEEKLY_RECOVERY + Math.round(recoveryBonus * 10) / 10} fatigue`, good: true },
-            ...(rest.length ? [{ text: `−${Math.round(CONDITION_TUNING.IDLE_DAY_FATIGUE_RECOVERY_RATE * 100)}% fatigue and +${CONDITION_TUNING.IDLE_DAY_ENERGY} energy per rest day`, good: true }] : []),
+            { text: t("fx.fatigue", { value: `−${BASE_WEEKLY_RECOVERY + Math.round(recoveryBonus * 10) / 10}` }), good: true },
+            ...(rest.length ? [{ text: t("wkp.restDayFx", { fatigue: Math.round(CONDITION_TUNING.IDLE_DAY_FATIGUE_RECOVERY_RATE * 100), energy: CONDITION_TUNING.IDLE_DAY_ENERGY }), good: true }] : []),
         ],
     })
-    effects.push({ source: "xp", label: "Weekly XP", effects: [{ text: `+${WEEKLY_XP_RANGE[0]}–${WEEKLY_XP_RANGE[1]} XP each`, good: true }] })
+    effects.push({ source: "xp", label: t("wkp.weeklyXp"), effects: [{ text: t("wkp.xpEach", { min: WEEKLY_XP_RANGE[0], max: WEEKLY_XP_RANGE[1] }), good: true }] })
 
     return {
         players,

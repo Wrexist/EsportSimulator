@@ -18,11 +18,13 @@ import { Panel } from "@/src/components/ui/Panel"
 import { Meter } from "@/src/components/ui/Meter"
 import { cn } from "@/lib/utils"
 import { LEGACY_GOALS } from "@/engine/legacy-goals"
+import { t, tn } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
 
 const LEGACY_REP_MIN = Math.min(...LEGACY_GOALS.flatMap(g => g.reputation))
 const LEGACY_REP_MAX = Math.max(...LEGACY_GOALS.flatMap(g => g.reputation))
 
-const ENDED_LABEL: Record<StintEnd, string> = { moved: "Moved on", sacked: "Sacked", folded: "Club folded" }
+const endedLabel = (ended: StintEnd) => t(`car.ended.${ended}`)
 const signed = (n: number) => `${n > 0 ? "+" : ""}${n}`
 const weekLabel = (week: number) => `S${Math.ceil(week / 52)} W${((week - 1) % 52) + 1}`
 
@@ -46,20 +48,20 @@ export function ReputationPanel() {
     })))
     const recent = [...(log ?? [])].reverse().slice(0, 8)
     return (
-        <Panel title="Reputation" actions={<span className="font-display text-2xl font-bold tabular-nums text-ink-1">{Math.round(reputation)}<span className="ml-0.5 text-sm font-normal text-ink-3">/100</span></span>}>
-            <Meter value={reputation} label="Manager reputation" tone="neutral" showValue={false} trackClassName="w-full h-2" />
+        <Panel title={t("car.kpi.reputation")} actions={<span className="font-display text-2xl font-bold tabular-nums text-ink-1">{Math.round(reputation)}<span className="ml-0.5 text-sm font-normal text-ink-3">/100</span></span>}>
+            <Meter value={reputation} label={t("car.repAria")} tone="neutral" showValue={false} trackClassName="w-full h-2" />
             <p className="mt-3 text-xs leading-relaxed text-ink-3">
-                Above 50, a salary counter-offer to a club offering you a job succeeds 60% of the time instead of 40%.
+                {t("car.repNote")}
             </p>
-            <h3 className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">What moves it</h3>
+            <h3 className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("car.repMoves")}</h3>
             <ul className="mt-2 space-y-1 text-sm text-ink-2">
-                <li className="flex justify-between gap-3"><span>Season board review: exceeded / met</span><span className="tabular-nums text-positive">{signed(REPUTATION_DELTA.EXCEEDED)} / {signed(REPUTATION_DELTA.MET)}</span></li>
-                <li className="flex justify-between gap-3"><span>Season board review: missed / failed</span><span className="tabular-nums text-negative">{signed(REPUTATION_DELTA.MISSED)} / {signed(REPUTATION_DELTA.FAILED)}</span></li>
-                <li className="flex justify-between gap-3"><span>Dismissed by the board</span><span className="tabular-nums text-negative">{signed(REPUTATION_DELTA.FAILED)}</span></li>
-                <li className="flex justify-between gap-3"><span>A legacy goal level reached</span><span className="tabular-nums text-positive">+{LEGACY_REP_MIN} to +{LEGACY_REP_MAX}</span></li>
-                <li className="flex justify-between gap-3"><span>A fixture the week plays without you: win / loss</span><span className="tabular-nums text-ink-1">{signed(WIN_REPUTATION_BONUS)} / {signed(-LOSS_REPUTATION_PENALTY)}</span></li>
+                <li className="flex justify-between gap-3"><span>{t("car.rep.reviewGood")}</span><span className="tabular-nums text-positive">{signed(REPUTATION_DELTA.EXCEEDED)} / {signed(REPUTATION_DELTA.MET)}</span></li>
+                <li className="flex justify-between gap-3"><span>{t("car.rep.reviewBad")}</span><span className="tabular-nums text-negative">{signed(REPUTATION_DELTA.MISSED)} / {signed(REPUTATION_DELTA.FAILED)}</span></li>
+                <li className="flex justify-between gap-3"><span>{t("car.rep.dismissed")}</span><span className="tabular-nums text-negative">{signed(REPUTATION_DELTA.FAILED)}</span></li>
+                <li className="flex justify-between gap-3"><span>{t("car.rep.legacy")}</span><span className="tabular-nums text-positive">{t("car.rep.range", { min: LEGACY_REP_MIN, max: LEGACY_REP_MAX })}</span></li>
+                <li className="flex justify-between gap-3"><span>{t("car.rep.delegated")}</span><span className="tabular-nums text-ink-1">{signed(WIN_REPUTATION_BONUS)} / {signed(-LOSS_REPUTATION_PENALTY)}</span></li>
             </ul>
-            <h3 className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Recent changes</h3>
+            <h3 className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("car.repRecent")}</h3>
             {recent.length > 0 ? (
                 <ul className="mt-2 divide-y divide-line rounded border border-line">
                     {recent.map((c, i) => (
@@ -70,7 +72,7 @@ export function ReputationPanel() {
                         </li>
                     ))}
                 </ul>
-            ) : <p className="mt-2 text-sm text-ink-3">No change recorded yet. The first season review is the usual first move.</p>}
+            ) : <p className="mt-2 text-sm text-ink-3">{t("car.repEmpty")}</p>}
         </Panel>
     )
 }
@@ -81,8 +83,8 @@ export function ClubTimelinePanel() {
     const rows = [...stints].reverse()
     return (
         <Panel
-            title="Clubs managed"
-            actions={<span className="text-xs tabular-nums text-ink-3">{stints.length} club{stints.length === 1 ? "" : "s"} · {dismissals} dismissal{dismissals === 1 ? "" : "s"}</span>}
+            title={t("car.clubs")}
+            actions={<span className="text-xs tabular-nums text-ink-3">{tn("car.clubsN", stints.length)} · {tn("car.dismissalsN", dismissals)}</span>}
             padded={false}
         >
             {rows.length > 0 ? (
@@ -90,11 +92,11 @@ export function ClubTimelinePanel() {
                     <table data-slot="table" className="w-full min-w-[620px] border-collapse text-left">
                         <thead data-slot="table-header">
                             <tr className="border-b border-line">
-                                <th data-slot="table-head" className="pl-4">Club</th>
-                                <th data-slot="table-head" className="px-3">From – to</th>
-                                <th data-slot="table-head" className="px-3 text-right">W–L</th>
-                                <th data-slot="table-head" className="px-3 text-right">Titles</th>
-                                <th data-slot="table-head" className="pl-3 pr-4">How it ended</th>
+                                <th data-slot="table-head" className="pl-4">{t("car.col.club")}</th>
+                                <th data-slot="table-head" className="px-3">{t("car.col.fromTo")}</th>
+                                <th data-slot="table-head" className="px-3 text-right">{t("car.col.wl")}</th>
+                                <th data-slot="table-head" className="px-3 text-right">{t("tro.kpi.titles")}</th>
+                                <th data-slot="table-head" className="pl-3 pr-4">{t("car.col.ended")}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,17 +107,17 @@ export function ClubTimelinePanel() {
                                     <tr key={`${s.teamId}-${s.fromWeek}-${i}`} data-slot="table-row" className="h-11 border-b border-line last:border-0">
                                         <td className="max-w-[220px] truncate pl-4 text-sm font-semibold text-ink-1">{teamOf(s.teamId)?.name ?? s.teamName}</td>
                                         <td className="px-3 text-sm tabular-nums text-ink-2">
-                                            {weekLabel(s.fromWeek)} – {s.toWeek != null ? weekLabel(s.toWeek) : "now"}
-                                            {s.trackedFromWeek && <span className="ml-1.5 text-xs text-ink-3">(results from {weekLabel(s.trackedFromWeek)})</span>}
+                                            {weekLabel(s.fromWeek)} – {s.toWeek != null ? weekLabel(s.toWeek) : t("hof.now")}
+                                            {s.trackedFromWeek && <span className="ml-1.5 text-xs text-ink-3">{t("car.resultsFrom", { week: weekLabel(s.trackedFromWeek) })}</span>}
                                         </td>
                                         <td className="px-3 text-right text-sm tabular-nums text-ink-2">
                                             {s.wins}<span className="text-ink-3">–</span>{s.losses}{rate != null && <span className="ml-1.5 text-xs text-ink-3">{rate}%</span>}
                                         </td>
                                         <td className={cn("px-3 text-right text-sm tabular-nums", titles > 0 ? "font-semibold text-gold" : "text-ink-3")}>
-                                            {titles}{majors > 0 && <span className="ml-1 text-xs">({majors} Major{majors === 1 ? "" : "s"})</span>}
+                                            {titles}{majors > 0 && <span className="ml-1 text-xs">({tn("car.kpi.majors", majors)})</span>}
                                         </td>
                                         <td className={cn("pl-3 pr-4 text-sm", s.ended === "sacked" || s.ended === "folded" ? "text-negative" : s.ended ? "text-ink-2" : "text-ink-3")}>
-                                            {s.ended ? ENDED_LABEL[s.ended] : "In charge"}
+                                            {s.ended ? endedLabel(s.ended) : t("car.inCharge")}
                                         </td>
                                     </tr>
                                 )
@@ -123,9 +125,9 @@ export function ClubTimelinePanel() {
                         </tbody>
                     </table>
                 </div>
-            ) : <p className="px-4 py-5 text-sm text-ink-3">Your record at each club starts with its first official match.</p>}
+            ) : <p className="px-4 py-5 text-sm text-ink-3">{t("car.clubsEmpty")}</p>}
             <p className="border-t border-line px-4 py-2.5 text-xs leading-relaxed text-ink-3">
-                W–L counts official league and tournament matches; friendlies don&apos;t count. A spell ends when you take another job, the board sacks you or the club folds. <Link href="/career/board" className="font-semibold text-ink-2 hover:text-gold">Board</Link>
+                <Trans k="car.clubsNote" tags={{ link: x => <Link href="/career/board" className="font-semibold text-ink-2 hover:text-gold">{x}</Link> }} />
             </p>
         </Panel>
     )

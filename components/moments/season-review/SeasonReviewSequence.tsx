@@ -5,7 +5,8 @@ import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowLeft } from "lucide-react"
 import type { TeamSaveData } from "@/engine/save-types"
-import { REVIEW_PAGE_LABEL, type ReviewPageId, type SeasonReviewView } from "@/lib/season-review-view"
+import { t } from "@/lib/i18n"
+import { reviewPageLabel, type ReviewPageId, type SeasonReviewView } from "@/lib/season-review-view"
 import { useFocusTrap } from "@/lib/accessibility"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { soundManager } from "@/lib/sound-manager"
@@ -88,13 +89,13 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
         if (mode === "moment" && momentKey) playMomentCue(momentKey, "seasonReview")
         else soundManager.play("seasonReview")
         if (mode === "moment" && view.success) soundManager.celebrate(CELEBRATION_MS, 1.5)
-        const t = setTimeout(() => {
+        const timer = setTimeout(() => {
             armedRef.current = true
             setArmed(true)
             primaryRef.current?.focus({ preventScroll: true })
         }, reduce ? 150 : ARM_MS)
         return () => {
-            clearTimeout(t)
+            clearTimeout(timer)
             if (mode === "moment" && view.success) soundManager.endCelebration()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps -- once per review
@@ -103,8 +104,8 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
     // A key reveal (the MVP, the rookie) gets the award cue; the rest are silent.
     useEffect(() => {
         if (page !== "mvp" && page !== "rookie") return
-        const t = setTimeout(() => soundManager.play("award", mode === "moment" ? { key: `${momentKey}:${page}` } : {}), reduce ? 0 : 350)
-        return () => clearTimeout(t)
+        const timer = setTimeout(() => soundManager.play("award", mode === "moment" ? { key: `${momentKey}:${page}` } : {}), reduce ? 0 : 350)
+        return () => clearTimeout(timer)
     }, [page, mode, momentKey, reduce])
 
     // Enter / Space / arrows from anywhere in the review; the page underneath never sees them.
@@ -133,7 +134,7 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
         setFinisher: (owner, f) => { if (owner === pageRef.current) finisher.current = f },
     }), [view, teamsById])
 
-    const closeLabel = mode === "moment" ? "Continue to pre-season" : "Close the review"
+    const closeLabel = mode === "moment" ? t("sr.continuePre") : t("sr.close")
     const slide = reduce ? 0 : 36
     const variants = {
         enter: (d: number) => ({ opacity: 0, x: slide * d }),
@@ -174,9 +175,9 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
                 <div className="flex items-center gap-4">
                     <Logotype size="compact" decorative />
                     <span aria-hidden="true" className="h-5 w-px bg-line-strong" />
-                    <span className="text-[13px] font-semibold uppercase tracking-[0.22em] text-ink-2">Season {view.season} review</span>
+                    <span className="text-[13px] font-semibold uppercase tracking-[0.22em] text-ink-2">{t("sr.reviewOf", { n: view.season })}</span>
                 </div>
-                <nav aria-label="Review pages" className="ml-auto flex items-center gap-4">
+                <nav aria-label={t("sr.pagesNav")} className="ml-auto flex items-center gap-4">
                     <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-ink-3 tabular-nums">{index + 1} / {pages.length}</span>
                     <ol className="flex items-center gap-1.5">
                         {pages.map((p, i) => (
@@ -184,7 +185,7 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
                                 <button
                                     type="button"
                                     onClick={() => { if (armedRef.current) go(i) }}
-                                    aria-label={`${REVIEW_PAGE_LABEL[p]}${i === index ? " (current)" : ""}`}
+                                    aria-label={i === index ? t("sr.current", { page: reviewPageLabel(p) }) : reviewPageLabel(p)}
                                     aria-current={i === index ? "step" : undefined}
                                     className="group flex h-6 items-center"
                                 >
@@ -195,7 +196,7 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
                     </ol>
                     {!last && (
                         <Button variant="ghost" size="sm" onClick={skipToEnd} disabled={!armed} className="text-xs">
-                            Skip to end <kbd className="rounded-sm border border-line-strong px-1 text-[11px] text-ink-3">Esc</kbd>
+                            {t("sr.skipToEnd")} <kbd className="rounded-sm border border-line-strong px-1 text-[11px] text-ink-3">Esc</kbd>
                         </Button>
                     )}
                 </nav>
@@ -224,22 +225,22 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
                         </motion.section>
                     </AnimatePresence>
                 </ReviewContext.Provider>
-                <p className="sr-only" aria-live="polite">{`Page ${index + 1} of ${pages.length}: ${REVIEW_PAGE_LABEL[page]}`}</p>
+                <p className="sr-only" aria-live="polite">{t("sr.pageOf", { n: index + 1, total: pages.length, page: reviewPageLabel(page) })}</p>
             </main>
 
             <footer className="relative grid grid-cols-[1fr_auto_1fr] items-center px-10 pb-7 pt-3">
                 <div>
                     {index > 0 && (
                         <Button variant="ghost" onClick={back} disabled={!armed} className="text-ink-2">
-                            <ArrowLeft aria-hidden="true" /> {REVIEW_PAGE_LABEL[pages[index - 1]]}
+                            <ArrowLeft aria-hidden="true" /> {reviewPageLabel(pages[index - 1])}
                         </Button>
                     )}
                 </div>
                 <div className="flex flex-col items-center gap-2">
                     <Button ref={primaryRef} onClick={next} disabled={!armed} className="h-12 min-w-[280px] px-10 text-base">
-                        {last ? closeLabel : `Next: ${REVIEW_PAGE_LABEL[pages[index + 1]]}`}
+                        {last ? closeLabel : t("sr.next", { page: reviewPageLabel(pages[index + 1]) })}
                     </Button>
-                    <p className="text-xs text-ink-3">Enter or Space to continue · Esc skips to the end</p>
+                    <p className="text-xs text-ink-3">{t("sr.keysHint")}</p>
                 </div>
                 <div />
             </footer>

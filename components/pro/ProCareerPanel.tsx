@@ -38,7 +38,7 @@ export function ProCareerPanel() {
         </div>
     )
     return (
-        <Panel title={t("pro.title")} actions={<span className={cn("rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em]", starter ? "bg-positive/15 text-positive" : "bg-caution/15 text-caution")} data-testid="pro-status">{starter ? t("pro.starter") : t("pro.bench")}</span>}>
+        <Panel title={t("pro.panelTitle")} actions={<span className={cn("rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em]", starter ? "bg-positive/15 text-positive" : "bg-caution/15 text-caution")} data-testid="pro-status">{starter ? t("pro.starter") : t("pro.bench")}</span>}>
             <div className="flex items-center gap-4">
                 <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={64} />
                 <div className="min-w-0 flex-1">

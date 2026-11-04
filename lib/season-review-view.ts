@@ -22,13 +22,15 @@ import type { GameSave, PlayerSaveData, TeamSaveData } from "@/engine/save-types
 import type { AwardWinner, RecordEntry, RecordKey, SeasonTitle } from "@/engine/records-types"
 import { RECORD_KEYS } from "@/engine/records-types"
 import { getSeasonReview, type SeasonReview } from "@/engine/season-review"
-import { boardVerdictFor, REVIEW_VERDICT_LABEL, type BoardOutcome } from "@/engine/board-expectations"
-import { TIER_DISPLAY } from "@/engine/league-engine"
-import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
+import { boardVerdictFor, type BoardOutcome } from "@/engine/board-expectations"
+import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { WEEKS_PER_SEASON } from "@/engine/official-stats"
 import { trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
 import type { StoryArc, StoryArcKind } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL } from "@/engine/storylines/view"
+import { ordinalLabel, t } from "@/lib/i18n"
+import { divisionName } from "@/lib/display-names"
+import { storyKindName } from "@/lib/story-names"
 
 export type ReviewPageId = "club" | "mvp" | "rookie" | "top20" | "team" | "records" | "story"
 
@@ -178,8 +180,10 @@ export interface SeasonReviewView {
     pages: ReviewPageId[]
 }
 
-export const weekOfSeasonLabel = (week: number) => `Week ${((Math.max(1, week) - 1) % WEEKS_PER_SEASON) + 1}`
-const tierLabel = (tier: string) => tier === "QUALIFIER" ? "Qualifier" : TIER_DISPLAY[tier as keyof typeof TIER_DISPLAY]?.label ?? tier
+export const weekOfSeasonLabel = (week: number) => t("sr.week", { n: ((Math.max(1, week) - 1) % WEEKS_PER_SEASON) + 1 })
+export const reviewPageLabel = (page: ReviewPageId) => t(`sr.page.${page}`)
+const SR_TIERS = new Set(["S_TIER", "A_TIER", "B_TIER", "C_TIER", "QUALIFIER"])
+const tierLabel = (tier: string) => SR_TIERS.has(tier) ? t(`sr.tier.${tier}`) : tier
 /** Champions list order: Majors, then S/A/B/C events, league titles, qualifiers. */
 const TITLE_ORDER = ["S_TIER", "A_TIER", "B_TIER", "C_TIER", "LEAGUE", "QUALIFIER"]
 const titleRank = (tier: string) => { const i = TITLE_ORDER.indexOf(tier); return i < 0 ? TITLE_ORDER.length : i }
@@ -194,7 +198,7 @@ interface Lookups {
     teamId: string
 }
 
-const teamName = (lk: Lookups, id: string | undefined) => (id && lk.teams.get(id)?.name) || "A former club"
+const teamName = (lk: Lookups, id: string | undefined) => (id && lk.teams.get(id)?.name) || t("sr.formerClub")
 
 function reviewPlayer(lk: Lookups, w: AwardWinner): ReviewPlayer {
     const p = lk.players.get(w.playerId)
@@ -254,19 +258,19 @@ function reviewRecord(lk: Lookups, key: RecordKey, r: RecordEntry, broken: boole
     const club = teamName(lk, r.teamId)
     const opp = teamName(lk, r.opponentId)
     const value = key === "bestMapRating" ? r.value.toFixed(2)
-        : key === "mostMapKills" ? `${r.value} kills`
+        : key === "mostMapKills" ? t("sr.kills", { n: r.value })
             : key === "biggestWin" ? (r.score ? dash(r.score) : `+${r.value}`)
-                : `${r.value} wins`
+                : t("sr.wins", { n: r.value })
     const detail = key === "longestWinStreak"
-        ? [r.fromWeek ? `${weekOfSeasonLabel(r.fromWeek)} to ${weekOfSeasonLabel(r.week).toLowerCase()}` : weekOfSeasonLabel(r.week), r.endedBy ? `ended by ${teamName(lk, r.endedBy)}` : null].filter(Boolean).join(" · ")
-        : [`vs ${opp}`, r.map, weekOfSeasonLabel(r.week)].filter(Boolean).join(" · ")
+        ? [r.fromWeek ? t("sr.streakSpan", { from: weekOfSeasonLabel(r.fromWeek), to: weekOfSeasonLabel(r.week) }) : weekOfSeasonLabel(r.week), r.endedBy ? t("sr.endedBy", { team: teamName(lk, r.endedBy) }) : null].filter(Boolean).join(" · ")
+        : [t("sr.vs", { team: opp }), r.map, weekOfSeasonLabel(r.week)].filter(Boolean).join(" · ")
     return {
         key,
-        label: RECORD_LABEL[key],
+        label: t(`sr.record.${key}`),
         value,
         holder: r.playerName ?? club,
         teamName: club,
-        detail: key === "biggestWin" ? `${detail} · +${r.value} rounds` : detail,
+        detail: key === "biggestWin" ? `${detail} · ${t("sr.plusRounds", { n: r.value })}` : detail,
         allTime: broken,
         ours: r.teamId === lk.teamId,
     }
@@ -311,7 +315,7 @@ export function readStorylineArcs(raw: unknown, teamId: string, season: number):
                 title: l.text,
                 tone: ended && i === all.length - 1 ? OUTCOME_TONE[arc.outcome ?? ""] ?? "neutral" : "neutral",
             }))
-            return { title: STORY_KIND_LABEL[arc.kind], ...(ended ? {} : { summary: "Still running" }), beats }
+            return { title: storyKindName(arc.kind), ...(ended ? {} : { summary: t("sr.stillRunning") }), beats }
         })
 }
 
@@ -326,27 +330,28 @@ function seasonBeats(src: ReviewSource, lk: Lookups, review: SeasonReview, club:
             const [, points, wins, losses] = div.table[i]
             const champion = div.championId === lk.teamId || i === 0
             const up = div.promoted?.includes(lk.teamId), down = div.relegated?.includes(lk.teamId)
-            const outcome = champion ? "Division champions" : up ? "Promoted" : down ? "Relegated" : null
+            const outcome = champion ? t("sr.divChampions") : up ? t("sr.promoted") : down ? t("sr.relegated") : null
+            const finish = { pos: ordinalLabel(i + 1), of: div.table.length, division: divisionName(div.name) }
             beats.push({
                 order: (splitEnds.get(split.split) ?? 50) * 10 + 5,
-                when: `Split ${split.split}`,
-                title: `${ordinal(i + 1)} of ${div.table.length} in ${div.name}${outcome ? `: ${outcome.toLowerCase()}` : ""}`,
-                detail: `${wins}–${losses}, ${points} points`,
+                when: t("sr.split", { n: split.split }),
+                title: outcome ? t("sr.divFinishOutcome", { ...finish, outcome: outcome.toLowerCase() }) : t("sr.divFinish", finish),
+                detail: t("sr.divRecord", { wins, losses, points }),
                 tone: champion ? "gold" : up ? "positive" : down ? "negative" : "neutral",
             })
         }
     }
-    for (const t of club.trophies) beats.push({ order: t.week * 10 + 1, when: weekOfSeasonLabel(t.week), title: `Won ${t.name}`, detail: t.major ? "Major champions" : t.tier === "LEAGUE" ? "League title" : t.tier === "QUALIFIER" ? "Qualifier" : `${tierLabel(t.tier)} title`, tone: "gold" })
-    if (club.biggestWin) beats.push({ order: club.biggestWin.week * 10 + 2, when: weekOfSeasonLabel(club.biggestWin.week), title: `Biggest win: ${club.biggestWin.score} vs ${club.biggestWin.opponentName}`, detail: `+${club.biggestWin.margin} rounds${club.biggestWin.map ? ` · ${club.biggestWin.map}` : ""}`, tone: "positive" })
-    if (club.worstLoss) beats.push({ order: club.worstLoss.week * 10 + 2, when: weekOfSeasonLabel(club.worstLoss.week), title: `Heaviest defeat: ${club.worstLoss.score} vs ${club.worstLoss.opponentName}`, detail: `−${club.worstLoss.margin} rounds${club.worstLoss.map ? ` · ${club.worstLoss.map}` : ""}`, tone: "negative" })
+    for (const tr of club.trophies) beats.push({ order: tr.week * 10 + 1, when: weekOfSeasonLabel(tr.week), title: t("sr.won", { name: tr.name }), detail: tr.major ? t("sr.majorChampions") : tr.tier === "LEAGUE" ? t("sr.leagueTitle") : tr.tier === "QUALIFIER" ? t("sr.tier.QUALIFIER") : t("sr.tierTitle", { tier: tierLabel(tr.tier) }), tone: "gold" })
+    if (club.biggestWin) beats.push({ order: club.biggestWin.week * 10 + 2, when: weekOfSeasonLabel(club.biggestWin.week), title: t("sr.beat.biggestWin", { score: club.biggestWin.score, team: club.biggestWin.opponentName }), detail: `${t("sr.plusRounds", { n: club.biggestWin.margin })}${club.biggestWin.map ? ` · ${club.biggestWin.map}` : ""}`, tone: "positive" })
+    if (club.worstLoss) beats.push({ order: club.worstLoss.week * 10 + 2, when: weekOfSeasonLabel(club.worstLoss.week), title: t("sr.beat.worstLoss", { score: club.worstLoss.score, team: club.worstLoss.opponentName }), detail: `${t("sr.minusRounds", { n: club.worstLoss.margin })}${club.worstLoss.map ? ` · ${club.worstLoss.map}` : ""}`, tone: "negative" })
     for (const key of review.records.broken) {
         const r = review.records.season[key]
         if (!r || r.teamId !== lk.teamId) continue
         const rec = reviewRecord(lk, key, r, true)
-        beats.push({ order: r.week * 10 + 3, when: weekOfSeasonLabel(r.week), title: `All-time record: ${rec.label.toLowerCase()}`, detail: `${rec.value} · ${rec.holder}`, tone: "gold" })
+        beats.push({ order: r.week * 10 + 3, when: weekOfSeasonLabel(r.week), title: t("sr.beat.record", { record: rec.label.toLowerCase() }), detail: `${rec.value} · ${rec.holder}`, tone: "gold" })
     }
-    if (club.tierMove) beats.push({ order: WEEKS_PER_SEASON * 10 + 6, when: "Season end", title: `${club.tierMove.direction === "promoted" ? "Promoted" : "Relegated"} to ${club.tierMove.to}`, detail: `From ${club.tierMove.from}, on the final world ranking`, tone: club.tierMove.direction === "promoted" ? "positive" : "negative" })
-    if (club.board) beats.push({ order: WEEKS_PER_SEASON * 10 + 7, when: "Season end", title: `Board review: ${club.board.label.toLowerCase()}`, ...(club.board.confidence !== undefined ? { detail: `Confidence ${Math.round(club.board.confidence)}/100` } : {}), tone: club.board.outcome === "EXCEEDED" || club.board.outcome === "MET" ? "positive" : "negative" })
+    if (club.tierMove) beats.push({ order: WEEKS_PER_SEASON * 10 + 6, when: t("sr.seasonEnd"), title: t(club.tierMove.direction === "promoted" ? "sr.beat.promotedTo" : "sr.beat.relegatedTo", { tier: club.tierMove.to }), detail: t("sr.beat.tierFrom", { tier: club.tierMove.from }), tone: club.tierMove.direction === "promoted" ? "positive" : "negative" })
+    if (club.board) beats.push({ order: WEEKS_PER_SEASON * 10 + 7, when: t("sr.seasonEnd"), title: t("sr.beat.board", { verdict: club.board.label.toLowerCase() }), ...(club.board.confidence !== undefined ? { detail: t("sr.confidence", { n: Math.round(club.board.confidence) }) } : {}), tone: club.board.outcome === "EXCEEDED" || club.board.outcome === "MET" ? "positive" : "negative" })
     return beats.sort((a, b) => a.order - b.order).map(({ order: _order, ...beat }) => beat)
 }
 
@@ -368,7 +373,7 @@ export function buildSeasonReviewView(src: ReviewSource, season: number): Season
     const club: ReviewClub = {
         teamId,
         teamName: teamName(lk, teamId),
-        ...(pos ? { league: { ...pos, label: ordinal(pos.position) } } : {}),
+        ...(pos ? { league: { ...pos, label: ordinalLabel(pos.position), division: divisionName(pos.division) } } : {}),
         record: uc?.record ?? { wins: 0, losses: 0 },
         trophies: (uc?.trophies ?? []).map(t => reviewTrophy(lk, t)).sort((a, b) => a.week - b.week),
         ...(uc && uc.tierMove !== "none" && uc.tierFrom && uc.tierTo ? { tierMove: { direction: uc.tierMove, from: tierLabel(uc.tierFrom), to: tierLabel(uc.tierTo) } } : {}),
@@ -376,7 +381,7 @@ export function buildSeasonReviewView(src: ReviewSource, season: number): Season
         ...(uc?.bestPlayer ? { bestPlayer: reviewPlayer(lk, uc.bestPlayer) } : {}),
         ...(uc?.biggestWin ? { biggestWin: reviewResult(lk, uc.biggestWin) } : {}),
         ...(uc?.worstLoss ? { worstLoss: reviewResult(lk, uc.worstLoss) } : {}),
-        ...(verdict ? { board: { ...verdict, label: REVIEW_VERDICT_LABEL[verdict.outcome].replace(/^./, c => c.toUpperCase()) } } : {}),
+        ...(verdict ? { board: { ...verdict, label: t(`sr.verdict.${verdict.outcome}`) } } : {}),
     }
 
     const awards = {
@@ -399,7 +404,7 @@ export function buildSeasonReviewView(src: ReviewSource, season: number): Season
     const beats = arcs.length ? [] : seasonBeats(src, lk, review, club)
     const story: ReviewStory | undefined = arcs.length
         ? { source: "storylines", arcs }
-        : beats.length ? { source: "season", arcs: [{ title: `${club.teamName}, season ${season}`, beats }] } : undefined
+        : beats.length ? { source: "season", arcs: [{ title: t("sr.storyTitle", { team: club.teamName, n: season }), beats }] } : undefined
 
     const success = club.trophies.length > 0 || club.tierMove?.direction === "promoted" || (pos?.position === 1) || verdict?.outcome === "EXCEEDED"
 

@@ -1,5 +1,6 @@
 "use client"
 
+import { t } from "@/lib/i18n"
 import { useGameStore } from "@/store/game-store"
 import { WEEKLY_ACTIVITIES, WeeklyActivity, WeeklyActivityType } from "@/types"
 import { weeklyActivityXpBonus } from "@/types/activities"
@@ -10,16 +11,21 @@ import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
 type Effect = { label: string; good: boolean }
 
+const signedN = (n: number) => `${n > 0 ? "+" : "−"}${Math.abs(n)}`
+/** The plan's name and description in the active language. */
+export const focusName = (type: WeeklyActivityType | string) => t(`wfocus.${type}`)
+const focusDescription = (type: WeeklyActivityType | string) => t(`wfocus.${type}.desc`)
+
 /** Only the effects the weekly settlement actually applies (weekly-activity-processor). */
 function activityEffects(activity: WeeklyActivity): Effect[] {
     const e = activity.effects
     const out: Effect[] = []
-    if (e.morale) out.push({ label: `${e.morale > 0 ? "+" : ""}${e.morale} morale`, good: e.morale > 0 })
-    if (e.fatigue) out.push({ label: `${e.fatigue > 0 ? "+" : ""}${e.fatigue} fatigue`, good: e.fatigue < 0 })
-    if (e.synergy) out.push({ label: `+${e.synergy} chemistry`, good: true })
-    if (e.reputation) out.push({ label: `+${e.reputation} reputation`, good: true })
+    if (e.morale) out.push({ label: t("fx.morale", { value: signedN(e.morale) }), good: e.morale > 0 })
+    if (e.fatigue) out.push({ label: t("fx.fatigue", { value: signedN(e.fatigue) }), good: e.fatigue < 0 })
+    if (e.synergy) out.push({ label: t("fx.chemistry", { value: e.synergy }), good: true })
+    if (e.reputation) out.push({ label: t("fx.reputation", { value: e.reputation }), good: true })
     const xp = weeklyActivityXpBonus(activity)
-    if (xp > 0) out.push({ label: `+${xp} XP per player`, good: true })
+    if (xp > 0) out.push({ label: t("fx.xpPerPlayer", { value: xp }), good: true })
     return out
 }
 
@@ -31,7 +37,7 @@ function activityEffects(activity: WeeklyActivity): Effect[] {
 export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
     const selectedActivity = useGameStore(state => state.selectedWeeklyActivity)
     const setWeeklyActivity = useGameStore(state => state.setWeeklyActivity)
-    const budget = useGameStore(state => state.teams.find(t => t.id === state.playerTeamId)?.budget ?? 0)
+    const budget = useGameStore(state => state.teams.find(tm => tm.id === state.playerTeamId)?.budget ?? 0)
 
     const list = (
         <div id="weekly-focus" className="scroll-mt-24">
@@ -46,7 +52,7 @@ export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
                                 type="button"
                                 onClick={() => setWeeklyActivity(activity.type as WeeklyActivityType)}
                                 disabled={unaffordable}
-                                title={unaffordable ? "Not enough cash for this plan" : undefined}
+                                title={unaffordable ? t("wfocus.noCash") : undefined}
                                 aria-pressed={isSelected}
                                 className={cn(
                                     "flex w-full items-start gap-3 border-l-2 px-4 py-2 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-40",
@@ -58,14 +64,14 @@ export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
                                 </span>
                                 <span className="min-w-0 flex-1">
                                     <span className="flex items-baseline justify-between gap-3">
-                                        <span className="text-sm font-semibold text-ink-1">{activity.name}</span>
+                                        <span className="text-sm font-semibold text-ink-1">{focusName(activity.type)}</span>
                                         {activity.cost > 0 && <span className="shrink-0 text-xs tabular-nums text-ink-2">{formatCurrency(activity.cost, "$", false)}</span>}
                                         {!!activity.effects.money && (
-                                            <span className="shrink-0 text-xs tabular-nums text-positive">{formatSignedCurrency(activity.effects.money, "$", false)} / wk</span>
+                                            <span className="shrink-0 text-xs tabular-nums text-positive">{t("wfocus.perWeek", { amount: formatSignedCurrency(activity.effects.money, "$", false) })}</span>
                                         )}
                                     </span>
                                     <span className="block text-xs text-ink-3">
-                                        {effects.length === 0 ? activity.description : effects.map((fx, i) => (
+                                        {effects.length === 0 ? focusDescription(activity.type) : effects.map((fx, i) => (
                                             <span key={fx.label}>
                                                 {i > 0 && " · "}
                                                 <span className={fx.good ? "text-positive" : "text-caution"}>{fx.label}</span>
@@ -79,12 +85,12 @@ export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
                 })}
             </ul>
             <p className="border-t border-line px-4 py-2.5 text-xs leading-relaxed text-ink-3">
-                Charged at the weekly update; the effects reach every roster player. If the cash isn&apos;t there then, the focus is cancelled and nothing is charged.
+                {t("wfocus.note")}
             </p>
         </div>
     )
 
     return framed
-        ? <Panel title="Team focus" eyebrow="At the update" padded={false} className="h-full">{list}</Panel>
+        ? <Panel title={t("wfocus.title")} eyebrow={t("wfocus.eyebrow")} padded={false} className="h-full">{list}</Panel>
         : list
 }
