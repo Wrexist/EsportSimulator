@@ -123,6 +123,16 @@ export const NEWS = {
     "wel.job.kept": " Your previous club keeps its academy, scouting reports and plans.",
     "wel.job.objectives": " The board's objectives: {{list}}.",
 
+    // Legend visits and coaching offers (engine/legend-events-manager.ts)
+    "leg.mentor.t": "{{legend}} mentors {{club}}",
+    "leg.mentor.m": "{{legend}} visited {{club}} for a mentorship session! {{name}} gained valuable experience.",
+    "leg.coach.t": "Coaching offer: {{legend}}",
+    "leg.coach.m": "{{legend}} is considering coming out of retirement as a coach and is interested in joining your organisation. {{cost}}",
+    "leg.coach.profit": "The wage is {{wage}} a week; the club would still make {{net}} a week.",
+    "leg.coach.loss": "The wage is {{wage}} a week; the club would lose {{net}} a week (cash lasts about {{weeks}}).",
+    "leg.coach.hire": "Hire as coach ({{wage}}/week)",
+    "leg.coach.decline": "Decline respectfully",
+
     // Pro career inbox (engine/pro-career.ts)
     "pcr.start.t": "{{name}} signs for {{club}}",
     "pcr.start.m": "You are {{name}}, a {{age}}-year-old {{role}} on your first pro contract. The coach picks the five best players each week, so earn your place: set your training focus in the week plan and training screens, play your matches, and bigger clubs will call when you are good enough for their lineup. The staff run the club.",

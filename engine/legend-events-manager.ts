@@ -1,9 +1,10 @@
 import { GameSave } from "./save-types"
+import { choiceText, eventText } from "@/lib/news-ref"
+import type { TextRef } from "@/lib/i18n"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { SeededRNG } from "./rng"
 import { runwaySummary } from "./season/club-finances"
 import { formatCurrency } from "@/lib/utils-extended"
-import { plural } from "@/lib/plural"
 
 /**
  * Legend Events Manager
@@ -73,7 +74,8 @@ export class LegendEventsManager {
         player.morale = Math.min(100, (player.morale ?? 50) + 15)
 
         // Create event
-        const mentorshipBody = `${legend.name} visited ${team.name} for a mentorship session! ${player.nickname} gained valuable experience.`
+        const mentorship = eventText({ key: "leg.mentor.t", params: { legend: legend.name, club: team.name } }, { key: "leg.mentor.m", params: { legend: legend.name, club: team.name, name: player.nickname } })
+        const mentorshipBody = mentorship.message
         save.eventsLog.push({
             id: `legend_mentorship_${save.currentWeek}_${legend.id}`,
             type: "NEWS",
@@ -82,8 +84,7 @@ export class LegendEventsManager {
                 // {title, message} is the shape every news UI reads (NewsApp
                 // falls back to data.title / data.message). `text` is kept for
                 // save-compatibility with older events that only carried it.
-                title: `${legend.name} Mentors ${team.name}`,
-                message: mentorshipBody,
+                ...mentorship,
                 text: mentorshipBody,
                 legendId: legend.id,
                 legendName: legend.name,
@@ -114,10 +115,12 @@ export class LegendEventsManager {
         if (runwayAfter < this.COACH_MIN_RUNWAY_WEEKS) return
 
         // Create event with choice
-        const cost = netAfter >= 0
-            ? `The wage is ${formatCurrency(salary, "$", false)} a week; the club would still make ${formatCurrency(netAfter, "$", false)} a week.`
-            : `The wage is ${formatCurrency(salary, "$", false)} a week; the club would lose ${formatCurrency(-netAfter, "$", false)} a week (cash lasts about ${plural(Math.floor(runwayAfter), "week")}).`
-        const coachBody = `${legend.name} is considering coming out of retirement as a coach! They're interested in joining your organization. ${cost}`
+        const wage = formatCurrency(salary, "$", false)
+        const cost: TextRef = netAfter >= 0
+            ? { key: "leg.coach.profit", params: { wage, net: formatCurrency(netAfter, "$", false) } }
+            : { key: "leg.coach.loss", params: { wage, net: formatCurrency(-netAfter, "$", false), weeks: { key: "sl.weeks", count: Math.floor(runwayAfter) } } }
+        const coach = eventText({ key: "leg.coach.t", params: { legend: legend.name } }, { key: "leg.coach.m", params: { legend: legend.name, cost } })
+        const coachBody = coach.message
         save.eventsLog.push({
             id: `legend_coach_opportunity_${save.currentWeek}_${legend.id}`,
             type: "CONTRACT_OFFER",
@@ -125,8 +128,7 @@ export class LegendEventsManager {
             data: {
                 // {title, message} is the shape every news UI reads; `text` is
                 // retained for save-compatibility with pre-existing events.
-                title: `Coaching Offer: ${legend.name}`,
-                message: coachBody,
+                ...coach,
                 text: coachBody,
                 legendId: legend.id,
                 legendName: legend.name,
@@ -136,8 +138,8 @@ export class LegendEventsManager {
             },
             acknowledged: false,
             choices: [
-                { id: "hire", text: `Hire as Coach (${formatCurrency(salary, "$", false)}/week)`, effects: { money: 0 } },
-                { id: "decline", text: "Decline respectfully", effects: { money: 0 } }
+                { id: "hire", ...choiceText({ key: "leg.coach.hire", params: { wage } }), effects: { money: 0 } },
+                { id: "decline", ...choiceText({ key: "leg.coach.decline" }), effects: { money: 0 } }
             ]
         })
     }
