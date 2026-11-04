@@ -4528,7 +4528,7 @@
  "gear.howTitle": "Como funcionam os equipamentos",
  "gear.how.slot": "Um item por espaço. Comprar substitui o item atual na hora, sem reembolso do antigo.",
  "gear.how.share": "Cada item soma uma parte fixa da força do time; um conjunto Elite completo atinge o limite de +{{pct}}%. Não altera os atributos dos jogadores nem o treino.",
- "gear.how.ai": "Os clubes da IA contam com equipamentos de acordo com a reputação, até +{{pct}}% nos clubes mais conhecidos.",
+ "gear.how.ai": "Os clubes rivais contam com equipamentos de acordo com a reputação, até +{{pct}}% nos clubes mais conhecidos.",
  "gear.how.cap": "Equipamentos, instalações, comissão técnica e preparação se somam por lado; a diferença entre os dois lados é limitada a ±{{cap}}%.",
  "gear.how.upkeep": "A manutenção é cobrada em todo fechamento semanal. Um item mais barato a reduz.",
  "wk.loading": "Carregando o plano da semana…",

@@ -70,7 +70,7 @@ export class LegendEventsManager {
 
         // Grant skill point and morale boost
         player.availableSkillPoints = (player.availableSkillPoints || 0) + 1
-        player.morale = Math.min(100, (player.morale || 50) + 15)
+        player.morale = Math.min(100, (player.morale ?? 50) + 15)
 
         // Create event
         const mentorshipBody = `${legend.name} visited ${team.name} for a mentorship session! ${player.nickname} gained valuable experience.`

@@ -34,6 +34,7 @@ import {
 } from "./ai/transfer-market"
 import { logger } from "@/lib/logger"
 import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
+import { hallOfFameAchievements, inductIntoHallOfFame, qualifiesForHallOfFame } from "./hall-of-fame-manager"
 import { recruitmentSalary } from "./recruitment"
 import { ensurePersonality } from "./personality"
 import { aiCanCommit, aiClubBudget } from "./ai/club-budget"
@@ -479,7 +480,9 @@ export class AIManager {
 
             const retirementCandidates = team.rosterIds
                 .map(id => playerIndex.get(id))
-                .filter((p): p is PlayerSaveData => !!p && (p.age || 20) >= 33 && (p.skill || 50) < 40)
+                // Legends retire through EventProcessor.processRetirements
+                // (LEGEND_RETIREMENT_AGE), which inducts them.
+                .filter((p): p is PlayerSaveData => !!p && !p.isLegendary && (p.age || 20) >= 33 && (p.skill || 50) < 40)
 
             let teamRetired = false
             for (const player of retirementCandidates) {
@@ -489,6 +492,12 @@ export class AIManager {
                 player.isRetired = true
                 player.retirementWeek = save.currentWeek
                 save.contracts = save.contracts.filter(contract => contract.playerId !== player.id)
+                // Same Hall of Fame judgement as every other retirement path.
+                if (qualifiesForHallOfFame(player)) {
+                    player.isLegendary = true
+                    player.legendaryAchievements = hallOfFameAchievements(player)
+                    inductIntoHallOfFame(save, player, save.currentWeek, team.id)
+                }
                 teamRetired = true
             }
             // Every other roster-mutation path (transfers, academy promotion)

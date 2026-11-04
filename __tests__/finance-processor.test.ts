@@ -13,6 +13,8 @@
  */
 
 import { FinanceProcessor } from "@/engine/processors/finance-processor"
+import { aiClubBudget } from "@/engine/ai/club-budget"
+import { calculateWeeklyUpkeep } from "@/engine/academy-constants"
 import { EquipmentManager } from "@/engine/equipment-manager"
 import { clubOperationsCost, leagueCentralPayment } from "@/lib/balance-tuning"
 import { moneyCause } from "@/lib/week-changes"
@@ -308,6 +310,26 @@ describe("FinanceProcessor.processFinance", () => {
         expect(players[0].morale).toBe(78)
         expect(players[1].morale).toBe(58)
         expect(players[2].morale).toBe(48)
+    })
+})
+
+describe("FinanceProcessor.processFinance — AI academy upkeep (ENGINE-06)", () => {
+    test("regression: an AI club pays upkeep for the prospects in youthAcademyIds, as its budget planned", () => {
+        const settle = (youthAcademyIds: string[]) => {
+            const ai = makeTeam({ id: "ai", budget: 500_000, reputation: 60, academyFacility: { level: 2, builtWeek: 1 }, youthAcademyIds } as never)
+            const save = makeSave(ai, "manager", { teams: [makeTeam({ id: "manager" }), ai] } as never)
+            const planned = aiClubBudget(save, ai).costs
+            const before = ai.budget
+            FinanceProcessor.processFinance(save, "manager")
+            return { paid: before - ai.budget, net: ai.weeklyNet!, planned }
+        }
+        const none = settle([])
+        const three = settle(["y1", "y2", "y3"])
+        const perProspect = calculateWeeklyUpkeep(2, 1) - calculateWeeklyUpkeep(2, 0)
+        expect(perProspect).toBeGreaterThan(0)
+        expect(none.net - three.net).toBe(3 * perProspect)
+        // The settlement charges what the planner projected.
+        expect(three.planned - none.planned).toBe(3 * perProspect)
     })
 })
 

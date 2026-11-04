@@ -4643,7 +4643,7 @@
  "gear.howTitle": "Jak działa sprzęt",
  "gear.how.slot": "Jeden przedmiot na miejsce. Zakup od razu zastępuje obecny, bez zwrotu za stary.",
  "gear.how.share": "Każdy przedmiot dodaje stały udział w sile drużyny; pełny zestaw Elite osiąga limit +{{pct}}%. Nie zmienia atrybutów graczy ani treningu.",
- "gear.how.ai": "Kluby SI mają sprzęt zależny od reputacji, do +{{pct}}% w najbardziej znanych klubach.",
+ "gear.how.ai": "Kluby rywali mają sprzęt zależny od reputacji, do +{{pct}}% w najbardziej znanych klubach.",
  "gear.how.cap": "Sprzęt, obiekty, sztab i przygotowanie sumują się dla każdej strony; różnica między stronami jest ograniczona do ±{{cap}}%.",
  "gear.how.upkeep": "Utrzymanie jest pobierane przy każdym cotygodniowym rozliczeniu. Tańszy przedmiot je obniża.",
  "wk.loading": "Wczytywanie planu tygodnia…",

@@ -6817,8 +6817,8 @@
     },
     {
       "path": "engine/ai-manager.ts",
-      "sha256": "368852e745389b3776e55be5bc9ebc66ee57fd2f393e0c36ce16b54fe3d6bddb",
-      "bytes": 24101,
+      "sha256": "d9ec0b23bda93d610a64e2b3a2eeff160e8cf2c19096f234605063a676df59a8",
+      "bytes": 24730,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -6845,13 +6845,18 @@
           "date": "2026-11-03",
           "previousSha256": "9ca18fe228991c0d3601a68b916d4b9907ead166afeb9e6de54d1f16bb22dc47",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "368852e745389b3776e55be5bc9ebc66ee57fd2f393e0c36ce16b54fe3d6bddb",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
     {
       "path": "engine/ai/infrastructure.ts",
-      "sha256": "e80b08cb742658ddd6184310500c8d15b14551009fdcd433826c54ced34bb746",
-      "bytes": 12383,
+      "sha256": "63b262772434128bbc9dc5000b98f0803346c313804cce07b1764b9eb43a0905",
+      "bytes": 12570,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -6878,6 +6883,11 @@
           "date": "2026-11-03",
           "previousSha256": "947f910c508ffa0e2e2d9bba02dd2747453051ec0e0c115783a83d097d2acf9e",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e80b08cb742658ddd6184310500c8d15b14551009fdcd433826c54ced34bb746",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -7479,8 +7489,8 @@
     },
     {
       "path": "engine/hall-of-fame-manager.ts",
-      "sha256": "9a9611a7e9c4bf33021561109bff98215ac6feda0d6d3029f100fc7bae6f28d6",
-      "bytes": 4562,
+      "sha256": "f52333d670f05611a86c11d2a3955f4c73d72c5ef33e59880de925e65f7e2ae6",
+      "bytes": 5689,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7494,6 +7504,11 @@
           "date": "2026-11-03",
           "previousSha256": "cf6ab60d2f0ab16b90fbfaaa0083ae872c1cdcec7be0ef7fa509338c770311b9",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "9a9611a7e9c4bf33021561109bff98215ac6feda0d6d3029f100fc7bae6f28d6",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -7612,7 +7627,7 @@
     },
     {
       "path": "engine/legend-events-manager.ts",
-      "sha256": "2900b243f6260dc13c563808bc34bc9eccce6cee1667698cf713c0b056555393",
+      "sha256": "35e9683d1fab997fbfeb12035d58642a29be989633ecd79710b49d5dc4bbb75a",
       "bytes": 6678,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
@@ -7627,6 +7642,11 @@
           "date": "2026-11-03",
           "previousSha256": "273892de236499bee5fa8376b9481252dd3232fa523c37f3e412249ee1e0f930",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2900b243f6260dc13c563808bc34bc9eccce6cee1667698cf713c0b056555393",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -8123,7 +8143,7 @@
     },
     {
       "path": "engine/player-evaluation.ts",
-      "sha256": "b9cbc5547d01191e989bfc8526c1914c6e3f093b5b9dce1d1d08d36f52ca10bf",
+      "sha256": "ccf662d652f656e835c997167826fb938f7b1fa5f555f2b3912bbd6cd6bca4ab",
       "bytes": 16698,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
@@ -8151,6 +8171,11 @@
           "date": "2026-11-03",
           "previousSha256": "08f1f2e9cfb90aafb98dec17247de08588174af47671316c11e60649c3ef6b08",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "b9cbc5547d01191e989bfc8526c1914c6e3f093b5b9dce1d1d08d36f52ca10bf",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -8269,8 +8294,8 @@
     },
     {
       "path": "engine/processors/ai-world-processor.ts",
-      "sha256": "ae8d88ccf77e222c2480a9144a425c155360c1d20d1b497c31ff23e550d11aa2",
-      "bytes": 11857,
+      "sha256": "d4494ed08c44e4daab9c75ada69df8b1162d13a59a85156f0a911fbb7f012443",
+      "bytes": 12089,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8284,6 +8309,11 @@
           "date": "2026-11-03",
           "previousSha256": "9695178cd8d18900977666346c8085e43c6d04ebe9cbf6478fba74692f4b1b48",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ae8d88ccf77e222c2480a9144a425c155360c1d20d1b497c31ff23e550d11aa2",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -8342,8 +8372,8 @@
     },
     {
       "path": "engine/processors/event-processor.ts",
-      "sha256": "9016039fd98684ec36819e32384bc02620d6bf63aaf80fe268af3a1e7babafd8",
-      "bytes": 31391,
+      "sha256": "1d3771bfe9b864f037cb7faf1fd01e6c94c7e17a8552db43a1279713b7cfdd21",
+      "bytes": 31726,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8357,13 +8387,18 @@
           "date": "2026-11-03",
           "previousSha256": "37e96ac66fa5d6bbd45878074a9468c41de3037130b70ac59e6849e1423eab95",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "9016039fd98684ec36819e32384bc02620d6bf63aaf80fe268af3a1e7babafd8",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
     {
       "path": "engine/processors/fanbase-growth.ts",
-      "sha256": "027ad75bea841caf0cb2dcc1f4b7fd9519c414d821e47aecccdaecc7a49cc7f7",
-      "bytes": 4259,
+      "sha256": "b71e8973d4084a63663d87e87d677d54c7f2d91d2893837af0414fb92b4e64e7",
+      "bytes": 4380,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8377,13 +8412,18 @@
           "date": "2026-11-03",
           "previousSha256": "ae5e20377daa323343e021bf8a05bf64effd16480544082f5698741257bfb694",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "027ad75bea841caf0cb2dcc1f4b7fd9519c414d821e47aecccdaecc7a49cc7f7",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
     {
       "path": "engine/processors/finance-processor.ts",
-      "sha256": "378dfbd25bc454a4de8714667af466d836b5cf275d401da353ac24833a4d8981",
-      "bytes": 21789,
+      "sha256": "653888a38d553889c0f77922809c2bd6967735d77aee4c72c76b636578b6af80",
+      "bytes": 22041,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8410,6 +8450,11 @@
           "date": "2026-11-03",
           "previousSha256": "c3973c2532a48cd2afa61d3fe5283d75e2533e63d1e5ac7f064970dacf7e2d85",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "378dfbd25bc454a4de8714667af466d836b5cf275d401da353ac24833a4d8981",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -8654,8 +8699,8 @@
     },
     {
       "path": "engine/processors/pre-tick-mutations.ts",
-      "sha256": "2790d03b116f0352a0dec80edc7cee7f3dcc03cb51961a0aed56b2f390a61071",
-      "bytes": 5329,
+      "sha256": "507fbdedc6e2ea1f921b63e8c00cf0949587a972b53a2d394c2c6e5e26249311",
+      "bytes": 4742,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8682,6 +8727,11 @@
           "date": "2026-11-03",
           "previousSha256": "d581460b76132d72926ea02b954563bd392974990f21ad6fb0dabd10dd59fb70",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2790d03b116f0352a0dec80edc7cee7f3dcc03cb51961a0aed56b2f390a61071",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -8707,7 +8757,7 @@
     },
     {
       "path": "engine/processors/scheduled-activities-processor.ts",
-      "sha256": "890f4f95e4e2a053f9ef0580ef9939f534dce2b51d009e389d0f922d6fd37943",
+      "sha256": "77a9c820964596a94d0014d9baefeb5fdf4e6f614e796f69d4c0302fca129ebe",
       "bytes": 7632,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
@@ -8722,6 +8772,11 @@
           "date": "2026-11-03",
           "previousSha256": "60ac5794404b17f357ac87afbf03d5cdd8bc4ad87a22e488a5fd79e13c0799f4",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "890f4f95e4e2a053f9ef0580ef9939f534dce2b51d009e389d0f922d6fd37943",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -8939,7 +8994,7 @@
     },
     {
       "path": "engine/processors/weekly-activity-processor.ts",
-      "sha256": "a420dcbb095a09b6e4a263c958cacd1e2e44383c0d615e4d3c6d0d560c1e0b6d",
+      "sha256": "3e154a6cfeedf6ca188d4db374d4829b9d560bec54be1e621a5ce85e847cb47a",
       "bytes": 5500,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
@@ -8980,6 +9035,11 @@
           "date": "2026-11-03",
           "previousSha256": "043b843297c0214849013c5465efc912be0dd5bd35a4420454070c8c9ad963be",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "a420dcbb095a09b6e4a263c958cacd1e2e44383c0d615e4d3c6d0d560c1e0b6d",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -9171,8 +9231,8 @@
     },
     {
       "path": "engine/save-migrations.ts",
-      "sha256": "ba666f8c5c5959ed3f8c1671585dc3ada4b2a1762cb7cd5c7710518862ec4e36",
-      "bytes": 20168,
+      "sha256": "7ecf1ae764b034dd6f8701b71a85d2a7683798d039880563b90a757af653bca3",
+      "bytes": 21206,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9186,6 +9246,11 @@
           "date": "2026-11-03",
           "previousSha256": "0a61e4062aea7a600cf26bb95042c5e18ea17141dde3ba149c5925a3af6a0a29",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ba666f8c5c5959ed3f8c1671585dc3ada4b2a1762cb7cd5c7710518862ec4e36",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -9211,8 +9276,8 @@
     },
     {
       "path": "engine/save-types.ts",
-      "sha256": "2931eadd546bfa2d4252f073cab36b25e7ea90db518a7860050a63eb0a856dad",
-      "bytes": 55213,
+      "sha256": "e4f64cb64b9a0a505fb86d4adc545ffd2eb7061f815d188458d978134ee4dbec",
+      "bytes": 55356,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9239,6 +9304,11 @@
           "date": "2026-11-03",
           "previousSha256": "72e62b2ab3a51ac4f8992a23f65a93780440b4bcd295eb609430995c37eff7e2",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2931eadd546bfa2d4252f073cab36b25e7ea90db518a7860050a63eb0a856dad",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -9688,8 +9758,8 @@
     },
     {
       "path": "engine/staff-generator.ts",
-      "sha256": "2c3604fa24b59103396b9201b1139bd64201da1e2d0acb9334cdb86dd171843f",
-      "bytes": 10466,
+      "sha256": "11e66dcf065a2730f4a718857db23b272e3e3c68b63ab12ace09ac372d017ace",
+      "bytes": 11568,
       "kind": "portrait",
       "source": "Existing generated/edited artwork claims; original inputs, model terms and likeness review required",
       "evidence": "public/data/snapshot/sources.json",
@@ -9703,6 +9773,11 @@
           "date": "2026-11-03",
           "previousSha256": "b2e68b6fee63c8030a4c73230f379601ef0a562e3a94ffad17a5e2984e5adaaa",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2c3604fa24b59103396b9201b1139bd64201da1e2d0acb9334cdb86dd171843f",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -91374,8 +91449,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "970f52bd00384a1d866780e30c76311a00f481c4120166bae57017ac2afb9ae7",
-      "bytes": 251264,
+      "sha256": "5c06bd6e15f20b6bb04d4e6a715279d0af41ca6306d090e2ee43fb7b20a7d6e6",
+      "bytes": 251276,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91455,13 +91530,18 @@
           "date": "2026-11-03",
           "previousSha256": "37c492d4d53132e2ea9e019b29caddebf7f3d254cb7f0b63fd0c673643687c84",
           "change": "Interface languages, Batch 5c translations: legacy, facilities, gear and week plan: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "970f52bd00384a1d866780e30c76311a00f481c4120166bae57017ac2afb9ae7",
+          "change": "Interface languages, Gear: rival clubs wording (merge with main): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "592a0bf54b4d0de729e7c931aecb402c21e9f9e58b3ab2ed1812890c9b5de1f8",
-      "bytes": 262798,
+      "sha256": "7063b0f749dec0467c34e85fecb800ba4e1061cc7f1d3c404aaf9298cae5ecac",
+      "bytes": 262797,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91541,13 +91621,18 @@
           "date": "2026-11-03",
           "previousSha256": "b8ab2318a8325af8779adb2e6901fdb816d11b849936535851f204e8ec8d91b4",
           "change": "Interface languages, Batch 5c translations: legacy, facilities, gear and week plan: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "592a0bf54b4d0de729e7c931aecb402c21e9f9e58b3ab2ed1812890c9b5de1f8",
+          "change": "Interface languages, Gear: rival clubs wording (merge with main): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "8bebbf961a196cf853ac47151e6c5b9abc9cd6a3d20e6f5a851bd2a8aa3ec23c",
-      "bytes": 268381,
+      "sha256": "34e9066e2efda9b9aac2c9314dc34ca583b236ac3f1f4d91b41a804874378d88",
+      "bytes": 268378,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91627,13 +91712,18 @@
           "date": "2026-11-03",
           "previousSha256": "a28ff7d21ebe57328a3d32b24f825c247937c020d1ec5207b51d0de4e5fb035e",
           "change": "Interface languages, Batch 5c translations: legacy, facilities, gear and week plan: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8bebbf961a196cf853ac47151e6c5b9abc9cd6a3d20e6f5a851bd2a8aa3ec23c",
+          "change": "Interface languages, Gear: rival clubs wording (merge with main): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "1c00cd752330b728d1967c243926d8244f8f34c7e2be583eee69fd3b619ebbc1",
-      "bytes": 265509,
+      "sha256": "1de174c847a78e22780a9d3578aebf91ee69dad5ef2df7361b9009401120d7cd",
+      "bytes": 265513,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91708,13 +91798,18 @@
           "date": "2026-11-03",
           "previousSha256": "3bef2ec8400e7a00a651824053037a9ad6d1f3fff9b73c69be2daccb436bae6f",
           "change": "Interface languages, Batch 5c translations: legacy, facilities, gear and week plan: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "1c00cd752330b728d1967c243926d8244f8f34c7e2be583eee69fd3b619ebbc1",
+          "change": "Interface languages, Gear: rival clubs wording (merge with main): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "18c646894a3464281cb275451adc842bde9714720dad7bf1d484de8bd1591039",
-      "bytes": 258979,
+      "sha256": "ec42955ea4c0035df4c3c24e8fa9c88ec44a3cb33b7c7083bcdd89db40c4bbe2",
+      "bytes": 258980,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91789,13 +91884,18 @@
           "date": "2026-11-03",
           "previousSha256": "f4fa7901f4b4a7e8a3d489ddfac2f658dea0502b9c950b7ff268d8b2f765f84d",
           "change": "Interface languages, Batch 5c translations: legacy, facilities, gear and week plan: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "18c646894a3464281cb275451adc842bde9714720dad7bf1d484de8bd1591039",
+          "change": "Interface languages, Gear: rival clubs wording (merge with main): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "7f331048d3c28e1e1257d0741f067ecdb032bb265bb5bf2e6319967b8c81e67e",
-      "bytes": 360449,
+      "sha256": "bc4408bb2b256513a17e17c7c7a44d5499b1dd95902f966e6b1b010e1cb45778",
+      "bytes": 360463,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91870,6 +91970,11 @@
           "date": "2026-11-03",
           "previousSha256": "d03ad99b3c6e9cef94c35870d49aad35ae7234065ba4a020889c3f276aa660b8",
           "change": "Interface languages, Batch 5c translations: legacy, facilities, gear and week plan: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "7f331048d3c28e1e1257d0741f067ecdb032bb265bb5bf2e6319967b8c81e67e",
+          "change": "Interface languages, Gear: rival clubs wording (merge with main): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
@@ -94435,8 +94540,8 @@
     },
     {
       "path": "store/game-store.ts",
-      "sha256": "98f37ab439a1da326344ecf752d85b6a7d5f1316741c95b15a60edee3a091f9d",
-      "bytes": 124514,
+      "sha256": "5213f5a681de49551129327c040ec358bdcfed804a45e848a558c04e83adae96",
+      "bytes": 124789,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -94463,6 +94568,11 @@
           "date": "2026-11-03",
           "previousSha256": "24f3a3e2dd8c863cb579f4c1d80eb4b5d568b3a16d391b194de5c040b7f60803",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "98f37ab439a1da326344ecf752d85b6a7d5f1316741c95b15a60edee3a091f9d",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -94666,7 +94776,7 @@
     },
     {
       "path": "store/slices/match-simulation-slice.ts",
-      "sha256": "e341d32f6a8b4e0160cfdeabd56ff93008870ce617ecd0d6ae2047e9a4317121",
+      "sha256": "75989eaf957f75751100eef91f326b55dd1c1f52c793ef1923a8ab767610b2c6",
       "bytes": 41905,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
@@ -94694,6 +94804,11 @@
           "date": "2026-11-03",
           "previousSha256": "6b8ffef5f141e564fdbb30428f9486760cc36f7e7118cf0bfa100f31c1448bf8",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e341d32f6a8b4e0160cfdeabd56ff93008870ce617ecd0d6ae2047e9a4317121",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -94838,8 +94953,8 @@
     },
     {
       "path": "store/slices/staff-management-slice.ts",
-      "sha256": "8abb0701931e93d9acc3e36cf89a2870f24042c07d65bd373e8352df2b21697e",
-      "bytes": 11120,
+      "sha256": "c73ed0c441106b00490398396164535ed3491f79b97e168d2fea321b9c69f8a7",
+      "bytes": 11442,
       "kind": "portrait",
       "source": "Existing generated/edited artwork claims; original inputs, model terms and likeness review required",
       "evidence": "public/data/snapshot/sources.json",
@@ -94866,6 +94981,11 @@
           "date": "2026-11-03",
           "previousSha256": "75b3a595c4587e90a5913f55593a4d4275a21d78c1083ab818de26b8608785cc",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8abb0701931e93d9acc3e36cf89a2870f24042c07d65bd373e8352df2b21697e",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -94904,7 +95024,7 @@
     },
     {
       "path": "store/slices/team-facilities-slice.ts",
-      "sha256": "f2256130d6d4fa71ada9ec0920ff8f5a0031481945f1cdad284ec43e5bec5be7",
+      "sha256": "e00b71e750adba87d8775dcad772ee41c9b8b6eebec16c8ec43969189e228d11",
       "bytes": 22157,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
@@ -94932,6 +95052,11 @@
           "date": "2026-11-03",
           "previousSha256": "4f788ba4f84d60501a6cd4430cb6b254ff8d92189d7f3a5ae786490290bcba5a",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "f2256130d6d4fa71ada9ec0920ff8f5a0031481945f1cdad284ec43e5bec5be7",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },
@@ -95155,8 +95280,8 @@
     },
     {
       "path": "store/utils/build-save-snapshot.ts",
-      "sha256": "a2438042547a902bc79576537c63388c8ba6b2e8df1d398b0ff7eba1bb2d0f88",
-      "bytes": 5702,
+      "sha256": "bf870353d1c0eb568d82b4c02bc2398e7715c0e28f58f0dbaef360205535e13a",
+      "bytes": 5742,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95183,6 +95308,11 @@
           "date": "2026-11-03",
           "previousSha256": "7315a54f29c3f1210ce26b4074f85466ae481bdb18b6ed4106229bcc8739bb51",
           "change": "Batch 5c: screens moved to translation keys"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "a2438042547a902bc79576537c63388c8ba6b2e8df1d398b0ff7eba1bb2d0f88",
+          "change": "Gear: rival clubs wording (merge with main)"
         }
       ]
     },

@@ -484,7 +484,7 @@ export const LEGACY: Record<string, string> = {
     "gear.howTitle": "How gear works",
     "gear.how.slot": "One item per slot. Buying replaces the current item at once, with no refund for the old one.",
     "gear.how.share": "Each item adds a fixed share of team strength; a full elite set reaches the +{{pct}}% cap. It doesn't change player attributes or training.",
-    "gear.how.ai": "AI clubs count as owning gear that scales with reputation, up to +{{pct}}% for the best known clubs.",
+    "gear.how.ai": "Rival clubs count as owning gear that scales with reputation, up to +{{pct}}% for the best known clubs.",
     "gear.how.cap": "Gear, facilities, staff and prep are summed per side; the difference between the two sides is capped at ±{{cap}}%.",
     "gear.how.upkeep": "Upkeep is charged every weekly settlement. A cheaper item lowers it.",
 

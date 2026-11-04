@@ -102,6 +102,11 @@ describe("buildSaveSnapshot — stateful optional fields survive the builder", (
         expect(typeof snap.lastPlayedAt).toBe("string")
     })
 
+    test("regression (ENGINE-09): the random-world flag survives the builder", () => {
+        expect(buildSaveSnapshot(makeState({ randomWorld: true })).randomWorld).toBe(true)
+        expect(buildSaveSnapshot(makeState()).randomWorld).toBeUndefined()
+    })
+
     test("game-over reason + week persist through the builder", () => {
         const snap = buildSaveSnapshot(makeState({ gameOverReason: "SACKED", gameOverWeek: 104 }))
         expect(snap.gameOverReason).toBe("SACKED")

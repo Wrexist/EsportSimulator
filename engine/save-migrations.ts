@@ -35,6 +35,7 @@ import { defaultBrandingFor } from "@/lib/branding/fallback"
 import { createDefaultTactics } from "./default-tactics"
 import { startingWeaponMastery } from "./development-rates"
 import { evaluatePlayer } from "./player-evaluation"
+import { modernizeFacilityDescription, modernizeLedgerDescription } from "./ledger-wording"
 
 /**
  * Migrate legacy save (no saveVersion or saveVersion 0) to v1.
@@ -450,6 +451,25 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 10) migrated = migrateToV10(migrated)
     if (version < 11) migrated = migrateToV11(migrated)
     if (version < 12) migrated = migrateToV12(migrated)
+
+    // Every load (no version bump): ledger rows written by older builds for
+    // other clubs said "AI hired ..." / "AI built TRAINING facility"; they
+    // show in Finances once the manager takes over that club. Facility
+    // descriptions get the same treatment (CROSSCUT-04).
+    if (Array.isArray(migrated.financeLedger)) {
+        for (const row of migrated.financeLedger as FinanceLedgerEntry[]) {
+            if (typeof row?.description === "string" && row.description.startsWith("AI ")) {
+                row.description = modernizeLedgerDescription(row.description)
+            }
+        }
+    }
+    if (Array.isArray(migrated.teams)) {
+        for (const team of migrated.teams as TeamSaveData[]) {
+            for (const f of Array.isArray(team?.facilities) ? team.facilities : []) {
+                if (typeof f?.description === "string") f.description = modernizeFacilityDescription(f.description)
+            }
+        }
+    }
 
     return {
         ...migrated,

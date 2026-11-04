@@ -242,6 +242,19 @@ describe("processFanbaseGrowth — ranking + marketing", () => {
     })
 })
 
+describe("processFanbaseGrowth — marketing belongs to the managed club (ENGINE-01)", () => {
+    test("regression: a manager's campaign pays only the managed club, not every rival", () => {
+        const campaign = { id: "mkt1", type: "MARKETING", week: 4, duration: 2, data: { followersPerWeek: 4000 } } as never
+        const mine = makeTeam("t1", { reputation: 0, followers: 0 })
+        const rivalA = makeTeam("t2", { reputation: 0, followers: 0 })
+        const rivalB = makeTeam("t3", { reputation: 0, followers: 0 })
+        processFanbaseGrowth(makeSave([rivalA, mine, rivalB], { currentWeek: 5, playerTeamId: "t1", scheduledActivities: [campaign] }), rng)
+        expect(mine.followers).toBe(4000)
+        expect(rivalA.followers).toBe(0)
+        expect(rivalB.followers).toBe(0)
+    })
+})
+
 describe("processFanbaseGrowth — derby stakes", () => {
     const fierce = [{ opponentTeamId: "opponent", intensity: "FIERCE", matchesPlayed: 8, wins: 4, losses: 4, lastPlayed: 1 }] as never
     const heated = [{ opponentTeamId: "opponent", intensity: "HEATED", matchesPlayed: 5, wins: 3, losses: 2, lastPlayed: 1 }] as never

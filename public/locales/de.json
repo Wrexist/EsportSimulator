@@ -4413,7 +4413,7 @@
  "gear.howTitle": "So funktioniert Ausrüstung",
  "gear.how.slot": "Ein Teil pro Platz. Ein Kauf ersetzt das aktuelle Teil sofort, das alte wird nicht erstattet.",
  "gear.how.share": "Jedes Teil bringt einen festen Anteil an Teamstärke; ein komplettes Elite-Set erreicht die Obergrenze von +{{pct}} %. Spielerwerte und Training ändern sich dadurch nicht.",
- "gear.how.ai": "KI-Vereine gelten als ausgerüstet, je nach Ansehen bis zu +{{pct}} % bei den bekanntesten Vereinen.",
+ "gear.how.ai": "Rivalisierende Vereine gelten als ausgerüstet, je nach Ansehen bis zu +{{pct}} % bei den bekanntesten Vereinen.",
  "gear.how.cap": "Ausrüstung, Einrichtungen, Mitarbeiter und Vorbereitung werden pro Seite addiert; der Unterschied zwischen beiden Seiten ist auf ±{{cap}} % begrenzt.",
  "gear.how.upkeep": "Der Unterhalt wird bei jeder Wochenabrechnung fällig. Ein günstigeres Teil senkt ihn.",
  "wk.loading": "Wochenplan wird geladen …",

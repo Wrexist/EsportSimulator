@@ -175,7 +175,7 @@ export function calculateContextModifier(player: PlayerSaveData): number {
     const fatiguePenalty = (player.fatigue || 0) / 666 // 0 to 0.15
 
     // Morale bonus: ±8%
-    const moraleBonus = ((player.morale || 50) - 50) / 625 // -0.08 to +0.08
+    const moraleBonus = ((player.morale ?? 50) - 50) / 625 // -0.08 to +0.08
 
     // Health/injury penalty: up to -30%
     const healthPenalty = player.injury ? 0.30 : 0

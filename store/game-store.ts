@@ -424,6 +424,9 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   marketStaff: StaffSaveData[]
   nextMarketRefreshWeek?: number
 
+  /** G14: the career started in a randomised world (saved with the career). */
+  randomWorld?: boolean
+
   // Transfer History System
   transferHistory: TransferRecord[]
 
@@ -1310,6 +1313,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           set({
             ...newSave,
             ...careerAdvanceState(newSave, teamId, true),
+            randomWorld: newSave.randomWorld, // explicit: never inherited from the last career
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             recordBook: newSave.recordBook, // explicit: a new career never inherits the last one's records
             storylines: newSave.storylines, // nor its storylines (Phase 5.3)
@@ -1630,6 +1634,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           set({
             ...newSave,
             ...careerAdvanceState(newSave, result.teamId, true),
+            randomWorld: newSave.randomWorld,
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             recordBook: newSave.recordBook,
             storylines: newSave.storylines,
@@ -1822,6 +1827,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             sponsorOffers: hydratedSave.sponsorOffers ?? [],
             difficulty: hydratedSave.difficulty ?? "normal",
             nextMarketRefreshWeek: hydratedSave.nextMarketRefreshWeek,
+            randomWorld: hydratedSave.randomWorld,
             lastCommittedWeekTick: hydratedSave.lastCommittedWeekTick,
             playerTeamId: inferredTeamId,
             currentDay: (typeof hydratedSave.currentDay === "number" ? Math.max(0, Math.min(6, Math.floor(hydratedSave.currentDay))) : 6),
@@ -2079,7 +2085,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (generation !== careerGeneration || get().saveId !== state.saveId) return
           phaseStart = perfTrace.now()
 
-          // Pre-tick mutations: scouting completion, staff-market rotation,
+          // Pre-tick mutations: scouting completion,
           // staff XP, player XP (engine/processors/pre-tick-mutations.ts).
           // These are applied to the DETACHED snapshot, not committed to the
           // live store up-front: a previous version set() them into the store

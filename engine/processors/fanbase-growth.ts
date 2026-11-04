@@ -8,6 +8,7 @@
  *     losses cause slight stagnation
  *   - World-ranking clout — Top 30 teams gain bonus organic spread
  *   - Active MARKETING campaigns — `data.followersPerWeek` added directly
+ *     (managed club only: bookings are the manager's)
  *
  * Extracted from atomic-week-processor.ts so the growth math is unit-testable
  * in isolation and the processor stays focused on orchestration.
@@ -22,6 +23,19 @@ export function processFanbaseGrowth(save: GameSave, _rng: SeededRNG): void {
     // growth formula is deterministic, but variance can be added without
     // changing call sites.
     void _rng
+
+    // Marketing campaigns: each campaign contributes its `followersPerWeek`
+    // for every week it ran. The tick runs after the week counter moved
+    // on, so it settles the week that just ended (currentWeek - 1). Using
+    // currentWeek paid a campaign one week early and never paid a
+    // one-week campaign booked for the current week.
+    const settledWeek = save.currentWeek - 1
+    let marketingGain = 0
+    for (const a of save.scheduledActivities ?? []) {
+        if (a.type !== "MARKETING" || settledWeek < a.week || settledWeek >= a.week + a.duration) continue
+        const gain = (a.data as { followersPerWeek?: number } | undefined)?.followersPerWeek
+        if (typeof gain === "number" && gain > 0) marketingGain += gain
+    }
 
     save.teams.forEach(team => {
         // Organic growth scales with reputation (0 rep → 0 fans, 100 rep → 105 fans/week).
@@ -66,23 +80,11 @@ export function processFanbaseGrowth(save: GameSave, _rng: SeededRNG): void {
             weeklyGrowth += rankingBonus
         }
 
-        // Marketing campaigns: each campaign contributes its `followersPerWeek`
-        // for every week it ran. The tick runs after the week counter moved
-        // on, so it settles the week that just ended (currentWeek - 1). Using
-        // currentWeek paid a campaign one week early and never paid a
-        // one-week campaign booked for the current week.
-        const settledWeek = save.currentWeek - 1
-        const activeMarketing = save.scheduledActivities?.filter(a =>
-            a.type === "MARKETING" &&
-            settledWeek >= a.week &&
-            settledWeek < a.week + a.duration &&
-            typeof (a.data as { followersPerWeek?: number } | undefined)?.followersPerWeek === "number"
-        ) ?? []
-        for (const campaign of activeMarketing) {
-            const gain = (campaign.data as { followersPerWeek?: number })?.followersPerWeek ?? 0
-            if (typeof gain === "number" && gain > 0) {
-                weeklyGrowth += gain
-            }
+        // Marketing campaigns: `scheduledActivities` holds the managed club's
+        // bookings only, so a campaign pays out to that club alone. Every
+        // other club used to receive the same followers.
+        if (team.id === save.playerTeamId) {
+            weeklyGrowth += marketingGain
         }
 
         // Ceiling matches the top of the in-game fan-milestone ladder (2M);

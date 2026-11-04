@@ -4528,7 +4528,7 @@
  "gear.howTitle": "Comment fonctionne le matériel",
  "gear.how.slot": "Un élément par emplacement. Un achat remplace aussitôt l’élément actuel, sans remboursement de l’ancien.",
  "gear.how.share": "Chaque élément ajoute une part fixe de force d’équipe ; un set Elite complet atteint le plafond de +{{pct}} %. Il ne change ni les attributs des joueurs ni l’entraînement.",
- "gear.how.ai": "Les clubs de l’IA sont considérés comme équipés selon leur réputation, jusqu’à +{{pct}} % pour les clubs les plus connus.",
+ "gear.how.ai": "Les clubs rivaux sont considérés comme équipés selon leur réputation, jusqu’à +{{pct}} % pour les clubs les plus connus.",
  "gear.how.cap": "Matériel, installations, staff et préparation s’additionnent par camp ; l’écart entre les deux camps est plafonné à ±{{cap}} %.",
  "gear.how.upkeep": "L’entretien est prélevé à chaque bilan hebdomadaire. Un élément moins cher le réduit.",
  "wk.loading": "Chargement du programme de la semaine…",

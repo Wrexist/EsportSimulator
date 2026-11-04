@@ -9,7 +9,9 @@
  *   - Roll a low-probability die for the action
  *   - Gate on team.financialState
  *   - Mutate team + save in place
- *   - Log to save.financeLedger so the player can see AI spending
+ *   - Log to save.financeLedger in the same wording as the manager's own
+ *     rows (engine/ledger-wording.ts): they show in Finances once the
+ *     manager takes over the club
  *
  * Extracted from ai-manager.ts (Phase H3). The static-method versions
  * on AIManager have been replaced with delegations to these exports.
@@ -23,6 +25,7 @@ import { EconomyEngine } from "../economy-engine"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { aiCanCommit, aiClubBudget } from "./club-budget"
 import { aiRoll, hashTeamId } from "./rng-helpers"
+import { builtFacilityDescription, ledgerText } from "../ledger-wording"
 
 /**
  * AI staff hiring. 3% per week, max 3 staff, priority order
@@ -72,7 +75,7 @@ export function manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) 
         type: "EXPENSE",
         category: "WAGES_STAFF",
         amount: signOnFee,
-        description: `AI hired ${newStaff.name} (${newStaff.role})`,
+        description: ledgerText.hiredStaff(newStaff.name, newStaff.role),
         balance: team.budget,
     })
 }
@@ -162,7 +165,7 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
             id: `fac_ai_${team.id}_${missingType}_${save.currentWeek}`,
             type: missingType,
             level: 1,
-            description: `${missingType} facility`,
+            description: builtFacilityDescription(missingType),
             monthlyCost: 2000,
         })
         save.financeLedger.push({
@@ -172,7 +175,7 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
             type: "EXPENSE",
             category: "FACILITIES",
             amount: BUILD_COST,
-            description: `AI built ${missingType} facility`,
+            description: ledgerText.builtFacility(missingType),
             balance: team.budget,
         })
         return
@@ -201,7 +204,7 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
         type: "EXPENSE",
         category: "FACILITIES",
         amount: upgradeCost,
-        description: `AI upgraded ${target.type} facility to Level ${target.level}`,
+        description: ledgerText.upgradedFacility(target.type, target.level),
         balance: team.budget,
     })
 }
@@ -249,7 +252,7 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
             type: "EXPENSE",
             category: "FACILITIES",
             amount: cost,
-            description: "AI built Youth Academy",
+            description: ledgerText.builtAcademy(),
             balance: team.budget,
         })
         return
@@ -273,7 +276,7 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
         type: "EXPENSE",
         category: "FACILITIES",
         amount: cost,
-        description: `AI upgraded Youth Academy to Level ${nextLevel}`,
+        description: ledgerText.upgradedAcademy(nextLevel),
         balance: team.budget,
     })
 }

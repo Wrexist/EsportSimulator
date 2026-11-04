@@ -77,7 +77,11 @@ export class FinanceProcessor {
                 save.contracts,
                 save.staff,
                 save.currentWeek,
-                team.id === playerTeamId ? (save.academyPlayers?.length ?? 0) : (team.managementState?.academyPlayers?.length ?? 0),
+                // AI youth live in team.youthAcademyIds; count them as the
+                // planners do (aiClubBudget, recruitmentBudget).
+                team.id === playerTeamId
+                    ? (save.academyPlayers?.length ?? 0)
+                    : (team.youthAcademyIds?.length ?? 0) + (team.managementState?.academyPlayers?.length ?? 0),
                 { implicitGear: team.id !== playerTeamId },
             )
 
@@ -341,7 +345,7 @@ export class FinanceProcessor {
                 const team = save.teams.find(t => t.id === member.teamId)
                 if (team) team.staffIds = team.staffIds.filter(id => id !== member.id)
                 save.marketStaff ??= []
-                if (!save.marketStaff.some(s => s.id === member.id)) save.marketStaff.push({ ...member, teamId: "", contractEndWeek: undefined, yearsRemaining: 0 })
+                if (!save.marketStaff.some(s => s.id === member.id)) save.marketStaff.push({ ...member, teamId: "", contractEndWeek: undefined, yearsRemaining: 0, releasedWeek: save.currentWeek })
             }
         }
         save.staff = save.staff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek)

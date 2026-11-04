@@ -2,7 +2,7 @@ import { GameSave, WeekTickState, PlayerSaveData } from "../save-types"
 import { SeededRNG } from "../rng"
 import { EventType, InjuryType } from "@/types"
 import { SaveManager } from "../save-manager"
-import { hallOfFameAchievements, hallOfFameEntry, qualifiesForHallOfFame } from "../hall-of-fame-manager"
+import { LEGEND_RETIREMENT_AGE, hallOfFameAchievements, inductIntoHallOfFame, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"
 import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
 import { plural } from "@/lib/plural"
@@ -417,21 +417,19 @@ export class EventProcessor {
 
             // Calculate achievements and legendary status
             // (HALL_OF_FAME_TUNING: a few inductions per season, not every long career.)
+            // A legend (granted at 38, or a starting legend) is inducted when
+            // he finally retires even if his recorded career falls short.
             const achievements = hallOfFameAchievements(player)
-            const isLegendary = qualifiesForHallOfFame(player)
+            const isLegendary = player.isLegendary || qualifiesForHallOfFame(player)
 
             if (isLegendary) {
                 player.isLegendary = true
-                player.legendaryAchievements = achievements
+                player.legendaryAchievements = achievements.length ? achievements : (player.legendaryAchievements ?? [])
                 legends.push(player.id)
 
                 // Write-through to hallOfFame so legends appear in HoF display
-                // (the one induction path, Phase 5.1). Dedup also against the
-                // legacy hof_ id scheme of older saves.
-                if (!save.hallOfFame) save.hallOfFame = []
-                if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) {
-                    save.hallOfFame.push(hallOfFameEntry(player, save.currentWeek, lastTeamId))
-                }
+                // (the one induction path, Phase 5.1).
+                inductIntoHallOfFame(save, player, save.currentWeek, lastTeamId)
             }
 
             // Inbox entry only for the manager's own players; other retirements
@@ -482,8 +480,11 @@ export class EventProcessor {
             // C10: the pro decides when to stop (engine/pro-career.ts).
             if (player.id === save.proCareer?.playerId) return
 
-            // Legends never retire — they play forever
-            if (player.isLegendary) return
+            // Legends keep playing past 38, up to LEGEND_RETIREMENT_AGE.
+            if (player.isLegendary) {
+                if (player.age >= LEGEND_RETIREMENT_AGE) retirePlayer(player)
+                return
+            }
 
             // At age 38+, check if player qualifies as legendary
             if (player.age >= 38) {
@@ -493,9 +494,14 @@ export class EventProcessor {
                     const achievements = hallOfFameAchievements(player)
                     player.legendaryAchievements = achievements
                     legends.push(player.id)
+                    const legendTeamId = contractMap.get(player.id)?.teamId
+                    // Into the Hall of Fame now, as the news says; the entry
+                    // is refreshed when he retires.
+                    inductIntoHallOfFame(save, player, save.currentWeek, legendTeamId)
 
-                    // Announce legendary status
-                    save.eventsLog.push({
+                    // Announce legendary status (inbox only for the manager's
+                    // own players, like retirements; everyone else: news feed).
+                    if (legendTeamId === save.playerTeamId) save.eventsLog.push({
                         id: `legend_${player.id}_${save.currentWeek}`,
                         type: EventType.RETIREMENT,
                         week: save.currentWeek,
@@ -510,11 +516,10 @@ export class EventProcessor {
                     })
 
                     if (save.newsFeed) {
-                        const legendTeamId = contractMap.get(player.id)?.teamId
                         save.newsFeed.unshift({
                             id: `news_legend_${player.id}_${save.currentWeek}`,
                             title: `${player.nickname} earns Legendary status`,
-                            content: `At age ${player.age}, ${player.nickname} has been recognized as a Legend of the game. Achievements: ${achievements.join(", ")}. They will continue to compete indefinitely.`,
+                            content: `At age ${player.age}, ${player.nickname} has been recognized as a Legend of the game. Achievements: ${achievements.join(", ")}. They will keep competing for a few more seasons.`,
                             category: "RETIREMENT",
                             playerId: player.id,
                             teamId: legendTeamId,
@@ -592,8 +597,7 @@ export class EventProcessor {
                 player.isLegendary = true
                 player.legendaryAchievements = hallOfFameAchievements(player)
                 legends.push(player.id)
-                if (!save.hallOfFame) save.hallOfFame = []
-                if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) save.hallOfFame.push(hallOfFameEntry(player, save.currentWeek, lastTeamId))
+                inductIntoHallOfFame(save, player, save.currentWeek, lastTeamId)
             }
 
             // Never the manager's player (excluded above): news feed only,
