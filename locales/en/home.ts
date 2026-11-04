@@ -121,7 +121,7 @@ export const HOME = {
     "firstSession.progressDone": "{{done}} / {{total}} done",
     "firstSession.next": "Next: {{step}}",
     "firstSession.skip": "Skip guide",
-    "firstSession.skipLabel": "Skip first session guide. You can replay it from Settings.",
+    "firstSession.skipLabel": "Skip the first-session guide. You can turn it on for new careers in Settings.",
     "firstSession.steps": "First session steps",
     "firstSession.stepDone": "(done)",
     "firstSession.stepNext": "(next)",
