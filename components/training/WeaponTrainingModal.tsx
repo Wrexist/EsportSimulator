@@ -182,7 +182,9 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                         {availableDrills.map(drill => {
                             const canAfford = budget >= drill.cost
                             const hasEnergy = playerEnergy >= ENERGY_COST
-                            const canTrain = canAfford && hasEnergy
+                            // SQUAD-08: a mastered class has nothing left to train.
+                            const mastered = currentMastery.isMaster
+                            const canTrain = canAfford && hasEnergy && !mastered
                             return (
                                 <li key={drill.drillKey} className="flex items-center gap-4 px-4 py-3">
                                     <div className="min-w-0 flex-1">
@@ -200,10 +202,10 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                                         variant="outline"
                                         disabled={!canTrain || isTraining}
                                         onClick={() => handleStartDrill(drill.drillKey)}
-                                        className="h-8 w-20 shrink-0 px-3 text-xs"
-                                        title={!canAfford ? t("tr.rt.noBudget") : !hasEnergy ? t("tr.w.needsEnergy", { n: ENERGY_COST }) : undefined}
+                                        className="h-8 min-w-20 shrink-0 px-3 text-xs"
+                                        title={mastered ? t("tr.w.mastered") : !canAfford ? t("tr.rt.noBudget") : !hasEnergy ? t("tr.w.needsEnergy", { n: ENERGY_COST }) : undefined}
                                     >
-                                        {isTraining ? "…" : t("tr.w.train")}
+                                        {isTraining ? "…" : mastered ? t("tr.w.mastered") : t("tr.w.train")}
                                     </Button>
                                 </li>
                             )

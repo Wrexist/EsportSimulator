@@ -47,16 +47,16 @@ const SPECIALTIES = [
 export function reconcileTeamRoles(players: PlayerSaveData[]): void {
     if (!players || players.length === 0) return
 
-    // 1. Clear secondary roles only; primary roles are decided below.
-    players.forEach(p => {
-        p.secondaryRole = undefined
-    })
+    // 1. Secondary roles are left alone: the only source is completed role
+    //    retraining (SQUAD-02), which the manager paid for. Primary roles are
+    //    decided below.
 
     const specialtyIdSet = new Set<PlayerRole>(SPECIALTIES.map(s => s.id))
     const assignedPlayerIds = new Set<string>()
     const remainingSpecialties: typeof SPECIALTIES = []
 
-    // C10: a locked role (the pro's own choice) is kept and its slot taken.
+    // C10: a locked role (the pro's own choice, a role the manager signed a
+    // player for, or a completed retraining) is kept and its slot taken.
     const lockedRoles = new Set<string>()
     for (const p of players) {
         if (p.roleLocked && p.role) { assignedPlayerIds.add(p.id); lockedRoles.add(p.role) }

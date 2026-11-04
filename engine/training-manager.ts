@@ -266,6 +266,9 @@ export class TrainingManager {
     const oldPrimary = player.role
     player.role = ROLE_TO_PLAYER_ROLE[session.targetRole as Role] || session.targetRole
     player.secondaryRole = oldPrimary
+    // SQUAD-02: a paid retraining is the club's choice; the role reconciler
+    // must not send him back to RIFLER at the next week commit.
+    player.roleLocked = true
 
     // Calculate coach bonus (coach development stat / 500, so 80 dev = +0.16 multiplier)
     const staff = game.staff || []

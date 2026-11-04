@@ -117,8 +117,8 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
 
                     {/* Nodes */}
                     {nodes.map((node) => (
+                        <g key={node.id}>
                         <foreignObject
-                            key={node.id}
                             x={node.x - 24}
                             y={node.y - 24}
                             width={48}
@@ -129,6 +129,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
                                 initial={{ scale: 0, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
+                                title={node.nickname}
                                 className="group relative z-20 h-12 w-12 cursor-default rounded-full border border-line-strong bg-ink p-0.5 transition-colors duration-150 hover:border-ink-2"
                             >
                                 <div className="w-full h-full rounded-full overflow-hidden relative">
@@ -140,12 +141,14 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
                                     />
                                 </div>
 
-                                {/* Name Label */}
-                                <div className="pointer-events-none absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-raised px-2 py-0.5 text-[11px] font-semibold text-ink-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                    {node.nickname}
-                                </div>
                             </motion.div>
                         </foreignObject>
+                        {/* SQUAD-23: the name stays visible under the portrait (the old
+                            hover label sat outside the foreignObject and was clipped). */}
+                        <text x={node.x} y={node.y + 38} textAnchor="middle" fill="#C9D0DA" fontSize="12" fontWeight="600" className="pointer-events-none select-none">
+                            {node.nickname}
+                        </text>
+                        </g>
                     ))}
                 </svg>
 

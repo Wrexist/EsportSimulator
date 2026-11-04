@@ -17,6 +17,7 @@ import { useShallow } from "zustand/react/shallow"
 import { ArrowRight, ChevronDown, Loader2, Play, Swords, X } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { selectPlayableMatchId } from "@/lib/playable-match"
+import { forfeitStops, type StopSource } from "@/lib/advance-stops"
 import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -58,7 +59,18 @@ export function AdvanceControl() {
     const locked = isLoading || !!gameOverReason || runOver || !hasCareer || running
     const daily = timeMode === "HYBRID_DAILY"
 
-    const step = (fn: () => Promise<void>) => () => {
+    const step = (fn: () => Promise<void>, wholeWeek = false) => () => {
+        // SQUAD-04: a fixture this step would forfeit (the club can't field
+        // five) stops the first press and says so; the next press goes on.
+        const s = useGameStore.getState()
+        const forfeit = forfeitStops(s as unknown as StopSource, undefined, { wholeWeek }).find(f => !s.advanceSeenKeys.includes(f.key))
+        if (forfeit) {
+            useGameStore.setState({
+                advanceStop: { ...forfeit, week: s.currentWeek, day: s.currentDay },
+                advanceSeenKeys: [...s.advanceSeenKeys, forfeit.key].slice(-200),
+            })
+            return
+        }
         dismissAdvanceStop()
         soundManager.play("weekAdvance")
         void fn()
@@ -107,7 +119,7 @@ export function AdvanceControl() {
                 id: "week",
                 label: t("advance.skipWeek"),
                 title: daily ? t("advance.skipWeekDailyTitle") : t("advance.skipWeekTitle"),
-                run: step(daily ? advanceToWeekEnd : advanceWeek),
+                run: step(daily ? advanceToWeekEnd : advanceWeek, true),
             },
         ]
         control = (

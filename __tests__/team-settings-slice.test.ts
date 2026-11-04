@@ -255,7 +255,7 @@ describe("treatInjury", () => {
         expect(toast).toBeDefined()
     })
 
-    test("clamps weeksRemaining at 0 (can't go negative)", () => {
+    test("a short injury treated to 0 weeks is cleared at once (SQUAD-09)", () => {
         const injuredPlayer = makePlayer("p1", {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             injury: { weeksRemaining: 1, type: "knock" } as any,
@@ -267,7 +267,28 @@ describe("treatInjury", () => {
         const slice = createTeamSettingsSlice(h.set, h.get)
         slice.treatInjury("p1")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect((h.state().players[0] as any).injury.weeksRemaining).toBe(0)
+        expect((h.state().players[0] as any).injury).toBeUndefined()
+        expect(h.state().teams[0].budget).toBe(45_000)
+        // Nothing left to treat: a second call charges nothing.
+        slice.treatInjury("p1")
+        expect(h.state().teams[0].budget).toBe(45_000)
+    })
+
+    test("an injury already at 0 weeks is cleared without a charge (SQUAD-09)", () => {
+        const injuredPlayer = makePlayer("p1", {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            injury: { weeksRemaining: 0, type: "knock" } as any,
+        })
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { budget: 50_000, rosterIds: ["p1"] })],
+            players: [injuredPlayer],
+        }))
+        const slice = createTeamSettingsSlice(h.set, h.get)
+        slice.treatInjury("p1")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((h.state().players[0] as any).injury).toBeUndefined()
+        expect(h.state().teams[0].budget).toBe(50_000)
+        expect(h.state().financeLedger ?? []).toHaveLength(0)
     })
 
     test("refuses when budget below $5000 + surfaces a 'Insufficient funds' toast", () => {

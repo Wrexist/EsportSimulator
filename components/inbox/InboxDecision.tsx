@@ -20,6 +20,7 @@ import { choiceLabel, describeChoice, type ChoiceLike, type EffectChip, type Inb
 import { getArchetype } from "@/engine/personality"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { CLAUSE_TUNING } from "@/engine/contract-clauses"
+import { SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
 import { useInboxDrawer } from "./inbox-drawer-store"
 import { t, tn } from "@/lib/i18n"
 
@@ -125,12 +126,13 @@ export function ChoiceDecision({ event, budget }: { event: GameEventSaveData; bu
 
 /** An AI club bidding for one of your players (`acceptTransferOffer` / reject). */
 export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData; ctx: InboxContext }) {
-    const { acceptTransferOffer, resolveEventChoice, player, playsThisWeek } = useGameStore(useShallow(s => {
+    const { acceptTransferOffer, resolveEventChoice, player, playsThisWeek, rosterSize } = useGameStore(useShallow(s => {
         const data = (event.data ?? {}) as AnyData
         return {
             acceptTransferOffer: s.acceptTransferOffer,
             resolveEventChoice: s.resolveEventChoice,
             player: s.players.find(p => p.id === data.playerId),
+            rosterSize: s.teams.find(t => t.id === s.playerTeamId)?.rosterIds.length ?? 0,
             playsThisWeek: s.scheduledMatches.some(m =>
                 m.week === s.currentWeek && !m.result && (m.homeTeamId === s.playerTeamId || m.awayTeamId === s.playerTeamId)),
         }
@@ -140,7 +142,9 @@ export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData
     const fee = typeof data.offerAmount === "number" ? data.offerAmount : 0
     const acceptBlocked = !player?.forSale
         ? t("ib.bid.notListed")
-        : playsThisWeek ? t("ib.bid.playsThisWeek") : undefined
+        : playsThisWeek ? t("ib.bid.playsThisWeek")
+            // SQUAD-04: the same quorum the store enforces (transferPlayer).
+            : rosterSize <= SENIOR_ROSTER_MIN ? t("player.releaseBlock.min", { min: SENIOR_ROSTER_MIN }) : undefined
 
     const sellOnFee = Math.round(fee * (1 - CLAUSE_TUNING.SELL_ON_FEE_CUT))
     const accept = (sellOn = false) => {

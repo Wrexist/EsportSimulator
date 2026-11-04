@@ -50,8 +50,8 @@
     },
     {
       "path": "app/academy/page.tsx",
-      "sha256": "d04547658c4781b5487849f74305fb810e124ba1d7365f378bf5968198f08990",
-      "bytes": 21545,
+      "sha256": "db725dc270e20aec80fd631ae1644528a8602ade10456c1b55557f8f3a42452f",
+      "bytes": 23219,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -65,6 +65,11 @@
           "date": "2026-11-03",
           "previousSha256": "8ff4751162ed6b6a9d8d69b3676a8e2c9fcf605b373a629a516ce094a4ba39e6",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d04547658c4781b5487849f74305fb810e124ba1d7365f378bf5968198f08990",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -150,8 +155,8 @@
     },
     {
       "path": "app/basecamp/page.tsx",
-      "sha256": "4426b1a1fc2a7cb13012ce99e3a6d0db2e9fc0be51f74b8505a6d0449f94572b",
-      "bytes": 14151,
+      "sha256": "d9ed8db94abbb4bd085c6f0e91d5ff098de7419e77d836be8c9c967bdd7cfbc1",
+      "bytes": 15226,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -178,6 +183,11 @@
           "date": "2026-11-03",
           "previousSha256": "c8cb28c7f7ea055c07f9d448ff65d2086f96dc1de4e21df5cba757538908a306",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4426b1a1fc2a7cb13012ce99e3a6d0db2e9fc0be51f74b8505a6d0449f94572b",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -1317,8 +1327,8 @@
     },
     {
       "path": "app/page.tsx",
-      "sha256": "90bdef05ebef4049a24bce44054f2891c0e8198377e06503c0e62afeace6d003",
-      "bytes": 33518,
+      "sha256": "6cfff24fc938a65e0196d2430ae8b5ed2bccbb25c5b5224e37c2d8823a6ec1db",
+      "bytes": 33504,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1345,13 +1355,18 @@
           "date": "2026-11-03",
           "previousSha256": "ce0ffa23ee0db0eb9c800fc072cc8cc15a80c7b36788a69ebc4abf1cc5bf3467",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "90bdef05ebef4049a24bce44054f2891c0e8198377e06503c0e62afeace6d003",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "app/player/[id]/page.tsx",
-      "sha256": "9abdce0903166d8a95cf7e27bcd386657eaf569ecb1945e6b8b4879ce789af8a",
-      "bytes": 1891,
+      "sha256": "d2463dbf3524575ced207eb9e755ee27c01e91483f253ac7e1478cbbe91c56d9",
+      "bytes": 2429,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1365,6 +1380,11 @@
           "date": "2026-11-03",
           "previousSha256": "0f44a5a124870c350c0da7b26caecd7155647537bd63c56c9241735347160457",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "9abdce0903166d8a95cf7e27bcd386657eaf569ecb1945e6b8b4879ce789af8a",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -1746,8 +1766,8 @@
     },
     {
       "path": "app/squad/page.tsx",
-      "sha256": "37b7782aa1caaf1bb4330c8356f2abe8475c33926c8d19311cff6ed8cde1f455",
-      "bytes": 24058,
+      "sha256": "6a0d962c77d32def59bbfb05351d1018dd8d9c6bc44689b223e4168ecc3edd69",
+      "bytes": 28048,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1774,6 +1794,11 @@
           "date": "2026-11-03",
           "previousSha256": "aa820a3b60223443b76304aa0cbae4331587e459f549c299c3d09e910ebf98c5",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "37b7782aa1caaf1bb4330c8356f2abe8475c33926c8d19311cff6ed8cde1f455",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -2011,8 +2036,8 @@
     },
     {
       "path": "app/training/page.tsx",
-      "sha256": "decc5a58682f96ad02e8221233307c2f97dfeb5b59a52617273816917e5ae166",
-      "bytes": 20805,
+      "sha256": "2fba3db3a9ef85a86f175a24a08be243efffcd063eb61ffa15963ab7a1a3e761",
+      "bytes": 20873,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2039,6 +2064,11 @@
           "date": "2026-11-03",
           "previousSha256": "d7a583b8ddc2733918fd2e639fbef6177856f79e9d1460c17c5c9c7cef8ed0ba",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "decc5a58682f96ad02e8221233307c2f97dfeb5b59a52617273816917e5ae166",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -3390,8 +3420,8 @@
     },
     {
       "path": "components/player/RecruitmentProfile.tsx",
-      "sha256": "e5538c5b63563356bbd31b612efd40c4609cfad68194f6461b827b73977a487b",
-      "bytes": 13403,
+      "sha256": "149008b8b0eae8bdc5d101dcf81b1202192111579c1d344a2d2f356cac70f2cc",
+      "bytes": 14040,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3405,6 +3435,11 @@
           "date": "2026-11-03",
           "previousSha256": "093057bf6bd30d4ee078b8544bb04f4da1f6a5e75633fa0443277e437ab9b7ed",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e5538c5b63563356bbd31b612efd40c4609cfad68194f6461b827b73977a487b",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -3463,8 +3498,8 @@
     },
     {
       "path": "components/player/player-detail.tsx",
-      "sha256": "eee07526d1f1b2a968ebfe29a38781e4ee34d0be7996158495e2cc8789e3b5f8",
-      "bytes": 38081,
+      "sha256": "1ffb360cc6d7d4ab47e1f93e9c7c1254467e5d46d80517b226d52bc79ff668bf",
+      "bytes": 38645,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3491,6 +3526,11 @@
           "date": "2026-11-03",
           "previousSha256": "7ea98fb54b90bc7905d38bdf714cb8f71fb86f7ab566df9f0ebe0641724eba67",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "eee07526d1f1b2a968ebfe29a38781e4ee34d0be7996158495e2cc8789e3b5f8",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -3794,8 +3834,8 @@
     },
     {
       "path": "components/squad/ChemistryMatrix.tsx",
-      "sha256": "6ff70ffbece797f9ee05e95ce80cb53fb3903866030fd616949d7cdd9674ec2f",
-      "bytes": 9492,
+      "sha256": "16c72ef41183810ff34ddc3217cb59be4b1d89721b8614f97574b22b6b86f14b",
+      "bytes": 9602,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3822,13 +3862,18 @@
           "date": "2026-11-03",
           "previousSha256": "034090b76b01adebfce623b29e4837d041d22d5d24e350923e2a69379b9cd985",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "6ff70ffbece797f9ee05e95ce80cb53fb3903866030fd616949d7cdd9674ec2f",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "components/squad/SynergyChart.tsx",
-      "sha256": "40e275a0690d4d0311c1c230ee52c2b6dd44310fd5d0e64207b91a752b8290ef",
-      "bytes": 7296,
+      "sha256": "ed5b09bf31fb08f789b5e4ac3256b15c878b7c09ee8f3a1dca6e851a36052264",
+      "bytes": 7587,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3842,6 +3887,11 @@
           "date": "2026-11-03",
           "previousSha256": "89360efb732cd235f419f0cb2292f2ce11632d56898549d1188d65158b7a52f9",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "40e275a0690d4d0311c1c230ee52c2b6dd44310fd5d0e64207b91a752b8290ef",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -3900,8 +3950,8 @@
     },
     {
       "path": "components/staff/StaffNegotiationModal.tsx",
-      "sha256": "bd34fe1fb2ec9df5689137050f8fcc416fffa6c3533613520efb3c467c6cd37b",
-      "bytes": 17449,
+      "sha256": "36d5d12cd18de109673c795ac882bbc4bd0f6e6b1862af7083c0990ec7b1f0d3",
+      "bytes": 17379,
       "kind": "portrait",
       "source": "Existing generated/edited artwork claims; original inputs, model terms and likeness review required",
       "evidence": "public/data/snapshot/sources.json",
@@ -3928,11 +3978,6 @@
           "date": "2026-11-03",
           "previousSha256": "23e90c0d85938311d2b16034d3ec0048c2098234a6b687097fe0697109fa9eac",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "36d5d12cd18de109673c795ac882bbc4bd0f6e6b1862af7083c0990ec7b1f0d3",
-          "change": "staff"
         }
       ]
     },
@@ -4110,8 +4155,8 @@
     },
     {
       "path": "components/training/WeaponTrainingModal.tsx",
-      "sha256": "b2146eada340add8cb8859e306d12f8137e54cf3f3cf0cef342d924c5bd49227",
-      "bytes": 11679,
+      "sha256": "5a624bcba135eedad684cd1504fc3bc2f35ef93df8759ac6895a5ecc6171d158",
+      "bytes": 11914,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4125,6 +4170,11 @@
           "date": "2026-11-03",
           "previousSha256": "b510d5ff712b999eea2aa3912c260c1b08bcd9469fc170cd149dd27e45fb341e",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "b2146eada340add8cb8859e306d12f8137e54cf3f3cf0cef342d924c5bd49227",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -6694,8 +6744,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "e389447c0cf0a20ad0a96e724796bfec40ea5f54d5fa2fbecc0713ff7555bfab",
-      "bytes": 25321,
+      "sha256": "c6b7b6f74b82df3f83e8321d3ac480528ed0b48b6c80bb8069fecdbde9f24607",
+      "bytes": 25535,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -6741,6 +6791,11 @@
           "date": "2026-11-03",
           "previousSha256": "48a82c5ed905cd1e5136cf79dd0304b0fddb0cee26a11ae51889085bdb4de709",
           "change": "Code cleanup: removed an unused import. No content, names, media or remote URLs changed."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e389447c0cf0a20ad0a96e724796bfec40ea5f54d5fa2fbecc0713ff7555bfab",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -6998,8 +7053,8 @@
     },
     {
       "path": "engine/ai/roster-management.ts",
-      "sha256": "96a4d70377ef188003a45d8dc5b9fae0d9b4641f316e9d5bdfdc4cd9639563c6",
-      "bytes": 14092,
+      "sha256": "f2161de3fc569c414b9c4ab69228e2c7401a1b14c9389a077ca004a5127aeb5a",
+      "bytes": 14017,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7039,18 +7094,13 @@
           "date": "2026-11-03",
           "previousSha256": "9c9af8fac7f934ced05bc60f402b76d7bf0444dbfed74efbd2f33b7bb9346e73",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "f2161de3fc569c414b9c4ab69228e2c7401a1b14c9389a077ca004a5127aeb5a",
-          "change": "news"
         }
       ]
     },
     {
       "path": "engine/ai/transfer-market.ts",
-      "sha256": "5fa20446aeb8335d341cd69a1aa078edbfaee21ebd2ff9d3b48235ff1622eec5",
-      "bytes": 23844,
+      "sha256": "35fd8ece740df8238d3bf82078580c0467e40e83731b301009bba480162b8824",
+      "bytes": 23692,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7077,11 +7127,6 @@
           "date": "2026-11-03",
           "previousSha256": "d601ba6783fa9477acbfb36502c16755f57a9167b167a850017665854a8b16ad",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "35fd8ece740df8238d3bf82078580c0467e40e83731b301009bba480162b8824",
-          "change": "news"
         }
       ]
     },
@@ -7465,8 +7510,8 @@
     },
     {
       "path": "engine/events-manager.ts",
-      "sha256": "17872610ec5a6fea4ba3f11ad4716c007d05770f8641e76eb74105fcb98a72ea",
-      "bytes": 10676,
+      "sha256": "44097fa1551aaf267198759ced3bb5c5136ff918c9486f7ada47f9d0862285c9",
+      "bytes": 10618,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7480,11 +7525,6 @@
           "date": "2026-11-03",
           "previousSha256": "b2b69d2f7a98c3241d162af7e9548469584575daa05be81255b1a81997239766",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "44097fa1551aaf267198759ced3bb5c5136ff918c9486f7ada47f9d0862285c9",
-          "change": "news"
         }
       ]
     },
@@ -8437,8 +8477,8 @@
     },
     {
       "path": "engine/processors/event-processor.ts",
-      "sha256": "87841a08d1cd3ec6b1e1253db04248d8049a41e611c4e78cce9cc0e81d24c1d8",
-      "bytes": 32672,
+      "sha256": "1d3771bfe9b864f037cb7faf1fd01e6c94c7e17a8552db43a1279713b7cfdd21",
+      "bytes": 31726,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8452,16 +8492,6 @@
           "date": "2026-11-03",
           "previousSha256": "37e96ac66fa5d6bbd45878074a9468c41de3037130b70ac59e6849e1423eab95",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "1d3771bfe9b864f037cb7faf1fd01e6c94c7e17a8552db43a1279713b7cfdd21",
-          "change": "news"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "1752a0f90e38a23d8e549c335884ddd3a4a8818c18a7315e07196c785d0d2b0d",
-          "change": "events"
         }
       ]
     },
@@ -8487,8 +8517,8 @@
     },
     {
       "path": "engine/processors/finance-processor.ts",
-      "sha256": "f506f0c15c85a1f03a0fbc036125a3898783ff6267f386d2e3369c8e29c74e80",
-      "bytes": 21973,
+      "sha256": "653888a38d553889c0f77922809c2bd6967735d77aee4c72c76b636578b6af80",
+      "bytes": 22041,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8515,11 +8545,6 @@
           "date": "2026-11-03",
           "previousSha256": "c3973c2532a48cd2afa61d3fe5283d75e2533e63d1e5ac7f064970dacf7e2d85",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "653888a38d553889c0f77922809c2bd6967735d77aee4c72c76b636578b6af80",
-          "change": "news"
         }
       ]
     },
@@ -8558,8 +8583,8 @@
     },
     {
       "path": "engine/processors/match-forfeit.ts",
-      "sha256": "afebd8779fcd626ab5013b95fcfb8c86f12b5f3776bad43385ac091c183da69b",
-      "bytes": 3922,
+      "sha256": "4035432d8baa32be0c8faa978d6b937be0adf593c7eafdf2b6f269b877fedb63",
+      "bytes": 3939,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8573,6 +8598,11 @@
           "date": "2026-11-03",
           "previousSha256": "ef5c66567eb48f3b896f2b550fa89000eff1c6ae492f7e5add662e908011790d",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "afebd8779fcd626ab5013b95fcfb8c86f12b5f3776bad43385ac091c183da69b",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -9110,8 +9140,8 @@
     },
     {
       "path": "engine/prospect-generator.ts",
-      "sha256": "0b21999755ce6e81b0c50e0bf91d3d87bd82f0e22d3c2cc48a25a3554a6a7518",
-      "bytes": 20492,
+      "sha256": "582732900d25d55a984cb2bc2b5d5811b690ee90afc5abf8f650a1f7475efa46",
+      "bytes": 20991,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9125,6 +9155,11 @@
           "date": "2026-11-03",
           "previousSha256": "9ef9eac75331004c99de9b6d6bcc3cd678f04ebd6b78ed7b1fbff00e24c19b88",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "0b21999755ce6e81b0c50e0bf91d3d87bd82f0e22d3c2cc48a25a3554a6a7518",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -9223,8 +9258,8 @@
     },
     {
       "path": "engine/role-reconciler.ts",
-      "sha256": "890f0753e7ac80b7f2d0a3523d360d187f099d38fb1fafd3f657a2f5edfd1ab5",
-      "bytes": 6035,
+      "sha256": "ecc0ead89f840a8ae595a1893888ad979383e8aa81809d7c44b3def3d29eec94",
+      "bytes": 6148,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9238,6 +9273,11 @@
           "date": "2026-11-03",
           "previousSha256": "d1146e5d511257d84e16c728a43e599d8842ef3cf5dda7d2fb89be94a7ac438d",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "890f0753e7ac80b7f2d0a3523d360d187f099d38fb1fafd3f657a2f5edfd1ab5",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -9336,8 +9376,8 @@
     },
     {
       "path": "engine/save-types.ts",
-      "sha256": "893b5f6d21207986543df51b95e75b1b5717dea65edf8efba2a0c1912152448a",
-      "bytes": 55870,
+      "sha256": "4151e4175b364d9fcce44a4f5ff227b695392c03048c79be97420065155f1f9f",
+      "bytes": 55563,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9369,11 +9409,6 @@
           "date": "2026-11-03",
           "previousSha256": "e4f64cb64b9a0a505fb86d4adc545ffd2eb7061f815d188458d978134ee4dbec",
           "change": "storylines"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "4151e4175b364d9fcce44a4f5ff227b695392c03048c79be97420065155f1f9f",
-          "change": "events"
         }
       ]
     },
@@ -10195,8 +10230,8 @@
     },
     {
       "path": "engine/training-manager.ts",
-      "sha256": "4d8a98d231232db53e66fd2986fe99582a86d5269940aebdea20dcf4b3ab3591",
-      "bytes": 12722,
+      "sha256": "0ad5f293773089c5f6ab82ba21912ba5846fce1bf96bfb8f1eccbf1cfdc2dbdb",
+      "bytes": 12893,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10223,13 +10258,18 @@
           "date": "2026-11-03",
           "previousSha256": "b88cc0e22bf22a7ad382c7511a9729e489295aa1dc246e300b9d7029547eb56d",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4d8a98d231232db53e66fd2986fe99582a86d5269940aebdea20dcf4b3ab3591",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "engine/weapon-mastery-system.ts",
-      "sha256": "98e9608fb2e09d7aa23d73e2b5020aa65c20399a1a129680a8027a3c02b27000",
-      "bytes": 12370,
+      "sha256": "8c28e4bd57ddf363b506695dda371995b875d32c890e42415ebfa7825e8d6c30",
+      "bytes": 12671,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10243,6 +10283,11 @@
           "date": "2026-11-03",
           "previousSha256": "2d77b5f47ab440de9c78e679f2b10337db7f1e234fb082bf6d2bb182f27f294e",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "98e9608fb2e09d7aa23d73e2b5020aa65c20399a1a129680a8027a3c02b27000",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -91529,8 +91574,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "b83970a33b54cc75830967d1dcb7c9d7c870a692bf4dc647917b57c879c7da64",
-      "bytes": 385704,
+      "sha256": "b6ea414fd3774523d5b886e309d9fec422f2865d82ef64624227fdc461b890f4",
+      "bytes": 386770,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91662,86 +91707,26 @@
           "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "e4ef1600ad9f1b8f5100862ce4cfa0f222af0dccb02a53f5847e5cdc8d5c4897",
-          "change": "Interface languages, deadlines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "7505a35f04e97b88c1251702aa739c7c9e86e254c1a471bae7ed9a8efa15eb7d",
-          "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "bf325221b89a5f6386ab905129d3b98b0bc10e687c9a258b92fba1ab6aedd192",
-          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "035ca6c22f944471f2009273f426ade7eebb36e8985d90809a46b93345d5c163",
-          "change": "Interface languages, events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: squad, players, training and staff"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "e0d2df5a19d2064087cb8d2bec609c8023c2e348bf72ee30711911e68e73f372",
-          "change": "Interface languages, transfer requests and promises: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "a73ca3f10f67cf08a2780819f293aca829987ace5c9b5a4854724e139b52d051",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "b2030e117354febadf1776a30ade35c8d02f0d84e0181f2c1684a19311d20fc2",
-          "change": "Interface languages, board warnings and reviews: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "8999d6ec7b8f890f50bee301612c09cd1a07cccd7f06e74a3503ac9af2c4a7e0",
-          "change": "Interface languages, pro career, league and transfer messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "5cf6a699d55006e2f6fa3bb9af10fea326cc40c8d453e63b6ba9bd40d67d64d8",
-          "change": "Interface languages, welcome messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "c3d620542fc7aede5f15ee80cead1c815c78085fca9579f2c3131ba8570a0953",
-          "change": "Interface languages, legend events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "cbc1f1adad0fa8e682034f6442184c6900d4076772c56add7974a50f8745ed81",
-          "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "4763f220837a8787ee839a8b0b6e5c7b35fbfc2a3dd5e0d67e81440af42a1237",
-          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "8ad80750ee7d736531854c70914d95dcf266789cfcbe131c595a7688c4f019c6",
-          "change": "Interface languages, Inbox notices: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "bd48f6720c5403674b0b19401ba3901abe92e722a9af3193cc7293b064962cf4",
-          "change": "Interface languages, Staff report: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "f546eddf7685984da83830abf131aea078a611039cfd6e62ea5ba5fe5089210f",
-          "change": "Interface languages, Action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "28230b623aa49f2e022776e6ba00d0c871b226803b25b066d826904f3621376c",
-          "change": "Interface languages, Live action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "e9ab3a28a60601e43d0e9e2628b97b6566d636d66b9aff362af7d42745b746a5",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "12d770e344b22ead0da1251f4adb11b0b2f0765e9cd2f0f4789923389599586c",
-      "bytes": 405248,
+      "sha256": "9d80f507545ea1d16067b2b1f391ac71879ccb0d1c66c87c98e95bb83b0a34f2",
+      "bytes": 406274,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91868,86 +91853,26 @@
           "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "90a224122c699e2d07a6df99475e00d95719eaec85c3e4fb02a2938394e62603",
-          "change": "Interface languages, deadlines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "266249ba79f7e76c1d4b62e14b05c3a76ebec54f11d13dbb6db643cb78156cd7",
-          "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "59da9db4d189dd2766a51635d39aaa84e990faf4bbaeed5201958604f1889869",
-          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "e15f3c1da10c887cacdc8d0dcb474932b71414630dda37ef2aa84f34c2cdbc8a",
-          "change": "Interface languages, events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: squad, players, training and staff"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "106cdfeac91744e5715d616a2038a4e77dcd75cb6dfc22f7360e97537d21e57f",
-          "change": "Interface languages, transfer requests and promises: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "7026b1c0546383d3a500e2ebef50099563baa6d798ec648fdc24c294d1bf508d",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "df16fd3dda5ddb1aa71c73c6e424e2873904328a391bf1839a4b766667927432",
-          "change": "Interface languages, board warnings and reviews: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "36be6010325e8be5e54e73b70583007ce4b0395e0009724ec0a481731e27cee4",
-          "change": "Interface languages, pro career, league and transfer messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "a17169b88d096a94a3ba0abc58d1a3871681da89ac5e4cababa57fefe7efabe4",
-          "change": "Interface languages, welcome messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "887f5c5d38d94bdc6f6f9069a0c3a5ffe19ebbfcd531265f020872ba3077b1b5",
-          "change": "Interface languages, legend events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "314f4ee633f77e8d3ce817e2225e36bc37742d7eb42fdf087755fdc5cdc93713",
-          "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "9a518a1e4e39e622139a6502f82f0e68e1cda3a334a3060b866b9d74fbeefe84",
-          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "69e699646e10cca2fb2ba8a04655dc39f81bcb1efb60fa4e2d7ecef23395b0d2",
-          "change": "Interface languages, Inbox notices: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "cc283784334ca24dd8bbca6400a1de71c7e68e2501dca446d35257053e7100db",
-          "change": "Interface languages, Staff report: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "2b14c8af19afe6a33558cf0bd058f1ac3b64662d0dfbd3e66d3ddb42a1a93f23",
-          "change": "Interface languages, Action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "cde603f105c8ff0accc8af3bb10f51fa85a70bed76ecef6bc9707fdfe09feb93",
-          "change": "Interface languages, Live action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "f99fa2d0adcd1a61209d97d287d2f1799dd43b4649d81dd4123bd0e189c17a83",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "1b9bd8d70400d0590b03fbb20a87b084f25ea758e9a0ccf814261be6d4577fae",
-      "bytes": 413142,
+      "sha256": "d0901d0f8c045224acdd863523b569dcd522fb6bcb0fe4dbb0630a1291d2eaf6",
+      "bytes": 414214,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92074,86 +91999,26 @@
           "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "ad1e0c972ab7ff01f874b44c08195726eef89f135fcd02cef036cc267f757280",
-          "change": "Interface languages, deadlines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "725f436d5786cf39b89d532d69c11af8f9197e0cd92b0275ec80db024bb18333",
-          "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "b14555b08efa910a82c8934cf6bd0ea001ec7255b211efac78e42f47ae6bff91",
-          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "4e6e429a982f1b5ad541ce66183c4c2c4067d527ad8be80bce6ee36019854359",
-          "change": "Interface languages, events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: squad, players, training and staff"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "322805122fb7bb5ed7fe8e7b11900d32b54da09048f972461f9ea03597c3cd55",
-          "change": "Interface languages, transfer requests and promises: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "7e37240d9f168a9b8ccd88e3f6a131f71f35a8ac8d079a1f2be3f78bd4bf4eae",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "c9ea39dbbf7acf3fb9172c1030ec5f409019383cd2a8afef03334a9c5ec5f7d9",
-          "change": "Interface languages, board warnings and reviews: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "4dbc6bb5be403413ce2873fcf26aa74ba7e524e7d3e56b0b6565d1b2050081db",
-          "change": "Interface languages, pro career, league and transfer messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "bbcfa62a50179b54056a21b9e76eba6fc9a51b94be6a3a0380674aed8f3fca08",
-          "change": "Interface languages, welcome messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "51f2fbbd5edf827538c0d10fa8d423e16157abd5e25c08ee4f0dd9a314addb06",
-          "change": "Interface languages, legend events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "b93e364848e404dc928118dbd7308c4be3ba9788151f17c26adb6412fa8c4dcd",
-          "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "0132470309f44fc298e033c4e9b9bc2b793ac87bf58bc00cc24356295f52fefa",
-          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "3ab7cfb3c9e9c4a1b25b77e87a1d86ffc13e04a65190634fd9e5ebcb4c55e8fc",
-          "change": "Interface languages, Inbox notices: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "923af4b8d4f17bcd2601ce95a8d9741fd7eb670f3a2e79930ada3af28bd6073c",
-          "change": "Interface languages, Staff report: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "b3bce2cb8a6158dc4a34f6c8a7b9408da75e5477b1993df7be0079bdb0af91a4",
-          "change": "Interface languages, Action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "ac0bb55e914d6406c7979bfd54274c68f038893e9177a1bb6f0fff0f66283a24",
-          "change": "Interface languages, Live action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "71f2e4f27bbb06b8ba69881ca3e591824ed059191e324efc667eddf40dcb78b0",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "0a2f62c81b46ff392335fc6d9ba9d9113fe49f2ad662c0224c0bfa8ec88bf23c",
-      "bytes": 411084,
+      "sha256": "5772b1afceec736b039132aed258042fe92e5602b0874a98e354ef7571a480ba",
+      "bytes": 412096,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92275,86 +92140,26 @@
           "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "08cea2d118cac7de0707a9220c327765a02f008e0ad3094ba2e6957a557f6fcb",
-          "change": "Interface languages, deadlines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "965c0a85d12657238feecf3ba571bf94a76f68832606c1f2466b4882a6dc4159",
-          "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "69073f4c87753e1212be7607003d65f4037202178524945a92a2656a6b48967a",
-          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "9f5b86827399d8aad6559fe9275bda8a410f0282aee58c218710b156bcfede28",
-          "change": "Interface languages, events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: squad, players, training and staff"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "6a73b23e9fad546738996e31a7a47562ac1075889be6760af4b10ce108d6aab9",
-          "change": "Interface languages, transfer requests and promises: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "520ac346cfab26bc750b504f0186876ad842d214844ac89949f0ed5c52bc034f",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "1864bf47cd674051a5e832a8572a2a65d19cfb5f53468813d6a7aa1ad81ff44f",
-          "change": "Interface languages, board warnings and reviews: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "0871ef5062073b02fe8b3d1d535a8de1841dc65695be4fe992d344d96f7e5944",
-          "change": "Interface languages, pro career, league and transfer messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "a6afcaa430ce103734541cda68b09ff2ee16f61a25021c3166b3644a921a2f64",
-          "change": "Interface languages, welcome messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "8342c1812fa101e6e7e3499fd6501625c93763032ee33e93eb13c09f1b22f0c6",
-          "change": "Interface languages, legend events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "838bafa898df156919b5002840d553ea2bf0e0bd395546549ecdacb31c4b4d88",
-          "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "f54501d469437dae6648ae8e26917ca75098b8b8cd5db1812fcc35370020961b",
-          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "aceff65af0c1a8d195213270326abaca9575a2408792bd23662f48111cd3b892",
-          "change": "Interface languages, Inbox notices: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "c539cc444a0ffb66397f47cc8ade4225f0582a1654122ea00b7d20e7c17baf3b",
-          "change": "Interface languages, Staff report: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "c67fee798c508dc1e132a5cf0e4c9eca02009e7e46e1d2c69968e5b934e1dd1c",
-          "change": "Interface languages, Action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "9a2b957ba797b624706ebe6c2074cf0346b8fb931990aaebaedd14659bd74f04",
-          "change": "Interface languages, Live action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "fdaf8dbe76f3f5bb883dae426665dbde9cc9f098ac3c1ce106e11bb35e63d64a",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "0f361eb64a0ef80d464e53606f45f009ab9c5739b294905c7bcaa1bb89dd6d49",
-      "bytes": 399640,
+      "sha256": "115ec9c314b721e89dc78880558cb99d4855b52380ee6b8ee1876f7daec52198",
+      "bytes": 400611,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92476,86 +92281,26 @@
           "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "78796c78a3ac98bc71eac7bb519a5331a282de41cda5d9a987a853aec4a9c237",
-          "change": "Interface languages, deadlines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "e5b2e76cacc857b6e74a51420c525dd6fb6125ebeee1192f4c7bb3f2c6805459",
-          "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "64356f362b36351f408e50b3be5eafea210ff36ea00af409f85c3767b1fb5cd8",
-          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "e5287c38897dec93888620bbd1079af63c3dc462a7c0c647b1595ad2101e6616",
-          "change": "Interface languages, events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: squad, players, training and staff"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "bddabe2a03cd13a79ac61d4d52988f738506d968436d6d08576ecba5bcf7792b",
-          "change": "Interface languages, transfer requests and promises: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "e8c5d81efcab810389e84d33a626aff761ec6518eb3daaae5eda5a6b824ed0b9",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "a4522e74d0214a133181085d4a05bfc7c5cd4eeb2863a4c78f1587dff608470a",
-          "change": "Interface languages, board warnings and reviews: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "7bb9e20c78654965d51959407753b56c48e0aa6c2673de0d49a8e3e8147f1572",
-          "change": "Interface languages, pro career, league and transfer messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "5b4ba518d4bf8eccc2685b0dcb34989198c8d978a0521794a366d0c2390f8e9f",
-          "change": "Interface languages, welcome messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "8cda991bed86c6da26aff0409fa2792493a568c2e782c7e3cac7a5c42aa23115",
-          "change": "Interface languages, legend events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "7f326e0b3b5fe27a0cf2668f790c5c846b82e52cb83c0bd9fb9a006fb841c993",
-          "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "91f907ccf9e44a1dd26ddb6741732c943078a512782541b18ab28a34155c9515",
-          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "4996fecad568bc14b23b256b25915b4750f14b44a845a1fe98619abf0107161a",
-          "change": "Interface languages, Inbox notices: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "a5b920c63f24cdc786c92799e8c3073ebe979ee6ae8342e0008d0a9d48e4386d",
-          "change": "Interface languages, Staff report: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "97bc70a0888b717fbca69626bd1cd8a328c55dbb6de435d6584200166b020aeb",
-          "change": "Interface languages, Action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "24ad34706193025a7cfdcc3ad2151d84cabf2217a2fa1ce874b6cabb41fd5651",
-          "change": "Interface languages, Live action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "de68365decbb9d15b98bcf3cc18928a5476d6114e5029a02c0f1b7dfe59b4d00",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "77418a370b0d52e292d3599515973bb2f4540c621c92c6f87ea9fd455e2dff21",
-      "bytes": 560512,
+      "sha256": "f945d21c5959e996f83d467a607ab9ddca6ccf28125cb6cdf44f0da2968aa513",
+      "bytes": 561997,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92677,79 +92422,19 @@
           "change": "Interface languages, storylines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "2940eeb2b22a36f82e4a0c55e4dbc61256a22959fc0964f4029a5416afa68baf",
-          "change": "Interface languages, deadlines: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "42a03eceb86a0366d6d31e8f715a588de26928e17823cf8e58b33fbd7cf3e5b5",
-          "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "31b619b3dd503d1810a067118ac9193070aac7aa241d26f5b980a531bf83da10",
-          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "1eff2d00fadaf8fde9929cb3ddefdea6dc92079747917babaafb9bbd58782955",
-          "change": "Interface languages, events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: squad, players, training and staff"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "0f087c7fb0cc9f90279b4083f288c76afea1d6606e46eccd1849d9255ee7ff77",
-          "change": "Interface languages, transfer requests and promises: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "182b833bdff1897faa08ca35fd0ab1a5d7b928e54686046b8d9343982575efe4",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "5f839fa48476527c57d0a69b7363b10ad4ef000475971a67ebd4f4101b2bd625",
-          "change": "Interface languages, board warnings and reviews: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "7a87511c29a76affae868eef15c44f72f9f833282670b3059651524431b6373f",
-          "change": "Interface languages, pro career, league and transfer messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "5316596e1a12c51ee57f45af28d05400a8a80ef2b6a69b6e561ad3a326386688",
-          "change": "Interface languages, welcome messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "3996de56755a572d40b6eef64f0c42f9982d87a8d451faefb38652b7be647de1",
-          "change": "Interface languages, legend events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "8cda995b54e5d63f2ce6062ae68b3fd0ac0c271996ad74730d57b1f6286c9b4f",
-          "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "452f05434b5acc6c3d3f1fe26b07fa17a12eaba0a81d9d64f75db14f5cee973a",
-          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "b7bb3bc3ff83e83999ed026f999ace90e5446845af3d44cc33d3b14f5aeb3e9d",
-          "change": "Interface languages, Inbox notices: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "3b6f56d132f1a69248b1463a0b5e69889f709f02427763ee88e06cfa5f79916e",
-          "change": "Interface languages, Staff report: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "cad54c53cea1c540bcd4dddad9a4c8183b983166d387e19fdeac32d0f19b94f1",
-          "change": "Interface languages, Action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "90780a11cf8a6676df57c9b090969fd610358821c7bef199a02b7c484a7b1c03",
-          "change": "Interface languages, Live action results: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "3a21bc36b8837795e9b83ed1d965240ce9b6bb6cc131b3f0f45b659eb1e221fc",
+          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
@@ -95315,8 +95000,8 @@
     },
     {
       "path": "store/game-store.ts",
-      "sha256": "38bbba300326a3c3f40b7030ff56184f97470a7462e37119ef0427f2c8202371",
-      "bytes": 124861,
+      "sha256": "49b12778ef6efdde7f53da7790bcfe95928ff4bb9d44a40f16eb7e9b65e337a9",
+      "bytes": 125015,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95345,9 +95030,9 @@
           "change": "Merge main"
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "5213f5a681de49551129327c040ec358bdcfed804a45e848a558c04e83adae96",
-          "change": "news"
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -95399,8 +95084,8 @@
     },
     {
       "path": "store/slices/academy-slice.ts",
-      "sha256": "31ced4d78f8d481841865898fe3e296f4b469e1b2a6be7665a42e6076e1aa2a4",
-      "bytes": 41370,
+      "sha256": "a066728565a75e9d696b48dd05be9a7e86c9def456668408a87e47bfdb814d8c",
+      "bytes": 41364,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95427,11 +95112,6 @@
           "date": "2026-11-03",
           "previousSha256": "80961f206ff6ee55cf743156a1823745a7c5fb22573ca566719c4b02f44a245c",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "a066728565a75e9d696b48dd05be9a7e86c9def456668408a87e47bfdb814d8c",
-          "change": "news"
         }
       ]
     },
@@ -95561,8 +95241,8 @@
     },
     {
       "path": "store/slices/match-simulation-slice.ts",
-      "sha256": "17e8ccdc1472d009d918b0ed2cce45322bf6bb933134cf1ba6b45a3df595bdee",
-      "bytes": 42422,
+      "sha256": "d897e4f3baa90213f00a34fd442c23b8bc276c741fb488fd1dc7a22e492f20d3",
+      "bytes": 42278,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95594,11 +95274,6 @@
           "date": "2026-11-03",
           "previousSha256": "75989eaf957f75751100eef91f326b55dd1c1f52c793ef1923a8ab767610b2c6",
           "change": "Help and game guide translated"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "d897e4f3baa90213f00a34fd442c23b8bc276c741fb488fd1dc7a22e492f20d3",
-          "change": "news"
         }
       ]
     },
@@ -95743,8 +95418,8 @@
     },
     {
       "path": "store/slices/staff-management-slice.ts",
-      "sha256": "bae98affb96cc0550d7ccbbae7530c42bc326a8abe0a72ae5e876337da4bc53e",
-      "bytes": 12075,
+      "sha256": "c73ed0c441106b00490398396164535ed3491f79b97e168d2fea321b9c69f8a7",
+      "bytes": 11442,
       "kind": "portrait",
       "source": "Existing generated/edited artwork claims; original inputs, model terms and likeness review required",
       "evidence": "public/data/snapshot/sources.json",
@@ -95771,11 +95446,6 @@
           "date": "2026-11-03",
           "previousSha256": "75b3a595c4587e90a5913f55593a4d4275a21d78c1083ab818de26b8608785cc",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "c73ed0c441106b00490398396164535ed3491f79b97e168d2fea321b9c69f8a7",
-          "change": "staff"
         }
       ]
     },
@@ -95814,8 +95484,8 @@
     },
     {
       "path": "store/slices/team-facilities-slice.ts",
-      "sha256": "d47c9023ac5b04c6752a1e8ca72b46112ae2eaa0d2a815709e5edf60bc48a389",
-      "bytes": 22323,
+      "sha256": "e00b71e750adba87d8775dcad772ee41c9b8b6eebec16c8ec43969189e228d11",
+      "bytes": 22157,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95842,18 +95512,13 @@
           "date": "2026-11-03",
           "previousSha256": "4f788ba4f84d60501a6cd4430cb6b254ff8d92189d7f3a5ae786490290bcba5a",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "e00b71e750adba87d8775dcad772ee41c9b8b6eebec16c8ec43969189e228d11",
-          "change": "news"
         }
       ]
     },
     {
       "path": "store/slices/team-settings-slice.ts",
-      "sha256": "b5f8206eecbe67aef5c6dd9bcd70547d52b2dedb320fa0fc17b1a45a11539941",
-      "bytes": 8561,
+      "sha256": "e3f28ffa069161e80627835a83c9601306c18a1959a49cee04b758092ffbd9cc",
+      "bytes": 8953,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95880,13 +95545,18 @@
           "date": "2026-11-03",
           "previousSha256": "e4d8506e9213f2eb8c67732d1748f9edeccb6a53aae0eaa4531510d5c3ad07b0",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "b5f8206eecbe67aef5c6dd9bcd70547d52b2dedb320fa0fc17b1a45a11539941",
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
     {
       "path": "store/slices/tournament-slice.ts",
-      "sha256": "4f60487707e192cd39e216547a153a3485f0a980d6e5e132ad6e99104bb3d5dd",
-      "bytes": 12878,
+      "sha256": "5e1ca2d54d868ca0eb5678e69631ddd53f948e20e795a7f91956868fc905f938",
+      "bytes": 12804,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95913,11 +95583,6 @@
           "date": "2026-11-03",
           "previousSha256": "2c2b4e9eb3f32e538e2c1a2cdd197f252bb8d62bb19a74060d473735c0a0af0a",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "5e1ca2d54d868ca0eb5678e69631ddd53f948e20e795a7f91956868fc905f938",
-          "change": "news"
         }
       ]
     },
@@ -95943,8 +95608,8 @@
     },
     {
       "path": "store/slices/transfer-contract-slice.ts",
-      "sha256": "b8d904febb6939a4f871b6f446ba67369f3cff8fad062298f19665671e0f16b7",
-      "bytes": 36378,
+      "sha256": "8bae6857d621897893e757c8e7192f1f2573a27392365970c57020224e2ead12",
+      "bytes": 37789,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95973,9 +95638,9 @@
           "change": "Merge main"
         },
         {
-          "date": "2026-11-03",
+          "date": "2026-11-04",
           "previousSha256": "7eacfaadef3929fd51fe3986e2a89f67b798a3c1b8f72ebb41ec8d40093db95f",
-          "change": "news"
+          "change": "Audit fixes: squad, players, training and staff"
         }
       ]
     },
@@ -96027,8 +95692,8 @@
     },
     {
       "path": "store/types.ts",
-      "sha256": "b74068d60acc08564ac780171c10acde6570534247c1e5d45c91cf602d7786a6",
-      "bytes": 17518,
+      "sha256": "bb915b2159c6dddc2baeab1d21227374275e6a2afe76a1c595583e0f6289de26",
+      "bytes": 17446,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -96055,11 +95720,6 @@
           "date": "2026-11-03",
           "previousSha256": "4e0778b199de3f57c656cd28e852b25536fa0e35faea841ba67fd6d690804d04",
           "change": "Merge main"
-        },
-        {
-          "date": "2026-11-03",
-          "previousSha256": "bb915b2159c6dddc2baeab1d21227374275e6a2afe76a1c595583e0f6289de26",
-          "change": "news"
         }
       ]
     },

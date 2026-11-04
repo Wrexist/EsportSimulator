@@ -157,6 +157,8 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
             const player = state.players.find(p => p.id === playerId)
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!player || !player.injury || !team) return
+            // Nothing left to treat: never charge for it.
+            if ((player.injury.weeksRemaining ?? 0) <= 0) { player.injury = undefined; return }
 
             if (team.budget < INJURY_TREATMENT_COST) {
                 state.toasts.push({
@@ -169,6 +171,9 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
 
             team.budget -= INJURY_TREATMENT_COST
             player.injury.weeksRemaining = Math.max(0, player.injury.weeksRemaining - INJURY_TREATMENT_WEEKS_OFF)
+            // SQUAD-09: treated back to fitness: he is available at once (not
+            // "injured 0 wks" until the week update, with Treat still offered).
+            if (player.injury.weeksRemaining <= 0) player.injury = undefined
 
             state.financeLedger.push({
                 id: nextDeterministicId(state, "fin_treat", player.id),

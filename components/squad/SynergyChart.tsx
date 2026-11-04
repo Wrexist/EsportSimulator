@@ -54,8 +54,14 @@ const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className
         const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
         const r = 105 // Label radius
         const x = 100 + r * Math.cos(angle)
-        const y = 100 + r * Math.sin(angle)
-        const align: React.SVGProps<SVGTextElement>['textAnchor'] = x < 90 ? 'end' : x > 110 ? 'start' : 'middle'
+        let y = 100 + r * Math.sin(angle)
+        // SQUAD-17: side labels sit above their axis and run toward the
+        // centre, bottom labels are centred, so no label (translations are
+        // longer) runs past the panel edge.
+        const side = Math.abs(Math.cos(angle)) > 0.9
+        const align: React.SVGProps<SVGTextElement>['textAnchor'] = side ? (x > 100 ? 'end' : 'start') : 'middle'
+        if (side) y -= 11
+        else if (y > 100) y += 6
         return { x, y, label, align }
     }), [])
 
@@ -64,9 +70,9 @@ const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className
     return (
         <div className={cn("flex flex-col items-center justify-center", className)}>
             {/* Five-axis team profile. Inset so the axis labels stay inside the panel. */}
-            <div className="relative flex w-full items-center justify-center px-8 py-2">
-                <div className="relative flex aspect-square w-full max-w-[240px] items-center justify-center">
-                    <svg viewBox="0 0 200 200" className="w-full h-full overflow-visible">
+            <div className="relative flex w-full items-center justify-center px-2 py-2">
+                <div className="relative flex aspect-square w-full max-w-[260px] items-center justify-center">
+                    <svg viewBox="-20 -14 240 228" className="h-full w-full">
                         <defs>
                             <linearGradient id="radarGradient" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor="#F2B53A" stopOpacity="0.35" />

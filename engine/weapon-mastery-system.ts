@@ -276,6 +276,11 @@ export class WeaponMasteryManager {
         // Get current mastery (defaults to 0 for each weapon)
         const currentMastery = this.getPlayerMastery(player)
 
+        // SQUAD-08: Master is the last level; more XP buys nothing.
+        if (getMasteryLevel(currentMastery[drill.weapon]) === "MASTER") {
+            return { success: false, cost: 0, xpGained: 0, newMastery: {}, message: `${player.nickname} has already mastered this weapon class.` }
+        }
+
         // Calculate XP gain (bonus for skilled players)
         let xpGain = drill.xpGain
         const skillBonus = Math.floor(((player.skill ?? 50) - 70) / 10) * 5
