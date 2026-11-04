@@ -7,7 +7,7 @@
  * are listed (career difficulty was removed: nothing reads it).
  */
 
-import { useEffect, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils"
 import { t } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { UI_LANGUAGES } from "@/lib/ui-languages"
+import { effectiveUiScale, stableBaseViewportSize, UI_SCALE_MAX, UI_SCALE_MIN, UI_SCALE_STEP } from "@/lib/ui-scale"
 
 // ── Primitives ─────────────────────────────────────────────────────────────
 
@@ -62,20 +63,25 @@ export function SettingSelect<T extends string | number>({ id, value, onChange, 
     )
 }
 
-function SettingSlider({ label, value, onChange, min, max, step, suffix = "%" }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; suffix?: string }) {
+function SettingSlider({ label, value, onChange, min, max, step, suffix = "%", commitOnRelease = false }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; suffix?: string; commitOnRelease?: boolean }) {
+    // commitOnRelease: show the value while dragging, apply it on release (the UI scale
+    // zooms the page, which would move the slider under the pointer mid-drag).
+    const [pending, setPending] = useState<number | null>(null)
+    const shown = pending ?? value
     return (
         <div className="flex w-52 items-center gap-3">
             <Slider
                 aria-label={label}
-                aria-valuetext={`${value}${suffix}`}
-                value={[value]}
-                onValueChange={(vals) => onChange(vals[0])}
+                aria-valuetext={`${shown}${suffix}`}
+                value={[shown]}
+                onValueChange={(vals) => commitOnRelease ? setPending(vals[0]) : onChange(vals[0])}
+                onValueCommit={commitOnRelease ? (vals) => { setPending(null); onChange(vals[0]) } : undefined}
                 min={min}
                 max={max}
                 step={step}
                 className="flex-1 **:data-[slot=slider-range]:bg-ink-2 **:data-[slot=slider-thumb]:border-ink-1 **:data-[slot=slider-thumb]:bg-ink-1 **:data-[slot=slider-track]:bg-hover"
             />
-            <span className="w-10 text-right text-sm tabular-nums text-ink-2">{value}{suffix}</span>
+            <span className="w-10 text-right text-sm tabular-nums text-ink-2">{shown}{suffix}</span>
         </div>
     )
 }
@@ -105,9 +111,20 @@ export function DisplaySettings() {
         resolution: state.resolution, setResolution: state.setResolution,
         renderingMode: state.renderingMode, setRenderingMode: state.setRenderingMode,
         uiScale: state.uiScale, setUiScale: state.setUiScale,
+        uiScaleAuto: state.uiScaleAuto, setUiScaleAuto: state.setUiScaleAuto,
         reducedMotion: state.reducedMotion, setReducedMotion: state.setReducedMotion,
         applyWindowSettings: state.applyWindowSettings,
     })))
+
+    // While the scale is automatic the slider shows the size in force, which follows the window.
+    const [viewport, setViewport] = useState(() => stableBaseViewportSize())
+    useEffect(() => {
+        const update = () => setViewport(stableBaseViewportSize())
+        update()
+        window.addEventListener("resize", update)
+        return () => window.removeEventListener("resize", update)
+    }, [])
+    const shownScale = effectiveUiScale({ uiScale: s.uiScale, uiScaleAuto: s.uiScaleAuto }, viewport)
 
     // Show the mode the desktop app is actually running in, not a stale stored choice.
     useEffect(() => {
@@ -129,7 +146,11 @@ export function DisplaySettings() {
                 <SettingSelect id="set-rendering" label={t("settings.rendering")} value={s.renderingMode} options={RENDERING_MODES()} onChange={s.setRenderingMode} />
             </SettingRow>
             <SettingRow label={t("settings.uiScale")} hint={t("settings.uiScaleHint")}>
-                <SettingSlider label={t("settings.uiScale")} value={s.uiScale} onChange={s.setUiScale} min={80} max={150} step={5} />
+                <SettingSlider label={t("settings.uiScale")} value={shownScale} onChange={s.setUiScale} commitOnRelease min={UI_SCALE_MIN} max={UI_SCALE_MAX} step={UI_SCALE_STEP} />
+            </SettingRow>
+            <SettingRow id="set-ui-scale-auto" label={t("settings.uiScaleAuto")} hint={t("settings.uiScaleAutoHint")}>
+                <Switch id="set-ui-scale-auto" checked={s.uiScaleAuto}
+                    onCheckedChange={(on) => { if (on) s.setUiScaleAuto(true); else s.setUiScale(shownScale) }} />
             </SettingRow>
             <SettingRow id="set-reduced-motion" label={t("settings.reducedMotion")} hint={t("settings.reducedMotionHint")}>
                 <Switch id="set-reduced-motion" checked={s.reducedMotion} onCheckedChange={s.setReducedMotion} />

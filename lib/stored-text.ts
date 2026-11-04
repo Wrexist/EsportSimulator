@@ -67,6 +67,7 @@ const RULES: Rule[] = [
     [/^Contract settlement: (.+) \((\d+) weeks\)$/, m => t("svd.p.settlement", { name: m[1], weeks: m[2] })],
     [/^Specialist treatment for (.+)$/, m => t("svd.p.treatment", { name: m[1] })],
     [/^Hired (.+) \((\w+)\) - Sign-on Fee$/, m => t("svd.p.hired", { name: m[1], role: known(`staffRole.${m[2].toLowerCase()}`, m[2]) })],
+    [/^Staff severance: (.+)$/, m => t("svd.p.staffSeverance", { name: m[1] })],
     [/^Legend coach signing — (.+)$/, m => t("svd.p.legendCoach", { name: m[1] })],
     [/^Manager signing bonus - (.+)$/, m => t("svd.p.managerBonus", { club: m[1] })],
     [/^Merch Store Upgrade to Level (\d+)$/, m => t("svd.p.merchUpgrade", { level: m[1] })],

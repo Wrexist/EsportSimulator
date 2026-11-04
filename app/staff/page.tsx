@@ -9,6 +9,7 @@ import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import type { StaffSaveData } from "@/engine/save-types"
 import { isSpecialist } from "@/engine/staff-specialization"
+import { staffRefreshCost, staffSeverance } from "@/engine/staff-economy"
 import { STAFF_TALENT_TREES } from "@/engine/talent-trees"
 import { formatCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
@@ -78,12 +79,14 @@ function LevelPips({ level }: { level: number }) {
 }
 
 export default function StaffPage() {
-    const { staff, playerTeamId, fireStaff, marketStaff, refreshStaffMarket, currentWeek, unlockStaffTalent, _hasHydrated } = useGameStore(useShallow(state => ({
+    const { staff, playerTeamId, fireStaff, marketStaff, refreshStaffMarket, requestStaffMarketRefresh, staffMarketRefreshWeek, currentWeek, unlockStaffTalent, _hasHydrated } = useGameStore(useShallow(state => ({
         staff: state.staff,
         playerTeamId: state.playerTeamId,
         fireStaff: state.fireStaff,
         marketStaff: state.marketStaff,
         refreshStaffMarket: state.refreshStaffMarket,
+        requestStaffMarketRefresh: state.requestStaffMarketRefresh,
+        staffMarketRefreshWeek: state.staffMarketRefreshWeek,
         currentWeek: state.currentWeek,
         unlockStaffTalent: state.unlockStaffTalent,
         _hasHydrated: state._hasHydrated,
@@ -97,6 +100,16 @@ export default function StaffPage() {
     const counted = useMemo(() => matchCountedIds(hired), [hired])
     const summary = useMemo(() => teamStaffSummary(hired), [hired])
     const wageBill = hired.reduce((sum, s) => sum + s.salaryPerWeek, 0)
+    const funds = team?.budget ?? 0
+    const money = (n: number) => formatCurrency(n, "$", false)
+    // SQUAD-16: one free refresh per week, then about a week of the average market wage.
+    const refresh = staffRefreshCost(marketStaff, currentWeek, staffMarketRefreshWeek)
+    const refreshBlock = !refresh.free && funds < refresh.cost ? t("player.releaseBlock.funds", { cost: money(refresh.cost), funds: money(Math.max(0, funds)) }) : null
+    const doRefresh = () => {
+        const r = requestStaffMarketRefresh()
+        if (!r.success) throw new Error(r.message)
+        toast.info(t("st.refreshed"))
+    }
 
     const [negotiating, setNegotiating] = useState<{ id: string; renewal: boolean } | null>(null)
     const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -153,6 +166,8 @@ export default function StaffPage() {
                                             const weeksLeft = s.contractEndWeek != null ? Math.max(0, s.contractEndWeek - currentWeek) : null
                                             const canRenew = weeksLeft != null && weeksLeft < 52
                                             const isSelected = selected?.id === s.id
+                                            const severance = staffSeverance(s, currentWeek)
+                                            const releaseBlock = funds < severance.amount ? t("player.releaseBlock.funds", { cost: money(severance.amount), funds: money(Math.max(0, funds)) }) : null
                                             return (
                                                 <tr
                                                     key={s.id}
@@ -173,22 +188,27 @@ export default function StaffPage() {
                                                         {weeksLeft == null ? t("st.open") : weeksLeft >= 52 ? t("st.years", { n: (weeksLeft / 52).toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }) : t("st.weeks", { n: weeksLeft })}
                                                     </td>
                                                     <td className="pr-4" onClick={e => e.stopPropagation()}>
-                                                        <div className="flex items-center justify-end gap-2">
+                                                        <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1">
                                                             <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!canRenew}
                                                                 title={canRenew ? t("st.renewTip") : t("st.renewLater")}
                                                                 onClick={() => setNegotiating({ id: s.id, renewal: true })}>
                                                                 {t("st.renew")}
                                                             </Button>
-                                                            <ConfirmDialog
-                                                                title={t("st.releaseTitle", { name: s.name })}
-                                                                description={t("st.releaseBody")}
-                                                                onConfirm={() => fireStaff(s.id)}
-                                                                destructive
-                                                                confirmText={t("st.release")}
-                                                                icon="danger"
-                                                            >
-                                                                <Button size="sm" variant="ghost" className="h-8 px-3 text-xs">{t("st.release")}</Button>
-                                                            </ConfirmDialog>
+                                                            {releaseBlock ? (
+                                                                <Button size="sm" variant="ghost" className="h-8 px-3 text-xs" disabled title={releaseBlock}>{t("st.release")}</Button>
+                                                            ) : (
+                                                                <ConfirmDialog
+                                                                    title={t("st.releaseTitle", { name: s.name })}
+                                                                    description={t("st.releaseBody", { amount: money(severance.amount), after: money(funds - severance.amount) })}
+                                                                    onConfirm={() => fireStaff(s.id)}
+                                                                    destructive
+                                                                    confirmText={t("st.releaseConfirm", { amount: money(severance.amount) })}
+                                                                    icon="danger"
+                                                                >
+                                                                    <Button size="sm" variant="ghost" className="h-8 px-3 text-xs">{t("st.release")}</Button>
+                                                                </ConfirmDialog>
+                                                            )}
+                                                            {releaseBlock && <p className="basis-full text-right text-xs text-ink-3">{releaseBlock}</p>}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -203,9 +223,31 @@ export default function StaffPage() {
                     <Panel
                         title={t("st.market")}
                         actions={
-                            <Button size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => { refreshStaffMarket(); toast.info(t("st.refreshed")) }}>
-                                <RefreshCw size={13} /> {t("st.refresh")}
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                {refreshBlock && <span className="text-xs text-ink-3">{refreshBlock}</span>}
+                                {refresh.free ? (
+                                    <Button size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs" title={t("st.refreshFreeTip")}
+                                        onClick={() => { try { doRefresh() } catch (err) { toast.error(err instanceof Error ? err.message : String(err)) } }}>
+                                        <RefreshCw size={13} /> {t("st.refresh")}
+                                    </Button>
+                                ) : refreshBlock ? (
+                                    <Button size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs" disabled title={refreshBlock}>
+                                        <RefreshCw size={13} /> {t("st.refreshPaid", { cost: money(refresh.cost) })}
+                                    </Button>
+                                ) : (
+                                    <ConfirmDialog
+                                        title={t("st.refreshConfirmTitle")}
+                                        description={t("st.refreshConfirmBody", { cost: money(refresh.cost), after: money(funds - refresh.cost) })}
+                                        onConfirm={doRefresh}
+                                        confirmText={t("st.refreshPaid", { cost: money(refresh.cost) })}
+                                        icon="warning"
+                                    >
+                                        <Button size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs" title={t("st.refreshFreeTip")}>
+                                            <RefreshCw size={13} /> {t("st.refreshPaid", { cost: money(refresh.cost) })}
+                                        </Button>
+                                    </ConfirmDialog>
+                                )}
+                            </div>
                         }
                         padded={false}
                     >

@@ -3,6 +3,7 @@
 import { normalizeColorVision, type ColorVisionMode } from './accessibility-preferences'
 import { normalizeUiLanguage } from './ui-languages'
 import { normalizeWindowMode, type WindowModeChoice } from './window-mode'
+import { applyUiScale, clampUiScale } from './ui-scale'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -51,7 +52,10 @@ interface GameSettings {
     setColorVisionMode: (mode: string) => void
     adoptLegacyColorVision: (mode: string | null) => void
     reducedMotion: boolean
-    uiScale: number // 80-150, default 100 (above 120 for large, high-resolution monitors)
+    /** The player's chosen scale, 80-150 (used once uiScaleAuto is off). */
+    uiScale: number
+    /** Size the interface from the window (lib/ui-scale.ts autoUiScale) until the player picks a scale. */
+    uiScaleAuto: boolean
 
     // Audio (the only audio settings; the game store keeps none)
     soundEnabled: boolean
@@ -94,6 +98,7 @@ interface GameSettings {
     setRenderingMode: (mode: RenderingMode) => void
     setReducedMotion: (enabled: boolean) => void
     setUiScale: (scale: number) => void
+    setUiScaleAuto: (enabled: boolean) => void
     setMasterVolume: (vol: number) => void
     setMusicVolume: (vol: number) => void
     setSfxVolume: (vol: number) => void
@@ -127,6 +132,7 @@ export const useSettingsStore = create<GameSettings>()(
             adoptLegacyColorVision: mode => { if (!get().colorVisionPreferenceSet) set({ colorVisionMode: normalizeColorVision(mode), colorVisionPreferenceSet: true }) },
             reducedMotion: false,
             uiScale: 100,
+            uiScaleAuto: true,
             soundEnabled: true,
             soundPreferenceSet: false,
             masterVolume: DEFAULT_MASTER_VOLUME,
@@ -169,13 +175,14 @@ export const useSettingsStore = create<GameSettings>()(
                     document.documentElement.classList.toggle('reduce-motion', enabled || (typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches))
                 }
             },
+            // A scale the player picks sticks; the automatic size stops following the window.
+            // (GameShell applies the automatic one, since it needs the window size.)
             setUiScale: (scale) => {
-                const bounded = Number.isFinite(scale) ? Math.max(80, Math.min(150, scale)) : 100
-                set({ uiScale: bounded })
-                if (typeof document !== 'undefined') {
-                    document.documentElement.style.fontSize = `${bounded}%`
-                }
+                const bounded = clampUiScale(scale)
+                set({ uiScale: bounded, uiScaleAuto: false })
+                applyUiScale(bounded)
             },
+            setUiScaleAuto: (enabled) => set({ uiScaleAuto: enabled === true }),
             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
@@ -295,7 +302,10 @@ export const useSettingsStore = create<GameSettings>()(
                     uiSounds: typeof stored?.uiSounds === 'boolean' ? stored.uiSounds : current.uiSounds,
                     hoverSounds: typeof stored?.hoverSounds === 'boolean' ? stored.hoverSounds : current.hoverSounds,
                     muteWhenUnfocused: typeof stored?.muteWhenUnfocused === 'boolean' ? stored.muteWhenUnfocused : current.muteWhenUnfocused,
-                    uiScale: typeof stored?.uiScale === 'number' && Number.isFinite(stored.uiScale) ? Math.max(80, Math.min(150, stored.uiScale)) : 100,
+                    uiScale: clampUiScale(stored?.uiScale),
+                    // Settings saved before the automatic scale: a scale other than the old
+                    // default 100 was the player's choice and stays; 100 means untouched.
+                    uiScaleAuto: typeof stored?.uiScaleAuto === 'boolean' ? stored.uiScaleAuto : !(typeof stored?.uiScale === 'number' && Number.isFinite(stored.uiScale) && stored.uiScale !== 100),
                     // A value already stored by this settings surface wins over
                     // the deprecated game-store preference, including false.
                     autoSavePreferenceSet: typeof stored?.autoSave === 'boolean',

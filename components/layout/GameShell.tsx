@@ -39,6 +39,7 @@ import { isDevToolsEnabled } from "@/lib/runtime-flags"
 import { t } from "@/lib/i18n"
 import { escapeGoesBack, requiresCareer } from "@/lib/career-routes"
 import { windowModeForFullscreen } from "@/lib/window-mode"
+import { applyUiScale, effectiveUiScale, stableBaseViewportSize } from "@/lib/ui-scale"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -164,12 +165,18 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             if (settings.reducedMotion || media.matches) stopConfetti()
             document.documentElement.classList.remove(...COLOR_VISION_MODES.filter(mode => mode !== "off"))
             if (settings.colorVisionMode !== "off") document.documentElement.classList.add(settings.colorVisionMode)
-            document.documentElement.style.fontSize = `${settings.uiScale}%`
+            applyUiScale(effectiveUiScale(settings, stableBaseViewportSize()))
+        }
+        // The automatic UI scale follows the window size until the player picks one.
+        const applyScaleOnResize = () => {
+            const settings = useSettingsStore.getState()
+            if (settings.uiScaleAuto) applyUiScale(effectiveUiScale(settings, stableBaseViewportSize()))
         }
         applyPreferences()
         const unsubscribe = useSettingsStore.subscribe(applyPreferences)
         media.addEventListener("change", applyPreferences)
-        return () => { unsubscribe(); media.removeEventListener("change", applyPreferences) }
+        window.addEventListener("resize", applyScaleOnResize)
+        return () => { unsubscribe(); media.removeEventListener("change", applyPreferences); window.removeEventListener("resize", applyScaleOnResize) }
     }, [])
 
     useEffect(() => {
