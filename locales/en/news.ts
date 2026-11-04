@@ -111,6 +111,18 @@ export const NEWS = {
     "ev.top20.ours.one": "The Pro Top 20 of season {{year}} is out: {{count}} of your players made the list. Ranked on official maps (at least {{min}}), each map weighted by its competition.",
     "ev.top20.ours.other": "The Pro Top 20 of season {{year}} is out: {{count}} of your players made the list. Ranked on official maps (at least {{min}}), each map weighted by its competition.",
 
+    // Welcome messages for a new career, a founded club and a new job
+    "wel.t": "Welcome to {{club}}!",
+    "wel.players.one": "{{count}} player",
+    "wel.players.other": "{{count}} players",
+    "wel.m": "Congratulations on your appointment as head coach! Here's what you need to know:\n\nYOUR TEAM\nYou're managing {{club}} with {{players}} on the roster. Your current average team rating is {{rating}}.\n\nFIRST STEPS\n• Review the Roster page: know your players' strengths\n• Check the Calendar for upcoming matches\n• Visit Training to start improving your players\n• Keep an eye on your budget in Finances\n\nGROW YOUR TEAM\n• Transfers: sign free agents or buy from rival rosters\n• Scouting: research targets before you negotiate\n• Youth Academy: develop the next generation of pros\n• Sponsorships: unlock more deals as your reputation grows\n\nKEY TIPS\n• Player morale affects performance: keep it high\n• Don't overtrain: exhausted players perform poorly\n• Save money for the transfer window to improve your roster\n• Watch your players' contract expiry dates\n\nYOUR GOAL\nBuild a championship-winning team! Start in local tournaments, climb the rankings, and qualify for a Major.\n\nPress Continue when you're ready to begin. Good luck, Coach!",
+    "wel.custom.m": "Congratulations on founding your own esports organisation!\n\nYOUR NEW TEAM\nYou've created {{club}} [{{tag}}] in the {{region}} region. Starting budget: {{budget}} (includes a recruitment bonus).\n\nFIRST STEPS\n• Your roster is empty: visit Transfers to sign free agents\n• You need at least 5 players to compete in tournaments\n• Budget carefully: every dollar counts\n\nKEY TIPS\n• Look for undervalued talents with high potential\n• Consider players with good teamwork stats\n• Don't overspend on salaries: leave room for growth\n\nYOUR GOAL\nRise from obscurity to become a championship-winning team. The journey starts now!\n\nGood luck, Coach {{manager}}!",
+    "wel.newJob.t": "New job accepted",
+    "wel.newJob.m": "You are now the manager of {{club}}.",
+    "wel.job.m": "You now manage {{club}}. Club signing funds: {{funds}}.{{kept}}{{objectives}}",
+    "wel.job.kept": " Your previous club keeps its academy, scouting reports and plans.",
+    "wel.job.objectives": " The board's objectives: {{list}}.",
+
     // Pro career inbox (engine/pro-career.ts)
     "pcr.start.t": "{{name}} signs for {{club}}",
     "pcr.start.m": "You are {{name}}, a {{age}}-year-old {{role}} on your first pro contract. The coach picks the five best players each week, so earn your place: set your training focus in the week plan and training screens, play your matches, and bigger clubs will call when you are good enough for their lineup. The staff run the club.",

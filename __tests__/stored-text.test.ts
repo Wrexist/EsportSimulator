@@ -132,5 +132,6 @@ describe("news feed", () => {
         expect(storedText("Season ranking met: #12, 2 trophies (target #15)")).toBe("Saisonplatzierung erreicht: #12, 2 Titel (Ziel #15)")
         expect(storedText("Season 3 board review: expectations met")).toBe("Vorstandsbilanz Saison 3: Erwartungen erfüllt")
         expect(storedText("Results: 2 won, 1 lost")).toBe("Ergebnisse: 2 gewonnen, 1 verloren")
+        expect(storedText("Finish the season ranked #12 or better")).toBe("Die Saison auf Weltrang #12 oder besser beenden")
     })
 })

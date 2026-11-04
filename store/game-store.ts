@@ -113,6 +113,7 @@ import { foldWeeklyDigest } from "@/lib/inbox-digest"
 import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
+import { eventText } from "@/lib/news-ref"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
 import { randomizeWorld } from "@/engine/random-world"
@@ -1254,29 +1255,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             week: 1,
             acknowledged: false,
             data: {
-              title: `Welcome to ${selectedTeam?.name || 'Your New Team'}!`,
-              message: `Congratulations on your appointment as head coach! Here's what you need to know:\n\n` +
-                `🎮 YOUR TEAM\n` +
-                `You're managing ${selectedTeam?.name || 'your team'} with ${teamRoster.length} player${teamRoster.length !== 1 ? 's' : ''} on the roster. ` +
-                `Your current average team rating is ${avgRating}.\n\n` +
-                `📋 FIRST STEPS\n` +
-                `• Review your roster in the Squad page — know your players' strengths\n` +
-                `• Check the Schedule to see upcoming matches\n` +
-                `• Visit Training to start improving your players\n` +
-                `• Keep an eye on your Budget in Finances\n\n` +
-                `🔍 GROW YOUR TEAM\n` +
-                `• Transfers — sign free agents or buy from rival rosters\n` +
-                `• Scouting — research targets before you negotiate\n` +
-                `• Youth Academy — develop the next generation of pros\n` +
-                `• Sponsorships — unlock more deals as your reputation grows\n\n` +
-                `💡 KEY TIPS\n` +
-                `• Player morale affects performance — keep it high!\n` +
-                `• Don't overtrain — exhausted players perform poorly\n` +
-                `• Save money for the transfer window to improve your roster\n` +
-                `• Watch your players' contract expiration dates\n\n` +
-                `🏆 YOUR GOAL\n` +
-                `Build a championship-winning team! Start by competing in local tournaments, climb the rankings, and eventually qualify for a Major.\n\n` +
-                `Click 'Advance Week' when you're ready to begin. Good luck, Coach!`,
+              ...eventText({ key: "wel.t", params: { club: selectedTeam?.name || "your team" } }, {
+                key: "wel.m",
+                params: { club: selectedTeam?.name || "your team", players: { key: "wel.players", count: teamRoster.length }, rating: avgRating },
+              }),
               severity: "success"
             }
           })
@@ -1604,22 +1586,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             week: 1,
             acknowledged: false,
             data: {
-              title: `Welcome to ${teamData.name}!`,
-              message: `Congratulations on founding your own esports organization!\n\n` +
-                `🎮 YOUR NEW TEAM\n` +
-                `You've created ${teamData.name} [${teamData.shortName}] in the ${teamData.region} region. ` +
-                `Starting budget: ${formatCurrency(totalBudget)} (includes recruitment bonus!).\n\n` +
-                `📋 FIRST STEPS\n` +
-                `• Your roster is EMPTY! Visit Transfers immediately to sign free agents\n` +
-                `• You need at least 5 players to compete in tournaments\n` +
-                `• Budget carefully - every dollar counts!\n\n` +
-                `💡 KEY TIPS\n` +
-                `• Look for undervalued talents with high potential\n` +
-                `• Consider players with good teamwork stats\n` +
-                `• Don't overspend on salaries - leave room for growth\n\n` +
-                `🏆 YOUR GOAL\n` +
-                `Rise from obscurity to become a championship-winning team. The journey starts now!\n\n` +
-                `Good luck, Coach ${managerName}!`,
+              ...eventText({ key: "wel.t", params: { club: teamData.name } }, {
+                key: "wel.custom.m",
+                params: { club: teamData.name, tag: teamData.shortName, region: { key: `ct.region.${teamData.region}` }, budget: formatCurrency(totalBudget), manager: managerName },
+              }),
               severity: "success"
             }
           })
@@ -1681,8 +1651,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             type: "CAREER_UPDATE",
             week: state.currentWeek,
             data: {
-              title: "New Job Accepted",
-              message: `You are now the manager of ${team.name}.`,
+              ...eventText({ key: "wel.newJob.t" }, { key: "wel.newJob.m", params: { club: team.name } }),
               severity: "success"
             },
             acknowledged: false
