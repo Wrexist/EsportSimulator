@@ -10,8 +10,11 @@ import { debouncedStorage } from "@/engine/storage-adapter"
 import { createLaunchFixture } from "@/scripts/launch/fixtures"
 import type { GameEventSaveData, GameSave } from "@/engine/save-types"
 import {
-    MAX_OPEN_DECISIONS, decisionRuleFor, expireDecisions, isOpenDecision, normalizeDecisions,
+    MAX_OPEN_DECISIONS, decisionRuleFor, expireDecisions, isOpenDecision, normalizeDecisions, unansweredNote, unansweredNoteRef,
 } from "@/engine/decision-deadlines"
+import { readFileSync } from "fs"
+import { join } from "path"
+import { registerLocale, setLocale, tRef } from "@/lib/i18n"
 import { DIGEST_TYPE, foldWeeklyDigest, isDigestible } from "@/lib/inbox-digest"
 import {
     buildInboxItems, countInbox, getDecisionKind, getEventBody, getEventSubject, getInboxKind, parseMessageBody, type InboxContext,
@@ -70,6 +73,28 @@ describe("deadlines and stated defaults", () => {
         expect(getEventBody(meetup, ctxOf(save))).toMatch(/\n\nIf you don't answer by Week 9, the club skips the meetup/)
         // Idempotent.
         expect(normalizeDecisions(save)).toEqual({ assigned: 0, refreshed: 0, cooledDown: 0, deferred: 0 })
+    })
+
+    test("the note is shown in the active language; notes saved before keys still translate their frame", () => {
+        const save = fixture(8)
+        save.eventsLog.push(fan(8), unhappy("p_a2", 8))
+        normalizeDecisions(save)
+        registerLocale("de", JSON.parse(readFileSync(join(__dirname, "..", "public", "locales", "de.json"), "utf8")))
+        try {
+            setLocale("de")
+            expect(getEventBody(find(save, "morale_p_a2_8"), ctxOf(save))).toMatch(/Ohne Antwort bis Woche 9 gilt: Der Verein lässt die Beschwerde von PlayerA2 unbeantwortet\.$/)
+            const old = find(save, "fan_meet_8")
+            delete old.data.ifUnansweredRef
+            expect(getEventBody(old, ctxOf(save))).toMatch(/Ohne Antwort bis Woche 9 gilt: Der Verein lässt das Fantreffen ausfallen und das Team weiter trainieren\.$/)
+        } finally {
+            setLocale("en")
+        }
+    })
+
+    test("a pro career decision is the player's own: \"you\", not \"the club\"", () => {
+        const r = decisionRuleFor({ id: "pro_offer_t1_8", type: "CONTRACT", week: 8, acknowledged: false, data: {}, choices: [{ id: "stay", text: "Stay" }] } as unknown as GameEventSaveData)!
+        expect(unansweredNote(r, 10, null)).toBe("If you don't answer by Week 10, you stay at your current club.")
+        expect(tRef(unansweredNoteRef(r, 10, null)!)).toBe("If you don't answer by Week 10, you stay at your current club.")
     })
 
     test("past the deadline the default is applied with the same effects as answering it, and logged", () => {

@@ -26,6 +26,7 @@ import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { PERSONALITY_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
 import { intlLocale, isTextRef, t, tn, tRef, type TextRef } from "@/lib/i18n"
 import { newsContent, newsTitle } from "@/lib/news-text"
+import { storedText } from "@/lib/stored-text"
 
 export type InboxKind = "decision" | "message" | "news"
 export type DecisionKind = "choice" | "job_offer" | "transfer_offer"
@@ -236,7 +237,8 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
  */
 export function getEventBody(event: GameEventSaveData, ctx: InboxContext): string {
     const body = eventBodyText(event, ctx)
-    const note = dataOf(event).ifUnanswered
+    const data = dataOf(event)
+    const note = isTextRef(data.ifUnansweredRef) ? tRef(data.ifUnansweredRef) : typeof data.ifUnanswered === "string" ? storedText(data.ifUnanswered) : undefined
     return typeof note === "string" && event.selectedChoiceId === undefined && !dataOf(event).isWithdrawn ? `${body}\n\n${note}` : body
 }
 
