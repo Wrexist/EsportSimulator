@@ -55,7 +55,7 @@ import { applyRoundEconomy, getMapsToWinForFormat, resolveHomeStartsCT } from '@
 import type { MatchCounters } from './habits'
 import type { CoachCallRecord } from './coach-calls'
 import { managedLoadout, regroupEdge, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
-import { determineMapMVP, determineMVP, generateMatchStats, generateScriptMatchStats } from './match-stats'
+import { determineMapWinnerMVP, determineMVP, generateMatchStats, generateScriptMatchStats } from './match-stats'
 import type { BuyStrategy } from './buy-phase'
 import type { PlayerSimulationState } from './round-outcome'
 import { LEGACY_ENGINE_VERSION, SCRIPT_ENGINE_VERSION, type EngineVersion } from './engine-version'
@@ -535,7 +535,12 @@ export function runLegacySeries(ctx: LegacySeriesContext, policy?: LegacyDecisio
 
 /** Canonical result from a finished (or forfeited mid-way) series state. */
 export function finalizeLegacySeries(ctx: LegacySeriesContext, state: LegacySeriesState, management?: MatchResult['management']): MatchResult {
-    const played = state.maps.filter(m => m.rounds.length > 0).map(m => ({ ...m, mvpPlayerId: determineMapMVP(m.rounds, ctx.home.players, ctx.away.players) }))
+    // Map MVP: best player of the map's winner (script-v1: by that map's rating).
+    const played = state.maps.filter(m => m.rounds.length > 0).map(m => ({
+        ...m,
+        mvpPlayerId: determineMapWinnerMVP(m, ctx.home.players, ctx.away.players,
+            isScript(ctx) ? generateScriptMatchStats(ctx.home.players, ctx.away.players, [m]) : undefined),
+    }))
     const homeScore = state.sim.homeSeriesScore
     const awayScore = state.sim.awaySeriesScore
     const homeWon = homeScore > awayScore

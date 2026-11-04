@@ -254,9 +254,9 @@ export function getTournamentMVP(
         tournamentId?.startsWith(m.tournamentId + "_s")
     )
 
+    // Maps on which he was the map MVP (the match MVP is not a map of its own).
     let mvpMaps = 0
     tournamentMatches.forEach(match => {
-        if (match.result?.mvpPlayerId === topPlayer.playerId) mvpMaps++
         match.result?.maps?.forEach(map => {
             if (map.mvpPlayerId === topPlayer.playerId) mvpMaps++
         })
