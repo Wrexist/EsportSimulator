@@ -18,6 +18,8 @@
  * Extracted from store/game-store.ts. Mutates `save` in place.
  */
 
+import { JOIN_REF, STORED_REF, type TextRef } from "@/lib/i18n"
+import { eventText } from "@/lib/news-ref"
 import type { GameSave } from "../save-types"
 import { applyBootcampChemistryBonus } from "../chemistry-engine"
 
@@ -79,11 +81,10 @@ function applyBootcampWeek(save: GameSave, act: any, ctx: ScheduledActivitiesCon
     })
 
     const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`)
-    const parts = [
-        xp ? `XP ${sign(xp)}` : "",
-        morale ? `Morale ${sign(morale)}` : "",
-        fatigue ? `Fatigue ${sign(fatigue)}` : "",
-    ].filter(Boolean)
+    const parts: TextRef[] = []
+    if (xp) parts.push({ key: "evn.fx.xp", params: { v: sign(xp) } })
+    if (morale) parts.push({ key: "evn.fx.morale", params: { v: sign(morale) } })
+    if (fatigue) parts.push({ key: "evn.fx.fatigue", params: { v: sign(fatigue) } })
     save.eventsLog.unshift({
         id: ctx.nextId(save, "evt_bootcamp_week", act.type),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,8 +92,7 @@ function applyBootcampWeek(save: GameSave, act: any, ctx: ScheduledActivitiesCon
         week: save.currentWeek,
         acknowledged: false,
         data: {
-            title: act.name || "Bootcamp",
-            message: `Bootcamp week for the roster: ${parts.join(", ")}.`,
+            ...eventText(act.name ? { key: STORED_REF, params: { text: act.name } } : { key: "sch.kind.BOOTCAMP" }, { key: "evn.bootcamp.m", params: { effects: joinFx(parts) } }),
             severity: "info",
         },
     })
@@ -107,8 +107,8 @@ function applyStaffMeeting(save: GameSave, act: any, ctx: ScheduledActivitiesCon
     const roster = save.players.filter((p: any) => team.rosterIds.includes(p.id))
 
     const effects = act.data?.effects || DEFAULT_STAFF_MEETING_EFFECTS
-    const meetingName = act.name || "Staff Meeting"
-    const effectParts: string[] = []
+    const meetingName: TextRef = act.name ? { key: STORED_REF, params: { text: act.name } } : { key: "sch.kind.STAFF_MEETING" }
+    const effectParts: TextRef[] = []
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     roster.forEach((p: any) => {
@@ -136,12 +136,13 @@ function applyStaffMeeting(save: GameSave, act: any, ctx: ScheduledActivitiesCon
     }
 
     // Build a human-readable effect summary for the event log.
-    if (effects.morale) effectParts.push(`Morale +${effects.morale}`)
-    if (effects.xp) effectParts.push(`XP +${effects.xp}`)
-    if (effects.fatigue) effectParts.push(`Fatigue ${effects.fatigue}`)
-    if (effects.chemistry) effectParts.push(`Chemistry +${effects.chemistry}`)
-    if (effects.stressResistance) effectParts.push(`Stress Resistance +${effects.stressResistance}`)
-    if (effects.tacticXp) effectParts.push(`Tactic XP +${effects.tacticXp}`)
+    const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`)
+    if (effects.morale) effectParts.push({ key: "evn.fx.morale", params: { v: signed(effects.morale) } })
+    if (effects.xp) effectParts.push({ key: "evn.fx.xp", params: { v: signed(effects.xp) } })
+    if (effects.fatigue) effectParts.push({ key: "evn.fx.fatigue", params: { v: signed(effects.fatigue) } })
+    if (effects.chemistry) effectParts.push({ key: "evn.fx.chemistry", params: { v: signed(effects.chemistry) } })
+    if (effects.stressResistance) effectParts.push({ key: "evn.fx.stress", params: { v: signed(effects.stressResistance) } })
+    if (effects.tacticXp) effectParts.push({ key: "evn.fx.tacticXp", params: { v: signed(effects.tacticXp) } })
 
     save.eventsLog.unshift({
         id: ctx.nextId(save, "evt_staff_meeting"),
@@ -150,8 +151,7 @@ function applyStaffMeeting(save: GameSave, act: any, ctx: ScheduledActivitiesCon
         week: save.currentWeek,
         acknowledged: false,
         data: {
-            title: meetingName,
-            message: `The team held a ${meetingName.toLowerCase()}. ${effectParts.join(", ")}.`,
+            ...eventText(meetingName, effectParts.length ? { key: "evn.meeting.m", params: { effects: joinFx(effectParts) } } : { key: "evn.meeting.none" }),
             severity: "success",
         },
     })
@@ -173,9 +173,13 @@ function applyBootcampChemistry(save: GameSave, act: any, ctx: ScheduledActiviti
         week: save.currentWeek,
         acknowledged: false,
         data: {
-            title: "Team Chemistry Improved",
-            message: `The ${act.name || "bootcamp"} brought the team closer together. Chemistry +${bonus}.`,
+            ...eventText({ key: "evn.chem.t" }, { key: "evn.chem.m", params: { activity: act.name ? { key: STORED_REF, params: { text: act.name } } : { key: "sch.kind.BOOTCAMP" }, v: `+${bonus}` } }),
             severity: "success",
         },
     })
+}
+
+/** Effect parts ("Morale +5", "XP +10") joined with commas in the active language. */
+function joinFx(parts: TextRef[]): TextRef {
+    return { key: JOIN_REF, params: { ...Object.fromEntries(parts.map((p, i) => [i, p])), sep: ", " } }
 }

@@ -11,6 +11,7 @@
  * - Creates transfer history records
  */
 
+import { eventText } from "@/lib/news-ref"
 import {
     GameSave,
     TeamSaveData,
@@ -141,8 +142,7 @@ export class PreSeasonTransferProcessor {
                 type: "TRANSFER_WINDOW",
                 week: 1,
                 data: {
-                    title: "Pre-Season Transfer Window Open",
-                    message: `The pre-season transfer window is underway. ${signings} signings have been completed across ${teamsUpdated} teams.`,
+                    ...eventText({ key: "evn.preseason.t" }, { key: "evn.preseason.m", params: { signings: { key: "evn.preseason.signings", count: signings }, teams: { key: "evn.preseason.teams", count: teamsUpdated } } }),
                     totalSignings: signings,
                     teamsUpdated
                 },

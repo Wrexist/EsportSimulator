@@ -15,7 +15,7 @@
 
 import { EN } from "@/locales/en"
 import { getLocale, ordinalLabel, setStoredTextResolver, t, tn } from "@/lib/i18n"
-import { divisionName } from "@/lib/display-names"
+import { divisionName, stageName } from "@/lib/display-names"
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string]
 
@@ -147,7 +147,8 @@ function segment(s: string): string {
         const m = text.match(re)
         if (m) return fn(m)
     }
-    return text
+    // Match stages ("Quarter-final 2", "Round of 16") and division names; anything else as stored.
+    return stageName(text)
 }
 
 /** The stored English label in the active language (unchanged in English). */

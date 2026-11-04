@@ -12,6 +12,7 @@
  * ledger/event ids — match goals are match-scoped, weekly goals are week-scoped.
  */
 
+import { eventText } from "@/lib/news-ref"
 import type { GameSave, TeamSaveData } from "../save-types"
 
 export function paySponsorGoalBonus(args: {
@@ -52,8 +53,7 @@ export function paySponsorGoalBonus(args: {
         type: "SPONSOR_OFFER",
         week: save.currentWeek,
         data: {
-            title: "Sponsor Goal Met",
-            message: `${sponsorName} sent a bonus of $${bonusPayout.toLocaleString()}.`,
+            ...eventText({ key: "evn.sponsorGoal.t" }, { key: "evn.sponsorGoal.m", params: { sponsor: sponsorName, amount: `$${bonusPayout.toLocaleString("en-US")}` } }),
         },
         acknowledged: false,
     })

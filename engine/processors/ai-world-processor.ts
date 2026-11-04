@@ -16,6 +16,7 @@
  * Extracted from atomic-week-processor.ts. Signature unchanged.
  */
 
+import { eventText } from "@/lib/news-ref"
 import { aiProspectPotential } from "../development-rates"
 import type { GameSave } from "../save-types"
 import { SeededRNG } from "../rng"
@@ -238,8 +239,7 @@ function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRN
                 week: save.currentWeek,
                 acknowledged: false,
                 data: {
-                    title: "Youth Intake Complete",
-                    message: `${prospectsToGenerate} new prospect${prospectsToGenerate > 1 ? 's have' : ' has'} joined your Youth Academy. Check the Squad page to view and promote them.`,
+                    ...eventText({ key: "evn.youth.t" }, { key: "evn.youth.m", count: prospectsToGenerate }),
                     severity: "success",
                 },
             })

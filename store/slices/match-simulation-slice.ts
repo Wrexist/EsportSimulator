@@ -72,7 +72,7 @@ import {
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
-import { newsText } from "@/lib/news-ref"
+import { eventText, newsText } from "@/lib/news-ref"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
@@ -389,8 +389,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                                         type: "SPONSOR_OFFER",
                                         week: state.currentWeek,
                                         data: {
-                                            title: "Sponsor Goal Met",
-                                            message: `${sponsor.name} sent a bonus of ${formatCurrency(goal.bonusPayout, "$", false)}.`,
+                                            ...eventText({ key: "evn.sponsorGoal.t" }, { key: "evn.sponsorGoal.m", params: { sponsor: sponsor.name, amount: formatCurrency(goal.bonusPayout, "$", false) } }),
                                         },
                                         acknowledged: false,
                                     })
@@ -503,7 +502,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                                     id: nextDeterministicId(state, "evt_max"),
                                     type: "TRAINING_COMPLETE",
                                     week: state.currentWeek,
-                                    data: { title: "Signature Weapon", message: `${player.nickname} mastered ${primaryWeapon}!` },
+                                    data: eventText({ key: "evn.weapon.t" }, { key: "evn.weapon.m", params: { name: player.nickname, weapon: primaryWeapon } }),
                                     acknowledged: false,
                                 })
                             }

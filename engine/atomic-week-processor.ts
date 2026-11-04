@@ -1,3 +1,5 @@
+import { STORED_REF } from "@/lib/i18n"
+import { eventText } from "@/lib/news-ref"
 import { generateCareerDecision } from "./career-decisions"
 import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
 import { isProActive, processProWeek, handClubDecisionsToStaff } from "./pro-career"
@@ -390,8 +392,10 @@ export class AtomicWeekProcessor {
                             week: save.currentWeek,
                             acknowledged: false,
                             data: {
-                                title: "🎮 Match Day!",
-                                message: `Your team faces ${opponent.name} (#${opponent.worldRanking || '?'}) today in ${tournament.name}. ${match.stage || 'Tournament Match'}. Good luck!`,
+                                ...eventText({ key: "evn.matchDay.t" }, {
+                                    key: opponent.worldRanking ? "evn.matchDay.m" : "evn.matchDay.mNoRank",
+                                    params: { opp: opponent.name, rank: opponent.worldRanking ?? "", event: tournament.name, stage: { key: STORED_REF, params: { text: match.stage || "Tournament Match" } } },
+                                }),
                                 severity: "info",
                                 tournamentId: tournament.id,
                                 matchId: match.id,
@@ -641,10 +645,9 @@ export class AtomicWeekProcessor {
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
-                            title: "Manager Promotion!",
-                            message: slotIncreased
-                                ? `You have reached Manager Level ${newLevel}. Max weekly training slots increased to ${derivedMaxSlots}.`
-                                : `You have reached Manager Level ${newLevel}.`,
+                            ...eventText({ key: "evn.mgrLevel.t" }, slotIncreased
+                                ? { key: "evn.mgrLevel.slots", params: { level: newLevel, slots: derivedMaxSlots } }
+                                : { key: "evn.mgrLevel.m", params: { level: newLevel } }),
                             severity: "success"
                         }
                     })
@@ -1402,8 +1405,7 @@ export class AtomicWeekProcessor {
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
-                            title: "📧 Tournament Invitation",
-                            message: `Your team's performance has earned an official invitation to **${def.name}**! The event starts in ${def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek} weeks.`,
+                            ...eventText({ key: "evn.invite.t" }, { key: "evn.invite.m", params: { event: def.name, weeks: { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek } } }),
                             severity: "success",
                             tournamentId: def.id,
                             tier: def.tier
@@ -1581,8 +1583,7 @@ export class AtomicWeekProcessor {
                     week: save.currentWeek,
                     acknowledged: false,
                     data: {
-                        title: "Tournament Started",
-                        message: `${definition.name} has officially begun! Check the Tournament Hub for your opening match.`,
+                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: definition.name } }),
                         severity: "info",
                         tournamentId: definition.id
                     }

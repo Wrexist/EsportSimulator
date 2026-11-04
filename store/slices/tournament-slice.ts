@@ -27,7 +27,7 @@ import { seniorRosterEligibility } from "@/engine/recruitment"
 import { QualificationEngine } from "@/engine/tournament-qualification"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { nextDeterministicId } from "@/store/utils/helpers"
-import { newsText } from "@/lib/news-ref"
+import { eventText, newsText } from "@/lib/news-ref"
 
 export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get) => ({
     registerForTournament: (tournamentId: string) => {
@@ -122,8 +122,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 acknowledged: false,
                 data: {
                     tournamentId: instanceId,
-                    title: "Registration Confirmed",
-                    message: `Your team has successfully registered for ${definition.name}. Check your schedule for upcoming qualification matches.`,
+                    ...eventText({ key: "evn.registered.t" }, { key: "evn.registered.m", params: { event: definition.name } }),
                     sender: "Tournament Ops",
                     severity: "success",
                 },

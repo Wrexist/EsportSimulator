@@ -248,7 +248,7 @@ describe("treatInjury", () => {
         expect(row!.amount).toBe(5000)
         const evt = h.state().eventsLog.find(e =>
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (e as any).data?.title === "Medical Specialist Hired"
+            (e as any).data?.title === "Medical specialist hired"
         )
         expect(evt).toBeDefined()
         const toast = h.state().toasts.find(t => t.message === "Treatment successful!")
