@@ -16,6 +16,7 @@
  * mutations don't propagate to state.teams[i] under Immer.
  */
 
+import { t } from "@/lib/i18n"
 import type { EventsActions, SliceCreator } from "@/store/types"
 import type { GameSave } from "@/engine/save-types"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
@@ -66,7 +67,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
             if (!event || event.selectedChoiceId || event.data.isWithdrawn || state.gameOverReason) return
             if (event.type === "JOB_OFFER") return
             if (typeof event.data.deadlineWeek === 'number' && state.currentWeek > event.data.deadlineWeek) return
-            if (event.data.playerId && !state.teams.find(t => t.id === state.playerTeamId)?.rosterIds.includes(String(event.data.playerId))) return
+            if (event.data.playerId && !state.teams.find(tm => tm.id === state.playerTeamId)?.rosterIds.includes(String(event.data.playerId))) return
             if (event.type === "TRANSFER_OFFER") {
                 // Accepting a bid goes through acceptTransferOffer (fee, contract,
                 // roster move); only the effect-free "reject" resolves here. The
@@ -101,7 +102,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
             if (eventId.startsWith("legend_coach_opportunity_") && choiceId === "hire") {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const legendData = event.data as any
-                const team = state.teams.find(t => t.id === state.playerTeamId)
+                const team = state.teams.find(tm => tm.id === state.playerTeamId)
                 if (team && legendData) {
                     const salaryCost = legendData.salaryCost || 15000
                     // Refuse without consuming the choice — the event stays
@@ -208,7 +209,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
     }),
 
     syncSocialFeed: () => set((state) => {
-        const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const playerTeam = state.teams.find(tm => tm.id === state.playerTeamId)
         if (!playerTeam) return
 
         const generated = generateSocialPosts({
@@ -241,7 +242,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
     publishSocialPost: (content) => set((state) => {
         const trimmed = content.trim().slice(0, 280)
         if (!trimmed) return
-        const playerTeam = state.teams.find(t => t.id === state.playerTeamId)
+        const playerTeam = state.teams.find(tm => tm.id === state.playerTeamId)
         if (!playerTeam) return
 
         if (!state.socialFeed) state.socialFeed = []
@@ -276,7 +277,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
     }),
 
     acceptJobOffer: (eventId) => {
-        let result = { success: false, message: "Offer not found" }
+        let result = { success: false, message: t("jo.notFound") }
         set(state => {
             const firstJob = !!state.eventsLog.find(e => e.id === eventId)?.data?.firstJob
             result = JobOfferGenerator.acceptJobOffer(state as unknown as GameSave, eventId)
@@ -312,7 +313,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
 
     negotiateJobOffer: (eventId) => {
         let result: { success: boolean; message: string; newOffer?: number; withdrew?: boolean } =
-            { success: false, message: "Unknown error" }
+            { success: false, message: t("jo.notFound") }
         set((state) => {
             result = JobOfferGenerator.negotiateJobOffer(state as unknown as GameSave, eventId)
         })

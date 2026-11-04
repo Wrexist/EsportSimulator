@@ -13,6 +13,7 @@ import { updateCareerStats } from "./career-stats"
 import { closeStint, openStint } from "./manager-timeline"
 import { EventType } from "@/types/enums"
 import { SeededRNG, generateSeed } from "./rng"
+import { intlLocale, t } from "@/lib/i18n"
 
 /** Highest club reputation that offers a first job to an unemployed new manager (G9). */
 export const FIRST_JOB_MAX_REPUTATION = 35
@@ -39,7 +40,7 @@ export class JobOfferGenerator {
         // A Draft Cup is one cup with a drafted team: no other club hires its manager.
         if (save.draftCup) return
         const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
-        const currentTeam = save.teams.find(t => t.id === save.playerTeamId)
+        const currentTeam = save.teams.find(tm => tm.id === save.playerTeamId)
         if (!currentTeam) return
 
         if (save.gameOverReason || (save.managerDetails.lastJobChangeWeek != null && save.currentWeek - save.managerDetails.lastJobChangeWeek < 12)) return
@@ -113,7 +114,7 @@ export class JobOfferGenerator {
             const cap = Math.max(FIRST_JOB_MAX_REPUTATION, lowest[Math.min(2, lowest.length - 1)] ?? 0)
             pool = open.filter(t => t.reputation <= cap)
         } else {
-            const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
+            const oldTeam = save.teams.find(tm => tm.id === save.playerTeamId)
             const managerLevel = Math.max(1, save.managerDetails?.level || 1)
             const ceiling = Math.max(30, (oldTeam?.reputation ?? 50))
             const fits = (team: TeamSaveData, relaxed: boolean) => {
@@ -171,7 +172,7 @@ export class JobOfferGenerator {
     static forceJobOffer(save: GameSave, rng?: SeededRNG): void {
         if (save.draftCup) return
         const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
-        const currentTeam = save.teams.find(t => t.id === save.playerTeamId)
+        const currentTeam = save.teams.find(tm => tm.id === save.playerTeamId)
         if (!currentTeam) return
 
         const eligibleTeams = this.getEligibleOfferingTeams(save, currentTeam)
@@ -331,11 +332,11 @@ export class JobOfferGenerator {
     }
 
     private static offerUnavailable(save: GameSave, event: GameEventSaveData): string | undefined {
-        if (save.gameOverReason && !event.data?.afterDismissal) return "This career has ended"
-        if (event.selectedChoiceId || event.data.isWithdrawn) return "Offer is no longer available"
-        if (!Number.isFinite(event.data.deadlineWeek) || save.currentWeek > Number(event.data.deadlineWeek)) return "Offer has expired"
-        if (event.data.originTeamId && event.data.originTeamId !== save.playerTeamId) return "Offer belongs to your previous club tenure"
-        if (event.data.offeringTeamId === save.playerTeamId) return "You already manage this club"
+        if (save.gameOverReason && !event.data?.afterDismissal) return t("jo.careerEnded")
+        if (event.selectedChoiceId || event.data.isWithdrawn) return t("jo.unavailable")
+        if (!Number.isFinite(event.data.deadlineWeek) || save.currentWeek > Number(event.data.deadlineWeek)) return t("jo.expired")
+        if (event.data.originTeamId && event.data.originTeamId !== save.playerTeamId) return t("jo.oldTenure")
+        if (event.data.offeringTeamId === save.playerTeamId) return t("jo.alreadyHere")
         return undefined
     }
 
@@ -345,7 +346,7 @@ export class JobOfferGenerator {
     static negotiateJobOffer(save: GameSave, eventId: string): { success: boolean; message: string; newOffer?: number; withdrew?: boolean } {
         const event = save.eventsLog.find(e => e.id === eventId)
         if (!event || event.type !== "JOB_OFFER") {
-            return { success: false, message: "Offer not found" }
+            return { success: false, message: t("jo.notFound") }
         }
 
         const unavailable = this.offerUnavailable(save, event)
@@ -361,16 +362,16 @@ export class JobOfferGenerator {
 
         // Check if offer is still valid
         if (save.currentWeek > data.deadlineWeek) {
-            return { success: false, message: "Offer has expired", withdrew: true }
+            return { success: false, message: t("jo.expired"), withdrew: true }
         }
 
         if (data.negotiationPatience <= 0) {
-            return { success: false, message: "The board is unwilling to negotiate further." }
+            return { success: false, message: t("jo.noMoreTalks") }
         }
 
         // Calculate leverage
         const managerRep = save.managerDetails.reputation
-        const teamTier = save.teams.find(t => t.id === data.offeringTeamId)?.tier || "Slum"
+        const teamTier = save.teams.find(tm => tm.id === data.offeringTeamId)?.tier || "Slum"
 
         // Base chance 40% + bonus from rep
         let successChance = 0.4
@@ -395,7 +396,7 @@ export class JobOfferGenerator {
 
             return {
                 success: true,
-                message: `Success! They increased the offer to $${data.salaryOffer.toLocaleString()}.`,
+                message: t("jo.raised", { amount: `$${data.salaryOffer.toLocaleString(intlLocale())}` }),
                 newOffer: data.salaryOffer
             }
         } else {
@@ -411,11 +412,11 @@ export class JobOfferGenerator {
                 event.choices = []
                 event.data.isWithdrawn = true
                 save.lastRngSeed = rng.getState()
-                return { success: false, message: "They were offended by your demands and withdrew the offer!", withdrew: true }
+                return { success: false, message: t("jo.withdrew"), withdrew: true }
             }
 
             save.lastRngSeed = rng.getState()
-            return { success: false, message: "They refused to increase the offer." }
+            return { success: false, message: t("jo.refused") }
         }
     }
 
@@ -426,22 +427,22 @@ export class JobOfferGenerator {
         // Find the event
         const event = save.eventsLog.find(e => e.id === eventId)
         if (!event || event.type !== "JOB_OFFER") {
-            return { success: false, message: "Job offer not found" }
+            return { success: false, message: t("jo.notFound") }
         }
         // Saves from before the Draft Cup guard can still hold one.
-        if (save.draftCup) return { success: false, message: "Not available during a Draft Cup" }
+        if (save.draftCup) return { success: false, message: t("jo.draftCup") }
 
         const unavailable = this.offerUnavailable(save, event)
         if (unavailable) return { success: false, message: unavailable }
         const afterDismissal = !!event.data.afterDismissal
-        if (!afterDismissal && (save.activeMatchId || save.activeMatchState)) return { success: false, message: "Finish the active match before changing clubs" }
+        if (!afterDismissal && (save.activeMatchId || save.activeMatchState)) return { success: false, message: t("jo.finishMatch") }
         const lastChange = save.managerDetails.lastJobChangeWeek
-        if (!afterDismissal && lastChange != null && save.currentWeek - lastChange < 12) return { success: false, message: "You must spend 12 weeks at your current club before moving again" }
-        const newTeam = save.teams.find(t => t.id === event.data.offeringTeamId)
-        if (!newTeam) return { success: false, message: "Team no longer exists" }
+        if (!afterDismissal && lastChange != null && save.currentWeek - lastChange < 12) return { success: false, message: t("jo.tooSoon", { weeks: 12 }) }
+        const newTeam = save.teams.find(tm => tm.id === event.data.offeringTeamId)
+        if (!newTeam) return { success: false, message: t("jo.teamGone") }
         const salary = Number(event.data.salaryOffer ?? 0)
-        if (!Number.isSafeInteger(salary) || salary < 0 || salary > 100000 || !Number.isFinite(newTeam.budget)) return { success: false, message: "Invalid offer terms" }
-        const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
+        if (!Number.isSafeInteger(salary) || salary < 0 || salary > 100000 || !Number.isFinite(newTeam.budget)) return { success: false, message: t("jo.invalid") }
+        const oldTeam = save.teams.find(tm => tm.id === save.playerTeamId)
         // The move takes effect next week for historical attribution: completed
         // results in the current week still belong to the departing tenure.
         const firstJob = !!event.data.firstJob
@@ -479,7 +480,7 @@ export class JobOfferGenerator {
         const id = `job_transition_${event.id}`
         const objectives = (save.boardState?.objectives ?? []).map(o => o.label).join("; ")
         if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, title: `Welcome to ${newTeam.name}!`, message: `You now manage ${newTeam.name}. Club signing funds: $${signingBonus.toLocaleString()}.${firstJob ? "" : " Your previous club keeps its academy, scouting reports and plans."}${objectives ? ` The board's objectives: ${objectives}.` : ""}` } })
-        return { success: true, message: `Welcome to ${newTeam.name}!` }
+        return { success: true, message: t("jo.welcome", { club: newTeam.name }) }
     }
 
     /**
@@ -488,7 +489,7 @@ export class JobOfferGenerator {
     static declineJobOffer(save: GameSave, eventId: string): { success: boolean; message: string } {
         const event = save.eventsLog.find(e => e.id === eventId)
         if (!event || event.type !== "JOB_OFFER") {
-            return { success: false, message: "Job offer not found" }
+            return { success: false, message: t("jo.notFound") }
         }
 
         const unavailable = this.offerUnavailable(save, event)
@@ -498,17 +499,17 @@ export class JobOfferGenerator {
         // Mark as declined
         event.acknowledged = true
         event.selectedChoiceId = "DECLINE"
-        if (event.data.afterDismissal) { event.choices = []; return { success: true, message: `You turned down ${offerData.offeringTeamName}.` } }
+        if (event.data.afterDismissal) { event.choices = []; return { success: true, message: t("jo.turnedDown", { club: offerData.offeringTeamName }) } }
 
         // Boost loyalty with current team
-        const currentTeam = save.teams.find(t => t.id === save.playerTeamId)
+        const currentTeam = save.teams.find(tm => tm.id === save.playerTeamId)
         if (currentTeam) {
             currentTeam.chemistry = Math.min(100, (currentTeam.chemistry || 50) + 5)
         }
 
         return {
             success: true,
-            message: `You declined the offer from ${offerData.offeringTeamName}. Your team appreciates your loyalty!`
+            message: t("jo.declined", { club: offerData.offeringTeamName })
         }
     }
 }

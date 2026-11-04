@@ -21,6 +21,7 @@ import { getArchetype } from "@/engine/personality"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { CLAUSE_TUNING } from "@/engine/contract-clauses"
 import { useInboxDrawer } from "./inbox-drawer-store"
+import { t, tn } from "@/lib/i18n"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
 type AnyData = Record<string, any>
@@ -95,12 +96,12 @@ export function ChoiceDecision({ event, budget }: { event: GameEventSaveData; bu
     const answer = (choice: ChoiceLike) => {
         resolveEventChoice(event.id, choice.id)
         const after = useGameStore.getState().eventsLog.find(e => e.id === event.id)
-        if (after?.selectedChoiceId === choice.id) toast.success(`Decision made: ${choiceLabel(choice)}`)
+        if (after?.selectedChoiceId === choice.id) toast.success(t("ib.toast.decided", { choice: choiceLabel(choice) }))
     }
 
     return (
         <section className="space-y-2.5">
-            <SectionLabel>Your answer</SectionLabel>
+            <SectionLabel>{t("ib.yourAnswer")}</SectionLabel>
             {choices.map(choice => {
                 const outcome = describeChoice(event, choice, budget)
                 return (
@@ -115,7 +116,7 @@ export function ChoiceDecision({ event, budget }: { event: GameEventSaveData; bu
             })}
             {isContract && (
                 <p className="pt-1 text-xs leading-relaxed text-ink-3">
-                    These replies only change morale and loyalty. To extend the deal, offer new terms on the player&apos;s page.
+                    {t("ib.contractNote")}
                 </p>
             )}
         </section>
@@ -135,56 +136,56 @@ export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData
         }
     }))
     const data = (event.data ?? {}) as AnyData
-    const who = (data.playerId && ctx.playerName(String(data.playerId))) || data.playerName || "The player"
+    const who = (data.playerId && ctx.playerName(String(data.playerId))) || data.playerName || t("ib.thePlayer")
     const fee = typeof data.offerAmount === "number" ? data.offerAmount : 0
     const acceptBlocked = !player?.forSale
-        ? "No longer on the transfer list"
-        : playsThisWeek ? "You play this week — the roster must stay intact" : undefined
+        ? t("ib.bid.notListed")
+        : playsThisWeek ? t("ib.bid.playsThisWeek") : undefined
 
     const sellOnFee = Math.round(fee * (1 - CLAUSE_TUNING.SELL_ON_FEE_CUT))
     const accept = (sellOn = false) => {
         acceptTransferOffer(event.id, { sellOn })
         const after = useGameStore.getState().eventsLog.find(e => e.id === event.id)
-        if (after?.selectedChoiceId === "accept" || !useGameStore.getState().teams.find(t => t.id === ctx.playerTeamId)?.rosterIds.includes(String(data.playerId))) {
-            toast.success(`${who} sold to ${data.teamName || "the bidding club"}`)
+        if (after?.selectedChoiceId === "accept" || !useGameStore.getState().teams.find(tm => tm.id === ctx.playerTeamId)?.rosterIds.includes(String(data.playerId))) {
+            toast.success(data.teamName ? t("ib.toast.sold", { name: who, club: data.teamName }) : t("ib.toast.soldAnon", { name: who }))
         }
     }
     const reject = () => {
         resolveEventChoice(event.id, "reject")
-        if (useGameStore.getState().eventsLog.find(e => e.id === event.id)?.selectedChoiceId === "reject") toast.info(`Bid for ${who} rejected`)
+        if (useGameStore.getState().eventsLog.find(e => e.id === event.id)?.selectedChoiceId === "reject") toast.info(t("ib.toast.bidRejected", { name: who }))
     }
 
     return (
         <section className="space-y-3">
             <Terms rows={[
-                ["Bidding club", data.teamName || "Unknown"],
-                ["Fee", formatCurrency(fee, "$", false)],
-                ...(typeof data.salaryPerWeek === "number" ? [["Their wage offer", `${formatCurrency(data.salaryPerWeek, "$", false)}/wk`] as [string, ReactNode]] : []),
+                [t("ib.bid.club"), data.teamName || t("ib.unknown")],
+                [t("ib.bid.fee"), formatCurrency(fee, "$", false)],
+                ...(typeof data.salaryPerWeek === "number" ? [[t("ib.bid.wage"), t("ib.perWeek", { amount: formatCurrency(data.salaryPerWeek, "$", false) })] as [string, ReactNode]] : []),
             ]} />
-            <SectionLabel>Your answer</SectionLabel>
+            <SectionLabel>{t("ib.yourAnswer")}</SectionLabel>
             <OptionButton
-                label="Accept the bid"
-                chips={[{ label: formatSignedCurrency(fee, "$", false), tone: "positive" }, { label: `${who} leaves`, tone: "negative" }]}
+                label={t("ib.bid.accept")}
+                chips={[{ label: formatSignedCurrency(fee, "$", false), tone: "positive" }, { label: t("ib.bid.leaves", { name: who }), tone: "negative" }]}
                 blockedReason={acceptBlocked}
                 onClick={() => accept()}
             />
             <OptionButton
-                label={`Accept with a ${Math.round(CLAUSE_TUNING.SELL_ON_SHARE * 100)}% sell-on`}
-                chips={[{ label: formatSignedCurrency(sellOnFee, "$", false), tone: "positive" }, { label: `${Math.round(CLAUSE_TUNING.SELL_ON_SHARE * 100)}% of his next fee`, tone: "positive" }, { label: `${who} leaves`, tone: "negative" }]}
+                label={t("ib.bid.acceptSellOn", { pct: Math.round(CLAUSE_TUNING.SELL_ON_SHARE * 100) })}
+                chips={[{ label: formatSignedCurrency(sellOnFee, "$", false), tone: "positive" }, { label: t("ib.bid.sellOnShare", { pct: Math.round(CLAUSE_TUNING.SELL_ON_SHARE * 100) }), tone: "positive" }, { label: t("ib.bid.leaves", { name: who }), tone: "negative" }]}
                 blockedReason={acceptBlocked}
                 onClick={() => accept(true)}
             />
             <OptionButton
-                label="Reject"
+                label={t("ib.bid.reject")}
                 chips={[
-                    { label: `${who} stays`, tone: "neutral" },
-                    ...(player && getArchetype(player) === "MERCENARY" ? [{ label: `${PERSONALITY_TUNING.MERCENARY_BID_REJECT_MORALE} morale (Mercenary)`, tone: "negative" as const }] : []),
+                    { label: t("ib.bid.stays", { name: who }), tone: "neutral" },
+                    ...(player && getArchetype(player) === "MERCENARY" ? [{ label: t("ib.fx.moraleWho", { n: PERSONALITY_TUNING.MERCENARY_BID_REJECT_MORALE, name: t("arch.MERCENARY.label") }), tone: "negative" as const }] : []),
                 ]}
                 onClick={reject}
             />
             <div className="flex flex-wrap gap-2 pt-1">
-                {data.playerId && <DrawerLink href={`/player/${data.playerId}`}>View {who}</DrawerLink>}
-                <DrawerLink href="/transfers">Transfer market</DrawerLink>
+                {data.playerId && <DrawerLink href={`/player/${data.playerId}`}>{t("ib.viewWho", { name: who })}</DrawerLink>}
+                <DrawerLink href="/transfers">{t("ib.link.transfers")}</DrawerLink>
             </div>
         </section>
     )
@@ -200,20 +201,20 @@ export function JobOfferDecision({ event }: { event: GameEventSaveData }) {
         negotiateJobOffer: s.negotiateJobOffer,
         currentWeek: s.currentWeek,
         lastJobChangeWeek: s.managerDetails?.lastJobChangeWeek,
-        clubName: s.teams.find(t => t.id === s.playerTeamId)?.name,
+        clubName: s.teams.find(tm => tm.id === s.playerTeamId)?.name,
         activeMatch: !!s.activeMatchId,
     })))
     const [busy, setBusy] = useState(false)
     const data = (event.data ?? {}) as AnyData
-    const team = data.offeringTeamName || "The club"
+    const team = data.offeringTeamName || t("ib.theClub")
     const salary = typeof data.salaryOffer === "number" ? data.salaryOffer : 0
     const signingFunds = salary * 4
     const patience = typeof data.negotiationPatience === "number" ? data.negotiationPatience : 0
     const weeksSinceMove = lastJobChangeWeek != null ? currentWeek - lastJobChangeWeek : Infinity
     const acceptBlocked = activeMatch
-        ? "Finish the active match first"
+        ? t("ib.job.finishMatch")
         : weeksSinceMove < MIN_WEEKS_BETWEEN_JOBS
-            ? `Spend ${MIN_WEEKS_BETWEEN_JOBS} weeks at your club before moving (${MIN_WEEKS_BETWEEN_JOBS - weeksSinceMove} to go)`
+            ? tn("ib.job.tooSoon", MIN_WEEKS_BETWEEN_JOBS - weeksSinceMove, { weeks: MIN_WEEKS_BETWEEN_JOBS })
             : undefined
 
     const accept = () => {
@@ -236,40 +237,40 @@ export function JobOfferDecision({ event }: { event: GameEventSaveData }) {
     return (
         <section className="space-y-3">
             <Terms rows={[
-                ["Club", team],
-                ...(data.offeringTeamRegion ? [["Region", data.offeringTeamRegion] as [string, ReactNode]] : []),
-                ...(data.offeringTeamRank ? [["World rank", `#${data.offeringTeamRank}`] as [string, ReactNode]] : []),
-                ["Signing funds for the club", formatCurrency(signingFunds, "$", false)],
+                [t("ib.job.club"), team],
+                ...(data.offeringTeamRegion ? [[t("ib.job.region"), data.offeringTeamRegion] as [string, ReactNode]] : []),
+                ...(data.offeringTeamRank ? [[t("ib.job.rank"), `#${data.offeringTeamRank}`] as [string, ReactNode]] : []),
+                [t("ib.job.funds"), formatCurrency(signingFunds, "$", false)],
             ]} />
-            <SectionLabel>Your answer</SectionLabel>
+            <SectionLabel>{t("ib.yourAnswer")}</SectionLabel>
             <OptionButton
-                label={`Join ${team}`}
+                label={t("ib.job.join", { club: team })}
                 chips={[
-                    { label: "You manage them from next week", tone: "neutral" },
-                    { label: `${formatSignedCurrency(signingFunds, "$", false)} to their budget`, tone: "positive" },
+                    { label: t("ib.job.fromNextWeek"), tone: "neutral" },
+                    { label: t("ib.job.toBudget", { amount: formatSignedCurrency(signingFunds, "$", false) }), tone: "positive" },
                 ]}
                 blockedReason={acceptBlocked}
                 busy={busy}
                 onClick={accept}
             />
             <OptionButton
-                label="Negotiate"
+                label={t("ib.job.negotiate")}
                 chips={[
-                    { label: "Ask for 5–15% more", tone: "neutral" },
-                    { label: `${patience} ${patience === 1 ? "try" : "tries"} left`, tone: "neutral" },
-                    { label: "They may withdraw", tone: "negative" },
+                    { label: t("ib.job.askMore"), tone: "neutral" },
+                    { label: tn("ib.job.triesLeft", patience), tone: "neutral" },
+                    { label: t("ib.job.mayWithdraw"), tone: "negative" },
                 ]}
-                blockedReason={patience <= 0 ? "They won't negotiate further" : undefined}
+                blockedReason={patience <= 0 ? t("ib.job.noMoreTalks") : undefined}
                 busy={busy}
                 onClick={negotiate}
             />
             <OptionButton
-                label={`Stay at ${clubName || "your club"}`}
-                chips={[{ label: "+5 chemistry", tone: "positive" }]}
+                label={clubName ? t("ib.job.stayAt", { club: clubName }) : t("ib.job.stay")}
+                chips={[{ label: t("ib.fx.chemistry", { n: "+5" }), tone: "positive" }]}
                 busy={busy}
                 onClick={() => {
                     declineJobOffer(event.id)
-                    toast.info(`You turned down ${team}`)
+                    toast.info(t("ib.toast.turnedDown", { club: team }))
                 }}
             />
         </section>
