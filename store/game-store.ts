@@ -286,6 +286,13 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
   }
 }
 
+/** Plays the day's due AI fixtures in one store commit (timed under ESM_PERF_TRACE_STEPS). */
+const timedDaySim = (set: (fn: (draft: GameStoreState) => void) => void, day: number): void => {
+  const startedAt = perfTrace.stepsEnabled ? perfTrace.now() : 0
+  set(draft => { simulateDueAIMatchesForDay(draft, day) })
+  if (perfTrace.stepsEnabled) perfTrace.step("day.aiMatches", startedAt)
+}
+
 // UI-specific state extensions
 export interface GameStoreState extends AdvanceState, MomentsState {
   // Game Data (Mirrors GameSave)
@@ -1932,7 +1939,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // match results arrive on the next frame.
           set(draft => { draft.currentDay = nextDay })
           await new Promise(resolve => setTimeout(resolve, 0))
-          set(draft => { simulateDueAIMatchesForDay(draft, nextDay) })
+          timedDaySim(set, nextDay)
           persistDayCursor()
           return
         }
@@ -1960,7 +1967,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // before the match simulation runs.
             set(draft => { draft.currentDay = matchDay })
             await new Promise(resolve => setTimeout(resolve, 0))
-            set(draft => { simulateDueAIMatchesForDay(draft, matchDay) })
+            timedDaySim(set, matchDay)
             persistDayCursor()
             // "League matches" delegated: the assistant plays it and the week runs on.
             if (await get().playDelegatedMatch()) return get().advanceToWeekEnd()
@@ -1975,7 +1982,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         if (state.currentDay < 6) {
           set(draft => { draft.currentDay = 6 })
           await new Promise(resolve => setTimeout(resolve, 0))
-          set(draft => { simulateDueAIMatchesForDay(draft, 6) })
+          timedDaySim(set, 6)
         }
 
         await get().advanceDay()

@@ -27,6 +27,7 @@ import { expectedScore } from "../world-ranking"
 import { TournamentManager } from "../tournament-manager"
 import { recordOfficialMatch } from "../official-stats"
 import type { SaveIndexes } from "@/store/indexes"
+import { perfTrace } from "../perf-trace"
 
 const defaultEngine = new MatchEngine()
 
@@ -98,6 +99,7 @@ export function playAutoMatch(
         const awayTeamStaff = staffFor(awayTeam.id)
 
         // Simulate using full engine
+        const simStartedAt = perfTrace.stepsEnabled ? perfTrace.now() : 0
         const result = engine.simulateMatch(
             match,
             homeTeam,
@@ -111,6 +113,8 @@ export function playAutoMatch(
             awayTeamStaff,
             playerTeamId,
         )
+        if (perfTrace.stepsEnabled) perfTrace.step("auto.simulate", simStartedAt)
+        const settleStartedAt = perfTrace.stepsEnabled ? perfTrace.now() : 0
 
         // Weapon-mastery XP aggregation + application extracted to
         // processors/match-weapon-mastery.ts (Phase M8). The function
@@ -416,7 +420,7 @@ export function playAutoMatch(
             }
         })
 
-
+        if (perfTrace.stepsEnabled) perfTrace.step("auto.settle", settleStartedAt)
         return { matchesPlayed: 1, recorded: true }
     } catch (matchErr) {
         // A single match throwing must not abort the entire week.
