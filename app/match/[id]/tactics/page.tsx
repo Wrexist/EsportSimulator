@@ -45,6 +45,7 @@ import { Trans } from "@/lib/trans"
 import { stageName } from "@/lib/display-names"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { autoVetoMaps } from "@/lib/auto-veto"
+import { liveMatchInProgress } from "@/app/match/match-centre"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -87,6 +88,9 @@ function LineupTable({ title, team, players }: { title: string; team: { name: st
                 <p className={overline}>{title}</p>
                 <p className="truncate text-xs text-ink-3">{team.name}</p>
             </div>
+            {/* The two tables sit side by side from 1440 px and stack below it,
+                so no column is cut; scrolling is only a fallback (MATCHDAY-07). */}
+            <div className="overflow-x-auto">
             <table data-slot="table" className="w-full border-collapse text-left">
                 <thead data-slot="table-header">
                     <tr className="border-y border-line">
@@ -120,6 +124,7 @@ function LineupTable({ title, team, players }: { title: string; team: { name: st
                     )}
                 </tbody>
             </table>
+            </div>
         </div>
     )
 }
@@ -237,6 +242,15 @@ export default function TacticalHQPage() {
         getDateForWeek: state.getDateForWeek,
     })))
     const league = useGameStore(state => state.league)
+    // A live match that was started and left: its prep is locked, so the hub
+    // offers only "Resume match" (with where it stands), not a new veto.
+    const liveProgress = useGameStore(useShallow(state => {
+        if (!liveMatchInProgress(state, params.id as string)) return null
+        const active = state.activeMatchState?.matchId === params.id ? state.activeMatchState : null
+        const gs = active?.gameState
+        const mapId = gs ? active?.playback?.maps?.[gs.currentMapIndex ?? 0] : undefined
+        return { mapId: mapId ?? null, homeScore: gs?.homeScore ?? null, awayScore: gs?.awayScore ?? null }
+    }))
 
     const [isSimulatingVeto, setIsSimulatingVeto] = useState(false)
     const [isQuickSimulating, setIsQuickSimulating] = useState(false)
@@ -509,7 +523,11 @@ export default function TacticalHQPage() {
     const mapsLocked = match.vetoComplete && (match.maps?.length ?? 0) > 0
     const sides = (match as { mapStartingSides?: Record<string, string> }).mapStartingSides || {}
 
-    const statusLine = isSimulatingVeto
+    const statusLine = liveProgress
+        ? [liveProgress.mapId ? MAP_NAMES[liveProgress.mapId] ?? liveProgress.mapId : null, liveProgress.homeScore != null && liveProgress.awayScore != null
+            ? (match.homeTeamId === myTeam.id ? `${liveProgress.homeScore}–${liveProgress.awayScore}` : `${liveProgress.awayScore}–${liveProgress.homeScore}`)
+            : null].filter(Boolean).join(" · ")
+        : isSimulatingVeto
         ? t("prep.status.veto")
         : mapsLocked ? t("prep.status.locked") : t("prep.status.vetoFirst")
 
@@ -566,7 +584,7 @@ export default function TacticalHQPage() {
                 <div className="min-w-0 space-y-4">
                     {/* Lineups */}
                     <Panel padded={false} className="overflow-hidden">
-                        <div className="grid grid-cols-1 divide-line lg:grid-cols-2 lg:divide-x">
+                        <div className="grid grid-cols-1 divide-y divide-line min-[1440px]:grid-cols-2 min-[1440px]:divide-x min-[1440px]:divide-y-0">
                             <LineupTable title={t("prep.yourFive")} team={myTeam} players={myLineup} />
                             <LineupTable title={t("prep.theirFive")} team={opponent} players={theirLineup} />
                         </div>
@@ -704,7 +722,7 @@ export default function TacticalHQPage() {
 
                 <aside className="min-w-0 space-y-4">
                     {/* Primary action */}
-                    <Panel title={mapsLocked ? t("prep.ready") : t("prep.nextStep")} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
+                    <Panel title={liveProgress ? t("tm.inProgress") : mapsLocked ? t("prep.ready") : t("prep.nextStep")} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
                         <div className="space-y-3">
                             {mapsLocked && (
                                 <ul className="space-y-2">
@@ -742,6 +760,10 @@ export default function TacticalHQPage() {
                                         <Button variant="outline" onClick={() => router.push("/schedule")} className="h-10">{t("prep.backToSchedule")}</Button>
                                     </div>
                                 </div>
+                            ) : liveProgress ? (
+                                <Button onClick={() => router.push(`/match/${match.id}/live`)} className="h-12 w-full text-base">
+                                    {t("firstSession.resumeMatch")} <ChevronRight size={18} aria-hidden="true" />
+                                </Button>
                             ) : isFuture ? (
                                 <Button disabled variant="outline" className="h-12 w-full">
                                     <Lock size={16} aria-hidden="true" /> {t("prep.matchInWeek", { week: match.week })}

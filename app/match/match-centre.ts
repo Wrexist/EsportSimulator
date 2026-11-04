@@ -52,3 +52,16 @@ export function matchCentreHref(state: MatchCentreState): string {
     }
     return latest ? `/match/${latest.id}/result` : "/schedule"
 }
+
+/**
+ * Is this fixture a live match that was started and left (the live screen's
+ * "Match hub")? Then its prep is locked (match-operations-slice canPrepare) and
+ * the only way on is back into the live screen.
+ */
+export function liveMatchInProgress(
+    state: { activeMatchId?: string | null; activeMatchState?: { matchId?: string } | null; completedMatches: ReadonlyArray<{ id: string }>; scheduledMatches: ReadonlyArray<{ id: string }> },
+    matchId: string,
+): boolean {
+    if (state.activeMatchId !== matchId && state.activeMatchState?.matchId !== matchId) return false
+    return state.scheduledMatches.some(m => m.id === matchId) && !state.completedMatches.some(m => m.id === matchId)
+}

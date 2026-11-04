@@ -40,3 +40,41 @@ test("rumour suitors vary and lean to clubs near the player's level", () => {
     // Near d (1700): a/b (1880-1900) and x9-x11 (1740-1860) beat the far-off weakest clubs.
     expect((named.get("b") ?? 0)).toBeGreaterThan(named.get("x0") ?? 0)
 })
+
+describe("post-match headlines (HOME-03 / HOME-10)", () => {
+    function leagueWorld(): GameSave {
+        const save = world()
+        save.completedMatches = [{
+            id: "league_s1_m1", homeTeamId: "x4", awayTeamId: "us", week: 9, tournamentId: "league_s1_CIS_5", stage: "CIS Division 5 · Round 6",
+            format: "BO1", seed: 1, result: { winnerId: "us", homeScore: 0, awayScore: 1, maps: [{ homeScore: 8, awayScore: 13 }] },
+        }] as never
+        return save
+    }
+
+    test("an away win prints the winner's score first and names the league division", () => {
+        const save = leagueWorld()
+        generateNarrativeNews(save, new SeededRNG(5))
+        const head = save.newsFeed.find(n => n.id.startsWith("headline_league_s1_m1"))!
+        expect(head.content).toContain("US defeats X4 1-0 in CIS Division 5.")
+        expect(head.content).not.toContain("tournament play")
+        expect(head.content).not.toContain("0-1")
+    })
+
+    test("the headline is dated to the match's week, not the tick's", () => {
+        const save = leagueWorld()
+        generateNarrativeNews(save, new SeededRNG(5))
+        const head = save.newsFeed.find(n => n.id.startsWith("headline_league_s1_m1"))!
+        expect(head.week).toBe(9)
+        expect(head.matchId).toBe("league_s1_m1")
+    })
+
+    test("a match that already has its own news item gets no second headline", () => {
+        const save = world()
+        save.newsFeed = [{ id: "news_match_1", matchId: "m_ours", title: "US defeat X4 1-0", content: "", category: "MATCH", week: 9 }]
+        generateNarrativeNews(save, new SeededRNG(5))
+        const heads = save.newsFeed.filter(n => n.id.startsWith("headline_")).map(n => n.matchId)
+        expect(heads).not.toContain("m_ours")
+        // Still two headlines from the rest of last week's results.
+        expect(heads).toHaveLength(2)
+    })
+})

@@ -449,6 +449,8 @@ export class SnapshotLoader {
         return {
             id: st.id,
             name: st.name,
+            // The club's tag (START-10): Sandbox editor, created-club checks.
+            ...(st.shortName ? { shortName: st.shortName } : {}),
             tier: st.tier,
             region: st.region,
             rosterIds: [...st.rosterIds], // Copy array

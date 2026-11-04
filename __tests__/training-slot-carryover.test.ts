@@ -15,6 +15,7 @@
 
 import { SaveManager } from "@/engine/save-manager"
 import { AtomicWeekProcessor } from "@/engine/atomic-week-processor"
+import { managerTrainingSlots } from "@/engine/training-manager"
 import { SeededRNG } from "@/engine/rng"
 import type {
     GameSave, TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData,
@@ -122,5 +123,26 @@ describe("weekly finalize — role-training slot reservation carries across week
         expect(player.activeRoleTraining![0].weeksCompleted).toBe(1)
         // ...so its reserved slot must survive the weekly reset, not zero out.
         expect(player.trainingSlotsUsed).toBe(1)
+    })
+})
+
+describe("HOME-14: a new career starts with the slots the week tick derives", () => {
+    test("managerTrainingSlots: 10 + 1 per 3 manager levels", () => {
+        expect(managerTrainingSlots(undefined)).toBe(10)
+        expect(managerTrainingSlots(1)).toBe(10)
+        expect(managerTrainingSlots(3)).toBe(11)
+        expect(managerTrainingSlots(20)).toBe(16)
+    })
+
+    test("the first week tick does not change the starting value (no 3 → 10 jump)", async () => {
+        const sm = new SaveManager(new MemoryStorage())
+        const awp = new AtomicWeekProcessor(sm)
+        const save = buildSave(sm)
+        const team = save.teams.find(t => t.id === "player")!
+        team.maxTrainingSlots = managerTrainingSlots(save.managerDetails?.level)
+        const start = team.maxTrainingSlots
+        const result = await awp.processWeek(save, { playerTeamId: "player", trainingFocus: new Map() }, new SeededRNG(7))
+        expect(result.success).toBe(true)
+        expect(save.teams.find(t => t.id === "player")!.maxTrainingSlots).toBe(start)
     })
 })

@@ -50,6 +50,25 @@ export function determineMapMVP(
 }
 
 /**
+ * Map MVP from the side that won the map (as the match MVP comes from the
+ * series winner): the best rating in `mapStats` (that map's own stats) when
+ * given, otherwise the most kills among the map winner's players.
+ */
+export function determineMapWinnerMVP(
+    map: Pick<MapResult, "rounds" | "homeScore" | "awayScore">,
+    homePlayers: Player[],
+    awayPlayers: Player[],
+    mapStats?: Record<string, PlayerMatchStats>,
+): string {
+    const homeWonMap = (map.homeScore ?? 0) >= (map.awayScore ?? 0)
+    const winners = homeWonMap ? homePlayers : awayPlayers
+    if (mapStats) return determineMVP(mapStats, winners)
+    const winnerIds = new Set(winners.map(p => p.id))
+    const rounds = map.rounds.map(round => ({ ...round, kills: round.kills.filter(k => winnerIds.has(k.playerId)) }))
+    return determineMapMVP(rounds, winners, [])
+}
+
+/**
  * Aggregate per-player K/D/A + ADR + KAST + rating + first-blood
  * counts from a list of MapResults. The ±5% performance jitter
  * derives from the supplied RNG so the stat block is deterministic

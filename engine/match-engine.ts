@@ -180,6 +180,11 @@ export class MatchEngine {
             stage: match.stage ?? undefined,
             isHighPressure: match.isHighPressure ?? false,
             mentalPrep: match.mentalPrep ?? false,
+            // The side that paid for the reset (a missed away match must not
+            // hand it to the home opponent) and the manager's anti-strat
+            // counters, as on the managed path (legacy-prepare.ts).
+            mentalPrepTeamId: match.mentalPrepTeamId,
+            counters: match.counters,
         } as Match
 
         // Same match-day staff as the managed path (prepareLegacySeries):

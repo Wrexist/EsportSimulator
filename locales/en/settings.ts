@@ -26,7 +26,7 @@ export const SETTINGS = {
     "settings.languageDraft": "Translations are new. Some screens and messages are still in English, and wording may change as players send corrections.",
 
     "settings.windowMode": "Window mode",
-    "settings.windowModeHint": "Borderless and fullscreen both cover the whole screen.",
+    "settings.windowModeHint": "Fullscreen covers the whole screen with no border. F11 switches between the two.",
     "settings.window.windowed": "Windowed",
     "settings.window.fullscreen": "Fullscreen",
     "settings.window.borderless": "Borderless fullscreen",
@@ -66,6 +66,11 @@ export const SETTINGS = {
     "settings.notificationsHint": "Info and XP pop-ups. Important alerts always show.",
     "settings.tutorial": "First-session guide for new careers",
     "settings.tutorialHint": "Shows the five-step checklist on Home when a career starts.",
+    "settings.replayGuide": "Replay the first-session guide",
+    "settings.replayGuideHint": "Brings the five-step checklist back on Home for this career. Nothing in the career is reset.",
+    "settings.replayGuideNoCareer": "Load a career to replay its first-session guide.",
+    "settings.replayGuideNotHere": "This career has no first-session guide.",
+    "settings.replayGuideButton": "Replay",
     "settings.bugButton": "Bug report button",
     "settings.bugButtonHint": "Floating button for sending a bug report.",
 
@@ -142,6 +147,8 @@ export const SETTINGS = {
 
     "settings.toast.copied": "Copied",
     "settings.toast.copiedBody": "Save location copied to clipboard.",
+    "settings.toast.guideRestarted": "Guide restarted",
+    "settings.toast.guideRestartedBody": "The first-session checklist is back on Home. Your squad, cash and results are unchanged.",
     "settings.toast.copyFailed": "Copy failed",
     "settings.toast.copyFailedBody": "Clipboard not available.",
     "settings.toast.importFailed": "Import failed",

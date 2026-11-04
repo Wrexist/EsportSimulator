@@ -32,6 +32,7 @@ import { adrOf, samplePlayer, tallyMatchDamage } from "@/lib/live-match-roster"
 import { previewDecision } from "@/lib/live-match-decision"
 import type { ManagerStrategy } from "@/engine/match/legacy-series"
 import { MatchIntro } from "@/components/match/MatchIntro"
+import { REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
 import { MatchEndBeat } from "@/components/match/MatchEndBeat"
 import { competitionOf } from "@/lib/match-framing"
 import { headToHeadOf, introContextLine } from "@/lib/match-intro"
@@ -109,6 +110,12 @@ export default function LiveMatchPage() {
     const pro = useProGoal()
     const proId = pro?.playerId
     const matchMissing = useGameStore(state => state.teams.length > 0 && !state.scheduledMatches.some(m => m.id === params.id))
+    // Already recorded (e.g. a reload on the end screen, MATCHDAY-03): show its result.
+    const matchRecorded = useGameStore(state => state.completedMatches.some(m => m.id === params.id))
+    const openRecordedResult = matchMissing && matchRecorded && !matchData.current
+    useEffect(() => {
+        if (openRecordedResult) router.replace(`/match/${params.id}/result`)
+    }, [openRecordedResult, router, params.id])
 
     // Local UI State for Loadout Editor (UI Concern)
     const [isEditingLoadout, setIsEditingLoadout] = useState(false)
@@ -234,7 +241,11 @@ export default function LiveMatchPage() {
     const overtimeNote = intermission && (intermission.kind === "overtime" || intermission.kind === "overtime-switch")
         ? intermission.kind === "overtime" ? t("live.overtimeStart") : t("live.overtimeSwitch")
         : simState?.isOvertime ? t("live.overtime") : undefined
+    // A regroup only helps on a losing streak (regroupEdge): without one the
+    // timeout would be spent for nothing, so it waits (the card's hint says why).
+    const ownLossStreak = simState ? (isPlayerHome ? simState.homeLossStreak : simState.awayLossStreak) ?? 0 : 0
     const timeoutDisabled = timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"
+        || ownLossStreak < REGROUP_MIN_LOSS_STREAK
     const decisionKey = `${gameState.currentMapIndex}-${preview?.round ?? 0}`
     const decisionOverlay = useMemo(() => (preview
         ? (
@@ -272,7 +283,7 @@ export default function LiveMatchPage() {
     const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])
 
     if (!matchData.current || !simState) {
-        if (matchMissing) {
+        if (matchMissing && !matchRecorded) {
             return (
                 <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
                     <p className="font-display text-3xl font-bold uppercase text-ink-1">{t("prep.notFound")}</p>
@@ -302,10 +313,14 @@ export default function LiveMatchPage() {
     // Live state of the round on screen: HP, deaths (with the killer) and
     // grenades from the round timeline at the playback clock.
     const inFlight = roundLive
-    const timeline = inFlight && roundView && roundView.key === `${gameState.currentMapIndex}:${gameState.round}` ? roundView.timeline : null
+    // The final board keeps the deciding round's end state (survivors, HP), as
+    // the radar under it does, instead of a fresh "5 alive, 100 HP" (MATCHDAY-14).
+    const finalBoard = gameState.status === "FINISHED"
+    const timeline = (inFlight || finalBoard) && roundView && roundView.key === `${gameState.currentMapIndex}:${gameState.round}` ? roundView.timeline : null
+    const sampleTime = finalBoard ? Number.MAX_SAFE_INTEGER : gameState.time
     const rows = (roster: LivePlayerState[], originals: Map<string, { portraitPath?: string }>, isCT: boolean, economy: Record<string, { utility?: string[] }> | undefined): RosterCardRowProps[] =>
         roster.slice(0, 5).map(p => {
-            const s = timeline ? samplePlayer(timeline, p.id, gameState.time) : null
+            const s = timeline ? samplePlayer(timeline, p.id, sampleTime) : null
             const dead = p.isDead || !!s?.dead
             // Between rounds: what survivors carry into the next round.
             const nades = s ? s.nades : roundOver ? (economy?.[p.id]?.utility ?? []) : []
@@ -340,7 +355,7 @@ export default function LiveMatchPage() {
     const aliveCount = (list: RosterCardRowProps[]) => list.filter(p => !p.dead).length
 
     // Multi-kill callout (3rd / 4th / 5th kill of a player this round).
-    const multi = timeline ? [...timeline.multiKills].reverse().find(k => k.t <= gameState.time) : undefined
+    const multi = timeline && inFlight ? [...timeline.multiKills].reverse().find(k => k.t <= gameState.time) : undefined
     const homeIds = new Set(homeRoster.map(p => p.id))
     const callout: MomentCalloutData | null = multi && roundView
         ? { id: `${roundView.key}:${multi.playerId}:${multi.count}`, playerName: names[multi.playerId] ?? t("prep.player"), count: multi.count, side: homeIds.has(multi.playerId) === homeIsCT ? "CT" : "T" }
@@ -401,6 +416,7 @@ export default function LiveMatchPage() {
                 awayLossLevel={shownLossLevels.away}
                 clock={scorebugClock}
                 ownTeam={isPlayerHome ? "home" : "away"}
+                nextRound={isWaitingForStrategy && gameState.status === "IN_PROGRESS" && !roundBeat ? simState.currentRound : null}
             />
 
             <LiveMatchControlBar

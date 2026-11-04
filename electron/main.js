@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const steam = require('./steam');
 const { createCloseHandshake } = require('./close-handshake');
+const { clampWindowSize } = require('./window-bounds');
 const { isAllowedAppNavigation, isTrustedMainFrame } = require('./app-origin');
 const { registerTrustedHandler, storageKey, MAX_MOD_BYTES, MOD_FILES } = require('./ipc-policy');
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
@@ -413,8 +414,11 @@ handleApp('window-set-fullscreen', (event, fullscreen) => {
 handleApp('window-set-size', (event, width, height) => {
     if (!mainWindow) return false;
     try {
-        const w = Math.max(MIN_WIDTH, Number(width) || DEFAULT_WIDTH);
-        const h = Math.max(MIN_HEIGHT, Number(height) || DEFAULT_HEIGHT);
+        // Never larger than the work area of the window's display (CROSSCUT-06).
+        const { workArea } = screen.getDisplayMatching(mainWindow.getBounds());
+        const { width: w, height: h } = clampWindowSize(width, height, workArea, {
+            minWidth: MIN_WIDTH, minHeight: MIN_HEIGHT, defaultWidth: DEFAULT_WIDTH, defaultHeight: DEFAULT_HEIGHT,
+        });
         mainWindow.setSize(w, h);
         mainWindow.center();
         if (store) {
@@ -879,8 +883,18 @@ async function createWindow() {
         };
         mainWindow.on('resize', debouncedSaveState);
         mainWindow.on('move', debouncedSaveState);
-        mainWindow.on('enter-full-screen', saveState);
-        mainWindow.on('leave-full-screen', saveState);
+        // Tell the renderer whenever fullscreen changes (F11, the OS, the
+        // settings select), so the Window mode setting follows it (START-18).
+        const notifyFullscreen = () => {
+            saveState();
+            try {
+                if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('window-fullscreen-changed', mainWindow.isFullScreen());
+            } catch (e) {
+                console.error('[Electron] Error sending fullscreen state:', e);
+            }
+        };
+        mainWindow.on('enter-full-screen', notifyFullscreen);
+        mainWindow.on('leave-full-screen', notifyFullscreen);
         mainWindow.on('maximize', saveState);
         mainWindow.on('unmaximize', saveState);
 

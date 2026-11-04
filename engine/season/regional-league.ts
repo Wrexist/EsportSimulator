@@ -339,6 +339,29 @@ function resultOf(cm: CompletedMatchSaveData, fixture: LeagueFixture): LeagueFix
         : { winnerId, homeMaps, awayMaps, homeRounds, awayRounds, ...(maps.length ? {} : { forfeit: true }) }
 }
 
+/**
+ * A division as the table will read after this week's tick: fixtures already
+ * played (in `completedMatches`) but not yet harvested by processLeagueWeek
+ * get their result, and standings are recomputed. Pure; returns the input
+ * object when nothing is pending. Used by Home so a match played mid-week is
+ * not still shown as "Next" (HOME-02).
+ */
+export function divisionWithPendingResults<D extends LeagueDivision>(div: D, completedMatches: readonly CompletedMatchSaveData[] | undefined): D {
+    if (!completedMatches?.length || div.completed) return div
+    const open = new Map<string, LeagueFixture>()
+    for (const f of div.fixtures) if (!f.result) open.set(f.id, f)
+    if (!open.size) return div
+    const results = new Map<string, LeagueFixture["result"]>()
+    for (const cm of completedMatches) {
+        const f = open.get(cm.id)
+        if (f) results.set(f.id, resultOf(cm, f))
+    }
+    if (!results.size) return div
+    const fixtures = div.fixtures.map(f => results.has(f.id) ? { ...f, result: results.get(f.id) } : f)
+    const next = { ...div, fixtures }
+    return { ...next, standings: computeStandings(next) }
+}
+
 /** Table: 3 points a win; ties broken by head-to-head, map and round difference, then draw order. */
 export function computeStandings(div: Pick<LeagueDivision, "teamIds" | "fixtures">): LeagueStanding[] {
     const rows = new Map<string, LeagueStanding>(div.teamIds.map(teamId => [teamId, { teamId, played: 0, wins: 0, losses: 0, points: 0, mapDiff: 0, roundDiff: 0 }]))

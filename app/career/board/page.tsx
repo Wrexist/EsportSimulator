@@ -87,6 +87,8 @@ export default function BoardPage() {
     const fallback = boardStartTargets(team?.worldRanking, team?.reputation)
     const expectation = boardState?.seasonExpectation ?? fallback.tier
     const tier = getTierTargets(expectation)
+    // The season's real rank target (the same number as the ranking objective, COMP-12).
+    const rankTarget = boardState?.rankTarget ?? fallback.rankTarget
     const objectives = (boardState?.objectives ?? []).map(objectiveView)
     const warnings = boardState?.warnings ?? (boardState?.onNotice ? 2 : 0)
     const lastWeek = weeks.find(w => w.week === currentWeek) ?? null
@@ -98,7 +100,7 @@ export default function BoardPage() {
             <ScreenHeader
                 eyebrow={t("brd.eyebrow", { season })}
                 title={t("brd.title")}
-                subtitle={EXPECTATIONS.has(expectation) ? `${t(`board.expectation.${expectation}`)}. ${t(`brd.blurb.${expectation}`)}` : `${tier.label}. ${tier.blurb}`}
+                subtitle={`${EXPECTATIONS.has(expectation) ? t(`board.expectation.${expectation}`) : tier.label}. ${t("brd.obj.ranking", { rank: rankTarget })}.`}
                 leading={team && (
                     <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
                         <TeamLogoDisplay team={team} size={52} />

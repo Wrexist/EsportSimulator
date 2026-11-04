@@ -34,7 +34,7 @@ const weekLabel = (week: number) => `S${Math.ceil(week / WEEKS_PER_YEAR)} W${((w
 const baseId = (id: string) => id.replace(/_s\d+$/, "")
 
 export default function TrophyRoomPage() {
-    const { teams, playerTeamId, players, completedMatches, gameStartDate, currentWeek, tournaments, recordBook } = useGameStore(useShallow(state => ({
+    const { teams, playerTeamId, players, completedMatches, gameStartDate, currentWeek, tournaments, recordBook, managerDetails } = useGameStore(useShallow(state => ({
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         players: state.players,
@@ -43,6 +43,7 @@ export default function TrophyRoomPage() {
         currentWeek: state.currentWeek,
         tournaments: state.tournaments,
         recordBook: state.recordBook,
+        managerDetails: state.managerDetails,
     })))
 
     const team = teams.find(t => t.id === playerTeamId)
@@ -105,6 +106,12 @@ export default function TrophyRoomPage() {
     }, [completedMatches, playerTeamId, teams])
 
     const majors = titles.filter(t => t.major).length
+    // The manager's official record at this club (the same counter as the
+    // Clubs table on the Career page), not the capped match log.
+    const stint = managerDetails?.stints?.find(s => s.teamId === playerTeamId && s.toWeek === undefined)
+    const clubRecord = stint
+        ? { wins: stint.wins, losses: stint.losses, rate: stint.wins + stint.losses > 0 ? Math.round((stint.wins / (stint.wins + stint.losses)) * 100) : 0, hint: "tro.kpi.recordHintClub" }
+        : { wins: stats.wins, losses: stats.losses, rate: stats.rate, hint: "tro.kpi.recordHint" }
     const clubRecords = playerTeamId ? recordBook?.clubs[playerTeamId] : undefined
     const teamName = (id: string) => teams.find(t => t.id === id)?.name ?? tr("tro.formerClub")
     const recordLine = (key: RecordKey, r: RecordEntry) => {
@@ -148,8 +155,8 @@ export default function TrophyRoomPage() {
                     <KpiStrip>
                         <Kpi label={tr("tro.kpi.titles")} value={titles.length} valueClassName={titles.length > 0 ? "text-gold" : undefined} />
                         <Kpi label={tr("hof.col.majors")} value={majors} valueClassName={majors > 0 ? "text-gold" : undefined} />
-                        <Kpi label={tr("tro.kpi.record")} value={<span>{stats.wins}<span className="text-ink-3">–</span>{stats.losses}</span>} hint={tr("tro.kpi.recordHint")} />
-                        <Kpi label={tr("tro.kpi.winRate")} value={`${stats.rate}%`} />
+                        <Kpi label={tr("tro.kpi.record")} value={<span>{clubRecord.wins}<span className="text-ink-3">–</span>{clubRecord.losses}</span>} hint={tr(clubRecord.hint)} />
+                        <Kpi label={tr("tro.kpi.winRate")} value={`${clubRecord.rate}%`} />
                     </KpiStrip>
                 }
             />

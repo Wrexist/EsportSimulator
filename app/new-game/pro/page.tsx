@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 import { useShallow } from "zustand/react/shallow"
 import { ArrowLeft, Check, Loader2, RefreshCw } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
-import { loadCareerDraft, clearCareerDraft } from "@/lib/new-career-draft"
+import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-career-draft"
 import { recordNewCampaign } from "@/engine/manager-career-profile"
 import { calculateTeamTier } from "@/engine/tier-system"
 import { PRO_ROLES } from "@/engine/pro-career"
@@ -90,7 +90,8 @@ export default function ProCareerSetupPage() {
             if (!startProCareer({ nickname: nickname.trim(), role })) throw Error("Pro career did not start")
             clearCareerDraft()
             void recordNewCampaign()
-            router.push("/")
+            // Replace: Back/Escape from Home must not reopen this setup (START-05).
+            router.replace("/")
         } catch (err) {
             debug.error("Pro career start failed:", err)
             toast.error(t("pro.err.start"), { description: t("pro.err.startBody") })
@@ -105,7 +106,7 @@ export default function ProCareerSetupPage() {
                 eyebrow={t("pro.eyebrow")}
                 title={t("pro.title")}
                 subtitle={t("pro.subtitle")}
-                aside={<Button asChild variant="ghost" className="gap-2"><Link href="/new-game"><ArrowLeft size={16} /> {t("ng.back")}</Link></Button>}
+                aside={<Button asChild variant="ghost" className="gap-2"><Link href="/new-game" onClick={() => saveCareerDraft({ step: "welcome" })}><ArrowLeft size={16} /> {t("ng.back")}</Link></Button>}
             />
 
             <div className="grid gap-5 md:grid-cols-2">

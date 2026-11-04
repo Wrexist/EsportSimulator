@@ -6,6 +6,11 @@
 import { MatchResult, RoundResult } from "@/types"
 import { MatchAnalysis } from "./save-types"
 
+/** A map's [home, away] rounds, when the result carries them. */
+function mapScore(map: MatchResult["maps"][number]): [number, number] | null {
+    return typeof map.homeScore === "number" && typeof map.awayScore === "number" ? [map.homeScore, map.awayScore] : null
+}
+
 export class MatchAnalyzer {
 
     /**
@@ -37,7 +42,7 @@ export class MatchAnalyzer {
         const factors = this.determineKeyFactors(result, homeStats, awayStats, roundAnalysis)
 
         // 5. Generate narrative summary
-        const summary = this.generateSummary(winner, factors, result, roundAnalysis)
+        const summary = this.generateSummary(winner, factors, result)
 
         // 6. Calculate Ratings (0-100) — based on actual performance, not outcome
         const winnerStats = homeWon ? homeStats : awayStats
@@ -153,10 +158,13 @@ export class MatchAnalyzer {
         const homeWon = result.homeScore > result.awayScore
         const winnerStats = homeWon ? homeStats : awayStats
         const loserStats = homeWon ? awayStats : homeStats
+        const margin = MatchAnalyzer.margin(result)
 
         let primaryFactor: MatchAnalysis["keyFactor"] = "FIREPOWER"
         let winningReason = "Superior mechanical skill"
         let losingReason = "Lost individual duels"
+        // Noun phrase for the summary sentence ("defined by ...").
+        let theme = "superior mechanical skill"
 
         // 1. Check Clutch Factor
         const clutchDiff = winnerStats.clutches - loserStats.clutches
@@ -164,44 +172,73 @@ export class MatchAnalyzer {
             primaryFactor = "CLUTCH"
             winningReason = `Capitalized on ${winnerStats.clutches} clutch situations`
             losingReason = "Threw away advantage in late rounds"
+            theme = `${winnerStats.clutches} clutch wins`
         }
-        // 2. Check Pistol/Economy
-        else if (homeWon && roundAnalysis.homePistolsWon > roundAnalysis.awayPistolsWon && result.homeScore < 13) {
-            // If pistols were crucial in a close game
+        // 2. Check Pistol/Economy: the winner took more pistols in a game
+        // that was not a rout (needs the maps' round scores)
+        else if (
+            (homeWon ? roundAnalysis.homePistolsWon > roundAnalysis.awayPistolsWon : roundAnalysis.awayPistolsWon > roundAnalysis.homePistolsWon) &&
+            margin.known && margin.perMap <= 8
+        ) {
             primaryFactor = "ECONOMY"
             winningReason = "Snowballed from pistol round victories"
             losingReason = "Never recovered from pistol losses"
+            theme = "pistol-round snowballs"
         }
         // 3. Check Rating Diff (Firepower)
         else if (winnerStats.avgRating > loserStats.avgRating + 0.15) {
             primaryFactor = "FIREPOWER"
             winningReason = "Complete domination in aim duels"
             losingReason = "Outclassed individually across the board"
+            theme = "dominance in aim duels"
         }
         // 4. Default to Trading/Teamwork
         else {
             primaryFactor = "TRADING"
             winningReason = "Better trade fragging and spacing"
             losingReason = "Detailed isolation plays failed"
+            theme = "better trading and spacing"
         }
 
-        return { primaryFactor, winningReason, losingReason }
+        return { primaryFactor, winningReason, losingReason, theme }
+    }
+
+    /**
+     * The winner's round margin per map played. MatchResult.homeScore /
+     * awayScore count maps won (the series score); rounds live in result.maps.
+     */
+    private static margin(result: MatchResult): { known: boolean; perMap: number; droppedMap: boolean } {
+        const homeWon = result.homeScore > result.awayScore
+        const maps = (result.maps ?? []).map(mapScore).filter((m): m is [number, number] => m !== null)
+        if (maps.length === 0) return { known: false, perMap: 0, droppedMap: false }
+        let diff = 0
+        let droppedMap = false
+        for (const [home, away] of maps) {
+            const mapDiff = homeWon ? home - away : away - home
+            diff += mapDiff
+            if (mapDiff < 0) droppedMap = true
+        }
+        return { known: true, perMap: diff / maps.length, droppedMap }
     }
 
     private static generateSummary(
         winnerName: string,
         factors: ReturnType<typeof MatchAnalyzer.determineKeyFactors>,
         result: MatchResult,
-        _roundAnalysis: ReturnType<typeof MatchAnalyzer.analyzeRounds>
     ): string {
-        const score = `${Math.max(result.homeScore, result.awayScore)}-${Math.min(result.homeScore, result.awayScore)}`
+        const homeWon = result.homeScore > result.awayScore
+        const single = result.maps?.length === 1 ? mapScore(result.maps[0]) : null
+        // One map: its round score ("13-4"); a series: the maps ("2-1").
+        const score = single
+            ? `${homeWon ? single[0] : single[1]}-${homeWon ? single[1] : single[0]}`
+            : `${Math.max(result.homeScore, result.awayScore)}-${Math.min(result.homeScore, result.awayScore)}`
 
+        const { perMap, droppedMap } = MatchAnalyzer.margin(result)
         let prefix = ""
-        const diff = Math.abs(result.homeScore - result.awayScore)
-        if (diff > 8) prefix = "A crushing victory as "
-        else if (diff > 4) prefix = "A solid performance saw "
+        if (perMap > 8 && !droppedMap) prefix = "A crushing victory as "
+        else if (perMap > 4) prefix = "A solid performance saw "
         else prefix = "In a tightly contested battle, "
 
-        return `${prefix}${winnerName} secure the ${score} win. The match was defined by ${factors.winningReason.toLowerCase()}.`
+        return `${prefix}${winnerName} secure the ${score} win. The match was defined by ${factors.theme}.`
     }
 }

@@ -18,6 +18,9 @@ export interface DifficultySettings {
     tournamentPrizeMultiplier: number
 }
 
+/** Longest name a created club may have (START-13; the Draft Cup team name uses the same limit). */
+export const CLUB_NAME_MAX = 28
+
 export interface CustomTeamData {
     name: string
     shortName: string // 2-5 character tag

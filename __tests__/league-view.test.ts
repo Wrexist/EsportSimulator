@@ -4,7 +4,7 @@
  */
 import fs from "fs"
 import path from "path"
-import { drawDueLeagueSplit, processLeagueWeek } from "@/engine/season/regional-league"
+import { divisionWithPendingResults, drawDueLeagueSplit, processLeagueWeek } from "@/engine/season/regional-league"
 import type { GameSave, LeagueDivision } from "@/engine/save-types"
 import {
     bottomLevelOf,
@@ -145,6 +145,28 @@ describe("split progress and the managed club's fixtures", () => {
             expect(c.won).toBe(!c.home)
             expect(c.score).toBe(c.won ? "13–9" : "9–13")
         }
+    })
+
+    test("HOME-02: a fixture played this week is not 'next' before the week tick, and the table counts it", () => {
+        const { save, own } = world()
+        const split = save.league!.current!
+        const firstOwn = clubFixtures(own, save.playerTeamId).upcoming[0]
+        save.currentWeek = firstOwn.fixture.week
+        playLeagueWeek(save, firstOwn.fixture.week, () => !firstOwn.home) // the managed club wins
+        // Not yet harvested by processLeagueWeek: the raw division still lists it as upcoming.
+        expect(clubFixtures(own, save.playerTeamId).upcoming[0].fixture.id).toBe(firstOwn.fixture.id)
+        const live = divisionWithPendingResults(own, save.completedMatches)
+        expect(live).not.toBe(own)
+        expect(clubFixtures(live, save.playerTeamId).upcoming[0]?.fixture.id).not.toBe(firstOwn.fixture.id)
+        const me = leagueTableRows(live, bottomLevelOf(split, "EUROPE"), save.playerTeamId).find(r => r.isPlayer)!
+        expect(me.played).toBe(1)
+        expect(me.wins).toBe(1)
+        // Same result as the week tick would produce; the save is untouched.
+        expect(own.fixtures.find(f => f.id === firstOwn.fixture.id)!.result).toBeUndefined()
+        processLeagueWeek(save, save.playerTeamId)
+        expect(live.standings).toEqual(own.standings)
+        // Nothing pending: the same object comes back.
+        expect(divisionWithPendingResults(own, save.completedMatches)).toBe(own)
     })
 
     test("divisions grouped by region, top division first", () => {

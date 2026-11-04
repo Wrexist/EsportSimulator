@@ -158,6 +158,7 @@ export const FEED = {
     "why.odds.expected": "Expected: ranking points made you {{pct}}% favourites. Morale and form rise less than after an even win.",
     "why.odds.setback": "A setback: ranking points made you {{pct}}% favourites. Morale and form drop more than after an even defeat.",
     "why.odds.stronger": "They were the stronger side ({{pct}}% for you by ranking points), so the defeat costs less morale and form than an even one.",
+    "why.odds.note": "(Ranking points only. The win chance on the prep screen also counts both lineups, form and preparation.)",
     "followup.none": "Review your lineup and preparation before the next fixture.",
     "followup.openings": "Your lineup recorded {{kills}} opening kills and {{deaths}} opening deaths. Review entry roles and trading practice.",
     "followup.adr": "Your lineup averaged {{adr}} damage per round. Review individual performances, training needs and your next opponent.",

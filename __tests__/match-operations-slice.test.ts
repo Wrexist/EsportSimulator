@@ -164,6 +164,53 @@ describe("updateScheduledMatch — sanitization", () => {
     })
 })
 
+describe("updateScheduledMatch — a finished veto is saved at once (MATCHDAY-02)", () => {
+    const career = (overrides: Partial<StoreState> = {}) => {
+        const saveGame = jest.fn(() => Promise.resolve())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const h = makeHarness(makeBaseState({ isInitialized: true, saveId: "s1", saveGame, ...(overrides as any) } as any))
+        return { h, saveGame, slice: createMatchOperationsSlice(h.set, h.get) }
+    }
+
+    test("maps and starting sides of a completed BO3 veto are written to the save", () => {
+        const { h, saveGame, slice } = career({ scheduledMatches: [makeMatch("m1", { format: "BO3" })] })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.updateScheduledMatch("m1", { vetoComplete: true, maps: ["Anubis", "Ancient", "Inferno"] as any, mapStartingSides: { Anubis: "player", Inferno: "opp" } })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const m = h.state().scheduledMatches[0] as any
+        expect(m.vetoComplete).toBe(true)
+        expect(m.maps).toEqual(["Anubis", "Ancient", "Inferno"])
+        expect(m.mapStartingSides).toEqual({ Anubis: "player", Inferno: "opp" })
+        expect(saveGame).toHaveBeenCalledTimes(1)
+    })
+
+    test("the same veto written again (Continue after the auto-complete) does not save twice", () => {
+        const { saveGame, slice } = career({ scheduledMatches: [makeMatch("m1", { format: "BO1" })] })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const veto = { vetoComplete: true, maps: ["Ancient"] as any, mapStartingSides: { Ancient: "opp" } }
+        slice.updateScheduledMatch("m1", veto)
+        slice.updateScheduledMatch("m1", veto)
+        expect(saveGame).toHaveBeenCalledTimes(1)
+    })
+
+    test("an unfinished veto (maps only) and a refused one do not save", () => {
+        const { saveGame, slice } = career({ scheduledMatches: [makeMatch("m1", { format: "BO3" }), makeMatch("m2", { format: "BO1" })], activeMatchId: "m2" })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.updateScheduledMatch("m1", { maps: ["Anubis"] as any })
+        // m2 is being played live: prep is locked, nothing changes, nothing is saved.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.updateScheduledMatch("m2", { vetoComplete: true, maps: ["Ancient"] as any })
+        expect(saveGame).not.toHaveBeenCalled()
+    })
+
+    test("no career loaded: nothing is saved", () => {
+        const { saveGame, slice } = career({ scheduledMatches: [makeMatch("m1", { format: "BO1" })], saveId: null })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.updateScheduledMatch("m1", { vetoComplete: true, maps: ["Ancient"] as any })
+        expect(saveGame).not.toHaveBeenCalled()
+    })
+})
+
 describe("performVODReview", () => {
     test("debits cost + bumps tacticalPrep +25 + writes ledger row", () => {
         const h = makeHarness(makeBaseState({

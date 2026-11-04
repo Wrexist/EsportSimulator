@@ -82,6 +82,20 @@ export default function SandboxPage() {
         else toast({ title: t("sb.notChanged"), description: r.reason, variant: "destructive" })
     }
 
+    // START-21: with no career loaded there is nothing to turn on yet.
+    const careerLoaded = useGameStore(s => s.isInitialized && !!s.playerTeamId)
+    if (!careerLoaded) {
+        return (
+            <div className="mx-auto max-w-[900px] space-y-4 py-10">
+                <ScreenHeader eyebrow={t("settings.eyebrow")} title={t("settings.sandbox")} subtitle={t("settings.sandboxNoCareer")} />
+                <div className="flex gap-2">
+                    <Button asChild variant="outline"><Link href="/load-game">{t("lg.title")}</Link></Button>
+                    <Button asChild variant="ghost"><Link href="/settings">{t("settings.title")}</Link></Button>
+                </div>
+            </div>
+        )
+    }
+
     if (!sandbox) {
         return (
             <div className="mx-auto max-w-[900px] space-y-4 py-10">

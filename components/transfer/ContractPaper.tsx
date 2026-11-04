@@ -5,7 +5,7 @@ import { t } from "@/lib/i18n"
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react"
 import { createPortal } from "react-dom"
 import { motion } from "framer-motion"
-import { Eraser, History, PenLine, X } from "lucide-react"
+import { Eraser, History, PenLine, Signature, X } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { useFocusTrap } from "@/lib/accessibility"
@@ -56,6 +56,28 @@ function inkLength(strokes: Point[][]): number {
     return total
 }
 
+/**
+ * MARKET-14: a signature for keyboard and gamepad hands — a looping script
+ * flourish (prolate cycloid), shaped by the manager's name so it stays his.
+ */
+export function autoSignatureStrokes(seedText: string): Point[][] {
+    let h = 2166136261
+    for (let i = 0; i < seedText.length; i++) { h ^= seedText.charCodeAt(i); h = Math.imul(h, 16777619) }
+    const rand = () => { h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909); return ((h >>> 0) % 1000) / 1000 }
+    const loops = 5 + Math.floor(rand() * 3)
+    const pts: Point[] = []
+    const x0 = 34, x1 = PAD_W - 40, step = (x1 - x0) / (loops * 2 * Math.PI)
+    let height = 22 + rand() * 10
+    for (let t = 0; t <= loops * 2 * Math.PI; t += 0.25) {
+        if (t % (2 * Math.PI) < 0.25) height = 16 + rand() * 18
+        const x = x0 + step * t - 9 * Math.sin(t)
+        const y = PAD_H * 0.62 - height * (0.5 - 0.5 * Math.cos(t)) + t * 0.6
+        pts.push([x, y])
+    }
+    // The underline flick.
+    return [pts, [[x0 + 10, PAD_H * 0.84], [x1 * 0.55, PAD_H * 0.86], [x1 - 6, PAD_H * 0.8]]]
+}
+
 function readLastSignature(): SigningSignature | null {
     try {
         const raw = window.localStorage.getItem(LAST_SIGNATURE_KEY)
@@ -68,7 +90,7 @@ function writeLastSignature(sig: SigningSignature): void {
 }
 
 /** Draw-your-own signature pad: pointer, pen or touch; the strokes become SVG. */
-function SignaturePad({ strokes, setStrokes, disabled }: { strokes: Point[][]; setStrokes: (s: Point[][]) => void; disabled: boolean }) {
+function SignaturePad({ strokes, setStrokes, disabled, onAutoSign }: { strokes: Point[][]; setStrokes: (s: Point[][]) => void; disabled: boolean; onAutoSign: () => void }) {
     const svgRef = useRef<SVGSVGElement>(null)
     const drawing = useRef(false)
     const live = useRef<Point[][]>(strokes)
@@ -95,18 +117,26 @@ function SignaturePad({ strokes, setStrokes, disabled }: { strokes: Point[][]; s
         setStrokes([...all.slice(0, -1), [...cur, p]])
     }
     const onUp = () => { drawing.current = false }
+    // MARKET-14: Enter or Space signs for keyboard and gamepad players.
+    const onKeyDown = (e: React.KeyboardEvent<SVGSVGElement>) => {
+        if (disabled || (e.key !== "Enter" && e.key !== " ")) return
+        e.preventDefault()
+        onAutoSign()
+    }
 
     return (
         <svg
             ref={svgRef}
             viewBox={`0 0 ${PAD_W} ${PAD_H}`}
-            role="img"
+            role="button"
+            tabIndex={disabled ? -1 : 0}
             aria-label={t("paper.padAria")}
             onPointerDown={onDown}
             onPointerMove={onMove}
             onPointerUp={onUp}
             onPointerCancel={onUp}
-            className={cn("block h-[120px] w-full touch-none select-none", disabled ? "cursor-default" : "cursor-crosshair")}
+            onKeyDown={onKeyDown}
+            className={cn("block h-[120px] w-full touch-none select-none rounded-[2px] outline-none focus-visible:ring-2 focus-visible:ring-[#1d2b64]/60", disabled ? "cursor-default" : "cursor-crosshair")}
         >
             <path d={strokesToPath(strokes)} fill="none" stroke={INK} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -119,7 +149,7 @@ function SignaturePad({ strokes, setStrokes, disabled }: { strokes: Point[][]; s
  */
 export function ContractPaper({ n, standing }: { n: NegotiationState; standing?: MarketStanding }) {
     const reduce = useAppReducedMotion()
-    const { gameStartDate, currentWeek, saveId } = useGameStore(useShallow(s => ({ gameStartDate: s.gameStartDate, currentWeek: s.currentWeek, saveId: s.saveId })))
+    const { gameStartDate, currentWeek, saveId, managerName } = useGameStore(useShallow(s => ({ gameStartDate: s.gameStartDate, currentWeek: s.currentWeek, saveId: s.saveId, managerName: s.managerDetails?.name })))
     const [strokes, setStrokes] = useState<Point[][]>([])
     const [saved, setSaved] = useState<SigningSignature | null>(null)
     const [useSaved, setUseSaved] = useState(false)
@@ -133,6 +163,7 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
     const club = n.myTeam
     const ink = useMemo(() => inkLength(strokes), [strokes])
     const signature: SigningSignature | null = useSaved && saved ? saved : ink >= MIN_INK ? { d: strokesToPath(strokes), w: PAD_W, h: PAD_H } : null
+    const autoSign = () => { setUseSaved(false); setStrokes(autoSignatureStrokes(managerName || saveId || "manager")) }
 
     if (!deal || !player || !club || typeof document === "undefined") return null
 
@@ -211,7 +242,8 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                     </header>
 
                     <p className="mt-4 text-[13.5px] leading-relaxed">
-                        <Trans k="paper.preamble" params={{ club: club.name, name: fullName, nick: player.nickname }} tags={{ b: s => <b>{s}</b> }} />
+                        {/* MARKET-15: no "ZepR, known as “ZepR”" when he has no other name. */}
+                        <Trans k={fullName === player.nickname ? "paper.preambleNick" : "paper.preamble"} params={{ club: club.name, name: fullName, nick: player.nickname }} tags={{ b: s => <b>{s}</b> }} />
                     </p>
 
                     <ol className="mt-4 space-y-2 text-[13px] leading-relaxed">
@@ -233,7 +265,7 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                                         <path d={saved.d} fill="none" stroke={INK} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 ) : (
-                                    <SignaturePad strokes={strokes} setStrokes={setStrokes} disabled={phase !== "draw"} />
+                                    <SignaturePad strokes={strokes} setStrokes={setStrokes} disabled={phase !== "draw"} onAutoSign={autoSign} />
                                 )}
                                 {phase === "draw" && strokes.length === 0 && !useSaved && (
                                     <span className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 text-[13px] italic text-[#1d2b64]/45">
@@ -249,6 +281,9 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                                     )}
                                     {saved && !useSaved && (
                                         <button type="button" onClick={() => setUseSaved(true)} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><History size={12} aria-hidden="true" />{t("paper.useLast")}</button>
+                                    )}
+                                    {!useSaved && strokes.length === 0 && (
+                                        <button type="button" onClick={autoSign} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><Signature size={12} aria-hidden="true" />{t("paper.autoSign")}</button>
                                     )}
                                     {useSaved && (
                                         <button type="button" onClick={() => setUseSaved(false)} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><PenLine size={12} aria-hidden="true" />{t("paper.drawNew")}</button>

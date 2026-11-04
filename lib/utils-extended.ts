@@ -243,18 +243,32 @@ export function keys<T extends object>(obj: T): (keyof T)[] {
 }
 
 /**
- * Get dynamic tournament name with year based on game week
- * Replaces hardcoded years (e.g., "2025") with the calculated game year
- * @param name - Original tournament name (e.g., "Winter Open Katova 2025")
- * @param currentWeek - Current game week
- * @param baseYear - The year used in the original data (default 2025)
+ * Event name with the calendar year the event is played in.
+ * Replaces the data's placeholder year (e.g. "Winter Open Katova 2025") with
+ * the year of the event's final week, counted from the career start date, so
+ * the name is the same before, during and after the event (it doesn't follow
+ * the current week). A seasonal " S2" suffix is dropped when a year is shown.
+ * @param name - Original tournament name (e.g. "Winter Open Katova 2025")
+ * @param eventStartWeek - Absolute start week of this event instance
+ * @param gameStartDate - Career start date (ISO); week 1 is this date
+ * @param durationWeeks - Length of the event; its final week names the year
  */
 export function getDynamicTournamentName(
     name: string,
-    currentWeek: number,
-    baseYear: number = 2025
+    eventStartWeek: number,
+    gameStartDate?: string | null,
+    durationWeeks: number = 1
 ): string {
-    const currentSeason = Math.max(1, Math.floor((currentWeek - 1) / 52) + 1)
-    const gameYear = baseYear + (currentSeason - 1)
-    return name.replace(/\b20\d{2}\b/, String(gameYear))
+    if (!/\b20\d{2}\b/.test(name)) return name
+    const week = Math.max(1, Math.floor(eventStartWeek || 1)) + Math.max(1, Math.floor(durationWeeks || 1)) - 1
+    const start = gameStartDate ? new Date(gameStartDate) : null
+    let gameYear: number
+    if (start && !Number.isNaN(start.getTime())) {
+        start.setUTCDate(start.getUTCDate() + (week - 1) * 7)
+        gameYear = start.getUTCFullYear()
+    } else {
+        // No career date: season 1 keeps the data's year.
+        gameYear = 2025 + Math.floor((week - 1) / 52)
+    }
+    return name.replace(/\b20\d{2}\b/, String(gameYear)).replace(/\s+S\d+$/, "")
 }

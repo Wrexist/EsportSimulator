@@ -15,6 +15,10 @@
  *      forfeiter; ring buffer of 5).
  *   4. Push a MATCH_RESULT event to save.eventsLog when the player
  *      team is on either side.
+ *   5. For tournament matches, run the same bracket progression as a
+ *      played match (TournamentManager.processMatchResult): the bracket
+ *      row is marked completed with the forfeit winner, so it is not
+ *      simulated a second time later and the winner advances.
  *
  * Returns the matchesPlayed delta — always 1 — so the caller can
  * increment its counter consistently with the match-engine branch.
@@ -28,6 +32,7 @@ import type {
     CompletedMatchSaveData,
 } from "../save-types"
 import { createMatchRNG } from "../rng"
+import { TournamentManager } from "../tournament-manager"
 
 const RECENT_FORM_MAX = 5
 
@@ -83,6 +88,13 @@ export function processForfeitMatch(args: {
 
     pushForm(winningTeam, "W")
     pushForm(forfeitingTeam, "L")
+
+    // Bracket/league progression, exactly as for a played match. Without it
+    // the bracket row stayed open and simulateAllPendingBracketMatches
+    // replayed the match later, often with the opposite winner.
+    if (match.tournamentId && match.tournamentId !== "SCRIM") {
+        TournamentManager.processMatchResult(save, match.tournamentId, match.id, winningTeam.id, forfeitingTeam.id)
+    }
 
     // Player-team notification (either side).
     if (forfeitingTeam.id === playerTeamId || winningTeam.id === playerTeamId) {

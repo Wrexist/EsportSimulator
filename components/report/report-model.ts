@@ -151,7 +151,8 @@ export function teamRows(report: WeekReport): TeamRow[] {
         rows.push({ label: t(key), change: signedDelta(net), cause: causeParts(list, list.length > 1), tone: toneOf(kind, net) })
     }
     const [m0, m1] = report.kpis.morale
-    if (m0 != null && m1 != null && Math.abs(m1 - m0) >= 0.5) {
+    // Shown when the printed (rounded) values differ: "83 → 83" in red read as a drop (HOME-18).
+    if (m0 != null && m1 != null && Math.round(m0) !== Math.round(m1)) {
         rows.push({ label: t("wr.moraleAvg"), change: `${Math.round(m0)} → ${Math.round(m1)}`, cause: t("wr.seePlayers"), tone: m1 > m0 ? "up" : "down" })
     }
     return rows

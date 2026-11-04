@@ -260,7 +260,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 {selectedPlayer !== null ? t("loadout.editing", { name: playerNames[selectedPlayer] }) : t("loadout.selectPlayer")}
                             </span>
                             <span className="opacity-30">•</span>
-                            <span className="flex items-center gap-1 capitalize text-ink-1">
+                            <span className="flex items-center gap-1 text-ink-1">
                                 <Info className="w-3 h-3" />
                                 {t("loadout.hoverHint")}
                             </span>
@@ -357,6 +357,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     {formatCurrency((teamBudget - totalCost), "$", false)}
                                 </div>
                                 <div className="text-[11px] text-ink-3 mt-1">Cost: {formatCurrency(totalCost, "$", false)}</div>
+                                {/* MATCHDAY-10: the plan is kept, but this round's buy can't follow it in full. */}
+                                {teamBudget - totalCost < 0 && (
+                                    <p role="note" className="mt-2 text-[11px] leading-snug text-caution">{t("loadout.overBudget")}</p>
+                                )}
                             </>
                         ) : (
                             <>

@@ -10,6 +10,8 @@
 import { useEffect, type ReactNode } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/lib/toast"
 import { Slider } from "@/components/ui/slider"
 import { useSettingsStore, type GameSpeed, type RenderingMode, type Resolution, type WindowMode } from "@/lib/settings-store"
 import { soundManager } from "@/lib/sound-manager"
@@ -83,7 +85,6 @@ function SettingSlider({ label, value, onChange, min, max, step, suffix = "%" }:
 const WINDOW_MODES = (): { value: WindowMode; label: string }[] => [
     { value: "windowed", label: t("settings.window.windowed") },
     { value: "fullscreen", label: t("settings.window.fullscreen") },
-    { value: "borderless", label: t("settings.window.borderless") },
 ]
 
 const RESOLUTIONS: { value: Resolution; label: string }[] = [
@@ -194,12 +195,23 @@ export function GameplaySettings({ includeCareerOptions = true }: { includeCaree
         notifications: state.notifications, setNotifications: state.setNotifications,
         openWeekReport: state.openWeekReport, setOpenWeekReport: state.setOpenWeekReport,
     })))
-    const { showTutorialOnNewGame, setShowTutorialOnNewGame, showBugReportButton, setShowBugReportButton } = useGameStore(useShallow(state => ({
+    const { showTutorialOnNewGame, setShowTutorialOnNewGame, showBugReportButton, setShowBugReportButton, careerLoaded, guideFits, triggerTutorial } = useGameStore(useShallow(state => ({
         showTutorialOnNewGame: state.showTutorialOnNewGame,
         setShowTutorialOnNewGame: state.setShowTutorialOnNewGame,
         showBugReportButton: state.showBugReportButton,
         setShowBugReportButton: state.setShowBugReportButton,
+        careerLoaded: state.isInitialized && !!state.playerTeamId,
+        // The manager's checklist has no place in a pro career or a Draft Cup run.
+        guideFits: !state.proCareer && !state.draftCup,
+        triggerTutorial: state.triggerTutorial,
     })))
+    // START-04: the replay the first-session guide's "Skip" promises.
+    const canReplayGuide = careerLoaded && guideFits
+    const replayGuide = () => {
+        if (!canReplayGuide) return
+        triggerTutorial()
+        toast({ title: t("settings.toast.guideRestarted"), description: t("settings.toast.guideRestartedBody") })
+    }
     // Interval options must include the stored value (older builds allowed others).
     const intervals = [...new Set([...AUTOSAVE_MINUTES, s.autoSaveInterval])].sort((a, b) => a - b)
         .map(m => ({ value: m, label: t("settings.everyMinutes", { count: m }) }))
@@ -225,6 +237,10 @@ export function GameplaySettings({ includeCareerOptions = true }: { includeCaree
                 <>
                     <SettingRow id="set-tutorial" label={t("settings.tutorial")} hint={t("settings.tutorialHint")}>
                         <Switch id="set-tutorial" checked={showTutorialOnNewGame} onCheckedChange={setShowTutorialOnNewGame} />
+                    </SettingRow>
+                    <SettingRow id="set-replay-guide" label={t("settings.replayGuide")}
+                        hint={!careerLoaded ? t("settings.replayGuideNoCareer") : !guideFits ? t("settings.replayGuideNotHere") : t("settings.replayGuideHint")}>
+                        <Button id="set-replay-guide" variant="outline" size="sm" onClick={replayGuide} disabled={!canReplayGuide}>{t("settings.replayGuideButton")}</Button>
                     </SettingRow>
                     <SettingRow id="set-bug-button" label={t("settings.bugButton")} hint={t("settings.bugButtonHint")}>
                         <Switch id="set-bug-button" checked={showBugReportButton} onCheckedChange={setShowBugReportButton} />

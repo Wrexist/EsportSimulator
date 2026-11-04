@@ -28,6 +28,7 @@ import { LeagueEngine, LeagueTier } from "@/engine/league-engine"
 import { isUnrankedTeamId, seasonEndTierMove } from "@/engine/world-ranking"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
 import { CIRCUIT_POINTS } from "@/data/tournament-calendar"
+import { recordEventName } from "@/lib/tournament-instances"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 import { PlayerCardSkeleton } from "@/src/components/ui/Skeleton"
@@ -246,8 +247,9 @@ export default function RankingsPage() {
 }
 
 function RankingsPageInner() {
-    const { teams, playerTeamId, players, staff, currentWeek, isPlayerScouted, completedMatches, circuitPoints } = useGameStore(useShallow(state => ({
+    const { teams, playerTeamId, players, staff, currentWeek, isPlayerScouted, completedMatches, circuitPoints, gameStartDate } = useGameStore(useShallow(state => ({
         teams: state.teams,
+        gameStartDate: state.gameStartDate,
         playerTeamId: state.playerTeamId,
         players: state.players,
         staff: state.staff,
@@ -536,7 +538,7 @@ function RankingsPageInner() {
                                 {playerTeam.trophies.map((trophy: any, idx: number) => (
                                     <tr key={`${trophy.tournamentId}_${idx}`} data-slot="table-row" className="h-11 border-b border-line last:border-b-0">
                                         <td className="pl-4"><Image src={trophyArtFor(trophyArtKind(trophy)).src} alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7 object-contain" /></td>
-                                        <td className="text-sm font-semibold text-ink-1">{trophy.tournamentName}</td>
+                                        <td className="text-sm font-semibold text-ink-1">{recordEventName(trophy.tournamentName ?? "", trophy.tournamentId, trophy.week, gameStartDate)}</td>
                                         <td className="px-3"><TierTag tier={trophy.tier} /></td>
                                         <td className="pr-4 text-right text-sm tabular-nums text-ink-2">{t("rk.week", { n: trophy.week })}</td>
                                     </tr>
@@ -579,7 +581,7 @@ function RankingsPageInner() {
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{entry.results?.length || 0}</td>
                                             <td className="pr-4 text-right text-sm">
                                                 {bestResult ? (
-                                                    <span className="text-ink-2"><span className={cn("font-semibold tabular-nums", bestResult.placement === 1 ? "text-gold" : "text-ink-1")}>{ordinal(bestResult.placement)}</span> <span className="text-ink-3">· {bestResult.tournamentName}</span></span>
+                                                    <span className="text-ink-2"><span className={cn("font-semibold tabular-nums", bestResult.placement === 1 ? "text-gold" : "text-ink-1")}>{ordinal(bestResult.placement)}</span> <span className="text-ink-3">· {recordEventName(bestResult.tournamentName ?? "", bestResult.tournamentId, bestResult.week, gameStartDate)}</span></span>
                                                 ) : <span className="text-ink-3">—</span>}
                                             </td>
                                         </tr>
@@ -652,7 +654,7 @@ function RankingsPageInner() {
                                             <span aria-hidden="true">·</span>
                                             <span>{teamTierLabel(selectedTeam.tier)}</span>
                                             <span aria-hidden="true">·</span>
-                                            <CountryFlag country={selectedTeam.region} showName={true} size={14} />
+                                            <CountryFlag country={selectedTeam.region} showName={false} size={14} />
                                         </div>
                                     </div>
                                 </div>

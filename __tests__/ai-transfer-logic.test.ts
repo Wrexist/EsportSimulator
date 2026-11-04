@@ -349,3 +349,32 @@ describe("processAITransferMarket — pending offers don't pile up across weeks"
         expect(aiStarOffers.length).toBe(1)
     })
 })
+
+describe("processAITransferMarket — MARKET-11: clubs bid only for players who could start for them", () => {
+    const attrs = (v: number) => ({ rifle: v, awp: v, pistol: v, grenades: v, creativity: v, clutch: v, tactic: v, leader: v, teamwork: v, reaction: v, eyesight: v, skill: v })
+    function listedSave(listedRating: number) {
+        const listed = makePlayer("listed", { ...attrs(listedRating), age: 26, potential: 50, forSale: true, transferListingPrice: 1_000 } as any)
+        const stars = Array.from({ length: 5 }, (_, i) => makePlayer(`star${i}`, attrs(88) as any))
+        const playerTeam = makeTeam("player", { rosterIds: ["listed"] })
+        const elite = makeTeam("elite", { budget: 50_000_000, worldRanking: 2, rosterIds: stars.map(p => p.id), ...INCOME })
+        return makeSave([playerTeam, elite], [listed, ...stars])
+    }
+    const offersOver30Weeks = (listedRating: number) => {
+        let total = 0
+        for (let w = 1; w <= 30; w++) {
+            const save = listedSave(listedRating)
+            save.currentWeek = w
+            processAITransferMarket(save, "player", new SeededRNG(w * 31 + 7))
+            total += save.eventsLog.filter(e => e.type === "TRANSFER_OFFER" && e.data?.teamId === "elite").length
+        }
+        return total
+    }
+
+    test("a top club never bids for a far weaker player", () => {
+        expect(offersOver30Weeks(40)).toBe(0)
+    })
+
+    test("control: the same club does bid for a cheap player at its level", () => {
+        expect(offersOver30Weeks(88)).toBeGreaterThan(0)
+    })
+})

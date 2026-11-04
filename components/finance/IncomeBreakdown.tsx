@@ -20,7 +20,8 @@ export function MoneyBreakdown({ rows, total, tone }: { rows: BreakdownRow[]; to
                     <div key={label} className="grid grid-cols-[minmax(0,1fr)_64px_92px] items-center gap-3 py-2">
                         <dt className="min-w-0">
                             <span className="block truncate text-sm text-ink-1">{label}</span>
-                            {note && <span className="block truncate text-xs text-ink-3">{note}</span>}
+                            {/* MARKET-18: the note wraps; the reputation factor sat past the cut. */}
+                            {note && <span className="block text-xs leading-snug text-ink-3 [overflow-wrap:anywhere]">{note}</span>}
                         </dt>
                         <Meter value={share} label={t(tone === "income" ? "fin.shareIncome" : "fin.shareExpense", { label })} tone="neutral" showValue={false} trackClassName="w-16" />
                         <dd className={cn('text-right text-sm tabular-nums', tone === 'income' && amount > 0 ? 'text-positive' : 'text-ink-1')}>

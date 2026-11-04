@@ -24,40 +24,12 @@ import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
-import { getEventTitle, isPendingDecisionEvent } from "@/lib/event-format"
 import { ChevronRight, Mail, Dumbbell, CalendarClock, CheckCircle2, Mic } from "lucide-react"
-import { describeChoice, type EffectChip } from "@/components/inbox/inbox-model"
-import type { GameEventSaveData } from "@/engine/save-types"
-import { formatSignedCurrency } from "@/lib/utils-extended"
+import { choiceLabel, describeChoice, getEventSubject, homeDecisions, type EffectChip } from "@/components/inbox/inbox-model"
+import { selectInboxContext } from "@/components/inbox/inbox-store-bindings"
 import { t, tn } from "@/lib/i18n"
 
 const DEFAULT_MAX_TRAINING_SLOTS = 10
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- choice effects bundle is a loose runtime shape
-function ChoiceEffects({ effects }: { effects: any }) {
-    if (!effects) return null
-    const chips: { label: string; positive: boolean }[] = []
-    if (typeof effects.money === "number" && effects.money !== 0) {
-        chips.push({ label: formatSignedCurrency(effects.money, "$", false), positive: effects.money > 0 })
-    }
-    if (typeof effects.morale === "number" && effects.morale !== 0) {
-        chips.push({ label: t("effect.morale", { value: `${effects.morale > 0 ? "+" : ""}${effects.morale}` }), positive: effects.morale > 0 })
-    }
-    if (typeof effects.reputation === "number" && effects.reputation !== 0) {
-        chips.push({ label: t("effect.reputation", { value: `${effects.reputation > 0 ? "+" : ""}${effects.reputation}` }), positive: effects.reputation > 0 })
-    }
-    if (typeof effects.loyalty === "number" && effects.loyalty !== 0) {
-        chips.push({ label: t("effect.loyalty", { value: `${effects.loyalty > 0 ? "+" : ""}${effects.loyalty}` }), positive: effects.loyalty > 0 })
-    }
-    if (chips.length === 0) return null
-    return (
-        <span className="flex flex-wrap justify-end gap-x-2 gap-y-0.5">
-            {chips.map((c, i) => (
-                <span key={i} className={cn("text-xs font-semibold tabular-nums", c.positive ? "text-positive" : "text-caution")}>{c.label}</span>
-            ))}
-        </span>
-    )
-}
 
 function StoryChips({ chips }: { chips: EffectChip[] }) {
     return (
@@ -86,45 +58,36 @@ function PromptRow({ href, icon, title, detail }: { href?: string; icon: ReactNo
 }
 
 export function ActionCenter({ children, className }: { children?: ReactNode; className?: string }) {
-    const { eventsLog, teams, playerTeamId, selectedWeeklyActivity, resolveEventChoice } = useGameStore(useShallow(s => ({
+    const { eventsLog, teams, playerTeamId, selectedWeeklyActivity, resolveEventChoice, ctx } = useGameStore(useShallow(s => ({
         eventsLog: s.eventsLog,
         teams: s.teams,
         playerTeamId: s.playerTeamId,
         selectedWeeklyActivity: s.selectedWeeklyActivity,
         resolveEventChoice: s.resolveEventChoice,
+        ctx: selectInboxContext(s),
     })))
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
-    const decisions = useMemo<GameEventSaveData[]>(
-        () => (eventsLog ?? []).filter(isPendingDecisionEvent),
-        [eventsLog],
-    )
-
-    // Offers (job/transfer) keep their richer flow in the inbox — surface the count + a link.
-    const offerCount = useMemo(() => {
-        return (eventsLog ?? []).filter(e => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- runtime-only fields
-            const ev = e as any
-            if (ev.selectedChoiceId !== undefined || e.acknowledged) return false
-            const type = e.type as string
-            if (type === "JOB_OFFER" || type === "TRANSFER_OFFER") return true
-            if (type === "CONTRACT" && ev.data?.action === "TRANSFER_OFFER") return true
-            return false
-        }).length
-    }, [eventsLog])
+    // The same open decisions the inbox lists (HOME-05/13, SQUAD-07): inline
+    // choices, plus offers (job/transfer) that keep their richer flow in the
+    // inbox — surfaced here as a count + link.
+    const { choices: decisions, offers: offerCount } = useMemo(() => homeDecisions(eventsLog ?? [], ctx), [eventsLog, ctx])
 
     const freeTrainingSlots = playerTeam
         ? Math.max(0, (playerTeam.maxTrainingSlots ?? DEFAULT_MAX_TRAINING_SLOTS) - (playerTeam.trainingSlotsUsed ?? 0))
         : 0
     const focusNotSet = !selectedWeeklyActivity
 
-    const promptCount = decisions.length + (offerCount > 0 ? 1 : 0) + (freeTrainingSlots > 0 ? 1 : 0) + (focusNotSet ? 1 : 0)
+    // The badge counts what needs an answer, the same number the inbox shows
+    // as decisions waiting; the training / week-plan rows are reminders (HOME-13).
+    const decisionCount = decisions.length + offerCount
+    const promptCount = decisionCount + (freeTrainingSlots > 0 ? 1 : 0) + (focusNotSet ? 1 : 0)
 
     return (
         <Panel
             title={t("decisions.title")}
-            actions={<span className="text-xs tabular-nums text-ink-3">{promptCount > 0 ? t("decisions.toDo", { count: promptCount }) : t("decisions.allDone")}</span>}
+            actions={<span className="text-xs tabular-nums text-ink-3">{decisionCount > 0 ? t("decisions.toDo", { count: decisionCount }) : promptCount === 0 ? t("decisions.allDone") : null}</span>}
             padded={false}
             className={className}
         >
@@ -143,34 +106,33 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                                 key={event.id}
                                 href={`/match/${pressMatch}/tactics`}
                                 icon={<Mic size={15} />}
-                                title={getEventTitle(event)}
+                                title={getEventSubject(event, ctx)}
                                 detail={t("decisions.pressDetail")}
                             />
                         )
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- choices is a runtime-only field
                         const choices = (event as any).choices as { id: string; text: string; effects: any }[]
-                        // Storyline decisions carry effects beyond the basic four: label them with the inbox model.
-                        const story = event.id.startsWith("story_")
                         return (
                             <div key={event.id} className="space-y-2 px-4 py-3">
                                 <div className="flex items-baseline justify-between gap-3">
-                                    <span className="text-sm font-semibold text-ink-1">{getEventTitle(event)}</span>
+                                    <span className="text-sm font-semibold text-ink-1">{getEventSubject(event, ctx)}</span>
                                     <span className="shrink-0 text-xs text-ink-3">{t("common.week", { n: event.week })}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     {choices.map(choice => {
-                                        const outcome = story ? describeChoice(event, choice, playerTeam?.budget ?? 0) : null
+                                        // Same label and effect chips as the inbox (one source of truth).
+                                        const outcome = describeChoice(event, choice, playerTeam?.budget ?? 0)
                                         return (
                                             <Button
                                                 key={choice.id}
                                                 variant="outline"
                                                 onClick={() => resolveEventChoice(event.id, choice.id)}
-                                                disabled={!!outcome?.blockedReason}
-                                                title={outcome?.blockedReason}
+                                                disabled={!!outcome.blockedReason}
+                                                title={outcome.blockedReason}
                                                 className="h-auto w-full justify-between gap-3 whitespace-normal px-3 py-2 text-left"
                                             >
-                                                <span className="text-[13px] font-semibold">{choice.text}</span>
-                                                {outcome ? <StoryChips chips={outcome.chips} /> : <ChoiceEffects effects={choice.effects} />}
+                                                <span className="text-[13px] font-semibold">{choiceLabel(choice)}</span>
+                                                <StoryChips chips={outcome.chips} />
                                             </Button>
                                         )
                                     })}

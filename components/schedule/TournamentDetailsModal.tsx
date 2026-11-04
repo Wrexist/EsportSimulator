@@ -20,6 +20,7 @@ import TournamentStandings from "@/components/tournament/TournamentStandings"
 import TournamentBracket from "@/components/tournament/TournamentBracket"
 import { isQualificationForTournament, getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
 import { ScheduleDialog } from "./ScheduleDialog"
+import { currentSeasonInstance, seasonStartWeek } from "@/lib/tournament-instances"
 
 interface TournamentDetailsModalProps {
     isOpen: boolean
@@ -55,7 +56,7 @@ export function TournamentDetailsModal({
     tournament,
     status
 }: TournamentDetailsModalProps) {
-    const { tournaments, scheduledMatches, completedMatches, teams, players, playerTeamId, currentWeek, tournamentQualifications, registerForTournament, activeMatchId } = useGameStore(useShallow(state => ({
+    const { tournaments, scheduledMatches, completedMatches, teams, players, playerTeamId, currentWeek, gameStartDate, tournamentQualifications, registerForTournament, activeMatchId } = useGameStore(useShallow(state => ({
         tournaments: state.tournaments,
         players: state.players,
         scheduledMatches: state.scheduledMatches,
@@ -63,16 +64,16 @@ export function TournamentDetailsModal({
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         currentWeek: state.currentWeek,
+        gameStartDate: state.gameStartDate,
         tournamentQualifications: state.tournamentQualifications,
         registerForTournament: state.registerForTournament,
         activeMatchId: state.activeMatchId,
     })))
     const [activeTab, setActiveTab] = useState<Tab>("standings")
 
-    // Find the actual seasonal tournament instance, e.g. "major" -> "major_s1"
-    const seasonalTournament = tournaments.find(t =>
-        t.id === tournament.id || t.id.startsWith(`${tournament.id}_`)
-    )
+    // This season's instance, e.g. "major" -> "major_s2" (not last season's,
+    // and not a qualifier whose id starts the same way).
+    const seasonalTournament = currentSeasonInstance(tournaments, tournament.id, currentWeek)
 
     // Rank and OVR beside each bracket name.
     const bracketOvrs = useMemo(() => {
@@ -108,7 +109,7 @@ export function TournamentDetailsModal({
             isOpen={isOpen}
             onClose={onClose}
             titleId="modal-title-tournament-details"
-            title={getDynamicTournamentName(tournament.name, currentWeek)}
+            title={getDynamicTournamentName(tournament.name, seasonalTournament?.startWeek ?? seasonStartWeek(tournament, getSeasonFromWeek(currentWeek)), gameStartDate, tournament.duration)}
             subtitle={`${t(`common.tier.${tournament.tier}`)} · ${getEntryTypeLabel(tournament.entryType)} · ${t("tm.weekRange", { from: tournament.startWeek, to: endWeek })} · ${t("sch.td.prizePool", { amount: formatPrizePool(tournament.prizePool) })}`}
             closeLabel={t("sch.td.close")}
             className={activeTab === "bracket" ? "max-w-[90vw]" : "max-w-3xl"}

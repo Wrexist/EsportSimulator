@@ -209,9 +209,10 @@ export function TopBar() {
                         </div>
                     )}
 
-                    <div className="hidden h-8 w-px bg-line @min-[80rem]/topbar:block" aria-hidden="true" />
+                    {/* No career: no date, week or time mode to show (START-17). */}
+                    {!hideCareerControls && <div className="hidden h-8 w-px bg-line @min-[80rem]/topbar:block" aria-hidden="true" />}
 
-                    <div className="flex flex-col items-end leading-none">
+                    {!hideCareerControls && <div className="flex flex-col items-end leading-none">
                         <span suppressHydrationWarning className="topbar-date whitespace-nowrap text-sm font-semibold text-ink-1">
                             {formatGameCalendarDate(currentDate, { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
                         </span>
@@ -225,7 +226,7 @@ export function TopBar() {
                                 ? t("topbar.weekDayLine", { week: currentWeek, day: currentDay + 1, mode: t("common.daily") })
                                 : t("topbar.weekLine", { week: currentWeek, mode: t("common.weekly") })}
                         </button>
-                    </div>
+                    </div>}
 
                     <InboxButton />
                     <Link

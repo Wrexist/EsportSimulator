@@ -30,7 +30,8 @@ import {
     CircuitPointsEntry,
     QualificationStatus
 } from "@/engine/tournament-qualification"
-import { getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
+import { getSeasonFromWeek, buildInstanceId, isQualificationForTournament, resolveTournamentIdentity } from "@/engine/circuit-engine"
+import { currentSeasonInstance, seasonStartWeek } from "@/lib/tournament-instances"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { pressable } from "@/lib/accessibility"
@@ -60,6 +61,7 @@ export default function TournamentsPage() {
         teams,
         playerTeamId,
         currentWeek,
+        gameStartDate,
         circuitPoints: storeCircuitPoints,
         tournamentQualifications,
         registerForTournament,
@@ -70,6 +72,7 @@ export default function TournamentsPage() {
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         currentWeek: state.currentWeek,
+        gameStartDate: state.gameStartDate,
         circuitPoints: state.circuitPoints,
         tournamentQualifications: state.tournamentQualifications,
         registerForTournament: state.registerForTournament,
@@ -83,12 +86,11 @@ export default function TournamentsPage() {
     const [activeTab, setActiveTab] = useRouteViewState<ViewTab>(viewCareerId, "tournaments:tab", "ALL")
     const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "tournaments:search", "")
 
-    const toSeriesId = (id: string) => id.replace(/_s\d+$/, "")
-    const isQualificationForSeries = (q: QualificationStatus, tournamentId: string) => {
-        const seriesId = toSeriesId(tournamentId)
-        const qSeriesId = toSeriesId(q.seriesId || q.tournamentId)
-        return qSeriesId === seriesId
-    }
+    // Rows describe this season's event: registrations, status and teams of
+    // last season's instance must not carry over.
+    const currentSeason = getSeasonFromWeek(currentWeek)
+    const isThisSeason = (q: QualificationStatus) =>
+        resolveTournamentIdentity(q.instanceId || q.tournamentId, currentWeek).seasonNumber === currentSeason
 
     // Get player's team and ranking
     const playerTeam = teams.find(t => t.id === playerTeamId)
@@ -156,7 +158,7 @@ export default function TournamentsPage() {
                 filtered = filtered.filter(t => {
                     if (!playerTeam) return false
                     return TournamentParticipationManager.isTeamInTournament(
-                        qualificationStatuses, playerTeam.id, t.id
+                        qualificationStatuses, playerTeam.id, buildInstanceId(t.id, currentSeason)
                     )
                 })
                 break
@@ -173,7 +175,7 @@ export default function TournamentsPage() {
         }
 
         return [...filtered].sort((a, b) => a.startWeek - b.startWeek)
-    }, [discovered, activeTab, searchTerm, playerTeam, qualificationStatuses])
+    }, [discovered, activeTab, searchTerm, playerTeam, qualificationStatuses, currentSeason])
 
     // Get eligibility for a tournament
     const getEligibility = (tournament: TournamentDefinition) => {
@@ -195,52 +197,43 @@ export default function TournamentsPage() {
         b_tier: discovered.filter(t => t.tier === "B_TIER").length,
         c_tier: discovered.filter(t => t.tier === "C_TIER").length,
         qualifiers: discovered.filter(t => t.tier === "QUALIFIER").length,
-        myTournaments: qualificationStatuses.filter(qs => qs.teamId === playerTeam?.id).length
-    }), [discovered, playerTeam, qualificationStatuses])
-
-    // Live instance for a calendar entry: this season's, else the next
-    // upcoming one, else the latest completed (so the detail page is populated).
-    const findLiveTournament = (tournament: TournamentDefinition) => {
-        const currentSeason = Math.floor((currentWeek - 1) / 52) + 1
-        const precise = tournaments.find(t => t.id === `${tournament.id}_s${currentSeason}`)
-        if (precise) return precise
-        const upcoming = tournaments.find(t => t.id.startsWith(tournament.id + "_s") && !t.isCompleted && t.startWeek >= currentWeek)
-        if (upcoming) return upcoming
-        return tournaments
-            .filter(t => t.id.startsWith(tournament.id + "_s"))
-            .sort((a, b) => b.startWeek - a.startWeek)[0]
-    }
+        // This season's entries only, counted the way the tab lists them.
+        myTournaments: playerTeam
+            ? discovered.filter(t => TournamentParticipationManager.isTeamInTournament(qualificationStatuses, playerTeam.id, buildInstanceId(t.id, currentSeason))).length
+            : 0
+    }), [discovered, playerTeam, qualificationStatuses, currentSeason])
 
     const renderRow = (tournament: TournamentDefinition) => {
-        const liveTournament = findLiveTournament(tournament)
-        const displayId = liveTournament ? liveTournament.id : tournament.id
+        // This season's instance only. Before it is created the row is drawn
+        // from the calendar (last season's finished instance would show
+        // "Completed" and open the old bracket).
+        const liveTournament = currentSeasonInstance(tournaments, tournament.id, currentWeek)
+        const instanceId = liveTournament?.id ?? buildInstanceId(tournament.id, currentSeason)
+        const displayId = instanceId
 
         const eligibility = getEligibility(tournament)
         const isLocked = eligibility && QualificationEngine.isTournamentLocked(tournament, eligibility)
         const isQualified = qualificationStatuses.some(
-            qs => isQualificationForSeries(qs, tournament.id) && qs.teamId === playerTeam?.id && qs.status === "QUALIFIED"
+            qs => qs.teamId === playerTeam?.id && qs.status === "QUALIFIED" && isQualificationForTournament(qs, instanceId, currentWeek)
         )
         const isRegistered = qualificationStatuses.some(
-            qs => isQualificationForSeries(qs, tournament.id) && qs.teamId === playerTeam?.id && qs.status === "REGISTERED"
+            qs => qs.teamId === playerTeam?.id && qs.status === "REGISTERED" && isQualificationForTournament(qs, instanceId, currentWeek)
         )
-        const effectiveStart = liveTournament?.startWeek ??
-            (Math.floor((currentWeek - 1) / 52) * 52 + tournament.startWeek)
+        const effectiveStart = liveTournament?.startWeek ?? seasonStartWeek(tournament, currentSeason)
         const isActive = currentWeek >= effectiveStart && currentWeek < effectiveStart + tournament.duration
         const isPast = currentWeek >= effectiveStart + tournament.duration || liveTournament?.isCompleted === true
         const weeksUntil = effectiveStart - currentWeek
 
         // Check if on schedule (only if player's team has a match)
         const isOnSchedule = scheduledMatches.some(m =>
-            (m.tournamentId || "").replace(/_s\d+$/, "") === tournament.id &&
+            m.tournamentId === instanceId &&
             (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
         )
 
         // Check if player's team was eliminated (format-specific logic)
         const isEliminated = (() => {
             if (!playerTeamId) return false
-            const matchesTournament = (m: { tournamentId?: string | null }) =>
-                (m.tournamentId || "").replace(/_s\d+$/, "") === tournament.id ||
-                (liveTournament && m.tournamentId === liveTournament.id)
+            const matchesTournament = (m: { tournamentId?: string | null }) => m.tournamentId === instanceId
             switch (tournament.format) {
                 case "bracket":
                     // Single elimination: any loss = eliminated
@@ -275,7 +268,7 @@ export default function TournamentsPage() {
 
         const teamsEntered = liveTournament?.teamIds?.length || 0
         const canRegister = !!eligibility?.canRegister && !isRegistered && !isQualified && !isPast && !isEliminated
-        const name = getDynamicTournamentName(tournament.name, currentWeek)
+        const name = getDynamicTournamentName(tournament.name, effectiveStart, gameStartDate, tournament.duration)
 
         return (
             <tr
@@ -367,7 +360,7 @@ export default function TournamentsPage() {
                     <KpiStrip>
                         <Kpi label={t("rk.kpi.world")} value={`#${playerRanking}`} />
                         <Kpi label={t("tm.kpi.circuit")} value={CircuitPointsManager.getTeamPoints(circuitPoints, playerTeam.id).toLocaleString(intlLocale())} />
-                        <Kpi label={t("tm.kpi.qualified")} value={qualificationStatuses.filter(qs => qs.teamId === playerTeam.id && qs.status === "QUALIFIED").length} />
+                        <Kpi label={t("tm.kpi.qualified")} value={qualificationStatuses.filter(qs => qs.teamId === playerTeam.id && qs.status === "QUALIFIED" && isThisSeason(qs)).length} />
                     </KpiStrip>
                 )}
             />
@@ -393,7 +386,8 @@ export default function TournamentsPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+            {/* The table needs ~1000px: below 1440px the world-rank panel goes under it. */}
+            <div className="grid grid-cols-1 gap-4 min-[1440px]:grid-cols-[minmax(0,1fr)_340px]">
                 <Panel padded={false} className="self-start overflow-hidden">
                     {filteredTournaments.length > 0 ? (
                         <div className="overflow-x-auto">

@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
-import type { LeagueState, TeamSaveData } from "@/engine/save-types"
+import type { CompletedMatchSaveData, LeagueState, TeamSaveData } from "@/engine/save-types"
+import { divisionWithPendingResults } from "@/engine/season/regional-league"
 import { ordinalLabel, t } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
@@ -30,6 +31,8 @@ export interface LeagueSnapshotProps {
     /** Scheduled match days by fixture id. */
     dayById: Map<string, number | undefined>
     gameStartDate?: string | null
+    /** Played matches; league fixtures played this week count before the week tick harvests them. */
+    completedMatches?: readonly CompletedMatchSaveData[]
     className?: string
 }
 
@@ -40,9 +43,10 @@ const TableLink = () => (
 )
 
 /** Home's league card: table position, points, the zone situation and the next league opponent. */
-export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameStartDate, className }: LeagueSnapshotProps) {
+export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameStartDate, completedMatches, className }: LeagueSnapshotProps) {
     const split = league?.current
-    const own = split?.divisions.find(d => d.teamIds.includes(playerTeamId))
+    const ownRaw = split?.divisions.find(d => d.teamIds.includes(playerTeamId))
+    const own = ownRaw ? divisionWithPendingResults(ownRaw, completedMatches) : undefined
     if (!split || !own) {
         return (
             <Panel eyebrow={t("common.league")} title={t("common.regionalLeague")} actions=<TableLink /> className={className}>

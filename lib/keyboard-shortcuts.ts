@@ -47,7 +47,8 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     {
         label: "shortcuts.group.gameplay",
         shortcuts: [
-            { keys: ["Space"], description: "shortcuts.advance" },
+            // Space runs Continue (to the next decision), not one day or week (HOME-20).
+            { keys: ["Space"], description: "advance.continueTitle" },
             { keys: ["Space"], description: "shortcuts.pauseLive" },
         ],
     },

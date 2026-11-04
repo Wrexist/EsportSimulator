@@ -15,6 +15,8 @@ import { matchEngine } from "@/engine/match-engine"
 import { SeededRNG } from "@/engine/rng"
 import type { MatchSaveData, TeamSaveData, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
 import { DEFAULT_ENGINE_VERSION } from "@/engine/match/engine-version"
+import { SimulationEngineV2 } from "@/engine/match-simulation"
+import { MapId } from "@/types/enums"
 
 function makeMatch(overrides: Partial<MatchSaveData> = {}): MatchSaveData {
     return {
@@ -224,5 +226,22 @@ test('saved Nuke/Sandstone map and starting side survive the weekly adapter inde
         expect(a.engineVersion).toBe(DEFAULT_ENGINE_VERSION)
         expect(a.maps[0].map).toBe(map)
         expect(a.maps[0].rounds[0].ctTeam).toBe('away')
+    }
+})
+
+// MATCHENGINE-02: a missed match auto-simulated by the week tick keeps the
+// manager's paid mental reset on his own side and his anti-strat counters.
+test('the weekly adapter passes the mental reset owner and the counters to the engine', () => {
+    const spy = jest.spyOn(SimulationEngineV2.prototype, 'simulateMatch')
+    try {
+        const counters = { [MapId.MIRAGE]: { ct: true } }
+        matchEngine.simulateMatch(makeMatch({ mentalPrep: true, mentalPrepTeamId: 'away', counters } as Partial<MatchSaveData>),
+            makeTeam('home'), makeTeam('away'), makeRoster('home'), makeRoster('away'), new SeededRNG(7), 0, 0, [], [], 'away')
+        const passed = spy.mock.calls[0][0] as { mentalPrep?: boolean; mentalPrepTeamId?: string; counters?: unknown }
+        expect(passed.mentalPrep).toBe(true)
+        expect(passed.mentalPrepTeamId).toBe('away')
+        expect(passed.counters).toEqual(counters)
+    } finally {
+        spy.mockRestore()
     }
 })

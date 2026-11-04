@@ -95,8 +95,8 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
                     )}
                     <span className="grid shrink-0 grid-cols-[repeat(3,22px)_32px] text-right text-xs leading-none tabular-nums">
                         <span className="font-semibold text-ink-1" title={t("roster.kills")}>{p.kills}</span>
-                        <span className="text-ink-2" title={t("roster.assists")}>{p.assists}</span>
                         <span className="text-ink-2" title={t("roster.deaths")}>{p.deaths}</span>
+                        <span className="text-ink-2" title={t("roster.assists")}>{p.assists}</span>
                         <span className="text-ink-3" title={t("roster.adr")}>{p.adr ?? "–"}</span>
                     </span>
                 </div>
@@ -132,7 +132,7 @@ export function LiveRosterCard({ teamName, isCT, isOwn, alive, teamCash, players
             <div className="flex items-center border-b border-line bg-shell px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">
                 <span>{t("prep.player")}</span>
                 <span className="ml-auto grid grid-cols-[repeat(3,22px)_32px] text-right">
-                    <span title={t("roster.kills")}>K</span><span title={t("roster.assists")}>A</span><span title={t("roster.deaths")}>D</span><span title={t("roster.adr")}>ADR</span>
+                    <span title={t("roster.kills")}>K</span><span title={t("roster.deaths")}>D</span><span title={t("roster.assists")}>A</span><span title={t("roster.adr")}>ADR</span>
                 </span>
             </div>
             <ul>{players.map(p => <RosterCardRow key={p.id} {...p} />)}</ul>

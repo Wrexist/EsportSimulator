@@ -18,7 +18,7 @@
  */
 
 import { produce, enableMapSet } from "immer"
-import { createEventsSlice } from "@/store/slices/events-slice"
+import { DECISION_SAVE_DEBOUNCE_MS, createEventsSlice } from "@/store/slices/events-slice"
 import type { GameEventSaveData, TeamSaveData } from "@/engine/save-types"
 import type { StoreState } from "@/store/types"
 
@@ -377,6 +377,51 @@ describe("resolveEventChoice — legend coach hire affordability", () => {
         const legend = after.staff.find(s => s.role === "coach")!
         expect(legend.id).toMatch(/^legend_coach_/)
         expect(after.teams[0].staffIds).toEqual(["analyst_1", legend.id])
+    })
+})
+
+describe("resolveEventChoice — answered decisions are saved (HOME-07)", () => {
+    beforeEach(() => jest.useFakeTimers())
+    afterEach(() => jest.useRealTimers())
+
+    function withSave(budget: number) {
+        const state = makeBaseState({
+            currentWeek: 5,
+            playerTeamId: "player",
+            saveId: "save_1",
+            isInitialized: true,
+            isLoading: false,
+            teams: [makeTeam("player", { budget } as never)],
+            staff: [],
+            financeLedger: [],
+            toasts: [],
+            acknowledgedEventIds: [],
+            eventsLog: [
+                makeEvent("legend_coach_opportunity_x", { type: "INFO", data: { legendId: "L1", legendName: "Legend", salaryCost: 15000 } as never }),
+                makeEvent("legend_coach_opportunity_y", { type: "INFO", data: { legendId: "L2", legendName: "Legend 2", salaryCost: 15000 } as never }),
+            ],
+        })
+        const saveGame = jest.fn().mockResolvedValue(undefined)
+        return { state: { ...state, saveGame } as StoreState, saveGame }
+    }
+
+    test("one debounced save after a burst of answers", () => {
+        const { state, saveGame } = withSave(100_000)
+        const h = makeHarness(state)
+        const slice = createEventsSlice(h.set, h.get)
+        slice.resolveEventChoice("legend_coach_opportunity_x", "hire")
+        slice.resolveEventChoice("legend_coach_opportunity_y", "decline")
+        expect(saveGame).not.toHaveBeenCalled()
+        jest.advanceTimersByTime(DECISION_SAVE_DEBOUNCE_MS)
+        expect(saveGame).toHaveBeenCalledTimes(1)
+    })
+
+    test("a refused answer writes nothing", () => {
+        const { state, saveGame } = withSave(1_000)
+        const h = makeHarness(state)
+        createEventsSlice(h.set, h.get).resolveEventChoice("legend_coach_opportunity_x", "hire")
+        jest.advanceTimersByTime(DECISION_SAVE_DEBOUNCE_MS * 2)
+        expect(saveGame).not.toHaveBeenCalled()
     })
 })
 

@@ -36,6 +36,12 @@ contextBridge.exposeInMainWorld('electron', {
         setSize: (width, height) => ipcRenderer.invoke('window-set-size', width, height),
         getSize: () => ipcRenderer.invoke('window-get-size'),
         isFullscreen: () => ipcRenderer.invoke('window-is-fullscreen'),
+        // Fullscreen changed (F11, the OS or the settings): callback(isFullscreen).
+        onFullscreenChange: (callback) => {
+            const handler = (_, isFullscreen) => callback(isFullscreen === true);
+            ipcRenderer.on('window-fullscreen-changed', handler);
+            return () => ipcRenderer.removeListener('window-fullscreen-changed', handler);
+        },
     },
     app: {
         getUserDataPath: () => ipcRenderer.invoke('app-get-user-data-path'),
