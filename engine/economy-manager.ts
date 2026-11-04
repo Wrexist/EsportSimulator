@@ -66,7 +66,7 @@ export const WEAPONS: Record<string, Weapon> = {
 
   // Shotguns
   NOVA: { id: "nova", name: "Nova", type: WeaponType.SHOTGUN, price: 1050, killReward: 900, power: 35 },
-  XM1014: { id: "xm1014", name: "XM1014", type: WeaponType.SHOTGUN, price: 2000, killReward: 900, power: 50 },
+  XM1014: { id: "xm1014", name: "XM1014", type: WeaponType.SHOTGUN, price: 2000, killReward: 600, power: 50 }, // CS2: $600 (script-v1 killRewardFor agrees)
   MAG7: { id: "mag7", name: "MAG-7", type: WeaponType.SHOTGUN, price: 1300, killReward: 900, power: 45 },
 }
 
