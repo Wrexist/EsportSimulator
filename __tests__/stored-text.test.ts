@@ -5,8 +5,9 @@
  */
 import { readFileSync } from "fs"
 import { join } from "path"
-import { LIST_REF, ORDINAL_REF, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
+import { JOIN_REF, LIST_REF, NUMBER_REF, ORDINAL_REF, STORED_REF, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
 import { pressText } from "@/engine/storylines/press-view"
+import { lineText, newsContent, newsTitle } from "@/lib/news-text"
 import { storedText } from "@/lib/stored-text"
 import { weekHeadline, type WeekReport } from "@/lib/week-report"
 import { rivalLine } from "@/engine/transfer-hype"
@@ -92,5 +93,18 @@ describe("press conferences", () => {
         setLocale("de")
         expect(pressText({ text: "Old question?" })).toBe("Old question?")
         expect(pressText({ text: "No comment.", ref: { key: "press.noComment" } })).toBe("Kein Kommentar.")
+    })
+})
+
+describe("storylines", () => {
+    test("news and story lines show the active language, old saves keep their English", () => {
+        const title = { key: "sl.ld.retired", count: 120, params: { name: "Ace", age: 33, rating: "1.10", trophies: { key: "sl.ld.trophies", count: 1 } } }
+        expect(tRefEn(title)).toBe("Ace retires at 33 after 120 official maps (career rating 1.10, 1 trophy).")
+        setLocale("de")
+        expect(newsTitle({ title: "x", titleRef: title })).toBe("Ace beendet mit 33 seine Karriere nach 120 offiziellen Maps (Karriere-Rating 1.10, 1 Titel).")
+        expect(newsContent({ content: "Old English." })).toBe("Old English.")
+        expect(lineText({ text: "x", ref: { key: JOIN_REF, params: { sep: " ", 0: { key: "sl.bp.log", params: { confidence: 30 } }, 1: { key: "sl.gk.reward", params: { fans: { key: NUMBER_REF, count: 12000 }, board: 5 } } } } }))
+            .toBe("Vorstandsvertrauen auf 30/100 gefallen. Der Lauf bringt 12.000 neue Follower, und das Vertrauen des Vorstands steigt um 5.")
+        expect(lineText({ text: "x", ref: { key: "sl.bp.setbacks", params: { causes: { key: LIST_REF, params: { 0: { key: STORED_REF, params: { text: "Lost to THEM" } } } } } } })).toBe("Jüngste Rückschläge: Lost to THEM.")
     })
 })

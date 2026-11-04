@@ -23,6 +23,7 @@ import type { StoryArcKind } from "@/engine/storylines/types"
 import { getLocale, listJoin, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { storyKindName } from "@/lib/story-names"
+import { lineText } from "@/lib/news-text"
 
 export const WEEK_REPORT_HISTORY = 4
 /** Busy weeks keep the most important entries (club, injuries, contracts, attributes, then the biggest condition swings). */
@@ -90,7 +91,7 @@ export interface WeekReport {
     /** Decisions settled by their default this week; their effects carry the cause "Unanswered: …". */
     unanswered?: ReportUnanswered[]
     /** Phase 5.3: the week's most important storyline beat (it leads the headline). */
-    story?: { kind: string; label: string; text: string }
+    story?: { kind: string; label: string; text: string; ref?: import("@/lib/i18n").TextRef }
     partial?: boolean
 }
 
@@ -262,7 +263,7 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
     // 7. Phase 5.3: the most important storyline beat of the played week or
     // the tick that closed it.
     const beat = leadingBeat(state.storylines, teamId, week, state.currentWeek)
-    const story = beat ? { kind: beat.arc.kind, label: STORY_KIND_LABEL[beat.arc.kind], text: beat.text } : undefined
+    const story = beat ? { kind: beat.arc.kind, label: STORY_KIND_LABEL[beat.arc.kind], text: beat.text, ...(beat.ref ? { ref: beat.ref } : {}) } : undefined
 
     const report: WeekReport = {
         v: 1, week, teamId, headline: "", changes, matches, warnings, kpis, names,
@@ -338,7 +339,7 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     const lowerFirst = (x: string) => x.charAt(0).toLowerCase() + x.slice(1)
     // Phase 5.3: a storyline beat leads ("Slump: …"), then the week's top clause.
     if (report.story) {
-        const story = t("wr.h.story", { label: storyKindName(report.story.kind as StoryArcKind), text: report.story.text.replace(/\.$/, "") })
+        const story = t("wr.h.story", { label: storyKindName(report.story.kind as StoryArcKind), text: lineText(report.story).replace(/[.。]$/, "") })
         const first = clauses[0] && matches.length > 0 && en ? lowerFirst(clauses[0]) : clauses[0]
         return first ? t("wr.h.storyAnd", { story, clause: first }) : t("wr.h.storyOnly", { story })
     }

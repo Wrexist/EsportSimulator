@@ -14,11 +14,10 @@
 import type { ArcCandidate, ArcDefinition, StoryContext } from "../common"
 import type { StoryArc } from "../types"
 import { PERSONALITY_TUNING as P, STORY_TUNING as S } from "@/lib/balance-tuning"
-import { PROMISE_LABEL } from "../../personality"
 import { evaluatePlayer } from "../../player-evaluation"
 import {
-    clubOf, departure, fmtRating, formOver, formRatings, logBeat, nameOf, nextBeat, raiseDecision, resolveArc,
-    rosterPlayers, stillAt, storyNews, takeAnswer, usd, waitForDesk,
+    clubRef, departedLine, fmtRating, formOver, formRatings, joined, logBeat, nameOf, nextBeat, raiseDecision, resolveArc,
+    rosterPlayers, said, stillAt, storyNews, takeAnswer, usd, waitForDesk, weeksRef,
 } from "../common"
 
 const num = (arc: StoryArc, key: string) => Number(arc.facts[key] ?? 0)
@@ -53,10 +52,12 @@ export const risingStar: ArcDefinition = {
     open(ctx, arc) {
         const p = ctx.player(arc.playerIds[0])
         const n = nameOf(p)
-        const career = p?.avgRating ? ` His career rating stands at ${fmtRating(p.avgRating)} over ${p.mapsPlayed ?? 0} official maps.` : ""
-        storyNews(ctx, arc, "b0", `${n}, ${num(arc, "age")}, is turning heads`,
-            `${n} is rated ${fmtRating(num(arc, "rating"))} over his last ${num(arc, "maps")} official maps for ${clubOf(ctx, arc.teamId)}, at ${num(arc, "age")}.${career}`)
-        logBeat(arc, ctx.week, `${n} rated ${fmtRating(num(arc, "rating"))} over his last ${num(arc, "maps")} maps at ${num(arc, "age")}.`)
+        const rating = fmtRating(num(arc, "rating"))
+        storyNews(ctx, arc, "b0", said("sl.rs.newsTitle", { name: n, age: num(arc, "age") }),
+            joined(" ",
+                said("sl.rs.newsBody", { name: n, rating, maps: num(arc, "maps"), club: clubRef(ctx, arc.teamId), age: num(arc, "age") }),
+                !!p?.avgRating && said("sl.rs.career", { rating: fmtRating(p.avgRating) }, p.mapsPlayed ?? 0)))
+        logBeat(arc, ctx.week, said("sl.rs.log", { name: n, rating, maps: num(arc, "maps"), age: num(arc, "age") }))
         nextBeat(arc, ctx.week)
     },
 
@@ -65,18 +66,14 @@ export const risingStar: ArcDefinition = {
         const n = nameOf(ctx.player(id))
         const choice = arc.beat >= 2
             ? takeAnswer(ctx, arc, "quiet", (ch, byDefault) =>
-                ch === "promise" ? `You promise ${n} a starting place.`
-                    : ch === "list" ? `${n} goes on the transfer list at ${usd(num(arc, "value"))}.`
-                        : byDefault ? "No answer by the deadline, so the club says nothing." : "The club says nothing.")
+                ch === "promise" ? said("sl.rs.ans.promise", { name: n })
+                    : ch === "list" ? said("sl.listedAt", { name: n, value: usd(num(arc, "value")) })
+                        : said(byDefault ? "sl.rs.ans.quietDefault" : "sl.rs.ans.quiet"))
             : null
         const p = stillAt(ctx, id, arc.teamId)
         if (!p) {
-            const move = departure(ctx, id, arc.startedWeek)
-            const sold = move?.toTeamId && move.toTeamId !== arc.teamId
-            const text = sold
-                ? `${n} has joined ${move!.toTeamName ?? clubOf(ctx, move!.toTeamId!)}${move!.fee > 0 ? ` for ${usd(move!.fee)}` : ""}.`
-                : `${n} has left ${clubOf(ctx, arc.teamId)}.`
-            storyNews(ctx, arc, "end", sold ? `${n} cashes in his rise` : `${n} leaves`, text)
+            const { line: text, joined: sold } = departedLine(ctx, arc, id, n)
+            storyNews(ctx, arc, "end", said(sold ? "sl.rs.soldTitle" : "sl.rs.leftTitle", { name: n }), text)
             return resolveArc(arc, ctx.week, sold ? "SOLD" : "LEFT", text)
         }
 
@@ -85,31 +82,32 @@ export const risingStar: ArcDefinition = {
             const value = Math.round(evaluatePlayer(p, undefined, undefined, ctx.week).transferValue)
             const myRank = team.worldRanking && team.worldRanking > 0 ? team.worldRanking : 999
             const able = ctx.save.teams.filter(t => t.id !== team.id && (t.worldRanking ?? 999) > 0 && (t.worldRanking ?? 999) < myRank && t.budget >= value).length
-            const ableText = able === 0 ? `No club ranked above ${team.name} has the funds to pay it.`
-                : `${able} club${able === 1 ? "" : "s"} ranked above ${team.name} ${able === 1 ? "has" : "have"} the funds to pay it.`
+            const ableText = able === 0 ? said("sl.rs.ableNone", { team: team.name }) : said("sl.rs.able", { team: team.name }, able)
             const raised = raiseDecision(ctx, arc, {
-                title: `${n}'s rise: your call`,
+                title: said("sl.rs.title", { name: n }),
                 playerId: id,
-                message: `${n} (${num(arc, "age")}) is rated ${fmtRating(num(arc, "rating"))} over his last ${num(arc, "maps")} official maps and his market value is ${usd(value)}. ${ableText}\n\n`
-                    + `• Promise him a starting place: morale +${S.RISING_PROMISE_MORALE}, loyalty +${S.RISING_PROMISE_LOYALTY}, and your word "${PROMISE_LABEL.START.promise}" for ${P.PROMISE_START_WEEKS} weeks (broken if he sits out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row while fit: morale ${P.PROMISE_BROKEN_MORALE}, loyalty ${P.PROMISE_BROKEN_LOYALTY}).\n`
-                    + `• List him: he goes on the transfer list at ${usd(value)}; clubs that can afford him may bid.\n`
-                    + `• Say nothing: no change.`,
+                message: joined("\n\n",
+                    joined(" ", said("sl.rs.msg", { name: n, age: num(arc, "age"), rating: fmtRating(num(arc, "rating")), maps: num(arc, "maps"), value: usd(value) }), ableText),
+                    joined("\n",
+                        said("sl.rs.optPromise", { morale: S.RISING_PROMISE_MORALE, loyalty: S.RISING_PROMISE_LOYALTY, promise: { key: "promise.START.promise" }, weeks: P.PROMISE_START_WEEKS, limit: P.PROMISE_START_BENCH_LIMIT, brokenMorale: P.PROMISE_BROKEN_MORALE, brokenLoyalty: P.PROMISE_BROKEN_LOYALTY }),
+                        said("sl.rs.optList", { value: usd(value) }),
+                        said("sl.rs.optQuiet"))),
                 choices: [
-                    { id: "promise", text: "Promise him a starting place", effects: { promise: "START", morale: S.RISING_PROMISE_MORALE, loyalty: S.RISING_PROMISE_LOYALTY } },
-                    { id: "list", text: "Cash in: put him on the transfer list", effects: { transferList: true } },
-                    { id: "quiet", text: "Say nothing", effects: {} },
+                    { id: "promise", text: said("sl.rs.c.promise"), effects: { promise: "START", morale: S.RISING_PROMISE_MORALE, loyalty: S.RISING_PROMISE_LOYALTY } },
+                    { id: "list", text: said("sl.rs.c.list"), effects: { transferList: true } },
+                    { id: "quiet", text: said("sl.rs.c.quiet"), effects: {} },
                 ],
                 defaultChoiceId: "quiet",
-                consequence: "says nothing about {name}",
-                label: `Rising star (${n})`,
+                consequence: said("sl.rs.cons", { name: "{name}" }),
+                label: said("sl.rs.label", { name: n }),
             })
             if (!raised) {
-                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", `The talk around ${n} dies down.`)
+                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", said("sl.rs.fade", { name: n }))
                 return
             }
-            storyNews(ctx, arc, "b1", `The market notices ${n}`, `${n}'s market value has reached ${usd(value)}. ${ableText}`)
+            storyNews(ctx, arc, "b1", said("sl.rs.marketTitle", { name: n }), joined(" ", said("sl.rs.marketBody", { name: n, value: usd(value) }), ableText))
             Object.assign(arc.facts, { value, able })
-            logBeat(arc, ctx.week, able === 0 ? `Market value ${usd(value)}; no higher-ranked club could pay it.` : `Market value ${usd(value)}; ${able} higher-ranked club${able === 1 ? "" : "s"} could pay it.`)
+            logBeat(arc, ctx.week, able === 0 ? said("sl.rs.logNone", { value: usd(value) }) : said("sl.rs.logAble", { value: usd(value) }, able))
             return nextBeat(arc, ctx.week)
         }
 
@@ -120,8 +118,9 @@ export const risingStar: ArcDefinition = {
             const last = p.personality?.lastPromise
             if (last && last.kind === "START" && last.week >= decided) {
                 const kept = last.outcome === "KEPT"
-                const text = kept ? `${n} stayed in the side over the ${P.PROMISE_START_WEEKS} weeks, as promised.` : `${n} sat out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row, breaking your promise.`
-                storyNews(ctx, arc, "end", kept ? `${n} keeps his place` : `${n} feels let down`, `${text} Morale ${kept ? `+${P.PROMISE_KEPT_MORALE}` : P.PROMISE_BROKEN_MORALE}, loyalty ${kept ? `+${P.PROMISE_KEPT_LOYALTY}` : P.PROMISE_BROKEN_LOYALTY}.`)
+                const text = kept ? said("sl.rs.kept", { name: n, weeks: weeksRef(P.PROMISE_START_WEEKS) }) : said("sl.rs.broken", { name: n }, P.PROMISE_START_BENCH_LIMIT)
+                storyNews(ctx, arc, "end", said(kept ? "sl.rs.keptTitle" : "sl.rs.brokenTitle", { name: n }),
+                    joined(" ", text, said("sl.moraleLoyalty", kept ? { morale: `+${P.PROMISE_KEPT_MORALE}`, loyalty: `+${P.PROMISE_KEPT_LOYALTY}` } : { morale: P.PROMISE_BROKEN_MORALE, loyalty: P.PROMISE_BROKEN_LOYALTY })))
                 resolveArc(arc, ctx.week, kept ? "KEPT" : "BROKEN", text)
             } else if (!p.personality?.promise && ctx.week > decided + P.PROMISE_START_WEEKS + 1) {
                 resolveArc(arc, ctx.week, "FADED")
@@ -130,16 +129,16 @@ export const risingStar: ArcDefinition = {
         }
         if (choice === "list") {
             if (!p.forSale || ctx.week >= decided + S.LISTED_RESOLVE_WEEKS) {
-                const text = p.forSale ? `No club has met the ${usd(num(arc, "value"))} valuation of ${n} in ${S.LISTED_RESOLVE_WEEKS} weeks.` : `${n} is off the transfer list and stays.`
-                storyNews(ctx, arc, "end", `${n} stays`, text)
+                const text = p.forSale ? said("sl.rs.unsold", { value: usd(num(arc, "value")), name: n, weeks: weeksRef(S.LISTED_RESOLVE_WEEKS) }) : said("sl.rs.offList", { name: n })
+                storyNews(ctx, arc, "end", said("sl.rs.staysTitle", { name: n }), text)
                 resolveArc(arc, ctx.week, "UNSOLD", text)
             }
             return
         }
         if (ctx.week >= decided + S.RISING_QUIET_RESOLVE_WEEKS) {
             const form = recentRating(ctx, id, arc.teamId)
-            const text = form ? `${n} is now rated ${fmtRating(form.rating)} over his last ${form.maps} official maps.` : `${n} has played few official maps since.`
-            storyNews(ctx, arc, "end", `${n}: where the rise stands`, text)
+            const text = form ? said("sl.rs.now", { name: n, rating: fmtRating(form.rating), maps: form.maps }) : said("sl.rs.fewMaps", { name: n })
+            storyNews(ctx, arc, "end", said("sl.rs.standsTitle", { name: n }), text)
             resolveArc(arc, ctx.week, "QUIET", text)
         }
     },

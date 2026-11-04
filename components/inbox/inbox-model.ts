@@ -24,7 +24,8 @@ import { getEventTitle, isPendingDecisionEvent, isTransferRumor } from "@/lib/ev
 import { DIGEST_TYPE, digestItems, type DigestItem } from "@/lib/inbox-digest"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { PERSONALITY_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
-import { intlLocale, isTextRef, t, tn, tRef } from "@/lib/i18n"
+import { intlLocale, isTextRef, t, tn, tRef, type TextRef } from "@/lib/i18n"
+import { newsContent, newsTitle } from "@/lib/news-text"
 
 export type InboxKind = "decision" | "message" | "news"
 export type DecisionKind = "choice" | "job_offer" | "transfer_offer"
@@ -45,6 +46,8 @@ export interface NewsFeedLike {
     id: string
     title: string
     content: string
+    titleRef?: TextRef
+    contentRef?: TextRef
     week: number
     category?: string
 }
@@ -221,7 +224,7 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
             return span ? tn("ib.subj.digestSpan", items.length, { span }) : tn("ib.subj.digest", items.length)
         }
         default: {
-            const title = isTextRef(data.titleRef) ? tRef(data.titleRef) : data.title || getEventTitle(event)
+            const title = isTextRef(data.titleRef) ? getEventTitle(event) : data.title || getEventTitle(event)
             return stripEmoji(String(title)).trim() || t("ib.subj.notification")
         }
     }
@@ -376,6 +379,8 @@ export interface ChoiceOutcome { chips: EffectChip[]; blockedReason?: string }
 export interface ChoiceLike {
     id: string
     text: string
+    /** The choice as a translation key (storylines): shown in the active language. */
+    ref?: TextRef
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- loose runtime bundle (fatigue/chemistry are not in the save type)
     effects?: Record<string, any>
 }
@@ -467,7 +472,8 @@ export function describeChoice(event: GameEventSaveData, choice: ChoiceLike, bud
         if (num(through.form)) chips.push({ label: t("ib.fx.form", { n: signed(through.form as number) }), tone: "negative" })
         chips.push({ label: t("ib.fx.worsens", { pct: Math.round((through.escalateChance as number) * 100) }), tone: "negative" })
     }
-    if (typeof fx.follows === "string" && fx.follows) chips.push({ label: fx.follows, tone: "neutral" })
+    if (isTextRef(fx.follows)) chips.push({ label: tRef(fx.follows), tone: "neutral" })
+    else if (typeof fx.follows === "string" && fx.follows) chips.push({ label: fx.follows, tone: "neutral" })
     if (chips.length === 0) chips.push({ label: t("ib.fx.none"), tone: "neutral" })
     return { chips, blockedReason }
 }
@@ -481,6 +487,7 @@ const EFFECT_SUFFIX = new RegExp(String.raw`:\s*${EFFECT_TOKEN}(?:\s*,\s*${EFFEC
  * state the effect the store really applies.
  */
 export function choiceLabel(choice: ChoiceLike): string {
+    if (isTextRef(choice.ref)) return tRef(choice.ref)
     const trimmed = choice.text.replace(/\s*\([^()]*\)\s*$/, "").replace(EFFECT_SUFFIX, "").trim()
     return trimmed || choice.text
 }
@@ -517,7 +524,7 @@ export function eventToItem(event: GameEventSaveData, ctx: InboxContext): InboxI
 export function buildInboxItems(sources: InboxSources, ctx: InboxContext): InboxItem[] {
     const items: InboxItem[] = sources.eventsLog.filter(e => !isFolded(e)).map(e => eventToItem(e, ctx))
     for (const n of sources.newsFeed ?? []) {
-        items.push({ key: `news:${n.id}`, source: "news", kind: "news", decision: null, week: n.week, unread: false, sender: t("ib.from.esportsWire"), subject: n.title, preview: n.content, news: n })
+        items.push({ key: `news:${n.id}`, source: "news", kind: "news", decision: null, week: n.week, unread: false, sender: t("ib.from.esportsWire"), subject: newsTitle(n), preview: newsContent(n), news: n })
     }
     for (const p of sources.socialFeed ?? []) {
         items.push({ key: `social:${p.id}`, source: "social", kind: "news", decision: null, week: p.week, unread: false, sender: p.user?.handle || p.user?.name || t("ib.social"), subject: p.user?.name || t("ib.socialPost"), preview: p.content, social: p })

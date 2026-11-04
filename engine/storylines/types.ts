@@ -29,8 +29,10 @@ export const STORY_ARC_KINDS: readonly StoryArcKind[] = [
 /** One beat as it happened. */
 export interface StoryLogEntry {
     week: number
-    /** One broadcast line with the real names and numbers. */
+    /** One broadcast line with the real names and numbers, in English. */
     text: string
+    /** The same line as a translation key: shown in the active language. */
+    ref?: import("@/lib/i18n").TextRef
     /** Answer given at this beat (choice id), when it raised a decision. */
     choice?: string
 }

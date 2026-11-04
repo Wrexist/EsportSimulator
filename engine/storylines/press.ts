@@ -27,7 +27,7 @@ import { getRivalryBetween, isDerby } from "../history-tracker"
 import { captainId } from "../personality"
 import { divisionOfTeam, isLeagueMatchId, tablePosition } from "../season/regional-league"
 import { biggestRival } from "./arcs/rivalry"
-import { fmtRating, formOver, logBeat, nameOf } from "./common"
+import { divisionRef, fmtRating, formOver, logBeat, nameOf } from "./common"
 
 import { t, tn, tRefEn, ORDINAL_REF, LIST_REF, type TextRef } from "@/lib/i18n"
 import { PRESS_PREFIX, pressDataOf, pressEventId, type PressAnswer, type PressData, type PressQuestion, type PressReason } from "./press-view"
@@ -47,12 +47,6 @@ function said(key: string, params?: TextRef["params"], count?: number): { text: 
 const answer = (id: string, key: string, effects: ChoiceEffects, afterResult?: PressAnswer["afterResult"]): PressAnswer =>
     ({ id, ...said(`press.a.${key}`), effects, ...(afterResult ? { afterResult } : {}) })
 
-const REGION_ID: Record<string, string> = { Europe: "EUROPE", CIS: "CIS", Americas: "AMERICAS", "Asia-Pacific": "ASIA_PACIFIC" }
-/** A stored division name ("Europe Division 2") as a translatable value; anything else as stored. */
-function divisionRef(name: string): TextRef | string {
-    const m = /^(Europe|CIS|Americas|Asia-Pacific) Division (\d+)$/.exec(name.trim())
-    return m ? { key: "league.divisionName", params: { region: { key: `region.${REGION_ID[m[1]]}` }, level: Number(m[2]) } } : name
-}
 const h2hRef = (r: { wins: number; losses: number }): TextRef =>
     ({ key: r.wins > r.losses ? "press.h2h.lead" : r.wins < r.losses ? "press.h2h.trail" : "press.h2h.level", params: { w: r.wins, l: r.losses } })
 

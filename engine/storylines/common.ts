@@ -11,6 +11,29 @@ import type { ChoiceEffects } from "../event-choice"
 import { STORY_TUNING as S } from "@/lib/balance-tuning"
 import { evaluatePlayer } from "../player-evaluation"
 import { MAX_OPEN_DECISIONS, isOpenDecision } from "../decision-deadlines"
+import { JOIN_REF, tRefEn, type TextParam, type TextRef } from "@/lib/i18n"
+
+// ---------------------------------------------------------------- lines
+
+/** A line saved as a translation key next to its English copy (the copy serves older readers and logs). */
+export interface Said { text: string; ref: TextRef }
+/** A story line: plain English (older code paths) or a translation key. */
+export type Line = string | Said
+
+export function said(key: string, params?: Record<string, TextParam>, count?: number): Said {
+    const ref: TextRef = { key, ...(params ? { params } : {}), ...(count !== undefined ? { count } : {}) }
+    return { text: tRefEn(ref), ref }
+}
+/** Parts joined with `sep` (a paragraph and its bullet lines). */
+export function joined(sep: string, ...parts: Array<Said | string | null | undefined | false>): Said {
+    const params: Record<string, TextParam> = { sep }
+    parts.filter((x): x is Said | string => !!x).forEach((x, i) => { params[i] = typeof x === "string" ? x : x.ref })
+    return said(JOIN_REF, params)
+}
+const textOf = (l: Line): string => (typeof l === "string" ? l : l.text)
+const refOf = (l: Line): TextRef | undefined => (typeof l === "string" ? undefined : l.ref)
+/** A count of weeks ("3 weeks") as a nested value. */
+export const weeksRef = (n: number): TextRef => ({ key: "sl.weeks", count: n })
 
 export interface StoryContext {
     save: GameSave
@@ -86,6 +109,8 @@ export const nameOf = (p: Pick<PlayerSaveData, "id"> & Partial<Pick<PlayerSaveDa
     p ? p.nickname || p.name || p.id : "A player"
 
 export const clubOf = (ctx: StoryContext, id: string): string => ctx.team(id)?.name ?? "another club"
+/** The club's name, or "another club" in the reader's language. */
+export const clubRef = (ctx: StoryContext, id: string): TextParam => ctx.team(id)?.name ?? { key: "sl.anotherClub" }
 
 export const usd = (n: number): string => `$${Math.round(n).toLocaleString("en-US")}`
 
@@ -99,6 +124,8 @@ const ORDINAL_WORDS = ["", "", "second", "third", "fourth", "fifth"]
 export function highestText(rank: number): string {
     return rank <= 1 ? "highest" : `${ORDINAL_WORDS[rank] ?? `${rank}th`}-highest`
 }
+/** "the club's highest-rated player", "… third-highest-rated …" as a nested value. */
+export const rankedRef = (rank: number): TextRef => (rank <= 1 ? { key: "sl.topRated" } : { key: "sl.nthRated", params: { n: { key: "@ordinal", count: rank } } })
 
 export function average(xs: readonly number[]): number {
     return xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : 0
@@ -141,15 +168,32 @@ export function departure(ctx: StoryContext, playerId: string, sinceWeek: number
     return undefined
 }
 
+/**
+ * How a player left the club since the story began: retired, joined another
+ * club (with the fee, or "on a free" when `free` is set), or simply left.
+ */
+export function departedLine(ctx: StoryContext, arc: StoryArc, playerId: string, n: string, opts: { free?: boolean } = {}): { line: Said; joined: boolean } {
+    if (ctx.player(playerId)?.isRetired) return { line: said("sl.retired", { name: n }), joined: false }
+    const move = departure(ctx, playerId, arc.startedWeek)
+    if (move?.toTeamId && move.toTeamId !== arc.teamId) {
+        const club = move.toTeamName ?? clubRef(ctx, move.toTeamId)
+        const line = move.fee > 0 ? said("sl.joinedFee", { name: n, club, fee: usd(move.fee) })
+            : opts.free ? said("sl.joinedFree", { name: n, club }) : said("sl.joined", { name: n, club })
+        return { line, joined: true }
+    }
+    return { line: said("sl.left", { name: n, club: clubRef(ctx, arc.teamId) }), joined: false }
+}
+
 // ---------------------------------------------------------------- arc state
 
-export function logBeat(arc: StoryArc, week: number, text: string, choice?: string): void {
-    arc.log.push({ week, text, ...(choice ? { choice } : {}) })
+export function logBeat(arc: StoryArc, week: number, line: Line, choice?: string): void {
+    const ref = refOf(line)
+    arc.log.push({ week, text: textOf(line), ...(ref ? { ref } : {}), ...(choice ? { choice } : {}) })
     if (arc.log.length > S.LOG_LENGTH) arc.log.splice(0, arc.log.length - S.LOG_LENGTH)
     arc.updatedWeek = week
 }
 
-export function resolveArc(arc: StoryArc, week: number, outcome: string, text?: string): void {
+export function resolveArc(arc: StoryArc, week: number, outcome: string, text?: Line): void {
     if (text) logBeat(arc, week, text)
     arc.state = "RESOLVED"
     arc.outcome = outcome
@@ -175,31 +219,32 @@ const NEWS_CATEGORY: Record<StoryArcKind, NewsFeedItem["category"]> = {
 }
 
 /** Publish a beat to the news feed (once per arc and key). */
-export function storyNews(ctx: StoryContext, arc: StoryArc, key: string, title: string, content: string): void {
+export function storyNews(ctx: StoryContext, arc: StoryArc, key: string, title: Line, content: Line): void {
     const id = `story_${arc.id}_${key}`
     const feed = ctx.save.newsFeed
     if (feed.some(n => n.id === id)) return
+    const titleRef = refOf(title), contentRef = refOf(content)
     feed.unshift({
-        id, title, content, week: ctx.week, category: NEWS_CATEGORY[arc.kind], teamId: arc.teamId,
+        id, title: textOf(title), content: textOf(content), ...(titleRef ? { titleRef } : {}), ...(contentRef ? { contentRef } : {}), week: ctx.week, category: NEWS_CATEGORY[arc.kind], teamId: arc.teamId,
         ...(arc.playerIds[0] ? { playerId: arc.playerIds[0] } : {}),
     })
 }
 
 export interface StoryChoice {
     id: string
-    text: string
+    text: Line
     effects: ChoiceEffects
 }
 
 export interface DecisionSpec {
-    title: string
-    message: string
+    title: Line
+    message: Line
     choices: StoryChoice[]
-    /** Choice applied if unanswered, and how the deadline note words it ("{name}" = the player). */
+    /** Choice applied if unanswered, and how the deadline note words it ("{name}" = the player in English; `{{name}}` in a key). */
     defaultChoiceId: string
-    consequence: string
+    consequence: Line
     /** Report label for an unanswered decision. */
-    label: string
+    label: Line
     playerId?: string
 }
 
@@ -218,16 +263,22 @@ export function raiseDecision(ctx: StoryContext, arc: StoryArc, spec: DecisionSp
             week: ctx.week,
             acknowledged: false,
             data: {
-                title: spec.title,
-                message: spec.message,
+                title: textOf(spec.title),
+                message: textOf(spec.message),
+                ...(refOf(spec.title) ? { titleRef: refOf(spec.title) } : {}),
+                ...(refOf(spec.message) ? { messageRef: refOf(spec.message) } : {}),
                 teamId: arc.teamId,
                 ...(spec.playerId ? { playerId: spec.playerId } : {}),
                 storyArcId: arc.id,
                 storyKind: arc.kind,
                 deadlineWeek: ctx.week + S.DECISION_WINDOW,
-                storyDefault: { choiceId: spec.defaultChoiceId, consequence: spec.consequence, label: spec.label },
+                storyDefault: {
+                    choiceId: spec.defaultChoiceId, consequence: textOf(spec.consequence), label: textOf(spec.label),
+                    ...(refOf(spec.consequence) ? { consequenceRef: refOf(spec.consequence) } : {}),
+                    ...(refOf(spec.label) ? { labelRef: refOf(spec.label) } : {}),
+                },
             },
-            choices: spec.choices.map(c => ({ id: c.id, text: c.text, effects: c.effects as Record<string, unknown> })),
+            choices: spec.choices.map(c => ({ id: c.id, text: textOf(c.text), ...(refOf(c.text) ? { ref: refOf(c.text) } : {}), effects: c.effects as Record<string, unknown> })),
         } as unknown as GameEventSaveData
         ctx.save.eventsLog.push(event)
         ctx.openDecisions++
@@ -264,7 +315,7 @@ export function answeredByDefault(ctx: StoryContext, arc: StoryArc): boolean {
 }
 
 /** Record the answer on the arc once; returns it (or null while open). */
-export function takeAnswer(ctx: StoryContext, arc: StoryArc, defaultChoiceId: string, line: (choice: string, byDefault: boolean) => string): string | null {
+export function takeAnswer(ctx: StoryContext, arc: StoryArc, defaultChoiceId: string, line: (choice: string, byDefault: boolean) => Line): string | null {
     if (arc.choice) return arc.choice
     const choice = answerOf(ctx, arc, defaultChoiceId)
     if (choice === null) return null
@@ -288,6 +339,23 @@ export function competitionName(ctx: StoryContext, match: { tournamentId?: strin
     if (match.isScrim || !match.tournamentId || match.tournamentId === "SCRIM") return "a friendly"
     if (match.tournamentId.startsWith("league_")) return String(match.stage ?? "").split(" · ")[0] || "the league"
     return ctx.save.tournaments.find(t => t.id === match.tournamentId)?.name ?? "the event"
+}
+
+/** competitionName as a translatable value. */
+export function competitionRef(ctx: StoryContext, match: { tournamentId?: string | null; stage?: string | null; isScrim?: boolean }): TextParam {
+    if (match.isScrim || !match.tournamentId || match.tournamentId === "SCRIM") return { key: "sl.aFriendly" }
+    if (match.tournamentId.startsWith("league_")) {
+        const division = String(match.stage ?? "").split(" · ")[0]
+        return division ? divisionRef(division) : { key: "sl.theLeague" }
+    }
+    return ctx.save.tournaments.find(t => t.id === match.tournamentId)?.name ?? { key: "sl.theEvent" }
+}
+
+const REGION_ID: Record<string, string> = { Europe: "EUROPE", CIS: "CIS", Americas: "AMERICAS", "Asia-Pacific": "ASIA_PACIFIC" }
+/** A stored division name ("Europe Division 2") as a translatable value; anything else as stored. */
+export function divisionRef(name: string): TextRef | string {
+    const m = /^(Europe|CIS|Americas|Asia-Pacific) Division (\d+)$/.exec(name.trim())
+    return m ? { key: "league.divisionName", params: { region: { key: `region.${REGION_ID[m[1]]}` }, level: Number(m[2]) } } : name
 }
 
 /** Season week 1..52. */

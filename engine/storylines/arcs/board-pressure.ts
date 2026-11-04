@@ -13,29 +13,43 @@
 import type { ArcDefinition, StoryContext } from "../common"
 import type { BoardObjective } from "../../save-types"
 import { BOARD_TUNING as B, STORY_TUNING as S } from "@/lib/balance-tuning"
-import { clubOf, logBeat, nextBeat, resolveArc, storyNews, usd, weekOfSeason } from "../common"
-import { plural } from "@/lib/plural"
+import { ORDINAL_REF, STORED_REF, type TextParam, type TextRef } from "@/lib/i18n"
+import { clubRef, divisionRef, joined, logBeat, nextBeat, resolveArc, said, storyNews, usd, weekOfSeason, weeksRef } from "../common"
 
-const ordinal = (n: number) => {
-    const s = ["th", "st", "nd", "rd"], v = n % 100
-    return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`
+const ord = (n: number): TextRef => ({ key: ORDINAL_REF, count: n })
+
+function standing(o: BoardObjective): TextRef {
+    if (o.current === undefined) return { key: "sl.bp.standing.none" }
+    return o.id === "finance" ? { key: "sl.bp.standing.finance", params: { current: usd(o.current), target: usd(o.target) } }
+        : o.id === "ranking" ? { key: "sl.bp.standing.ranking", params: { current: o.current, target: o.target } }
+            : o.id === "trophies" ? { key: "sl.bp.standing.trophies", params: { current: o.current, target: o.target } }
+                : { key: "sl.bp.standing.place", params: { current: ord(o.current), target: ord(o.target) } }
 }
 
-function standing(o: BoardObjective): string {
-    if (o.current === undefined) return "no standing yet"
-    return o.id === "finance" ? `${usd(o.current)} in the bank against ${usd(o.target)}`
-        : o.id === "ranking" ? `ranked #${o.current} against a target of #${o.target}`
-            : `${ordinal(o.current)} against a target of ${ordinal(o.target)}`
+/** An objective as a demand ("finish 7th or better in X"), read from its stored label and target. */
+function demand(o: BoardObjective): TextRef {
+    const l = o.label ?? ""
+    let m: RegExpMatchArray | null
+    if (o.id === "league") {
+        if ((m = l.match(/^Win promotion from (.+) \(top (\d+)\)$/))) return { key: "sl.bp.demand.promotion", params: { division: divisionRef(m[1]), n: Number(m[2]) } }
+        if ((m = l.match(/^Avoid relegation from (.+) \((\d+)\w* or better\)$/))) return { key: "sl.bp.demand.avoid", params: { division: divisionRef(m[1]), position: ord(Number(m[2])) } }
+        if ((m = l.match(/^Finish (\d+)\w* or better in (.+)$/))) return { key: "sl.bp.demand.finish", params: { position: ord(Number(m[1])), division: divisionRef(m[2]) } }
+        if ((m = l.match(/^Win (.+)$/))) return { key: "sl.bp.demand.win", params: { division: divisionRef(m[1]) } }
+    }
+    if (o.id === "ranking") return { key: "sl.bp.demand.ranking", params: { rank: o.target } }
+    if (o.id === "finance") return { key: "sl.bp.demand.finance", params: { amount: usd(o.target) } }
+    if (o.id === "trophies") return { key: "sl.bp.demand.trophies", count: o.target }
+    const text = l.replace(/^Budget discipline:\s*/i, "")
+    return { key: STORED_REF, params: { text: text.charAt(0).toLowerCase() + text.slice(1) } }
 }
 
-/** An objective label as a demand: "Finish 7th or better in X" → "finish 7th or better in X". */
-function demand(label: string): string {
-    const text = label.replace(/^Budget discipline:\s*/i, "")
-    return text.charAt(0).toLowerCase() + text.slice(1)
+function manager(ctx: StoryContext): TextParam {
+    return ctx.save.managerDetails?.name || { key: "sl.bp.theManager" }
 }
 
-function manager(ctx: StoryContext): string {
-    return ctx.save.managerDetails?.name || "the manager"
+/** The board's recent setbacks (stored English causes), lower-cased, as a list. */
+function joinedCauses(causes: string[]): TextRef {
+    return { key: "@list", params: Object.fromEntries(causes.map((c, i) => [i, { key: STORED_REF, params: { text: c } }])) }
 }
 
 export const boardPressure: ArcDefinition = {
@@ -56,34 +70,36 @@ export const boardPressure: ArcDefinition = {
     },
 
     open(ctx, arc) {
-        const club = clubOf(ctx, arc.teamId)
-        const causes = String(arc.facts.causes || "")
-        storyNews(ctx, arc, "b0", `Pressure mounts on ${manager(ctx)} at ${club}`,
-            `Board confidence at ${club} has fallen to ${arc.facts.confidence}/100.${causes ? ` Recent setbacks: ${causes.toLowerCase()}.` : ""} `
-            + `Below ${B.WARN_BELOW} the board issues a warning, below ${B.NOTICE_BELOW} the manager is on notice, and a manager on notice is dismissed at ${B.SACK_AT_OR_BELOW}.`)
-        logBeat(arc, ctx.week, `Board confidence down to ${arc.facts.confidence}/100.`)
+        const club = clubRef(ctx, arc.teamId)
+        const causes = String(arc.facts.causes || "").split("; ").filter(Boolean)
+        storyNews(ctx, arc, "b0", said("sl.bp.newsTitle", { manager: manager(ctx), club }),
+            joined(" ",
+                said("sl.bp.fallen", { club, confidence: String(arc.facts.confidence) }),
+                causes.length > 0 && said("sl.bp.setbacks", { causes: joinedCauses(causes) }),
+                said("sl.bp.rules", { warn: B.WARN_BELOW, notice: B.NOTICE_BELOW, sack: B.SACK_AT_OR_BELOW })))
+        logBeat(arc, ctx.week, said("sl.bp.log", { confidence: String(arc.facts.confidence) }))
         nextBeat(arc, ctx.week, S.BOARD_ULTIMATUM_AFTER_WEEKS)
     },
 
     advance(ctx, arc) {
-        const club = clubOf(ctx, arc.teamId)
+        const club = clubRef(ctx, arc.teamId)
         if (ctx.save.gameOverReason === "SACKED") {
-            const text = `${manager(ctx)} has been dismissed by ${club}.`
-            storyNews(ctx, arc, "end", `${club} part ways with ${manager(ctx)}`, text)
+            const text = said("sl.bp.sacked", { manager: manager(ctx), club })
+            storyNews(ctx, arc, "end", said("sl.bp.sackedTitle", { club, manager: manager(ctx) }), text)
             return resolveArc(arc, ctx.week, "SACKED", text)
         }
         if (ctx.save.playerTeamId !== arc.teamId) {
             // He left before the board decided: a job elsewhere, not a dismissal.
-            const text = `${manager(ctx)} leaves ${club} for ${clubOf(ctx, ctx.save.playerTeamId)} before the board decides.`
-            storyNews(ctx, arc, "end", `${manager(ctx)} walks away from ${club}`, text)
+            const text = said("sl.bp.left", { manager: manager(ctx), club, other: clubRef(ctx, ctx.save.playerTeamId) })
+            storyNews(ctx, arc, "end", said("sl.bp.leftTitle", { manager: manager(ctx), club }), text)
             return resolveArc(arc, ctx.week, "LEFT", text)
         }
         const board = ctx.save.boardState
         if (!board) return resolveArc(arc, ctx.week, "VOID")
         const c = Math.round(board.confidence)
         if (board.confidence >= B.RECOVERED_AT) {
-            const text = `${manager(ctx)} steadies the ship, board confidence back to ${c}/100.`
-            storyNews(ctx, arc, "end", `${manager(ctx)} survives at ${club}`, text)
+            const text = said("sl.bp.survives", { manager: manager(ctx), confidence: c })
+            storyNews(ctx, arc, "end", said("sl.bp.survivesTitle", { manager: manager(ctx), club }), text)
             return resolveArc(arc, ctx.week, "SURVIVES", text)
         }
         if (arc.beat === 1) {
@@ -91,17 +107,17 @@ export const boardPressure: ArcDefinition = {
             const o = behind.find(x => x.id === "league") ?? behind.find(x => x.id === "ranking") ?? behind[0]
             const weeksLeft = 52 - weekOfSeason(ctx.week)
             const text = o
-                ? `The board's message to ${manager(ctx)}: ${demand(o.label)}. ${club} are ${standing(o)}, with ${plural(weeksLeft, "week")} of the season left. Confidence: ${c}/100.`
-                : `The board's message to ${manager(ctx)}: results must improve. Confidence: ${c}/100, with ${plural(weeksLeft, "week")} of the season left.`
-            storyNews(ctx, arc, "b1", `${club} board sets out its demand`, text)
-            logBeat(arc, ctx.week, o ? `The board demands that the club ${demand(o.label)} (${standing(o)}).` : "The board demands better results.")
+                ? said("sl.bp.message", { manager: manager(ctx), demand: demand(o), club, standing: standing(o), weeks: weeksRef(weeksLeft), confidence: c })
+                : said("sl.bp.demandResults", { manager: manager(ctx), confidence: c, weeks: weeksRef(weeksLeft) })
+            storyNews(ctx, arc, "b1", said("sl.bp.demandTitle", { club }), text)
+            logBeat(arc, ctx.week, o ? said("sl.bp.logDemand", { demand: demand(o), standing: standing(o) }) : said("sl.bp.logResults"))
             return nextBeat(arc, ctx.week)
         }
         arc.nextWeek = ctx.week + 1
         // The season review settles it either way.
         if (weekOfSeason(ctx.week) === 52 || ctx.week >= arc.startedWeek + S.BOARD_MAX_WEEKS) {
-            const text = `${manager(ctx)} is still in post at ${club}, board confidence ${c}/100${board.onNotice ? ", on notice" : ""}.`
-            storyNews(ctx, arc, "end", `${manager(ctx)} hangs on at ${club}`, text)
+            const text = said(board.onNotice ? "sl.bp.hangsOnNotice" : "sl.bp.hangsOn", { manager: manager(ctx), club, confidence: c })
+            storyNews(ctx, arc, "end", said("sl.bp.hangsOnTitle", { manager: manager(ctx), club }), text)
             resolveArc(arc, ctx.week, "HANGS_ON", text)
         }
     },

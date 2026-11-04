@@ -13,12 +13,8 @@ import type { RivalryData, TeamSaveData } from "../../save-types"
 import { STORY_TUNING as S } from "@/lib/balance-tuning"
 import { getBiggestRival, getRivalryBetween } from "../../history-tracker"
 import { sideScore } from "@/lib/week-changes"
-import { clubOf, competitionName, fmtRating, logBeat, nameOf, nextBeat, resolveArc, storyNews } from "../common"
-
-const ordinal = (n: number) => {
-    const s = ["th", "st", "nd", "rd"], v = n % 100
-    return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`
-}
+import { ORDINAL_REF, type TextRef } from "@/lib/i18n"
+import { clubRef, competitionRef, fmtRating, joined, logBeat, nameOf, nextBeat, resolveArc, said, storyNews } from "../common"
 
 /** The club's biggest rival, once they have met RIVAL_MIN_MEETINGS times. */
 export function biggestRival(team: TeamSaveData | undefined): RivalryData | null {
@@ -30,6 +26,10 @@ export function biggestRival(team: TeamSaveData | undefined): RivalryData | null
 export function headToHead(r: Pick<RivalryData, "wins" | "losses">): string {
     return r.wins > r.losses ? `leads ${r.wins}–${r.losses}` : r.wins < r.losses ? `trails ${r.wins}–${r.losses}` : `level at ${r.wins}–${r.losses}`
 }
+
+/** headToHead as a translatable value (same keys as the press conference). */
+export const headToHeadRef = (r: Pick<RivalryData, "wins" | "losses">): TextRef =>
+    ({ key: r.wins > r.losses ? "press.h2h.lead" : r.wins < r.losses ? "press.h2h.trail" : "press.h2h.level", params: { w: r.wins, l: r.losses } })
 
 function nextFixture(ctx: StoryContext, teamId: string, rivalId: string) {
     let best: (typeof ctx.save.scheduledMatches)[number] | undefined
@@ -58,18 +58,19 @@ export const rivalry: ArcDefinition = {
     },
 
     open(ctx, arc) {
-        const club = clubOf(ctx, arc.teamId), opp = clubOf(ctx, arc.clubIds[0])
+        const club = clubRef(ctx, arc.teamId), opp = clubRef(ctx, arc.clubIds[0])
         const m = ctx.save.scheduledMatches.find(x => x.id === arc.facts.matchId)
-        const where = m ? competitionName(ctx, m) : "the next round"
-        const h2h = headToHead({ wins: Number(arc.facts.wins), losses: Number(arc.facts.losses) })
-        storyNews(ctx, arc, "b0", `${club} v ${opp}: the rivalry resumes`,
-            `${club} and ${opp} meet for the ${ordinal(Number(arc.facts.meetings) + 1)} time in Week ${arc.facts.matchWeek} (${where}). ${club} ${h2h} in the head-to-head. Rivalry: ${String(arc.facts.intensity).toLowerCase()}.`)
-        logBeat(arc, ctx.week, `${club} ${h2h} against ${opp} before meeting ${Number(arc.facts.meetings) + 1} in Week ${arc.facts.matchWeek}.`)
+        const where = m ? competitionRef(ctx, m) : { key: "sl.riv.nextRound" }
+        const h2h = headToHeadRef({ wins: Number(arc.facts.wins), losses: Number(arc.facts.losses) })
+        const meeting = Number(arc.facts.meetings) + 1
+        storyNews(ctx, arc, "b0", said("sl.riv.newsTitle", { club, opp }),
+            said("sl.riv.newsBody", { club, opp, nth: { key: ORDINAL_REF, count: meeting }, week: String(arc.facts.matchWeek), where, h2h, intensity: { key: `rivalry.intensity.${String(arc.facts.intensity)}` } }))
+        logBeat(arc, ctx.week, said("sl.riv.log", { club, h2h, opp, n: meeting, week: String(arc.facts.matchWeek) }))
         nextBeat(arc, ctx.week)
     },
 
     advance(ctx, arc) {
-        const club = clubOf(ctx, arc.teamId), opp = clubOf(ctx, arc.clubIds[0])
+        const club = clubRef(ctx, arc.teamId), opp = clubRef(ctx, arc.clubIds[0])
         const done = ctx.save.completedMatches.find(c => c.id === arc.facts.matchId)
         if (!done?.result) {
             // Not played yet; a fixture that disappeared (withdrawn, compacted) ends the story.
@@ -81,7 +82,7 @@ export const rivalry: ArcDefinition = {
         const won = done.result.winnerId === arc.teamId
         const score = sideScore(done.result, isHome)
         if (!done.result.maps?.length) {
-            const text = `${won ? `${club} win` : `${opp} win`} the derby by forfeit.`
+            const text = said("sl.riv.forfeit", { club: won ? club : opp })
             storyNews(ctx, arc, "b1", text, text)
             return resolveArc(arc, ctx.week, won ? "WON" : "LOST", text)
         }
@@ -89,13 +90,17 @@ export const rivalry: ArcDefinition = {
         const mvp = mvpId ? ctx.player(mvpId) : undefined
         const mvpRating = mvpId ? done.result.playerStats?.[mvpId]?.rating : undefined
         const after = getRivalryBetween(ctx.team(arc.teamId) ?? ({} as TeamSaveData), arc.clubIds[0])
-        const mvpLine = mvp ? ` MVP: ${nameOf(mvp)}${typeof mvpRating === "number" && Number.isFinite(mvpRating) ? ` (${fmtRating(mvpRating)} rating)` : ""}.` : ""
-        const h2hLine = after ? ` Head-to-head: ${club} ${headToHead(after)}.` : ""
-        const title = won ? `${club} take the derby ${score}` : `${opp} take the derby, ${club} lose ${score}`
-        const text = `${club} ${won ? "beat" : "lost to"} ${opp} ${score} in ${competitionName(ctx, done)}.${mvpLine}${h2hLine}`
+        const rated = typeof mvpRating === "number" && Number.isFinite(mvpRating)
+        const title = said(won ? "sl.riv.wonTitle" : "sl.riv.lostTitle", { club, opp, score })
+        const text = joined(" ",
+            said(won ? "sl.riv.won" : "sl.riv.lost", { club, opp, score, competition: competitionRef(ctx, done) }),
+            mvp && (rated ? said("sl.riv.mvpRated", { name: nameOf(mvp), rating: fmtRating(mvpRating!) }) : said("sl.riv.mvp", { name: nameOf(mvp) })),
+            after && said("sl.riv.h2h", { club, h2h: headToHeadRef(after) }))
         storyNews(ctx, arc, "b1", title, text)
         // The story keeps a one-line version.
-        const line = `${club} ${won ? "beat" : "lost to"} ${opp} ${score}${mvp ? `, ${nameOf(mvp)} the MVP${typeof mvpRating === "number" && Number.isFinite(mvpRating) ? ` (${fmtRating(mvpRating)})` : ""}` : ""}.`
+        const line = mvp
+            ? said(won ? "sl.riv.lineWonMvp" : "sl.riv.lineLostMvp", { club, opp, score, name: nameOf(mvp), rating: rated ? ` (${fmtRating(mvpRating!)})` : "" })
+            : said(won ? "sl.riv.lineWon" : "sl.riv.lineLost", { club, opp, score })
         resolveArc(arc, ctx.week, won ? "WON" : "LOST", line)
     },
 }
