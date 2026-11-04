@@ -260,7 +260,7 @@ export const HOME = {
     "board.gap.above": "{{value}} above",
 
     // Pro career (Home card, live strip, result verdict)
-    "pro.title": "Your pro career",
+    "pro.panelTitle": "Your pro career",
     "pro.starter": "In the starting five",
     "pro.bench": "On the bench",
     "pro.age": "Age {{age}}",

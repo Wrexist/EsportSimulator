@@ -14,6 +14,8 @@ import { TeamLink } from "@/components/ui/EntityLink"
 import { Panel } from "@/src/components/ui/Panel"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { formatCurrency } from "@/lib/utils-extended"
+import { t, tn } from "@/lib/i18n"
+import { divisionName, eventRegionName } from "@/lib/display-names"
 
 /**
  * Between clubs (Phase 4.4, G9): the job market after a dismissal (sacked,
@@ -71,11 +73,11 @@ export function DismissalJobMarket({ blockedRoute = false }: { blockedRoute?: bo
     const more = () => run(() => {
         const added = s.findMoreJobOffers()
         if (added === 0) setNoneLeft(true)
-        else setNote(`${added} more ${added === 1 ? "club wants" : "clubs want"} to talk.`)
+        else setNote(tn("job.moreClubs", added))
     })
 
-    const eyebrow = firstJob ? "Looking for work" : "Between clubs"
-    const title = firstJob ? "Pick your first club" : isSacked ? "Relieved of duty" : "Organization dissolved"
+    const eyebrow = firstJob ? t("job.eyebrowFirst") : t("job.eyebrowBetween")
+    const title = firstJob ? t("job.titleFirst") : isSacked ? t("job.titleSacked") : t("job.titleFolded")
 
     return (
         <div className="flex min-h-[75vh] items-start justify-center py-6">
@@ -85,30 +87,30 @@ export function DismissalJobMarket({ blockedRoute = false }: { blockedRoute?: bo
                     <h1 className="font-display text-4xl font-bold uppercase leading-none text-ink-1">{title}</h1>
                     {firstJob ? (
                         <p className="text-sm text-ink-2">
-                            No club and no record yet. These clubs will take a chance on a new manager. Win with one and bigger clubs will start calling.
+                            {t("job.firstIntro")}
                         </p>
                     ) : (
                         <p className="text-sm text-ink-2">
                             {isSacked
-                                ? `${team?.name ?? "Your club"} ended your contract after a final warning from the board.`
-                                : `After 8 weeks in the red, ${team?.name ?? "your club"} has been forced to disband.`}
-                            {lastStint && ` You were there ${weeksAtClub} ${weeksAtClub === 1 ? "week" : "weeks"}.`}
+                                ? t("job.sackedText", { club: team?.name ?? t("tro.yourClub") })
+                                : t("job.foldedText", { club: team?.name ?? t("tro.yourClub") })}
+                            {lastStint && ` ${tn("job.weeksThere", weeksAtClub)}`}
                         </p>
                     )}
                     {!firstJob && record.m > 0 && (
                         <p className="text-xs text-ink-3">
-                            Career: {stints.length} {stints.length === 1 ? "club" : "clubs"} · {record.w}–{record.l} in official matches · {record.t} {record.t === 1 ? "trophy" : "trophies"}
+                            {t("job.career", { clubs: tn("car.clubsN", stints.length), w: record.w, l: record.l, trophies: tn("board.trophies", record.t) })}
                         </p>
                     )}
-                    {blockedRoute && <p className="text-xs text-ink-3">That screen opens once you have a club again.</p>}
+                    {blockedRoute && <p className="text-xs text-ink-3">{t("job.blocked")}</p>}
                 </div>
 
                 {offers.length > 0 && (
                     <div className="border-t border-line">
-                        <p className="px-6 pt-4 text-sm font-semibold text-ink-1">{firstJob ? "Offers on the table" : "Clubs that want you"}</p>
+                        <p className="px-6 pt-4 text-sm font-semibold text-ink-1">{firstJob ? t("job.offersFirst") : t("job.offersBetween")}</p>
                         <ul className="divide-y divide-line">
                             {offers.map(offer => {
-                                const club = s.teams.find(t => t.id === offer.data.offeringTeamId)
+                                const club = s.teams.find(team => team.id === offer.data.offeringTeamId)
                                 const division = club ? s.league?.current?.divisions.find(d => d.teamIds.includes(club.id))?.name : undefined
                                 return (
                                     <OfferRow
@@ -129,22 +131,24 @@ export function DismissalJobMarket({ blockedRoute = false }: { blockedRoute?: bo
                     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-6 py-4">
                         <p className="text-sm text-ink-2">
                             {noneLeft
-                                ? "No other club is hiring right now."
-                                : offers.length ? "Turned some down? Your agent can ask around." : "Every offer is gone. Your agent can ask around."}
+                                ? t("job.noneHiring")
+                                : offers.length ? t("job.askAround") : t("job.allGone")}
                         </p>
-                        <Button variant="outline" size="sm" disabled={noneLeft} onClick={more}>Find more offers</Button>
+                        <Button variant="outline" size="sm" disabled={noneLeft} onClick={more}>{t("job.findMore")}</Button>
                     </div>
                 )}
 
                 {(error || note) && <p className={`px-6 pt-3 text-sm ${error ? "text-negative" : "text-ink-2"}`} role={error ? "alert" : "status"}>{error ?? note}</p>}
                 <div className="flex justify-end gap-2 p-6">
-                    <Button variant="outline" onClick={() => router.push("/load-game")}>Load save</Button>
-                    <Button variant="outline" onClick={() => router.push("/main-menu")}>Main menu</Button>
+                    <Button variant="outline" onClick={() => router.push("/load-game")}>{t("job.loadSave")}</Button>
+                    <Button variant="outline" onClick={() => router.push("/main-menu")}>{t("job.mainMenu")}</Button>
                 </div>
             </Panel>
         </div>
     )
 }
+
+const TEAM_TIERS = new Set(["ELITE", "PRO", "SEMI_PRO", "AMATEUR"])
 
 function squadRating(club: TeamSaveData, lookup: (id: string) => PlayerSaveData | undefined, week: number): number | null {
     const five = club.rosterIds.map(lookup).filter((p): p is PlayerSaveData => !!p && !p.isRetired).slice(0, 5)
@@ -168,8 +172,9 @@ function OfferRow({ offer, club, division, lookup, currentWeek, confirming, onAc
     const rank = Number(offer.data.offeringTeamRank ?? club?.worldRanking ?? 0)
     const wage = Number(offer.data.salaryOffer ?? 0)
     const ovr = club ? squadRating(club, lookup, currentWeek) : null
-    const tier = division ?? (club ? getTierStyle(club.tier as TierLevel).label : null)
-    const goal = club ? getTierTargets(deriveExpectationTier(rank || 30, club.reputation)) : null
+    const tier = division ? divisionName(division) : (club ? (TEAM_TIERS.has(String(club.tier)) ? t(`rk.teamTier.${club.tier}`) : getTierStyle(club.tier as TierLevel).label) : null)
+    const expectation = club ? deriveExpectationTier(rank || 30, club.reputation) : null
+    const goal = expectation ? getTierTargets(expectation) : null
     const rankTarget = club ? rankTargetFor(rank || 30, club.reputation) : 0
     const canNegotiate = Number(offer.data.negotiationPatience ?? 0) > 0
     return (
@@ -179,35 +184,35 @@ function OfferRow({ offer, club, division, lookup, currentWeek, confirming, onAc
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                         <TeamLink id={club?.id} className="truncate font-semibold text-ink-1">{String(offer.data.offeringTeamName)}</TeamLink>
-                        {ovr !== null && <RatingChip value={ovr} size="sm" title="Average overall of the starting five" />}
+                        {ovr !== null && <RatingChip value={ovr} size="sm" title={t("job.ovrTitle")} />}
                     </div>
                     <p className="text-xs text-ink-3">
-                        World #{rank || "—"} · {String(offer.data.offeringTeamRegion ?? club?.region ?? "")}{tier ? ` · ${tier}` : ""}{club ? ` · budget ${formatCurrency(club.budget)}` : ""}
+                        {t("job.worldRank", { rank: rank || "—" })} · {eventRegionName(String(offer.data.offeringTeamRegion ?? club?.region ?? ""))}{tier ? ` · ${tier}` : ""}{club ? ` · ${t("job.budget", { amount: formatCurrency(club.budget) })}` : ""}
                     </p>
                     {goal && (
                         <p className="mt-1 text-xs text-ink-2">
-                            Board: {goal.label}{rankTarget > 0 ? `, finish the season in the world top ${rankTarget}` : ""}.
+                            {rankTarget > 0 ? t("job.boardGoalRank", { goal: t(`board.expectation.${expectation}`), rank: rankTarget }) : t("job.boardGoal", { goal: t(`board.expectation.${expectation}`) })}
                         </p>
                     )}
                     <p className="mt-1 text-xs text-ink-2">
-                        Wage {formatCurrency(wage)}/wk · signing funds for the club {formatCurrency(wage * 4)}
+                        {t("job.wage", { wage: formatCurrency(wage), funds: formatCurrency(wage * 4) })}
                     </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1.5">
                     {confirming ? (
                         <>
-                            <p className="text-xs text-ink-2">Take this job?</p>
+                            <p className="text-xs text-ink-2">{t("job.takeQ")}</p>
                             <div className="flex gap-1.5">
-                                <Button size="sm" variant="outline" onClick={onCancel}>Not yet</Button>
-                                <Button size="sm" onClick={onAccept}>Sign</Button>
+                                <Button size="sm" variant="outline" onClick={onCancel}>{t("job.notYet")}</Button>
+                                <Button size="sm" onClick={onAccept}>{t("job.sign")}</Button>
                             </div>
                         </>
                     ) : (
                         <>
-                            <Button size="sm" onClick={onAccept}>Accept</Button>
+                            <Button size="sm" onClick={onAccept}>{t("job.accept")}</Button>
                             <div className="flex gap-1.5">
-                                <Button size="sm" variant="ghost" disabled={!canNegotiate} onClick={onNegotiate} title={canNegotiate ? "Ask for a higher wage. Push too hard and they may walk away." : "They will not negotiate further."}>Ask for more</Button>
-                                <Button size="sm" variant="ghost" onClick={onDecline}>Decline</Button>
+                                <Button size="sm" variant="ghost" disabled={!canNegotiate} onClick={onNegotiate} title={canNegotiate ? t("job.askMoreTitle") : t("job.noMoreTitle")}>{t("job.askMore")}</Button>
+                                <Button size="sm" variant="ghost" onClick={onDecline}>{t("job.decline")}</Button>
                             </div>
                         </>
                     )}

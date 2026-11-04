@@ -22,6 +22,7 @@ import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { stripEmoji } from "@/components/inbox/inbox-model"
 import { formatCurrency } from "@/lib/utils-extended"
+import { t, tn, intlLocale } from "@/lib/i18n"
 
 function eventText(event: { type: string; data?: unknown }): string {
     const d = (event.data ?? {}) as Record<string, unknown>
@@ -81,58 +82,58 @@ export default function CareerPage() {
         if (saveId === currentSaveId) return
         setSwitchingTo(saveId)
         try {
-            if (await switchSave(saveId)) { toast.success("Save loaded"); router.refresh() }
-            else toast.error("Couldn't load that save")
+            if (await switchSave(saveId)) { toast.success(t("car.toast.loaded")); router.refresh() }
+            else toast.error(t("car.toast.loadFailed"))
         } catch {
-            toast.error("Couldn't load that save")
+            toast.error(t("car.toast.loadFailed"))
         } finally {
             setSwitchingTo(null)
         }
     }
 
     const handleDelete = async (saveId: string) => {
-        if (saveId === currentSaveId) { toast.error("You can't delete the save you're playing"); return }
+        if (saveId === currentSaveId) { toast.error(t("car.toast.cantDeleteActive")); return }
         if (confirmDelete !== saveId) { setConfirmDelete(saveId); return }
         try {
             await deleteSaveInSlot(saveId)
             await loadSaves()
             setConfirmDelete(null)
-            toast.success("Save deleted")
+            toast.success(t("car.toast.deleted"))
         } catch {
-            toast.error("Couldn't delete that save")
+            toast.error(t("car.toast.deleteFailed"))
         }
     }
 
-    if (!hydrated || isLoading || !playerTeamId) return <LoadingState message="Loading manager profile…" size="lg" className="min-h-[50vh]" />
+    if (!hydrated || isLoading || !playerTeamId) return <LoadingState message={t("car.loading")} size="lg" className="min-h-[50vh]" />
 
     const level = managerDetails?.level || 1
     const xp = managerDetails?.xp || 0
     const xpNext = ManagerProgression.getXPForLevel(level + 1)
     const team = teams.find(t => t.id === playerTeamId)
-    const seasons = Math.floor((currentWeek - 1) / 52) + 1
+    const seasons = Math.max(1, Math.floor((currentWeek - 1) / 52) + 1)
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow={team ? `Manager · ${team.name}` : "Manager"}
-                title={managerDetails?.name || "Manager profile"}
-                subtitle="Your record in this career, your legacy across every save, and your save slots."
+                eyebrow={team ? t("car.eyebrowClub", { club: team.name }) : t("car.eyebrow")}
+                title={managerDetails?.name || t("car.profile")}
+                subtitle={t("car.subtitle")}
                 aside={
                     <KpiStrip>
-                        <Kpi label="Level" value={level} hint={`${xp.toLocaleString("en-US")} / ${xpNext.toLocaleString("en-US")} XP`} />
-                        <Kpi label="Reputation" value={Math.round(managerDetails?.reputation ?? 0)} hint="of 100" />
-                        <Kpi label="Record" value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={`${record.rate}% won · all matches`} />
-                        <Kpi label="Titles" value={titles} valueClassName={titles > 0 ? "text-gold" : undefined} hint={majors > 0 ? `${majors} major${majors === 1 ? "" : "s"}` : undefined} />
-                        <Kpi label="Season" value={seasons} hint={`Week ${currentWeek}`} />
+                        <Kpi label={t("car.kpi.level")} value={level} hint={t("car.kpi.xp", { xp: xp.toLocaleString(intlLocale()), next: xpNext.toLocaleString(intlLocale()) })} />
+                        <Kpi label={t("car.kpi.reputation")} value={Math.round(managerDetails?.reputation ?? 0)} hint={t("car.kpi.of100")} />
+                        <Kpi label={t("tro.kpi.record")} value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={t("car.kpi.recordHint", { rate: record.rate })} />
+                        <Kpi label={t("tro.kpi.titles")} value={titles} valueClassName={titles > 0 ? "text-gold" : undefined} hint={majors > 0 ? tn("car.kpi.majors", majors) : undefined} />
+                        <Kpi label={t("car.kpi.season")} value={seasons} hint={t("car.kpi.week", { week: currentWeek })} />
                     </KpiStrip>
                 }
             />
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_440px]">
                 <div className="min-w-0 space-y-4">
-                    <Panel title={`Level ${level}`} actions={<span className="text-xs tabular-nums text-ink-3">{(xpNext - xp).toLocaleString("en-US")} XP to level {level + 1}</span>}>
-                        <Meter value={xpNext > 0 ? (xp / xpNext) * 100 : 0} label="XP to next level" tone="neutral" showValue={false} trackClassName="w-full h-2" />
-                        <p className="mt-2 text-xs text-ink-3">Every win earns 100 XP and every loss 25 XP; analyst talents can add up to +50%.</p>
+                    <Panel title={t("car.levelN", { level })} actions={<span className="text-xs tabular-nums text-ink-3">{t("car.xpToLevel", { xp: (xpNext - xp).toLocaleString(intlLocale()), level: level + 1 })}</span>}>
+                        <Meter value={xpNext > 0 ? (xp / xpNext) * 100 : 0} label={t("car.xpNextAria")} tone="neutral" showValue={false} trackClassName="w-full h-2" />
+                        <p className="mt-2 text-xs text-ink-3">{t("car.xpNote")}</p>
                     </Panel>
 
                     <ClubTimelinePanel />
@@ -141,13 +142,13 @@ export default function CareerPage() {
 
                     <CareerLegacyCard />
 
-                    <Panel title="Career log" padded={false}>
+                    <Panel title={t("car.log")} padded={false}>
                         {log.length > 0 ? (
                             <table data-slot="table" className="w-full border-collapse text-left">
                                 <thead data-slot="table-header">
                                     <tr className="border-b border-line">
-                                        <th data-slot="table-head" className="w-20 pl-4">Week</th>
-                                        <th data-slot="table-head" className="pr-4">Event</th>
+                                        <th data-slot="table-head" className="w-20 pl-4">{t("tro.col.week")}</th>
+                                        <th data-slot="table-head" className="pr-4">{t("car.col.event")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -161,7 +162,7 @@ export default function CareerPage() {
                                     ))}
                                 </tbody>
                             </table>
-                        ) : <p className="px-4 py-6 text-sm text-ink-3">Nothing recorded yet. Results, signings and news land here.</p>}
+                        ) : <p className="px-4 py-6 text-sm text-ink-3">{t("car.logEmpty")}</p>}
                     </Panel>
                 </div>
 
@@ -169,15 +170,15 @@ export default function CareerPage() {
                 <ReputationPanel />
 
                 <Panel
-                    title="Saves"
-                    actions={<Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => router.push("/new-game")}><Plus size={13} /> New career</Button>}
+                    title={t("car.saves")}
+                    actions={<Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => router.push("/new-game")}><Plus size={13} /> {t("car.newCareer")}</Button>}
                     padded={false}
                     className="self-start"
                 >
                     {loadingSaves ? (
-                        <p className="flex items-center gap-2 px-4 py-6 text-sm text-ink-3"><Loader2 size={14} className="animate-spin" /> Loading saves…</p>
+                        <p className="flex items-center gap-2 px-4 py-6 text-sm text-ink-3"><Loader2 size={14} className="animate-spin" /> {t("car.loadingSaves")}</p>
                     ) : saves.length === 0 ? (
-                        <p className="px-4 py-6 text-sm text-ink-3">No saves on this machine yet.</p>
+                        <p className="px-4 py-6 text-sm text-ink-3">{t("car.noSaves")}</p>
                     ) : (
                         <ul className="divide-y divide-line">
                             {saves.map((slot, i) => {
@@ -189,34 +190,34 @@ export default function CareerPage() {
                                     <li key={id || i} className={cn("flex items-center gap-3 px-4 py-3", active && "bg-raised")}>
                                         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded border border-line bg-shell">
                                             {slot.teamLogo
-                                                ? <TeamLogoImage src={slot.teamLogo} team={slot.teamPreview} alt={slot.teamName || "Team"} size={30} />
+                                                ? <TeamLogoImage src={slot.teamLogo} team={slot.teamPreview} alt={slot.teamName || t("car.team")} size={30} />
                                                 : <span className="text-sm font-semibold text-ink-3">{slot.teamName?.[0] ?? "?"}</span>}
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <p className="flex items-center gap-2 truncate text-sm font-semibold text-ink-1">
-                                                {slot.teamName || "Unknown team"}
-                                                {active && <span className="rounded-sm border border-gold/50 px-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">Playing</span>}
-                                                {slot.isCorrupted && <span className="text-xs font-normal text-negative">Damaged</span>}
+                                                {slot.teamName || t("car.unknownTeam")}
+                                                {active && <span className="rounded-sm border border-gold/50 px-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("car.playing")}</span>}
+                                                {slot.isCorrupted && <span className="text-xs font-normal text-negative">{t("car.damaged")}</span>}
                                             </p>
                                             <p className="mt-0.5 text-xs tabular-nums text-ink-3">
-                                                Week {slot.currentWeek || 1} · {w}–{l}
-                                                {slot.stats?.tournamentsWon ? ` · ${slot.stats.tournamentsWon} titles` : ""}
+                                                {t("car.kpi.week", { week: slot.currentWeek || 1 })} · {w}–{l}
+                                                {slot.stats?.tournamentsWon ? ` · ${tn("tro.review.titles", slot.stats.tournamentsWon)}` : ""}
                                                 {slot.budget !== undefined ? ` · ${formatCurrency(slot.budget, "$", true)}` : ""}
                                             </p>
                                         </div>
                                         {!active && id && (
                                             <div className="flex shrink-0 items-center gap-1">
                                                 <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={switchingTo !== null} onClick={() => handleSwitch(id)}>
-                                                    {switchingTo === id ? <Loader2 size={13} className="animate-spin" /> : "Load"}
+                                                    {switchingTo === id ? <Loader2 size={13} className="animate-spin" /> : t("car.load")}
                                                 </Button>
                                                 <Button
                                                     size="sm"
                                                     variant="ghost"
                                                     className={cn("h-8 px-2 text-xs", confirmDelete === id ? "text-negative" : "text-ink-3")}
-                                                    aria-label={confirmDelete === id ? "Confirm delete save" : "Delete save"}
+                                                    aria-label={confirmDelete === id ? t("car.confirmDeleteAria") : t("car.deleteAria")}
                                                     onClick={() => handleDelete(id)}
                                                 >
-                                                    {confirmDelete === id ? "Delete?" : <Trash2 size={14} />}
+                                                    {confirmDelete === id ? t("car.deleteQ") : <Trash2 size={14} />}
                                                 </Button>
                                             </div>
                                         )}

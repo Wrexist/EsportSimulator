@@ -7,59 +7,65 @@ import { Button } from "@/components/ui/button"
 import { Panel } from "@/src/components/ui/Panel"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { COMMUNITY_CREDITS } from "@/data/community-credits"
+import { t } from "@/lib/i18n"
 
-const CREDITS: { category: string; entries: { role: string; name: string }[] }[] = [
-    {
-        category: "Game design and development",
-        entries: [
-            { role: "Creator and lead developer", name: "Delta" },
-            { role: "Game design", name: "Delta" },
-            { role: "Match engine and simulation", name: "Delta" },
-            { role: "Interface and art direction", name: "Delta" },
-            { role: "Writing and world building", name: "Delta" },
-            { role: "Balancing and quality assurance", name: "Delta" },
-        ],
-    },
-    {
-        category: "Data",
-        entries: [
-            { role: "Players and teams", name: "Original fictional roster generator" },
-            { role: "Tournament structure", name: "Inspired by professional tactical FPS circuits" },
-            { role: "World rankings model", name: "Inspired by professional ranking methods" },
-        ],
-    },
-    {
-        category: "Technology",
-        entries: [
-            { role: "Framework", name: "Next.js" },
-            { role: "Desktop runtime", name: "Electron" },
-            { role: "Steam integration", name: "steamworks.js" },
-            { role: "Interface", name: "Radix UI and Tailwind CSS" },
-            { role: "State", name: "Zustand with Immer" },
-            { role: "Animation", name: "Framer Motion" },
-            { role: "Fonts", name: "Inter and Barlow Condensed (SIL OFL)" },
-        ],
-    },
-    {
-        category: "Audio",
-        entries: [
-            { role: "Sound effects", name: "Generated in the game (Web Audio API)" },
-            { role: "Ambient music", name: "Generated in the game" },
-        ],
-    },
-    ...(COMMUNITY_CREDITS.length > 0
-        ? [{ category: "Community", entries: COMMUNITY_CREDITS.map(c => ({ role: c.for, name: c.name })) }]
-        : []),
-    {
-        category: "Special thanks",
-        entries: [
-            { role: "Tactical FPS community", name: "For decades of competitive play" },
-            { role: "Esports organizations", name: "For inspiring the management side" },
-            { role: "Open-source contributors", name: "For the tools this is built on" },
-            { role: "Playtesters and bug reporters", name: "Your feedback shaped this game" },
-        ],
-    },
-]
+type CreditSection = { category: string; entries: { role: string; name: string }[] }
+
+/** Built at render time so it follows the active language. Product and font names stay as they are. */
+function credits(): CreditSection[] {
+    return [
+        {
+            category: t("cr.cat.dev"),
+            entries: [
+                { role: t("cr.role.lead"), name: "Delta" },
+                { role: t("cr.role.design"), name: "Delta" },
+                { role: t("cr.role.engine"), name: "Delta" },
+                { role: t("cr.role.art"), name: "Delta" },
+                { role: t("cr.role.writing"), name: "Delta" },
+                { role: t("cr.role.qa"), name: "Delta" },
+            ],
+        },
+        {
+            category: t("cr.cat.data"),
+            entries: [
+                { role: t("cr.role.players"), name: t("cr.name.roster") },
+                { role: t("cr.role.tournaments"), name: t("cr.name.circuits") },
+                { role: t("cr.role.rankings"), name: t("cr.name.rankingMethods") },
+            ],
+        },
+        {
+            category: t("cr.cat.tech"),
+            entries: [
+                { role: t("cr.role.framework"), name: "Next.js" },
+                { role: t("cr.role.desktop"), name: "Electron" },
+                { role: t("cr.role.steam"), name: "steamworks.js" },
+                { role: t("cr.role.interface"), name: t("cr.name.radix") },
+                { role: t("cr.role.state"), name: t("cr.name.zustand") },
+                { role: t("cr.role.animation"), name: "Framer Motion" },
+                { role: t("cr.role.fonts"), name: t("cr.name.fonts") },
+            ],
+        },
+        {
+            category: t("cr.cat.audio"),
+            entries: [
+                { role: t("cr.role.sfx"), name: t("cr.name.sfx") },
+                { role: t("cr.role.music"), name: t("cr.name.music") },
+            ],
+        },
+        ...(COMMUNITY_CREDITS.length > 0
+            ? [{ category: t("cr.cat.community"), entries: COMMUNITY_CREDITS.map(c => ({ role: c.for, name: c.name })) }]
+            : []),
+        {
+            category: t("cr.cat.thanks"),
+            entries: [
+                { role: t("cr.thanks.community"), name: t("cr.thanks.communityFor") },
+                { role: t("cr.thanks.orgs"), name: t("cr.thanks.orgsFor") },
+                { role: t("cr.thanks.oss"), name: t("cr.thanks.ossFor") },
+                { role: t("cr.thanks.testers"), name: t("cr.thanks.testersFor") },
+            ],
+        },
+    ]
+}
 
 export default function CreditsPage() {
     const router = useRouter()
@@ -68,16 +74,16 @@ export default function CreditsPage() {
         <div className="mx-auto max-w-[880px] space-y-5 pb-16">
             <ScreenHeader
                 eyebrow={`Esports Manager · v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`}
-                title="Credits"
+                title={t("cr.title")}
                 aside={
                     <Button variant="ghost" onClick={() => router.back()} className="gap-2">
-                        <ArrowLeft size={16} /> Back
+                        <ArrowLeft size={16} /> {t("cr.back")}
                     </Button>
                 }
             />
 
             <div className="gap-4 md:columns-2">
-                {CREDITS.map(section => (
+                {credits().map(section => (
                     <Panel key={section.category} title={section.category} padded={false} className="mb-4 break-inside-avoid">
                         <dl className="divide-y divide-line">
                             {section.entries.map(entry => (
@@ -92,10 +98,7 @@ export default function CreditsPage() {
             </div>
 
             <p className="text-xs leading-relaxed text-ink-3">
-                This game is a work of fiction. Team names, player likenesses and tournament structures are used for simulation only, and no endorsement is implied.
-                Esports Manager: FPS is an independent game and is not affiliated with or endorsed by Valve Corporation or any esports organization.
-                Map names refer to locations in the tactical FPS scene and remain the property of their owners.
-                © {new Date().getFullYear()} Delta. All rights reserved.
+                {t("cr.legal", { year: new Date().getFullYear() })}
             </p>
         </div>
     )
