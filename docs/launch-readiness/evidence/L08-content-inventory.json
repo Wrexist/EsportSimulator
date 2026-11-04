@@ -2814,8 +2814,8 @@
     },
     {
       "path": "components/layout/MatchNavigationGuard.tsx",
-      "sha256": "066ad7992cb3599d503cffc2772a740a80691501ff5c46f2f55a771f625bc15a",
-      "bytes": 5691,
+      "sha256": "eb55c3c8862565f0aac0549fbc45924c6c24baa214f6037a9e64f9a6f9d1c10d",
+      "bytes": 5637,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2829,13 +2829,18 @@
           "date": "2026-11-03",
           "previousSha256": "27cd0e5ceb9611a696ba096027f5c166d67445e705f1ec27858a2bdcfdb5d537",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "066ad7992cb3599d503cffc2772a740a80691501ff5c46f2f55a771f625bc15a",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
     {
       "path": "components/layout/NavigationSearch.tsx",
-      "sha256": "056f10ffa71ca62c8b8d629abcf94ac790d890c35b3a097772b64e3d7809f74c",
-      "bytes": 4776,
+      "sha256": "fe40579d8b64e7970e6258030f852e6df5fe74f846659af361dffe533894f678",
+      "bytes": 4751,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2849,6 +2854,11 @@
           "date": "2026-11-03",
           "previousSha256": "10164884cd3a02806e5544924b79377dc858dbd869766a4f9b6481eae1753457",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "056f10ffa71ca62c8b8d629abcf94ac790d890c35b3a097772b64e3d7809f74c",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -4293,8 +4303,8 @@
     },
     {
       "path": "components/ui/ImageUploader.tsx",
-      "sha256": "72c4525c1ef6d28fbbc994b4c3b9f518c16f8d0050571c7bfdd1e2a94b474e8a",
-      "bytes": 10915,
+      "sha256": "a0943263f5eee921dd45ac825a7710b25468c3bc5fddcc551bb72411dd16a551",
+      "bytes": 10974,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4308,6 +4318,11 @@
           "date": "2026-11-03",
           "previousSha256": "c572aea79a2e2e0d1feb35920447059318de180c9f5a29391457d1fe8196eaca",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "72c4525c1ef6d28fbbc994b4c3b9f518c16f8d0050571c7bfdd1e2a94b474e8a",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -4866,8 +4881,8 @@
     },
     {
       "path": "components/ui/confirm-dialog.tsx",
-      "sha256": "4ec11e9c82aa83a88214555c6e2e3a147cf7a85f2a87f70e4a07324f64c1d97b",
-      "bytes": 4895,
+      "sha256": "7c44a7eb6ec5815eea1aea423ba64b5b897aa031b90406351a0c3fd366af99a4",
+      "bytes": 4930,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4881,6 +4896,11 @@
           "date": "2026-11-03",
           "previousSha256": "40440730e4812f02bc0317b2d0d35ebaed36bbfae5899f544c79f320e31a438b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "4ec11e9c82aa83a88214555c6e2e3a147cf7a85f2a87f70e4a07324f64c1d97b",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -4899,8 +4919,8 @@
     },
     {
       "path": "components/ui/dialog.tsx",
-      "sha256": "2a8acca9b1fb8122ef756f055aba0a4cf06f6339a4ad7ec350f129d71b9ab6e2",
-      "bytes": 4223,
+      "sha256": "a407a80f447e022312eb3b9454bbd4febca1309a20a071ce50b7db7b0bae06a8",
+      "bytes": 4268,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4927,6 +4947,11 @@
           "date": "2026-11-03",
           "previousSha256": "cbc36bc8d15da5e597c2fe45b894f89661c35d1d53ccdc4a0dc40a779d386391",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "2a8acca9b1fb8122ef756f055aba0a4cf06f6339a4ad7ec350f129d71b9ab6e2",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -5446,8 +5471,8 @@
     },
     {
       "path": "components/ui/sheet.tsx",
-      "sha256": "ff9c88235b2d48cc36202bc49cfa9adeb4e919d41e3133c31515dd78e1738802",
-      "bytes": 4104,
+      "sha256": "f8a1ff851ea4bf5d9ad845cab27b63b529feb6b114f0e827430ce3de4bf2cfb3",
+      "bytes": 4149,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -5461,6 +5486,11 @@
           "date": "2026-11-03",
           "previousSha256": "7b138e70def26f2953466431e39a7cc520abe63ac6b6f22a8ecefbc49f8d533b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ff9c88235b2d48cc36202bc49cfa9adeb4e919d41e3133c31515dd78e1738802",
+          "change": "Logo upload, match guard, club page and demo end translated"
         }
       ]
     },
@@ -91434,8 +91464,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "250e4e26de5f661ca84d41c8aa07ef2bf5716df7ae708e8a0a827c4fe2e867f8",
-      "bytes": 311735,
+      "sha256": "06c7f008800a553cb489e8c01461c1fa9b76370095a823147cb1fe219862b484",
+      "bytes": 315019,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91545,13 +91575,18 @@
           "date": "2026-11-03",
           "previousSha256": "ea8900db187e95f8be74e25e5845532c09c3517bcf974df8779671be5129715b",
           "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "250e4e26de5f661ca84d41c8aa07ef2bf5716df7ae708e8a0a827c4fe2e867f8",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "831f2d9e28765a79a5ed0f6de498e92584831f96ccc58307f034e9720f2f9bbe",
-      "bytes": 327051,
+      "sha256": "ef59041a572d4b8b233f2574cdd014bbcac481e9dc8cc705b94d609152bdd6a5",
+      "bytes": 330496,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91661,13 +91696,18 @@
           "date": "2026-11-03",
           "previousSha256": "f5521afc0924008b1b63d8310fc398c084ca682bdd1df1645125a6cfca372760",
           "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "831f2d9e28765a79a5ed0f6de498e92584831f96ccc58307f034e9720f2f9bbe",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "8a9794afd9b3b1c45f7dcb660dd244d71c1e51bd019f743801f630bae091c35f",
-      "bytes": 333774,
+      "sha256": "d9783ef4997c27312ef81a25591b686dd6bb8c540a69d3ac96d47282b754cc1b",
+      "bytes": 337265,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91777,13 +91817,18 @@
           "date": "2026-11-03",
           "previousSha256": "30591721f31150e8af0c399794b05f57cf452c36f74af3dc67e82edc5655d4be",
           "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8a9794afd9b3b1c45f7dcb660dd244d71c1e51bd019f743801f630bae091c35f",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "30b79049907415713a9b9dcbc3aa942c175dbda4284ee892097dfca73c1d9b4b",
-      "bytes": 331067,
+      "sha256": "c31ff83660bf56d1de59dd17ac22200a5659ec118cd13308a81bfd474d2d8a43",
+      "bytes": 334440,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91888,13 +91933,18 @@
           "date": "2026-11-03",
           "previousSha256": "1254c4e91322f9130cd05dcaf42b6fbd676610a749a440e0857c902c5e9c424f",
           "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "30b79049907415713a9b9dcbc3aa942c175dbda4284ee892097dfca73c1d9b4b",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "e080c22fb861d3cd3e5189e2625ce4165c3a12061bcb94dda4df9efe51654162",
-      "bytes": 322714,
+      "sha256": "def30e1fead2f1b4d59af579df147090ddb639b995bdaaac02f0d91179c58ed8",
+      "bytes": 326132,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91999,13 +92049,18 @@
           "date": "2026-11-03",
           "previousSha256": "dff1e49c970a58d87446ee1188a499a69bc5311cf70206ba765b13081aee0038",
           "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e080c22fb861d3cd3e5189e2625ce4165c3a12061bcb94dda4df9efe51654162",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "fa8e961f98d78248461478e5af5cbcdf07b51140fa244b352a2b23fbe76f4185",
-      "bytes": 448975,
+      "sha256": "5bc5994ac7e0b85fad4065d58a66605b001513cd158bd8ef070767ff61cfb162",
+      "bytes": 453641,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92110,6 +92165,11 @@
           "date": "2026-11-03",
           "previousSha256": "903758453784c56b8cb1939249f039178394f708bec4358a24c61370b4c23b0f",
           "change": "Interface languages, Bug report, error screen, moments and Continue stops translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "fa8e961f98d78248461478e5af5cbcdf07b51140fa244b352a2b23fbe76f4185",
+          "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

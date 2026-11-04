@@ -15,6 +15,7 @@ import {
 import { AlertTriangle, Trash2, UserX } from 'lucide-react'
 import { toast } from "@/lib/toast"
 import { logger } from "@/lib/logger"
+import { t } from "@/lib/i18n"
 
 interface ConfirmDialogProps {
     children: ReactNode
@@ -75,7 +76,7 @@ export function ConfirmDialog({
             // the action failed — users would re-click Confirm and trigger a
             // duplicate. Surface the error inline plus a toast, then let
             // them choose to retry or cancel.
-            const message = err instanceof Error ? err.message : "Action failed"
+            const message = err instanceof Error ? err.message : t("confirm.failed")
             setError(message)
             toast.error(`${title}: ${message}`)
             logger.error("[ConfirmDialog] onConfirm failed", err)

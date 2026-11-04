@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Lock } from "lucide-react"
 import { useFocusTrap } from "@/lib/accessibility"
+import { t } from "@/lib/i18n"
 
 export function MatchNavigationGuard() {
     const { activeMatchId, setActiveMatch, completedMatches, scheduledMatches, currentWeek, isInitialized } = useGameStore(useShallow(state => ({
@@ -125,9 +126,9 @@ export function MatchNavigationGuard() {
                             <Lock size={32} />
                         </div>
 
-                        <h2 id="modal-title-match-guard" className="font-display text-2xl font-bold text-ink-1 mb-2 uppercase">Match in Progress</h2>
+                        <h2 id="modal-title-match-guard" className="font-display text-2xl font-bold text-ink-1 mb-2 uppercase">{t("guard.title")}</h2>
                         <p className="text-ink-2 mb-8">
-                            You cannot leave the match area while a game is active. Please complete the match or simulate the result.
+                            {t("guard.body")}
                         </p>
 
                         <Button
@@ -135,7 +136,7 @@ export function MatchNavigationGuard() {
                             size="lg"
                             className="w-full h-12"
                         >
-                            Return to Match
+                            {t("guard.back")}
                         </Button>
                     </motion.div>
                 </motion.div>

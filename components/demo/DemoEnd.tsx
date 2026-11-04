@@ -13,17 +13,12 @@ import { DEMO_LAST_WEEK, FULL_GAME_STORE_URL } from "@/lib/edition"
 import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { Panel } from "@/src/components/ui/Panel"
-import { divisionOfTeam, ordinal, tablePosition } from "@/engine/season/regional-league"
+import { divisionOfTeam, tablePosition } from "@/engine/season/regional-league"
+import { ordinalLabel, t, tn } from "@/lib/i18n"
+import { divisionName } from "@/lib/display-names"
 
 /** What the rest of the full game holds after the demo weeks. */
-const FULL_GAME_HIGHLIGHTS: { title: string; detail: string }[] = [
-    { title: "The majors", detail: "Qualify through the open qualifiers and RMRs and lift the biggest trophies." },
-    { title: "Promotion and relegation", detail: "Finish the split, move up the divisions and defend your place." },
-    { title: "Transfer windows", detail: "Exclusive signings, rival bids and contracts you sign yourself." },
-    { title: "Academy and staff", detail: "Raise prospects, hire coaches and build the club around them." },
-    { title: "Season after season", detail: "Careers run for as long as you like, with job offers, the board and the Hall of Fame." },
-    { title: "Legends", detail: "Win a major and pick an all-time great to join your roster." },
-]
+const FULL_GAME_HIGHLIGHTS = ["majors", "promotion", "transfers", "academy", "seasons", "legends"] as const
 
 export function DemoEnd() {
     const { team, played, won, trophies, division, position } = useGameStore(useShallow(s => {
@@ -48,39 +43,41 @@ export function DemoEnd() {
                         <TeamLogoDisplay team={team} size={48} />
                     </span>
                     <div className="min-w-0 flex-1">
-                        <p className="premium-eyebrow">Demo complete · {team?.name}</p>
-                        <h1 className="page-title">Your first {DEMO_LAST_WEEK} weeks are in the books</h1>
+                        <p className="premium-eyebrow">{t("demo.complete")}{team?.name ? ` · ${team.name}` : ""}</p>
+                        <h1 className="page-title">{t("demo.title", { weeks: DEMO_LAST_WEEK })}</h1>
                         <p className="mt-1 text-sm text-ink-3">
-                            {played} {played === 1 ? "match" : "matches"} played · {won} won
-                            {position && division ? ` · ${ordinal(position)} in ${division}` : ""}
-                            {team?.worldRanking ? ` · world ranking #${team.worldRanking}` : ""}
-                            {trophies > 0 ? ` · ${trophies} ${trophies === 1 ? "trophy" : "trophies"}` : ""}
+                            {[
+                                tn("demo.played", played),
+                                t("demo.won", { n: won }),
+                                position && division ? t("demo.position", { place: ordinalLabel(position), division: divisionName(division) }) : null,
+                                team?.worldRanking ? t("demo.worldRank", { n: team.worldRanking }) : null,
+                                trophies > 0 ? tn("demo.trophies", trophies) : null,
+                            ].filter(Boolean).join(" · ")}
                         </p>
                     </div>
                 </div>
             </Panel>
 
-            <Panel title="Keep this career going">
+            <Panel title={t("demo.keepGoing")}>
                 <p className="text-sm text-ink-2">
-                    The season is far from over: the second split, the majors, the transfer windows and every season after it.
-                    Get the full game on Steam and, on this PC, this save is waiting in Load game, ready to play week {DEMO_LAST_WEEK + 1}.
+                    {t("demo.body", { week: DEMO_LAST_WEEK + 1 })}
                 </p>
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                     {FULL_GAME_HIGHLIGHTS.map(h => (
-                        <li key={h.title} className="rounded-md border border-line bg-raised px-3 py-2.5">
-                            <p className="text-sm font-semibold text-ink-1">{h.title}</p>
-                            <p className="mt-0.5 text-xs text-ink-3">{h.detail}</p>
+                        <li key={h} className="rounded-md border border-line bg-raised px-3 py-2.5">
+                            <p className="text-sm font-semibold text-ink-1">{t(`demo.hl.${h}`)}</p>
+                            <p className="mt-0.5 text-xs text-ink-3">{t(`demo.hl.${h}.detail`)}</p>
                         </li>
                     ))}
                 </ul>
-                <p className="mt-3 text-xs text-ink-3">Esports Manager: FPS is in Early Access. What you tell us in reviews and on the forums shapes the next patches.</p>
+                <p className="mt-3 text-xs text-ink-3">{t("demo.ea")}</p>
             </Panel>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
-                <Button asChild variant="outline"><Link href="/main-menu">Main menu</Link></Button>
-                <Button asChild variant="outline"><Link href="/new-game">New demo career</Link></Button>
+                <Button asChild variant="outline"><Link href="/main-menu">{t("menu.label")}</Link></Button>
+                <Button asChild variant="outline"><Link href="/new-game">{t("demo.newCareer")}</Link></Button>
                 <Button asChild>
-                    <a href={FULL_GAME_STORE_URL} target="_blank" rel="noreferrer">Get the full game</a>
+                    <a href={FULL_GAME_STORE_URL} target="_blank" rel="noreferrer">{t("demo.getFull")}</a>
                 </Button>
             </div>
         </div>
@@ -96,9 +93,9 @@ export function DemoWeeksPill({ weeksLeft }: { weeksLeft: number }) {
             rel="noreferrer"
             className="fixed bottom-4 left-4 z-40 rounded-full border border-gold/60 bg-panel/95 px-3 py-1.5 text-xs font-semibold text-ink-2 shadow-lg hover:border-gold hover:text-ink-1"
         >
-            <span className="font-bold uppercase tracking-[0.12em] text-gold">Demo</span>
+            <span className="font-bold uppercase tracking-[0.12em] text-gold">{t("demo.tag")}</span>
             {" · "}
-            {weeksLeft === 1 ? "last week" : `${weeksLeft} weeks left`}
+            {weeksLeft === 1 ? t("demo.lastWeek") : tn("demo.weeksLeft", weeksLeft)}
         </a>
     )
 }

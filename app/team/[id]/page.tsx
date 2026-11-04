@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { Button } from "@/components/ui/button"
 import { TeamProfile } from "@/components/team/TeamProfile"
+import { t } from "@/lib/i18n"
 
 export default function TeamPage() {
     const { id } = useParams()
@@ -22,7 +23,7 @@ export default function TeamPage() {
     if (!_hasHydrated || (!team && isLoading)) {
         return (
             <div className="mx-auto max-w-[1600px]">
-                <div role="status" aria-label="Loading club" className="h-64 animate-pulse rounded-lg border border-line bg-panel" />
+                <div role="status" aria-label={t("teamPage.loading")} className="h-64 animate-pulse rounded-lg border border-line bg-panel" />
             </div>
         )
     }
@@ -30,8 +31,8 @@ export default function TeamPage() {
 
     return (
         <div className="mx-auto w-full min-w-0 max-w-[1600px] space-y-3 pb-16">
-            <Button variant="ghost" size="sm" className="-ml-2 h-8 gap-1.5 px-2 text-ink-3" aria-label="Go back" onClick={() => router.back()}>
-                <ArrowLeft className="h-4 w-4" /> Back
+            <Button variant="ghost" size="sm" className="-ml-2 h-8 gap-1.5 px-2 text-ink-3" aria-label={t("player.goBack")} onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4" /> {t("player.back")}
             </Button>
             <TeamProfile team={team} />
         </div>
