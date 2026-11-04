@@ -10,9 +10,10 @@
  *
  * A plain browser has no page-zoom API. There the scale falls back to the root
  * font size, which enlarges rem-based sizes only. CSS `zoom` on the root was
- * ruled out: viewport units (h-screen, 85vh) grow with it and overflow, and
- * Radix/floating-ui popovers and the radar canvas place themselves in the
- * wrong spot, because their coordinates get multiplied by the zoom again.
+ * ruled out: viewport units (h-screen, 85vh; ~100 uses) grow with it, so a
+ * full-height screen became 1800px tall in a 1440px window at 125%; and code
+ * that writes measured px back into styles (floating-ui 1.8 popovers, the
+ * radar's canvas sizing) would get those px multiplied by the zoom again.
  * Only one of the two mechanisms is ever active, so nothing is scaled twice.
  */
 
