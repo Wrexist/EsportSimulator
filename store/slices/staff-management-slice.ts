@@ -37,7 +37,7 @@ import {
 } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
-import { tRefEn, type TextRef } from "@/lib/i18n"
+import { liveText, type TextRef, tRefEn } from "@/lib/i18n"
 const MAX_STAFF_PER_TEAM = 5
 const MAX_PER_ROLE = 1
 const DEFAULT_CONTRACT_WEEKS = 52
@@ -189,7 +189,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
 
-            result = { success: true, message: `Hired ${staffMember.name}!` }
+            result = { success: true, message: liveText({ key: "lv.hired", params: { name: staffMember.name } }) }
         })
         return result
     },

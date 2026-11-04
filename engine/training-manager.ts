@@ -1,3 +1,4 @@
+import { liveText } from "@/lib/i18n"
 import { GameSave, TeamSaveData, PlayerSaveData, RoleTrainingSession } from "./save-types"
 import { Role } from "@/types"
 import { PlayerRole } from "@/types/enums"
@@ -90,7 +91,7 @@ export class TrainingManager {
       })
     }
 
-    return { success: true, message: `Started ${targetRole} training for ${player.nickname}` }
+    return { success: true, message: liveText({ key: "lv.roleTraining", params: { role: { key: `market.role.${ROLE_TO_PLAYER_ROLE[targetRole]}` }, name: player.nickname } }) }
   }
 
   /**

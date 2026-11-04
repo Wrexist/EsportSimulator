@@ -16,6 +16,7 @@
  * - Master: 1000+ XP (+12% accuracy, +8% damage, unlocks weapon badge)
  */
 
+import { liveText } from "@/lib/i18n"
 import { Player } from "@/types/player"
 import { PlayerSaveData } from "./save-types"
 
@@ -268,7 +269,7 @@ export class WeaponMasteryManager {
                 cost: 0,
                 xpGained: 0,
                 newMastery: {},
-                message: `Insufficient budget. Need $${drill.cost.toLocaleString()}.`
+                message: liveText({ key: "lv.needFunds", params: { amount: `$${drill.cost.toLocaleString("en-US")}` } })
             }
         }
 

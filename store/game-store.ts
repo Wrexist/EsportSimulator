@@ -1,5 +1,6 @@
 "use client"
 
+import { liveText, STORED_REF } from "@/lib/i18n"
 import { applyMapRotation } from "@/engine/season/map-rotation"
 import { newFirstSession, restoreFirstSession, restoreWeeklyPlan } from '@/lib/first-session'
 import { createDefaultTactics } from "@/engine/default-tactics"
@@ -717,7 +718,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
  * pinned an entire extra copy of the loaded save in renderer memory (L27).
  */
 function achievementToast(get: () => { addToast: (toast: { message: string; type: "achievement" }) => void }) {
-  return (achievement: { name: string }) => get().addToast({ message: `Achievement Unlocked: ${achievement.name}`, type: "achievement" })
+  return (achievement: { name: string }) => get().addToast({ message: liveText({ key: "lv.achievement", params: { name: { key: STORED_REF, params: { text: achievement.name } } } }), type: "achievement" })
 }
 
 /**
@@ -1140,7 +1141,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         void steamAchievements.setActiveSave(get().saveId)
         steamAchievements.initialize((achievement) => {
           get().addToast({
-            message: `Achievement Unlocked: ${achievement.name}`,
+            message: liveText({ key: "lv.achievement", params: { name: { key: STORED_REF, params: { text: achievement.name } } } }),
             type: "achievement"
           })
         })
@@ -1322,7 +1323,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         } catch (err) {
           const message = err instanceof Error ? err.message : "Initialization failed"
           set({ isLoading: false, error: message })
-          get().addToast({ message: `Could not start new game: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.newGame", params: { message } }), type: "error", duration: 8000 })
         }
       },
 
@@ -1636,7 +1637,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const message = err instanceof Error ? err.message : "Failed to create team"
           logger.error("Failed to create custom team", err)
           set({ isLoading: false, error: message })
-          get().addToast({ message: `Could not create custom team: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.customTeam", params: { message } }), type: "error", duration: 8000 })
         }
       },
 
@@ -1823,7 +1824,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (hoursAway >= 24) {
               const daysAway = Math.floor(hoursAway / 24)
               get().addToast({
-                message: `Welcome back! You've been away for ${daysAway} day${daysAway !== 1 ? "s" : ""}.`,
+                message: liveText({ key: "lv.welcomeBack", count: daysAway }),
                 type: "info",
                 duration: 6000
               })
@@ -1832,7 +1833,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         } catch (err) {
           const message = err instanceof Error ? err.message : "Load failed"
           set({ isLoading: false, error: message })
-          get().addToast({ message: `Could not load save: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.load", params: { message } }), type: "error", duration: 8000 })
           throw new Error(message)
         }
       },
@@ -1855,7 +1856,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             throw new Error(saveResult.error || "Save failed")
           }
           if (saveResult.repairs && saveResult.repairs.length > 0) {
-            get().addToast({ message: `Save auto-repaired: ${saveResult.repairs[0]}`, type: "warning", duration: 8000 })
+            get().addToast({ message: liveText({ key: "lv.err.repaired", params: { detail: saveResult.repairs[0] } }), type: "warning", duration: 8000 })
           }
           if (saveResult.sizeWarning && sizeWarnedSaveId !== state.saveId) {
             sizeWarnedSaveId = state.saveId
@@ -1873,7 +1874,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // persisted, instead of silently letting the catch propagate up
           // to a caller that may or may not show a toast.
           get().addToast({
-            message: `Save failed: ${message}`,
+            message: liveText({ key: "lv.err.save", params: { message } }),
             type: "error",
             duration: 8000,
           })
@@ -2256,7 +2257,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   }
                 })
                 if (retro) get().addToast({ message: "Legacy goals are on your manager profile. The levels your career already holds are marked.", type: "info", duration: 8000 })
-                else hits.forEach(hit => get().addToast({ message: `${hit.message} Reputation +${hit.reputation}.`, type: "achievement" }))
+                else hits.forEach(hit => get().addToast({ message: liveText({ key: "lv.legacyHit", params: { goal: { key: STORED_REF, params: { text: hit.message } }, rep: hit.reputation } }), type: "achievement" }))
               }
             } catch (lgErr) {
               logger.error("[advanceWeek] legacy goal check failed", lgErr)
@@ -2368,7 +2369,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           logger.error("[advanceWeek] Failed", err)
           set({ isLoading: false, error: message, weekProgress: null })
           const display = message.length > 120 ? message.slice(0, 117) + "..." : message
-          get().addToast({ message: `Week failed: ${display}`, type: "warning", duration: 12000 })
+          get().addToast({ message: liveText({ key: "lv.err.week", params: { message: display } }), type: "warning", duration: 12000 })
         }
       },
 
@@ -2488,7 +2489,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               message,
             },
           })
-          get().addToast({ message: `Save recovery failed: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.recovery", params: { message } }), type: "error", duration: 8000 })
           return false
         }
       },

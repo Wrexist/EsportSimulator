@@ -28,6 +28,7 @@
  *     branches set the correct success message.
  */
 
+import { liveText } from "@/lib/i18n"
 import type { SliceCreator } from "@/store/types"
 import type { SponsorSaveData, FacilitySaveData } from "@/engine/save-types"
 import { EquipmentManager } from "@/engine/equipment-manager"
@@ -134,12 +135,12 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             if (facility) {
                 // Upgrade path: cost scales linearly with current level.
                 if (!Number.isInteger(facility.level) || facility.level < 1 || facility.level >= MAX_FACILITY_LEVEL) {
-                    result = { success: false, message: `${facilityType} facility is already at max level.` }
+                    result = { success: false, message: liveText({ key: "lv.facMax", params: { facility: { key: `fac.${facilityType}.name` } } }) }
                     return
                 }
                 const cost = facility.level * FACILITY_UPGRADE_BASE_COST
                 if (team.budget < cost) {
-                    result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}.` }
+                    result = { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(cost, "$", false) } }) }
                     return
                 }
 
@@ -179,13 +180,13 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                     },
                 })
                 if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
-                result = { success: true, message: `${facility.type} upgraded to level ${facility.level}.` }
+                result = { success: true, message: liveText({ key: "lv.facUp", params: { facility: { key: `fac.${facility.type}.name` }, level: facility.level } }) }
                 return
             }
 
             // Build path: brand-new facility starts at level 1.
             if (team.budget < FACILITY_BUILD_COST) {
-                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(FACILITY_BUILD_COST, "$", false)}.` }
+                result = { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(FACILITY_BUILD_COST, "$", false) } }) }
                 return
             }
             team.budget -= FACILITY_BUILD_COST
@@ -224,7 +225,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 },
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
-            result = { success: true, message: `${facilityType} facility built (level 1).` }
+            result = { success: true, message: liveText({ key: "lv.facBuilt", params: { facility: { key: `fac.${facilityType}.name` } } }) }
         })
         return result
     },
@@ -256,7 +257,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             }
             // One per tier; one per name (covers re-clicking the same offer).
             if (team.sponsors.some(s => String(s.tier).replace("BASIC", "STANDARD") === String(sponsor.tier).replace("BASIC", "STANDARD"))) {
-                result = { success: false, message: `You already have an active ${sponsor.tier.toLowerCase()} sponsor.` }
+                result = { success: false, message: liveText({ key: "lv.sponsorTierTaken", params: { tier: { key: `sp.tier.${String(sponsor.tier).replace("BASIC", "STANDARD")}` } } }) }
                 return
             }
             if (team.sponsors.some(s => s.name === sponsor.name)) {
@@ -266,14 +267,14 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             // Re-sign cooldown after a contract lapses (anti-cycling).
             const cooldownWeek = team.sponsorCooldowns?.[sponsor.name]
             if (typeof cooldownWeek === "number" && cooldownWeek > state.currentWeek) {
-                result = { success: false, message: `${sponsor.name} won't return for ${cooldownWeek - state.currentWeek} more week(s) after the last deal lapsed.` }
+                result = { success: false, message: liveText({ key: "lv.sponsorCooldown", params: { sponsor: sponsor.name, weeks: { key: "sl.weeks", count: cooldownWeek - state.currentWeek } } }) }
                 return
             }
 
             // Tier gating by world ranking + tournament achievements.
             const ranking = team.worldRanking || 999
             if (sponsor.tier === "PREMIUM" && ranking > PREMIUM_TIER_RANK_THRESHOLD) {
-                result = { success: false, message: `Premium sponsors require a Top ${PREMIUM_TIER_RANK_THRESHOLD} world ranking.` }
+                result = { success: false, message: liveText({ key: "lv.premiumReq", params: { rank: PREMIUM_TIER_RANK_THRESHOLD } }) }
                 return
             }
             if (sponsor.tier === "ELITE") {
@@ -286,7 +287,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 })
                 const isTopRanked = ranking <= ELITE_TIER_RANK_THRESHOLD
                 if (!hasMajorTrophy && !hasMajorParticipation && !isTopRanked) {
-                    result = { success: false, message: `Elite sponsors require Top ${ELITE_TIER_RANK_THRESHOLD} ranking or major tournament participation.` }
+                    result = { success: false, message: liveText({ key: "lv.eliteReq", params: { rank: ELITE_TIER_RANK_THRESHOLD } }) }
                     return
                 }
             }
@@ -328,7 +329,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             state.sponsorOffers = state.sponsorOffers.filter(o =>
                 sponsor.id ? o.id !== sponsor.id : !(o.name === sponsor.name && o.tier === sponsor.tier)
             )
-            result = { success: true, message: `${normalizedSponsor.name} signed successfully.` }
+            result = { success: true, message: liveText({ key: "lv.sponsorSigned", params: { sponsor: normalizedSponsor.name } }) }
         })
         return result
     },
@@ -374,14 +375,14 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
 
             const currentLevel = team.merchStoreLevel || 1
             if (currentLevel >= MAX_MERCH_STORE_LEVEL) {
-                result = { success: false, message: `Store is already at maximum level (${MAX_MERCH_STORE_LEVEL})` }
+                result = { success: false, message: liveText({ key: "lv.storeMax", params: { max: MAX_MERCH_STORE_LEVEL } }) }
                 return
             }
 
             // Cost doubles per level: 50k → 100k → 200k → 400k → 800k.
             const cost = MERCH_BASE_UPGRADE_COST * Math.pow(2, currentLevel - 1)
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
+                result = { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(cost, "$", false) } }) }
                 return
             }
 
@@ -402,7 +403,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 balance: team.budget,
             })
 
-            result = { success: true, message: `Store upgraded to Level ${team.merchStoreLevel}` }
+            result = { success: true, message: liveText({ key: "lv.storeUp", params: { level: team.merchStoreLevel } }) }
         })
         return result
     },
@@ -424,7 +425,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 // item unlocked at a level they've since... not applicable, but
                 // harmless and avoids trapping stale items).
                 team.activeMerchItems = team.activeMerchItems.filter(i => i !== itemType)
-                result = { success: true, message: `${itemType} removed from active merch.` }
+                result = { success: true, message: liveText({ key: "lv.merchOff", params: { item: { key: `merch.${itemType}` } } }) }
             } else {
                 // Gate activation on merch-store level at the action layer — the
                 // UI disables locked buttons, but a direct store call could
@@ -437,11 +438,11 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 }
                 const level = team.merchStoreLevel || 1
                 if (level < requiredLevel) {
-                    result = { success: false, message: `${itemType} unlocks at store level ${requiredLevel}.` }
+                    result = { success: false, message: liveText({ key: "lv.merchLocked", params: { item: { key: `merch.${itemType}` }, level: requiredLevel } }) }
                     return
                 }
                 team.activeMerchItems.push(itemType)
-                result = { success: true, message: `${itemType} added to active merch.` }
+                result = { success: true, message: liveText({ key: "lv.merchOn", params: { item: { key: `merch.${itemType}` } } }) }
             }
         })
         return result

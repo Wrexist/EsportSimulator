@@ -12,6 +12,7 @@
  * reach state.teams[i].
  */
 
+import { liveText } from "@/lib/i18n"
 import type { TournamentActions, SliceCreator } from "@/store/types"
 import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import {
@@ -79,7 +80,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 const mainTournament = FULL_TOURNAMENT_CALENDAR.find(t => t.id === definition.qualifierFor)
                 return {
                     success: false,
-                    message: `Already qualified for ${mainTournament?.name || "main tournament"}. Cannot enter qualifier.`,
+                    message: liveText(mainTournament?.name ? { key: "lv.qualifiedFor", params: { event: mainTournament.name } } : { key: "lv.qualifiedMain" }),
                 }
             }
 
@@ -96,7 +97,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 if (isInSibling) {
                     return {
                         success: false,
-                        message: `Already registered for ${sibling.name || sibling.shortName}. Cannot enter multiple qualifiers for the same tournament.`,
+                        message: liveText({ key: "lv.siblingQualifier", params: { event: sibling.name || sibling.shortName } }),
                     }
                 }
             }
@@ -128,7 +129,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 },
             })
         })
-        return { success: true, message: `Registered for ${definition.name}` }
+        return { success: true, message: liveText({ key: "lv.registered", params: { event: definition.name } }) }
     },
 
     checkTournamentEligibility: (tournamentId: string) => {

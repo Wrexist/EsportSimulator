@@ -16,7 +16,7 @@
  * mutations don't propagate to state.teams[i] under Immer.
  */
 
-import { t } from "@/lib/i18n"
+import { liveText, t } from "@/lib/i18n"
 import type { EventsActions, SliceCreator } from "@/store/types"
 import type { GameSave } from "@/engine/save-types"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
@@ -112,7 +112,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
                     if (team.budget < salaryCost) {
                         state.toasts.push({
                             id: nextDeterministicId(state, "toast_legend_coach_funds"),
-                            message: `Insufficient funds — hiring requires ${formatCurrency(salaryCost, "$", false)} up front`,
+                            message: liveText({ key: "lv.hireFunds", params: { amount: formatCurrency(salaryCost, "$", false) } }),
                             type: "warning",
                         })
                         return

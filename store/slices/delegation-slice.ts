@@ -28,7 +28,7 @@ import { employedScout } from "@/engine/recruitment"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { formatCurrency } from "@/lib/utils-extended"
 import { eventText } from "@/lib/news-ref"
-import { JOIN_REF, tRefEn, type TextRef } from "@/lib/i18n"
+import { JOIN_REF, liveText, type TextRef, tRefEn } from "@/lib/i18n"
 import { soundManager } from "@/lib/sound-manager"
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { pendingPlayableMatch } from "@/lib/playable-match"
@@ -153,7 +153,7 @@ export const createDelegationSlice: SliceCreator<DelegationActions> = (set, get)
             const us = home ? done.result.homeScore : done.result.awayScore
             const them = home ? done.result.awayScore : done.result.homeScore
             const verdict = done.result.winnerId === teamId ? "won" : done.result.winnerId ? "lost" : "drew"
-            get().addToast({ message: `Your assistant played ${opp} in the league and ${verdict} ${us}-${them}.`, type: "info" })
+            get().addToast({ message: liveText({ key: `lv.assistant.${verdict}`, params: { opp, us, them } }), type: "info" })
         }
         return true
     },

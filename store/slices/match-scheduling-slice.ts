@@ -18,6 +18,7 @@
  * action calls.
  */
 
+import { liveText } from "@/lib/i18n"
 import type { SliceCreator } from "@/store/types"
 import type { ActivitySaveData } from "@/engine/save-types"
 import {
@@ -87,12 +88,12 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
         if (normalizedDay !== undefined) {
             const dayMatches = weekMatches.filter(m => m.day === normalizedDay)
             if (dayMatches.length >= MAX_DAILY_EVENTS) {
-                return { success: false, message: `Day schedule is full (max ${MAX_DAILY_EVENTS} events per day)` }
+                return { success: false, message: liveText({ key: "lv.dayFull", params: { max: MAX_DAILY_EVENTS } }) }
             }
         }
 
         if (weekActivities.length + weekMatches.length >= MAX_WEEKLY_SLOTS) {
-            return { success: false, message: `Weekly schedule is full (max ${MAX_WEEKLY_SLOTS} slots)` }
+            return { success: false, message: liveText({ key: "lv.weekFull", params: { max: MAX_WEEKLY_SLOTS } }) }
         }
 
         set((state) => {
@@ -166,7 +167,7 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
         // The booking is paid once, up front; the booking screens show the total.
         const payingTeam = state.teams.find(t => t.id === state.playerTeamId)
         if (normalizedActivity.cost > 0 && (!payingTeam || payingTeam.budget < normalizedActivity.cost)) {
-            return { success: false, message: `Insufficient funds: this costs ${formatCurrency(normalizedActivity.cost, "$", false)}.` }
+            return { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(normalizedActivity.cost, "$", false) } }) }
         }
 
         const week = normalizedActivity.week
@@ -174,7 +175,7 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
         const weekMatches = state.scheduledMatches.filter(m => m.week === week)
 
         if (weekActivities.length + weekMatches.length >= MAX_WEEKLY_SLOTS) {
-            return { success: false, message: `Weekly schedule is full (max ${MAX_WEEKLY_SLOTS} slots)` }
+            return { success: false, message: liveText({ key: "lv.weekFull", params: { max: MAX_WEEKLY_SLOTS } }) }
         }
 
         // Bootcamps need a rested roster — refuse if the squad is gassed.
@@ -186,7 +187,7 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
             if (avgFatigue > BOOTCAMP_FATIGUE_THRESHOLD) {
                 return {
                     success: false,
-                    message: `Team is too exhausted for a bootcamp (Avg Fatigue > ${BOOTCAMP_FATIGUE_THRESHOLD})`,
+                    message: liveText({ key: "lv.bootcampTired", params: { max: BOOTCAMP_FATIGUE_THRESHOLD } }),
                 }
             }
         }

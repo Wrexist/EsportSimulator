@@ -19,6 +19,7 @@
  * lookups + nextDeterministicId helper.
  */
 
+import { liveText } from "@/lib/i18n"
 import type { SliceCreator } from "@/store/types"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
@@ -82,14 +83,12 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                 return
             }
 
-            const drillName = drillId.replace(/_/g, " ").toUpperCase()
-
             // Exhaustion guard — block drill if any active player is gassed.
             const roster = state.players.filter(p => team.rosterIds.includes(p.id) && !p.isRetired && !team.activeRoleTraining?.some(t => t.playerId === p.id))
             if (!roster.length) { result = { success: false, message: "No available squad players for this drill" }; return }
             const exhaustedPlayer = roster.find(p => (p.fatigue || 0) >= EXHAUSTION_THRESHOLD)
             if (exhaustedPlayer && cost > 0) {
-                result = { success: false, message: `${exhaustedPlayer.nickname} is too exhausted to train!` }
+                result = { success: false, message: liveText({ key: "lv.tooTired", params: { name: exhaustedPlayer.nickname } }) }
                 return
             }
 
@@ -117,7 +116,7 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                         type: "PLAYER_LEVEL_UP",
                         week: state.currentWeek,
                         acknowledged: false,
-                        data: { playerId: p.id, message: `${p.nickname} reached Level ${p.level}!` },
+                        data: { playerId: p.id, message: liveText({ key: "lv.levelUp", params: { name: p.nickname, level: p.level } }) },
                     })
                 }
 
@@ -161,7 +160,7 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                 })
             })
 
-            result = { success: true, message: `Completed ${drillName} (+${DRILL_XP_GAIN} XP)` }
+            result = { success: true, message: liveText({ key: "lv.drillDone", params: { drill: { key: `tr.drill.${drillId}` }, xp: DRILL_XP_GAIN } }) }
         })
         return result
     },

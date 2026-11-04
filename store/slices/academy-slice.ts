@@ -35,6 +35,7 @@
  * Extracted from game-store.ts as the final big domain.
  */
 
+import { liveText, type TextRef } from "@/lib/i18n"
 import type { SliceCreator } from "@/store/types"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { employedScout } from "@/engine/recruitment"
@@ -126,7 +127,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             const cost = ACADEMY_LEVELS[1].buildCost
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
+                result = { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(cost, "$", false) } }) }
                 return
             }
 
@@ -184,7 +185,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             const cost = AcademyEngine.getUpgradeCost(currentLevel)
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
+                result = { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(cost, "$", false) } }) }
                 return
             }
 
@@ -215,7 +216,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
 
-            result = { success: true, message: `Academy upgraded to Level ${currentLevel + 1}!` }
+            result = { success: true, message: liveText({ key: "lv.academyUp", params: { level: currentLevel + 1 } }) }
         })
         return result
     },
@@ -241,7 +242,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 const academyThreshold = tier === "REGIONAL" ? 2 : 4
                 result = {
                     success: false,
-                    message: `${tier} scouting requires Academy Level ${academyThreshold} or Manager Level ${managerThreshold}.`,
+                    message: liveText({ key: "lv.scoutTierLocked", params: { tier: { key: `ac.tier.${tier}` }, academy: academyThreshold, manager: managerThreshold } }),
                 }
                 return
             }
@@ -261,13 +262,13 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const cost = Math.max(0, Math.round(baseCost * (1 + scoutCostBonus / 100)))
 
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
+                result = { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(cost, "$", false) } }) }
                 return
             }
             // Don't take the player's money for a prospect the full desk will
             // discard on completion — refuse the mission up front instead.
             if ((state.academyPendingProspects || []).length >= PENDING_POOL_MAX_SIZE) {
-                result = { success: false, message: `Your review desk is full (max ${PENDING_POOL_MAX_SIZE}). Enroll or release a pending prospect first.` }
+                result = { success: false, message: liveText({ key: "lv.deskFull", params: { max: PENDING_POOL_MAX_SIZE } }) }
                 return
             }
 
@@ -294,8 +295,8 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
             state.academyScoutingMissions.push(mission)
 
-            const savedMsg = cost < baseCost ? ` (saved ${formatCurrency((baseCost - cost), "$", false)} via Networking)` : ""
-            result = { success: true, message: `${tier} scouting mission initiated. Will take ${duration} week(s).${savedMsg}` }
+            const savedMsg: TextRef | string = cost < baseCost ? { key: "lv.scoutSaved", params: { amount: formatCurrency((baseCost - cost), "$", false) } } : ""
+            result = { success: true, message: liveText({ key: "lv.scoutStarted", params: { tier: { key: `ac.tier.${tier}` }, weeks: { key: "sl.weeks", count: duration }, saved: savedMsg } }) }
         })
         return result
     },
@@ -357,7 +358,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             state.academyPlayers.push(academyPlayer)
-            result = { success: true, message: `${player.nickname} enrolled in academy` }
+            result = { success: true, message: liveText({ key: "lv.enrolled", params: { name: player.nickname } }) }
         })
         return result
     },
@@ -387,7 +388,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             if (team && team.budget < normalizedReleaseCost) {
-                result = { success: false, message: `Insufficient funds to pay termination fee (${formatCurrency(normalizedReleaseCost, "$", false)})` }
+                result = { success: false, message: liveText({ key: "lv.releaseFunds", params: { amount: formatCurrency(normalizedReleaseCost, "$", false) } }) }
                 return
             }
 
@@ -430,7 +431,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             result = {
                 success: true,
-                message: `${player?.nickname || "Prospect"} released. Paid ${formatCurrency(normalizedReleaseCost, "$", false)} termination fee.`,
+                message: liveText(player?.nickname ? { key: "lv.prospectReleased", params: { name: player.nickname, amount: formatCurrency(normalizedReleaseCost, "$", false) } } : { key: "lv.prospectReleasedAnon", params: { amount: formatCurrency(normalizedReleaseCost, "$", false) } }),
             }
         })
         return result
@@ -532,7 +533,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
 
-            result = { success: true, message: `${player.nickname} promoted to main roster!` }
+            result = { success: true, message: liveText({ key: "lv.promoted", params: { name: player.nickname } }) }
         })
         return result
     },
@@ -549,7 +550,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const academyLevel = team.academyFacility.level
 
             if (team.budget < DEV_MATCH_CONFIG.matchCost) {
-                result = { success: false, message: `Insufficient budget (${formatCurrency(DEV_MATCH_CONFIG.matchCost, "$", false)} required)` }
+                result = { success: false, message: liveText({ key: "lv.needFunds", params: { amount: formatCurrency(DEV_MATCH_CONFIG.matchCost, "$", false) } }) }
                 return
             }
 
@@ -570,7 +571,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 }).join(", ")
                 result = {
                     success: false,
-                    message: `Starters are too exhausted to play (<${ENERGY_CONFIG.exhaustionLimit}% Energy): ${names}`,
+                    message: liveText({ key: "lv.startersTired", params: { limit: ENERGY_CONFIG.exhaustionLimit, names } }),
                 }
                 return
             }

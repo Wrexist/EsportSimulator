@@ -14,6 +14,7 @@
  * Only the managed club can be changed through these actions.
  */
 
+import { liveText } from "@/lib/i18n"
 import type { SliceCreator } from "@/store/types"
 import { canBeMentored, canMentor } from "@/engine/personality"
 
@@ -40,7 +41,7 @@ export const createDressingRoomSlice: SliceCreator<DressingRoomActions> = (set, 
                 return
             }
             team.dressingRoom = { ...(team.dressingRoom ?? {}), captainId: playerId }
-            outcome = { success: true, message: `${player.nickname} is your captain.` }
+            outcome = { success: true, message: liveText({ key: "lv.captain", params: { name: player.nickname } }) }
         })
         return outcome
     },
@@ -57,17 +58,17 @@ export const createDressingRoomSlice: SliceCreator<DressingRoomActions> = (set, 
                 return
             }
             if (!canMentor(mentor)) {
-                outcome = { success: false, message: `${mentor.nickname} can't mentor: needs to be a Leader or Professional aged 27+.` }
+                outcome = { success: false, message: liveText({ key: "lv.mentorNo", params: { name: mentor.nickname } }) }
                 return
             }
             if (!canBeMentored(mentee)) {
-                outcome = { success: false, message: `${mentee.nickname} is too old to be mentored.` }
+                outcome = { success: false, message: liveText({ key: "lv.menteeOld", params: { name: mentee.nickname } }) }
                 return
             }
             const pairs = (team.dressingRoom?.mentorships ?? []).filter(m => m.mentorId !== mentorId && m.menteeId !== menteeId)
             pairs.push({ mentorId, menteeId, sinceWeek: state.currentWeek })
             team.dressingRoom = { ...(team.dressingRoom ?? {}), mentorships: pairs }
-            outcome = { success: true, message: `${mentor.nickname} now mentors ${mentee.nickname}.` }
+            outcome = { success: true, message: liveText({ key: "lv.mentoring", params: { mentor: mentor.nickname, mentee: mentee.nickname } }) }
         })
         if (outcome.success) get().addToast({ message: outcome.message, type: "info" })
         return outcome

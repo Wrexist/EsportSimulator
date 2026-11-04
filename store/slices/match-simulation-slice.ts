@@ -25,6 +25,7 @@
  * actions live in the same slice.
  */
 
+import { liveText } from "@/lib/i18n"
 import { adaptHabits } from "@/engine/match/habits"
 import { autoVetoMaps } from "@/lib/auto-veto"
 import type { SliceCreator } from "@/store/types"
@@ -694,11 +695,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // depleted match with a clear reason - advancing the week forfeits it
         // properly, so this can't softlock.
         if (state.playerTeamId === hTeam.id && hPlayers.length < 5) {
-            get().addToast({ message: `You need 5 active players to play - your roster has ${hPlayers.length}.`, type: "warning" })
+            get().addToast({ message: liveText({ key: "lv.need5", params: { n: hPlayers.length } }), type: "warning" })
             return false
         }
         if (state.playerTeamId === aTeam.id && aPlayers.length < 5) {
-            get().addToast({ message: `You need 5 active players to play - your roster has ${aPlayers.length}.`, type: "warning" })
+            get().addToast({ message: liveText({ key: "lv.need5", params: { n: aPlayers.length } }), type: "warning" })
             return false
         }
         // Either roster understrength (e.g. the opponent got gutted by injuries /
@@ -706,7 +707,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // ("No players to pick from"). Advancing the week forfeits it properly.
         if (hPlayers.length < 5 || aPlayers.length < 5) {
             const shorthanded = hPlayers.length < 5 ? hTeam : aTeam
-            get().addToast({ message: `${shorthanded.name} can't field 5 players - advance the week to resolve this match by forfeit.`, type: "warning" })
+            get().addToast({ message: liveText({ key: "lv.forfeit", params: { club: shorthanded.name } }), type: "warning" })
             return false
         }
 
