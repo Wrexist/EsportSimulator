@@ -9,6 +9,7 @@
 
 import { SeededRNG } from "@/engine"
 import { generateSeed } from "@/engine/rng"
+import { liveText, NUMBER_REF, STORED_REF } from "@/lib/i18n"
 
 // ===== RNG-BACKED STATE TYPE =====
 
@@ -59,12 +60,12 @@ export const parseBoundedInt = (
   max: number
 ): NumericValidationResult => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return { ok: false, message: `${label} must be a valid number` }
+    return { ok: false, message: liveText({ key: "lv.valNumber", params: { label: { key: STORED_REF, params: { text: label } } } }) }
   }
 
   const normalized = Math.floor(value)
   if (normalized < min || normalized > max) {
-    return { ok: false, message: `${label} must be between ${min.toLocaleString()} and ${max.toLocaleString()}` }
+    return { ok: false, message: liveText({ key: "lv.valRange", params: { label: { key: STORED_REF, params: { text: label } }, min: { key: NUMBER_REF, count: min }, max: { key: NUMBER_REF, count: max } } }) }
   }
 
   return { ok: true, value: normalized }
@@ -77,11 +78,11 @@ export const parseBoundedNumber = (
   max: number
 ): NumericValidationResult => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return { ok: false, message: `${label} must be a valid number` }
+    return { ok: false, message: liveText({ key: "lv.valNumber", params: { label: { key: STORED_REF, params: { text: label } } } }) }
   }
 
   if (value < min || value > max) {
-    return { ok: false, message: `${label} must be between ${min.toLocaleString()} and ${max.toLocaleString()}` }
+    return { ok: false, message: liveText({ key: "lv.valRange", params: { label: { key: STORED_REF, params: { text: label } }, min: { key: NUMBER_REF, count: min }, max: { key: NUMBER_REF, count: max } } }) }
   }
 
   return { ok: true, value }
