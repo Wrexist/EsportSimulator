@@ -1390,7 +1390,7 @@
  "settings.resolution": "Rozdzielczość",
  "settings.resolutionHint": "Rozmiar okna w trybie okienkowym.",
  "settings.rendering": "Renderowanie",
- "settings.renderingHint": "Tylko w aplikacji na komputer. Działa po ponownym uruchomieniu. Jeśli okno z GPU pozostaje puste, wróć do trybu programowego.",
+ "settings.renderingHint": "Tylko w aplikacji na komputer. Działa po ponownym uruchomieniu. Nakładka Steam (Shift+Tab) wymaga GPU. Jeśli okno z GPU pozostaje puste, wróć do trybu programowego.",
  "settings.rendering.software": "Programowe (domyślne)",
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Skala interfejsu",

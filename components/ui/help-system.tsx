@@ -301,9 +301,9 @@ export function HelpSystem() {
                 onClick={openHelp}
                 aria-label="Open help"
                 title="Help & Game Guide"
-                // Stacked above the (conditional) bug-report button at bottom-6
-                // so the two never overlap.
-                className="fixed bottom-20 right-6 z-50 h-10 w-10 rounded border border-line-strong bg-raised text-ink-2 hover:bg-hover hover:text-ink-1"
+                // Rendered in the top bar next to Settings (TopBar.tsx): a
+                // floating corner button covered page content (CROSSCUT-03).
+                className="relative h-9 w-9 shrink-0 rounded text-ink-3 hover:bg-raised hover:text-ink-1"
             >
                 {/* Not opened yet: a static gold dot instead of an animated halo. */}
                 {showPulse && (

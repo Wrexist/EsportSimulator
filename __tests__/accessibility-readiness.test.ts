@@ -90,7 +90,7 @@ describe('display and language preferences', () => {
                 expect(state.colorVisionMode).toBe('high-contrast')
                 expect(state.colorVisionPreferenceSet).toBe(true)
                 expect(state.language).toBe('en')
-                expect(state.uiScale).toBe(120)
+                expect(state.uiScale).toBe(150)
                 const merge = isolated.persist.getOptions().merge
                 expect(merge({ colorVisionMode: 'untrusted-class' }, state).colorVisionMode).toBe('off')
             })

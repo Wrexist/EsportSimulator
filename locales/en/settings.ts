@@ -33,7 +33,7 @@ export const SETTINGS = {
     "settings.resolution": "Resolution",
     "settings.resolutionHint": "Window size in windowed mode.",
     "settings.rendering": "Rendering",
-    "settings.renderingHint": "Desktop app only. Takes effect after a restart. If the window stays blank on GPU, switch back to software.",
+    "settings.renderingHint": "Desktop app only. Takes effect after a restart. The Steam overlay (Shift+Tab) needs GPU. If the window stays blank on GPU, switch back to software.",
     "settings.rendering.software": "Software (default)",
     "settings.rendering.gpu": "GPU",
     "settings.uiScale": "UI scale",

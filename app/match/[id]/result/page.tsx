@@ -385,6 +385,8 @@ export default function MatchResultPage() {
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-4 pb-16">
+            {/* Every screen has an h1; here it is for screen readers only (CROSSCUT-11). */}
+            {homeTeam && awayTeam && <h1 className="sr-only">{t("prep.versus", { a: homeTeam.name, b: awayTeam.name })}</h1>}
             {/* Actions */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1">

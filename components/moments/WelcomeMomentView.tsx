@@ -55,7 +55,7 @@ export function WelcomeMomentView({ moment, onDismiss }: { moment: WelcomeMoment
                 <motion.div {...reveal(0.2)} className="mt-6">
                     <MomentOverline>Board brief{s.managerName ? ` · ${s.managerName}` : ""}</MomentOverline>
                 </motion.div>
-                <motion.h2 {...reveal(0.3, 22)} id={headlineId} className="mt-3 max-w-5xl font-display text-[clamp(48px,5.4vw,92px)] font-extrabold uppercase leading-[0.86] text-ink-1">
+                <motion.h2 {...reveal(0.3, 22)} id={headlineId} className="mt-3 max-w-5xl font-display text-[length:clamp(40px,min(5.4vw,9vh),92px)] font-extrabold uppercase leading-[0.86] text-ink-1">
                     Welcome to {team?.name ?? "the club"}
                 </motion.h2>
                 <MomentRule className="mt-7" delay={0.4} />

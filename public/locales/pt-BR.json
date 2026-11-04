@@ -1352,7 +1352,7 @@
  "settings.resolution": "Resolução",
  "settings.resolutionHint": "Tamanho da janela no modo janela.",
  "settings.rendering": "Renderização",
- "settings.renderingHint": "Só no app para computador. Vale depois de reiniciar. Se a janela ficar em branco com GPU, volte para software.",
+ "settings.renderingHint": "Só no app para computador. Vale depois de reiniciar. O overlay da Steam (Shift+Tab) precisa de GPU. Se a janela ficar em branco com GPU, volte para software.",
  "settings.rendering.software": "Software (padrão)",
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Escala da interface",

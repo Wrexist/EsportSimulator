@@ -1352,7 +1352,7 @@
  "settings.resolution": "Résolution",
  "settings.resolutionHint": "Taille de la fenêtre en mode fenêtré.",
  "settings.rendering": "Rendu",
- "settings.renderingHint": "Application de bureau uniquement. Prend effet après un redémarrage. Si la fenêtre reste vide avec le GPU, repasse en logiciel.",
+ "settings.renderingHint": "Application de bureau uniquement. Prend effet après un redémarrage. L’overlay Steam (Maj+Tab) nécessite le GPU. Si la fenêtre reste vide avec le GPU, repasse en logiciel.",
  "settings.rendering.software": "Logiciel (par défaut)",
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Taille de l'interface",
