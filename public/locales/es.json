@@ -1161,6 +1161,8 @@
  "playbook.code": "Código para compartir",
  "playbook.badCode": "No es un código de playbook",
  "playbook.badCodeBody": "Los códigos empiezan por PB1 y nombran al menos un mapa del grupo.",
+ "playbook.imported": "Playbook importado",
+ "playbook.importedBody": "Órdenes fijadas en {{maps}}.",
  "playbook.title": "Playbook",
  "playbook.applies": "Se aplica desde el próximo partido que empieces",
  "playbook.tCalls": "Órdenes del lado T",

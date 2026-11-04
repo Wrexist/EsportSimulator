@@ -1187,6 +1187,8 @@
  "playbook.code": "Код для обмена",
  "playbook.badCode": "Это не код плейбука",
  "playbook.badCodeBody": "Коды начинаются с PB1 и содержат хотя бы одну карту из пула.",
+ "playbook.imported": "Плейбук импортирован",
+ "playbook.importedBody": "Колы заданы на картах: {{maps}}.",
  "playbook.title": "Плейбук",
  "playbook.applies": "Действует со следующего начатого матча",
  "playbook.tCalls": "Колы за T",

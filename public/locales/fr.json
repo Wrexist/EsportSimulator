@@ -1161,6 +1161,8 @@
  "playbook.code": "Code de partage",
  "playbook.badCode": "Ce n'est pas un code de playbook",
  "playbook.badCodeBody": "Les codes commencent par PB1 et citent au moins une map du pool.",
+ "playbook.imported": "Playbook importé",
+ "playbook.importedBody": "Appels définis sur {{maps}}.",
  "playbook.title": "Playbook",
  "playbook.applies": "S'applique dès le prochain match que tu lances",
  "playbook.tCalls": "Appels côté T",

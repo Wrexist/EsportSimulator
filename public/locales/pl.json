@@ -1187,6 +1187,8 @@
  "playbook.code": "Kod do udostępnienia",
  "playbook.badCode": "To nie jest kod playbooka",
  "playbook.badCodeBody": "Kody zaczynają się od PB1 i wymieniają co najmniej jedną mapę z puli.",
+ "playbook.imported": "Playbook zaimportowany",
+ "playbook.importedBody": "Calle ustawione na mapach: {{maps}}.",
  "playbook.title": "Playbook",
  "playbook.applies": "Obowiązuje od następnego meczu",
  "playbook.tCalls": "Calle po stronie T",

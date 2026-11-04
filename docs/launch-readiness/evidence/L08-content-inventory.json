@@ -91866,8 +91866,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "394de028660e5cbcae0e2f37a19ffde555abdd88e8e2b50145f3fb082a0bee6b",
-      "bytes": 391859,
+      "sha256": "571719fbd4072bab47947cdf9efcaa807a1e059e588c94a6da4f243e18b3ae5b",
+      "bytes": 391962,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92022,13 +92022,18 @@
           "date": "2026-11-04",
           "previousSha256": "168a901cfa7aabfe031446bf9098ec7c051cdb8c8607cd6bb43b719c7ff71a34",
           "change": "Interface languages, week overlay, error and missing page screens: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "394de028660e5cbcae0e2f37a19ffde555abdd88e8e2b50145f3fb082a0bee6b",
+          "change": "Interface languages, playbook import message: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "d6788716c508093158f4b90dd0f3464eab2cb77b1b65d7c7d83bbcfd2581a64d",
-      "bytes": 411391,
+      "sha256": "78faeb3d94e8cb4c676f6da90c956fd9bec56c154e5c3f0b6127a7fead52e64e",
+      "bytes": 411494,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92178,13 +92183,18 @@
           "date": "2026-11-04",
           "previousSha256": "7617e00863b470c3a669409352ce159538dad104eb41f0892651b1fd00765e20",
           "change": "Interface languages, week overlay, error and missing page screens: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d6788716c508093158f4b90dd0f3464eab2cb77b1b65d7c7d83bbcfd2581a64d",
+          "change": "Interface languages, playbook import message: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "ce97a49bd25abea1899c4e5a7c429dc2aedfa413167a73faed040d709db78ccd",
-      "bytes": 419451,
+      "sha256": "a9f0020d03c7042f3bad149b2edfdeecd53fb75aacb73bfc1c75f716fb5be5a6",
+      "bytes": 419553,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92334,13 +92344,18 @@
           "date": "2026-11-04",
           "previousSha256": "956f6a6d871d4bbe0d417260d54d5bc233ebdfbbe0f3b7a97577b030726ce1cb",
           "change": "Interface languages, week overlay, error and missing page screens: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "ce97a49bd25abea1899c4e5a7c429dc2aedfa413167a73faed040d709db78ccd",
+          "change": "Interface languages, playbook import message: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "c7d799e6ef5c6a51f92019a0bf454d958af94996fca4ef511714f203b001a5fc",
-      "bytes": 417242,
+      "sha256": "ea1c7be7b9ce9ea1aeef61b43c6d113f4ab5dade098b4fec809fae4686a0bcf7",
+      "bytes": 417356,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92485,13 +92500,18 @@
           "date": "2026-11-04",
           "previousSha256": "f069d4cf3090c9eda5ebb0e12ce76cfdc52d220c979ad6de58939f656c5c76d9",
           "change": "Interface languages, week overlay, error and missing page screens: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "c7d799e6ef5c6a51f92019a0bf454d958af94996fca4ef511714f203b001a5fc",
+          "change": "Interface languages, playbook import message: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "7358fc2261a90fa90bdd4f1daa35076bbf9fd4d61e0b61321a0f67fd70b79bd2",
-      "bytes": 405589,
+      "sha256": "4a4bde44d3e11a760d24151d0ad400ac44e9f6c3f1db3f084c1473f3b3656ff7",
+      "bytes": 405691,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92636,13 +92656,18 @@
           "date": "2026-11-04",
           "previousSha256": "9a5ff5630952726613d52eae1002fae57f32b64987f892a0694651d3150772e0",
           "change": "Interface languages, week overlay, error and missing page screens: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "7358fc2261a90fa90bdd4f1daa35076bbf9fd4d61e0b61321a0f67fd70b79bd2",
+          "change": "Interface languages, playbook import message: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "1b40ffaea17f97fef8d7e74301f2801ddc4b6492e80e797efb4a67032c71f828",
-      "bytes": 569189,
+      "sha256": "897aa0afc1761a55d200a9424e81a0ff5161e40fbcb32324291d913f268f01aa",
+      "bytes": 569334,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92787,6 +92812,11 @@
           "date": "2026-11-04",
           "previousSha256": "8ab92723fb98227099956b4d629c2ed49249e03810ef236e637659be78066fe7",
           "change": "Interface languages, week overlay, error and missing page screens: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "1b40ffaea17f97fef8d7e74301f2801ddc4b6492e80e797efb4a67032c71f828",
+          "change": "Interface languages, playbook import message: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

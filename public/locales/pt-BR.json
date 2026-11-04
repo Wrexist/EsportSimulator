@@ -1161,6 +1161,8 @@
  "playbook.code": "Código de compartilhamento",
  "playbook.badCode": "Não é um código de playbook",
  "playbook.badCodeBody": "Os códigos começam com PB1 e citam pelo menos um mapa da rotação.",
+ "playbook.imported": "Playbook importado",
+ "playbook.importedBody": "Calls definidas em {{maps}}.",
  "playbook.title": "Playbook",
  "playbook.applies": "Vale a partir da próxima partida que você começar",
  "playbook.tCalls": "Calls do lado TR",

@@ -1135,6 +1135,8 @@
  "playbook.code": "Teilcode",
  "playbook.badCode": "Kein Playbook-Code",
  "playbook.badCodeBody": "Codes beginnen mit PB1 und nennen mindestens eine Map aus dem Pool.",
+ "playbook.imported": "Playbook importiert",
+ "playbook.importedBody": "Calls gesetzt für {{maps}}.",
  "playbook.title": "Playbook",
  "playbook.applies": "Gilt ab dem nächsten Match, das du startest",
  "playbook.tCalls": "T-Calls",
