@@ -387,33 +387,37 @@ export default function TeamSelectionPage() {
                             {managerNameError && <p id="manager-name-error" className="text-xs font-medium text-negative">{managerNameError}</p>}
                         </div>
 
-                        <label className="mt-5 flex items-start gap-3 text-sm text-ink-1">
-                            <Switch checked={randomWorld} onCheckedChange={setRandomWorld} aria-describedby="random-world-hint" className="mt-0.5" />
-                            <span>
-                                <span className="font-semibold">{t("ng.randomWorld")}</span>
-                                <span id="random-world-hint" className="mt-0.5 block text-xs text-ink-3">{t("ng.randomWorldHint")}</span>
-                            </span>
-                        </label>
-
+                        {/* START-22: "Randomised world" sits with the two starts that use it
+                            (existing club, no club); the other three ignore it. Always rendered,
+                            so nothing moves when a path is hovered or focused. */}
                         <div className="mt-8 space-y-2">
-                            <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
-                                <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.existing")}</span>
-                                    <span className="mt-1 block text-[13px] font-medium">{t("ng.path.existing.sub")}</span>
-                                </span>
-                                <ChevronRight />
-                            </Button>
+                            <div role="group" className="space-y-2 rounded-md border border-line p-2">
+                                <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
+                                    <span>
+                                        <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.existing")}</span>
+                                        <span className="mt-1 block text-[13px] font-medium">{t("ng.path.existing.sub")}</span>
+                                    </span>
+                                    <ChevronRight />
+                                </Button>
+                                <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
+                                    <span>
+                                        <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.unemployed")}</span>
+                                        <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.unemployed.sub")}</span>
+                                    </span>
+                                    <ChevronRight />
+                                </Button>
+                                <label className="flex items-start gap-3 px-2 pb-1 pt-2 text-sm text-ink-1">
+                                    <Switch checked={randomWorld} onCheckedChange={setRandomWorld} aria-describedby="random-world-hint" className="mt-0.5" />
+                                    <span>
+                                        <span className="font-semibold">{t("ng.randomWorld")}</span>
+                                        <span id="random-world-hint" className="mt-0.5 block text-xs text-ink-3">{t("ng.randomWorldHint")}</span>
+                                    </span>
+                                </label>
+                            </div>
                             <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.create")}</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.create.sub")}</span>
-                                </span>
-                                <ChevronRight />
-                            </Button>
-                            <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
-                                <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.unemployed")}</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.unemployed.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
