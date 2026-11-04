@@ -1,6 +1,9 @@
 /** Words and short patterns shared by many screens. */
 export const COMMON = {
     "common.week": "Week {{n}}",
+    "common.confirm": "Confirm",
+    "common.cancel": "Cancel",
+    "common.processing": "Processing…",
     "common.weekShort": "Wk {{n}}",
     "common.day": "Day {{n}}",
     "common.season": "Season {{n}}",

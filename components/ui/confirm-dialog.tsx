@@ -54,8 +54,8 @@ export function ConfirmDialog({
     description,
     onConfirm,
     destructive = false,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText,
+    cancelText,
     icon = 'warning'
 }: ConfirmDialogProps) {
     const [open, setOpen] = useState(false)
@@ -123,7 +123,7 @@ export function ConfirmDialog({
                 )}
                 <AlertDialogFooter>
                     <AlertDialogCancel disabled={loading}>
-                        {cancelText}
+                        {cancelText ?? t("common.cancel")}
                     </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={(e) => {
@@ -133,7 +133,7 @@ export function ConfirmDialog({
                         disabled={loading}
                         className={destructive ? 'border-negative bg-negative text-ink hover:bg-negative/90' : ''}
                     >
-                        {loading ? 'Processing...' : confirmText}
+                        {loading ? t("common.processing") : confirmText ?? t("common.confirm")}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

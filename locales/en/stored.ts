@@ -317,4 +317,7 @@ export const STORED = {
     "svd.msg.resumeMatch": "Resume your active match to keep its recorded rounds and lineup.",
     "svd.msg.matchGone": "That match is no longer on your schedule.",
     "svd.msg.unknownMerch": "Unknown merch item.",
+    "svd.msg.gearMissing": "Equipment not found",
+    "svd.msg.gearInstalled": "This equipment is already installed",
+    "svd.msg.noFunds": "Insufficient funds",
 } as const
