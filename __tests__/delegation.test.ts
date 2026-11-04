@@ -7,6 +7,7 @@ import { useGameStore } from "@/store/game-store"
 import { planDrills, planRenewals, DRILL_FATIGUE_CAP, DRILL_FATIGUE_CAP_MATCH_WEEK } from "@/engine/delegation"
 import { DrillManager } from "@/engine/drill-manager"
 import type { PlayerSaveData, StaffSaveData } from "@/engine/save-types"
+import { tRefEn } from "@/lib/i18n"
 
 jest.mock("@/data", () => {
     const actual = jest.requireActual("@/data")
@@ -44,7 +45,7 @@ describe("planners", () => {
         const contracts = roster.map(p => ({ playerId: p.id, teamId: "T", salaryPerWeek: 1000, startWeek: 0, endWeek: p.id === "far" ? 60 : 15, buyout: 0 }))
         const plan = planRenewals(roster, contracts, "T", 10)
         expect(plan.renew.map(p => p.id)).toEqual(["s1", "s2", "s3", "s4"])
-        expect(plan.leave.map(l => [l.player.id, l.reason])).toEqual([["old", "34 years old"], ["sub", "not a regular in the five"]])
+        expect(plan.leave.map(l => [l.player.id, tRefEn(l.reason)])).toEqual([["old", "34 years old"], ["sub", "not a regular in the five"]])
     })
 })
 

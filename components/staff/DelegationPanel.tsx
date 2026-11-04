@@ -1,5 +1,5 @@
 "use client"
-import { t } from "@/lib/i18n"
+import { isTextRef, t, tRef, type TextRef } from "@/lib/i18n"
 
 /**
  * G6: what the staff handles for the manager. Each switch is one area; the
@@ -50,10 +50,17 @@ export function DelegationPanel() {
                 <div className="border-t border-line px-4 py-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("deleg.lastReport", { n: lastReport.week })}</p>
                     <ul className="mt-1 list-disc space-y-0.5 pl-4 text-sm text-ink-2">
-                        {String(lastReport.data?.text ?? "").split("\n").filter(Boolean).map((line, i) => <li key={i}>{line}</li>)}
+                        {reportLines(lastReport.data).map((line, i) => <li key={i}>{line}</li>)}
                     </ul>
                 </div>
             )}
         </Panel>
     )
+}
+
+/** The staff report's lines in the active language (older saves keep English text only). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
+function reportLines(data: any): string[] {
+    if (Array.isArray(data?.linesRef) && data.linesRef.every(isTextRef)) return data.linesRef.map((r: TextRef) => tRef(r))
+    return String(data?.text ?? "").split("\n").filter(Boolean)
 }

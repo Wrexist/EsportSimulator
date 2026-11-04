@@ -8,6 +8,7 @@
  * so every rule and cost those apply still holds.
  */
 
+import type { TextRef } from "@/lib/i18n"
 import type { ActiveDrill } from "./drill-manager"
 import type { ContractSaveData, PlayerSaveData } from "./save-types"
 import { evaluatePlayer } from "./player-evaluation"
@@ -99,7 +100,7 @@ export function planDrills(squad: PlayerSaveData[], drills: ActiveDrill[], slots
     return picks
 }
 
-export interface RenewalPlan { renew: PlayerSaveData[]; leave: { player: PlayerSaveData; reason: string }[] }
+export interface RenewalPlan { renew: PlayerSaveData[]; leave: { player: PlayerSaveData; reason: TextRef }[] }
 
 /** Contracts the assistant renews this week, and the expiring ones he leaves for the manager (with why). */
 export function planRenewals(roster: PlayerSaveData[], contracts: ContractSaveData[], teamId: string, week: number): RenewalPlan {
@@ -112,8 +113,8 @@ export function planRenewals(roster: PlayerSaveData[], contracts: ContractSaveDa
         if (!c || c.endWeek <= week || c.endWeek - week > RENEW_WITHIN_WEEKS) continue
         const starter = starters.includes(p)
         const regular = starter || (ovr.get(p.id) ?? 0) >= weakestStarter - RENEW_ROTATION_MARGIN
-        if ((p.age ?? 0) > RENEW_MAX_AGE) plan.leave.push({ player: p, reason: `${p.age} years old` })
-        else if (!regular) plan.leave.push({ player: p, reason: "not a regular in the five" })
+        if ((p.age ?? 0) > RENEW_MAX_AGE) plan.leave.push({ player: p, reason: { key: "deleg.r.age", params: { age: p.age ?? 0 } } })
+        else if (!regular) plan.leave.push({ player: p, reason: { key: "deleg.r.bench" } })
         else plan.renew.push(p)
     }
     return plan

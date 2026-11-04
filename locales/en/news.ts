@@ -218,6 +218,19 @@ export const NEWS = {
     "evn.talent.t": "Talent unlocked",
     "evn.talent.m": "{{name}} unlocked {{talent}}.",
 
+    // Staff report: chores the staff handled (store/slices/delegation-slice.ts)
+    "deleg.report.t": "Staff report: what your staff handled this week",
+    "deleg.l.renewed": "Renewed {{name}} until week {{week}} at {{wage}} a week.",
+    "deleg.l.noRenew": "Could not renew {{name}}: the budget does not cover the raise. His contract ends in {{weeks}}.",
+    "deleg.l.left": "{{name}}'s contract ends in {{weeks}}. Left for you: {{reason}}.",
+    "deleg.r.age": "{{age}} years old",
+    "deleg.r.bench": "not a regular in the five",
+    "deleg.l.drills.one": "Ran {{count}} team drill: {{list}}.",
+    "deleg.l.drills.other": "Ran {{count}} team drills: {{list}}.",
+    "deleg.l.drillsLight.one": "Ran {{count}} team drill (light: match next week): {{list}}.",
+    "deleg.l.drillsLight.other": "Ran {{count}} team drills (light: match next week): {{list}}.",
+    "deleg.l.scout": "Sent {{scout}} to watch {{name}} ({{fee}}).",
+
     // Draft Cup welcome (engine/draft-cup-setup.ts)
     "dcw.t": "{{club}} are in the Draft Cup",
     "dcw.m": "You drafted {{roster}} for {{spent}} of {{budget}} draft points.\n\nThe cup is eight teams, single elimination: a best-of-three quarter-final this week, a best-of-three semi-final next week and a best-of-five grand final the week after. One loss ends the run.\n\nYour opponents ({{difficulty}}): {{opponents}}.\n\nBetween matches you can train, set the playbook and prepare for the next opponent. The run score counts how far you go, maps won, round difference, the difficulty and draft points left unspent.",

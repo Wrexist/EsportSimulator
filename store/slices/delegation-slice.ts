@@ -27,6 +27,8 @@ import { DrillManager } from "@/engine/drill-manager"
 import { employedScout } from "@/engine/recruitment"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { formatCurrency } from "@/lib/utils-extended"
+import { eventText } from "@/lib/news-ref"
+import { JOIN_REF, tRefEn, type TextRef } from "@/lib/i18n"
 import { soundManager } from "@/lib/sound-manager"
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { pendingPlayableMatch } from "@/lib/playable-match"
@@ -63,7 +65,7 @@ export const createDelegationSlice: SliceCreator<DelegationActions> = (set, get)
         if (!team) return []
         const week = start.currentWeek
         const toastsBefore = start.toasts.length
-        const lines: string[] = []
+        const lines: TextRef[] = []
         const byId = new Map(start.players.map(p => [p.id, p]))
         // The staff act, not the player: no cues for their renewals or rejected missions.
         soundManager.silently(() => {
@@ -75,12 +77,12 @@ export const createDelegationSlice: SliceCreator<DelegationActions> = (set, get)
                     const before = get().contracts.find(c => c.playerId === p.id && c.teamId === teamId)?.endWeek ?? 0
                     get().renewContract(p.id)
                     const after = get().contracts.find(c => c.playerId === p.id && c.teamId === teamId)
-                    if (after && after.endWeek > before) lines.push(`Renewed ${p.nickname} until week ${after.endWeek} at ${formatCurrency(after.salaryPerWeek)} a week.`)
-                    else lines.push(`Could not renew ${p.nickname}: the budget does not cover the raise. His contract ends in ${before - week} weeks.`)
+                    if (after && after.endWeek > before) lines.push({ key: "deleg.l.renewed", params: { name: p.nickname, week: after.endWeek, wage: formatCurrency(after.salaryPerWeek) } })
+                    else lines.push({ key: "deleg.l.noRenew", params: { name: p.nickname, weeks: { key: "sl.weeks", count: before - week } } })
                 }
                 for (const { player, reason } of plan.leave) {
                     const left = (start.contracts.find(c => c.playerId === player.id && c.teamId === teamId)?.endWeek ?? week) - week
-                    if (left === RENEW_WITHIN_WEEKS || left <= 2) lines.push(`${player.nickname}'s contract ends in ${left} week${left === 1 ? "" : "s"}. Left for you: ${reason}.`)
+                    if (left === RENEW_WITHIN_WEEKS || left <= 2) lines.push({ key: "deleg.l.left", params: { name: player.nickname, weeks: { key: "sl.weeks", count: left }, reason } })
                 }
             }
 
@@ -92,13 +94,13 @@ export const createDelegationSlice: SliceCreator<DelegationActions> = (set, get)
                 // Chores run as the week closes, so this week's match is already played:
                 // the drills' fatigue carries into next week's match.
                 const matchWeek = now.scheduledMatches.some(m => (m.week === week || m.week === week + 1) && (m.homeTeamId === teamId || m.awayTeamId === teamId) && !now.completedMatches.some(c => c.id === m.id))
-                const ran: string[] = []
+                const ran: TextRef[] = []
                 for (const drill of planDrills(squad, DrillManager.getDrills(), slotsLeft, matchWeek)) {
                     const res = get().runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
                     if (!res.success) break
-                    ran.push(drill.name)
+                    ran.push({ key: `tr.drill.${drill.id}` })
                 }
-                if (ran.length) lines.push(`Ran ${ran.length} team drill${ran.length === 1 ? "" : "s"}${matchWeek ? " (light: match next week)" : ""}: ${ran.join(", ")}.`)
+                if (ran.length) lines.push({ key: matchWeek ? "deleg.l.drillsLight" : "deleg.l.drills", count: ran.length, params: { list: { key: JOIN_REF, params: { ...Object.fromEntries(ran.map((r, i) => [i, r])), sep: ", " } } } })
             }
 
             if (d.scouting && !get().activeScoutingMission) {
@@ -110,7 +112,7 @@ export const createDelegationSlice: SliceCreator<DelegationActions> = (set, get)
                     for (const target of targets) {
                         get().startScoutingMission(target.id)
                         if (get().activeScoutingMission?.playerId === target.id) {
-                            lines.push(`Sent ${scout.name} to watch ${target.nickname} (${formatCurrency(SCOUTING_MISSION_COST)}).`)
+                            lines.push({ key: "deleg.l.scout", params: { scout: scout.name, name: target.nickname, fee: formatCurrency(SCOUTING_MISSION_COST) } })
                             break
                         }
                     }
@@ -126,10 +128,14 @@ export const createDelegationSlice: SliceCreator<DelegationActions> = (set, get)
                 type: "STAFF_REPORT",
                 week,
                 acknowledged: false,
-                data: { title: "Staff report: what your staff handled this week", message: lines.join(" "), text: lines.join("\n") },
+                data: {
+                    ...eventText({ key: "deleg.report.t" }, { key: JOIN_REF, params: { ...Object.fromEntries(lines.map((l, i) => [i, l])), sep: " " } }),
+                    text: lines.map(l => tRefEn(l)).join("\n"),
+                    linesRef: lines,
+                },
             })
         })
-        return lines
+        return lines.map(l => tRefEn(l))
     },
 
     playDelegatedMatch: async () => {
