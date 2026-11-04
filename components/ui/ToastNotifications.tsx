@@ -7,6 +7,7 @@ import { memo, useEffect, useCallback } from "react"
 import { liquidSpring, quickEase } from "@/lib/motion"
 import { useMomentOnScreenNow } from "@/components/moments/moment-state"
 import { storedText } from "@/lib/stored-text"
+import { t } from "@/lib/i18n"
 
 export interface ToastData {
     id: string
@@ -94,7 +95,7 @@ const ToastItem = memo(function ToastItem({
             <p className="text-sm font-semibold text-ink-1">{storedText(toast.message)}</p>
             <button
                 onClick={onRemove}
-                aria-label="Dismiss notification"
+                aria-label={t("a11y.dismissToast")}
                 className="p-1 rounded-lg hover:bg-hover active:bg-hover active:scale-90 transition-all text-ink-2 hover:text-ink-1"
             >
                 <X size={14} />

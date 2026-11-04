@@ -6,6 +6,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { HelpCircle } from 'lucide-react'
+import { t } from '@/lib/i18n'
 
 interface StatTooltipProps {
     children: React.ReactNode
@@ -76,7 +77,7 @@ export function HelpTooltip({
         <TooltipProvider>
             <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
-                    <button type="button" aria-label="Show stat explanation" className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors align-middle">
+                    <button type="button" aria-label={t("a11y.statHelp")} className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors align-middle">
                         <HelpCircle size={size} aria-hidden="true" />
                     </button>
                 </TooltipTrigger>

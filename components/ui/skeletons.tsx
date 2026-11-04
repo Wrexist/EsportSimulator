@@ -7,6 +7,7 @@
  */
 
 import { cn } from '@/lib/utils'
+import { t } from '@/lib/i18n'
 import {
     Skeleton,
     CardSkeleton,
@@ -19,7 +20,8 @@ export { Skeleton, CardSkeleton, PlayerCardSkeleton, TableRowSkeleton }
 export const StatBoxSkeleton = StatTileSkeleton
 
 /** Full-page placeholder — used by Suspense boundaries on feature screens. */
-export function PageSkeleton({ title }: { title?: string }) {
+export function PageSkeleton({ title, titleKey }: { title?: string; titleKey?: string }) {
+    if (titleKey) title = t(titleKey)
     return (
         <div className="mx-auto max-w-[1600px] space-y-6">
             <div className="flex justify-between items-center">
