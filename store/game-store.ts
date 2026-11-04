@@ -118,6 +118,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
 import { randomizeWorld } from "@/engine/random-world"
+import { normalizeStaffRefreshWeek } from "@/engine/staff-economy"
 import { demoWeekCapReached } from "@/lib/edition"
 
 enableMapSet()
@@ -370,6 +371,8 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   // Phase 56: Staff Market
   marketStaff: StaffSaveData[]
   nextMarketRefreshWeek?: number
+  /** SQUAD-16: week the free staff-market refresh was last used. */
+  staffMarketRefreshWeek?: number
 
   /** G14: the career started in a randomised world (saved with the career). */
   randomWorld?: boolean
@@ -549,6 +552,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
 
   // Phase 56: Staff Market Actions
   refreshStaffMarket: () => void
+  requestStaffMarketRefresh: () => { success: boolean; message: string; cost: number }
   hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string }
   renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string }
   fireStaff: (staffId: string) => void
@@ -999,6 +1003,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // Phase 56: Staff Market
       marketStaff: [],
       nextMarketRefreshWeek: 8, // Initial offset
+      staffMarketRefreshWeek: undefined,
 
       // Phase 20: Tournament System
       circuitPoints: [],
@@ -1272,6 +1277,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             ...careerAdvanceState(newSave, teamId, true),
             randomWorld: newSave.randomWorld, // explicit: never inherited from the last career
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
+            staffMarketRefreshWeek: undefined, // never inherited from the last career
             recordBook: newSave.recordBook, // explicit: a new career never inherits the last one's records
             storylines: newSave.storylines, // nor its storylines (Phase 5.3)
             autoTactics: false, // nor its auto-tactics switch
@@ -1593,6 +1599,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             ...careerAdvanceState(newSave, result.teamId, true),
             randomWorld: newSave.randomWorld,
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
+            staffMarketRefreshWeek: undefined, // never inherited from the last career
             recordBook: newSave.recordBook,
             storylines: newSave.storylines,
             autoTactics: false,
@@ -1792,6 +1799,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             sponsorOffers: hydratedSave.sponsorOffers ?? [],
             difficulty: hydratedSave.difficulty ?? "normal",
             nextMarketRefreshWeek: hydratedSave.nextMarketRefreshWeek,
+            staffMarketRefreshWeek: normalizeStaffRefreshWeek(hydratedSave.staffMarketRefreshWeek),
             randomWorld: hydratedSave.randomWorld,
             lastCommittedWeekTick: hydratedSave.lastCommittedWeekTick,
             playerTeamId: inferredTeamId,

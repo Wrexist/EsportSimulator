@@ -91866,8 +91866,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "dd96fd237d5286325c9625504a7d9cfba56e7037bd02e3f474fc5e1cc4f0cad8",
-      "bytes": 346404,
+      "sha256": "160e7b09b87aafc33da3d5b35975f7057c66c0d98d0b57d947521cc415f2d583",
+      "bytes": 347293,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92007,13 +92007,18 @@
           "date": "2026-11-04",
           "previousSha256": "a73ca3f10f67cf08a2780819f293aca829987ace5c9b5a4854724e139b52d051",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "dd96fd237d5286325c9625504a7d9cfba56e7037bd02e3f474fc5e1cc4f0cad8",
+          "change": "Audit fixes round 2: staff severance and staff market refresh fee (SQUAD-16)"
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "326122d54c1f79bbe575511ae42346716ddc8b2b2884c1492708022926e9fb2f",
-      "bytes": 364404,
+      "sha256": "bfb2fb27c2575f313ec108a175e1a4b5f1ee4c88168b3c0202dc6a5f3b4b115a",
+      "bytes": 365294,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92148,13 +92153,18 @@
           "date": "2026-11-04",
           "previousSha256": "7026b1c0546383d3a500e2ebef50099563baa6d798ec648fdc24c294d1bf508d",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "326122d54c1f79bbe575511ae42346716ddc8b2b2884c1492708022926e9fb2f",
+          "change": "Audit fixes round 2: staff severance and staff market refresh fee (SQUAD-16)"
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "f8b6177dc7cefb920e0cd72b912e1c365832d8a3e9d74931a2de188470d3c908",
-      "bytes": 371431,
+      "sha256": "67f50a30de8e9b903247bc520759efd24ea1ac14f6c37b0167e1d4091be3a64c",
+      "bytes": 372333,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92289,13 +92299,18 @@
           "date": "2026-11-04",
           "previousSha256": "7e37240d9f168a9b8ccd88e3f6a131f71f35a8ac8d079a1f2be3f78bd4bf4eae",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f8b6177dc7cefb920e0cd72b912e1c365832d8a3e9d74931a2de188470d3c908",
+          "change": "Audit fixes round 2: staff severance and staff market refresh fee (SQUAD-16)"
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "37adf3ca8e288611a11fc40ccdde04989dd3d1c5b15fd934a8004b56d4ffea30",
-      "bytes": 370019,
+      "sha256": "3b2a16a30a4917c9c4b2b006119fb5b4cbdb30f7e7993b6fb856d2a66bdb06f6",
+      "bytes": 370858,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92425,13 +92440,18 @@
           "date": "2026-11-04",
           "previousSha256": "520ac346cfab26bc750b504f0186876ad842d214844ac89949f0ed5c52bc034f",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "37adf3ca8e288611a11fc40ccdde04989dd3d1c5b15fd934a8004b56d4ffea30",
+          "change": "Audit fixes round 2: staff severance and staff market refresh fee (SQUAD-16)"
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "8ae0c9a582a821b2db33cd17a6d2083ecb3df575d0b8ecebf7b33dc04837bbca",
-      "bytes": 359163,
+      "sha256": "61bcd95b7c96994837774e0ba96451725c6d76b8a668bb86c4b961a0e48c8b83",
+      "bytes": 360054,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92561,13 +92581,18 @@
           "date": "2026-11-04",
           "previousSha256": "e8c5d81efcab810389e84d33a626aff761ec6518eb3daaae5eda5a6b824ed0b9",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "8ae0c9a582a821b2db33cd17a6d2083ecb3df575d0b8ecebf7b33dc04837bbca",
+          "change": "Audit fixes round 2: staff severance and staff market refresh fee (SQUAD-16)"
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "82f4d096bb3392fe9378bddd0379eaccbbb93f8c3e9850e08cbb2ccb3690a7c6",
-      "bytes": 502460,
+      "sha256": "42acabb4b3e9c0e8eb85a785e99a39b8a60039931a92451fb79e67d897b4a540",
+      "bytes": 503732,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92697,6 +92722,11 @@
           "date": "2026-11-04",
           "previousSha256": "182b833bdff1897faa08ca35fd0ab1a5d7b928e54686046b8d9343982575efe4",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "82f4d096bb3392fe9378bddd0379eaccbbb93f8c3e9850e08cbb2ccb3690a7c6",
+          "change": "Audit fixes round 2: staff severance and staff market refresh fee (SQUAD-16)"
         }
       ]
     },
