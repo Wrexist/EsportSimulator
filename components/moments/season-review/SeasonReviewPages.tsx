@@ -5,7 +5,8 @@ import Image from "next/image"
 import { motion } from "framer-motion"
 import type { TeamSaveData } from "@/engine/save-types"
 import type { ReviewPageId, ReviewPlayer, ReviewStoryBeat, ReviewTrophy, SeasonReviewView, StoryTone } from "@/lib/season-review-view"
-import { weekOfSeasonLabel } from "@/lib/season-review-view"
+import { reviewPageLabel, weekOfSeasonLabel } from "@/lib/season-review-view"
+import { t, tn } from "@/lib/i18n"
 import { trophyArtFor } from "@/lib/trophy-art"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { cn } from "@/lib/utils"
@@ -34,7 +35,6 @@ function useReview(): ReviewContextValue {
 }
 
 const rating2 = (n: number) => n.toFixed(2)
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
 const TONE_TEXT: Record<StoryTone, string> = { gold: "text-gold", positive: "text-positive", negative: "text-negative", neutral: "text-ink-1" }
 const TONE_DOT: Record<StoryTone, string> = { gold: "bg-gold", positive: "bg-positive", negative: "bg-negative", neutral: "bg-ink-3" }
 
@@ -75,11 +75,11 @@ function ResultLine({ label, result, tone }: { label: string; result?: SeasonRev
                 <>
                     <p className="mt-1 flex items-baseline gap-2">
                         <span className={cn("font-display text-[30px] font-bold leading-none tabular-nums", tone === "positive" ? "text-positive" : "text-negative")}>{result.score || `${tone === "positive" ? "+" : "−"}${result.margin}`}</span>
-                        <span className="truncate text-sm text-ink-1">vs {result.opponentName}</span>
+                        <span className="truncate text-sm text-ink-1">{t("sr.vs", { team: result.opponentName })}</span>
                     </p>
-                    <p className="mt-1 text-xs text-ink-3">{tone === "positive" ? "+" : "−"}{plural(result.margin, "round")} · {weekOfSeasonLabel(result.week)}{result.map ? ` · ${result.map}` : ""}</p>
+                    <p className="mt-1 text-xs text-ink-3">{tone === "positive" ? "+" : "−"}{tn("sr.rounds", result.margin)} · {weekOfSeasonLabel(result.week)}{result.map ? ` · ${result.map}` : ""}</p>
                 </>
-            ) : <p className="mt-1 text-sm text-ink-3">None this season</p>}
+            ) : <p className="mt-1 text-sm text-ink-3">{t("sr.none")}</p>}
         </div>
     )
 }
@@ -89,14 +89,14 @@ export function ClubPage({ headingId }: { headingId: string }) {
     const reveal = useReveal()
     const club = view.club
     const team = teamOf(club.teamId)
-    const majors = club.trophies.filter(t => t.major).length
+    const majors = club.trophies.filter(tr => tr.major).length
 
     const facts: MomentFact[] = []
-    if (club.league) facts.push({ label: "League finish", value: club.league.label, hint: `of ${club.league.of} · ${club.league.division}${club.league.split === 2 ? "" : ` · split ${club.league.split}`}` })
-    facts.push({ label: "Record", value: `${club.record.wins}–${club.record.losses}`, hint: "Official series won–lost" })
-    facts.push({ label: "Titles", value: club.trophies.length, hint: club.trophies.length ? (majors ? plural(majors, "Major") : "Won this season") : "None this season" })
-    if (club.tierMove) facts.push({ label: "World tier", value: <span className={club.tierMove.direction === "promoted" ? "text-positive" : "text-negative"}>{club.tierMove.direction === "promoted" ? "Promoted" : "Relegated"}</span>, hint: `${club.tierMove.from} to ${club.tierMove.to}` })
-    else if (club.worldTier) facts.push({ label: "World tier", value: club.worldTier, hint: "Held at season end" })
+    if (club.league) facts.push({ label: t("sr.leagueFinish"), value: club.league.label, hint: club.league.split === 2 ? t("sr.leagueOf", { of: club.league.of, division: club.league.division }) : t("sr.leagueOfSplit", { of: club.league.of, division: club.league.division, split: club.league.split }) })
+    facts.push({ label: t("sr.record"), value: `${club.record.wins}–${club.record.losses}`, hint: t("sr.recordHint") })
+    facts.push({ label: t("sr.titlesLabel"), value: club.trophies.length, hint: club.trophies.length ? (majors ? tn("sr.majors", majors) : t("sr.wonThisSeason")) : t("sr.none") })
+    if (club.tierMove) facts.push({ label: t("sr.worldTier"), value: <span className={club.tierMove.direction === "promoted" ? "text-positive" : "text-negative"}>{club.tierMove.direction === "promoted" ? t("sr.promoted") : t("sr.relegated")}</span>, hint: t("sr.tierMoveHint", { from: club.tierMove.from, to: club.tierMove.to }) })
+    else if (club.worldTier) facts.push({ label: t("sr.worldTier"), value: club.worldTier, hint: t("sr.heldAtEnd") })
 
     const best = club.bestPlayer
     const board = club.board
@@ -107,13 +107,13 @@ export function ClubPage({ headingId }: { headingId: string }) {
             <motion.div {...reveal(0)} className="mb-5 flex h-24 w-24 items-center justify-center rounded-xl border border-line bg-raised/90">
                 <TeamLogoDisplay team={team} size={76} />
             </motion.div>
-            <PageHead id={headingId} overline={`Season ${view.season}${view.final ? "" : " so far"} · Your season`} title={club.teamName} />
+            <PageHead id={headingId} overline={t(view.final ? "sr.overline.club" : "sr.overline.clubSoFar", { n: view.season })} title={club.teamName} />
 
             {club.trophies.length > 0 && (
-                <motion.ul {...reveal(0.3)} className="mt-6 flex max-w-5xl flex-wrap items-end justify-center gap-x-3 gap-y-2" aria-label="Titles won">
-                    {club.trophies.map((t, i) => (
-                        <li key={`${t.name}-${i}`} className="flex flex-col items-center">
-                            <TrophyImage kind={t.art} size={t.major ? 92 : 72} title={`${t.name} (${weekOfSeasonLabel(t.week)})`} className="drop-shadow-lg" />
+                <motion.ul {...reveal(0.3)} className="mt-6 flex max-w-5xl flex-wrap items-end justify-center gap-x-3 gap-y-2" aria-label={t("sr.titlesWon")}>
+                    {club.trophies.map((tr, i) => (
+                        <li key={`${tr.name}-${i}`} className="flex flex-col items-center">
+                            <TrophyImage kind={tr.art} size={tr.major ? 92 : 72} title={`${tr.name} (${weekOfSeasonLabel(tr.week)})`} className="drop-shadow-lg" />
                         </li>
                     ))}
                 </motion.ul>
@@ -126,7 +126,7 @@ export function ClubPage({ headingId }: { headingId: string }) {
 
             <motion.div {...reveal(0.6)} className="mt-5 grid w-full max-w-5xl grid-cols-3 gap-4">
                 <Card highlight={!!best}>
-                    <CardLabel>Best player</CardLabel>
+                    <CardLabel>{t("sr.bestPlayer")}</CardLabel>
                     {best ? (
                         <div className="mt-2 flex items-center gap-3">
                             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-line bg-raised">
@@ -134,23 +134,23 @@ export function ClubPage({ headingId }: { headingId: string }) {
                             </div>
                             <div className="min-w-0">
                                 <p className="truncate font-display text-[28px] font-bold uppercase leading-none text-ink-1">{best.name}</p>
-                                <p className="mt-1 text-xs text-ink-3"><span className="font-semibold text-ink-1 tabular-nums">{rating2(best.rating)}</span> rating · {plural(best.maps, "map")} · {best.kills}–{best.deaths}</p>
-                                <p className="mt-0.5 text-xs text-ink-3">ADR {best.adr.toFixed(1)}{best.mvps > 0 ? ` · ${plural(best.mvps, "match MVP")}` : ""}</p>
+                                <p className="mt-1 text-xs text-ink-3">{t("sr.ratingLine", { rating: rating2(best.rating) })} · {tn("sr.maps", best.maps)} · {best.kills}–{best.deaths}</p>
+                                <p className="mt-0.5 text-xs text-ink-3">{t("sr.adr")} {best.adr.toFixed(1)}{best.mvps > 0 ? ` · ${tn("sr.matchMvps", best.mvps)}` : ""}</p>
                             </div>
                         </div>
-                    ) : <p className="mt-2 text-sm text-ink-3">No official maps for the club this season</p>}
+                    ) : <p className="mt-2 text-sm text-ink-3">{t("sr.noMaps")}</p>}
                 </Card>
                 <Card className="space-y-3">
-                    <ResultLine label="Biggest win" result={club.biggestWin} tone="positive" />
-                    <ResultLine label="Heaviest defeat" result={club.worstLoss} tone="negative" />
+                    <ResultLine label={t("sr.biggestWin")} result={club.biggestWin} tone="positive" />
+                    <ResultLine label={t("sr.heaviestDefeat")} result={club.worstLoss} tone="negative" />
                 </Card>
                 <Card>
-                    <CardLabel>Board verdict</CardLabel>
+                    <CardLabel>{t("sr.boardVerdict")}</CardLabel>
                     {board ? (
                         <>
                             <p className={cn("mt-1 font-display text-[28px] font-bold uppercase leading-none", boardGood ? "text-positive" : "text-negative")}>{board.label}</p>
                             {board.confidence !== undefined && (
-                                <p className="mt-1 text-xs text-ink-3">Confidence <span className="font-semibold tabular-nums text-ink-1">{Math.round(board.confidence)}/100</span>{board.delta !== undefined ? ` (${board.delta >= 0 ? "+" : "−"}${Math.abs(Math.round(board.delta))} at the review)` : ""}</p>
+                                <p className="mt-1 text-xs text-ink-3">{t("sr.confidenceLabel")} <span className="font-semibold tabular-nums text-ink-1">{Math.round(board.confidence)}/100</span>{board.delta !== undefined ? ` ${t("sr.atReview", { delta: `${board.delta >= 0 ? "+" : "−"}${Math.abs(Math.round(board.delta))}` })}` : ""}</p>
                             )}
                             {board.reasons.length > 0 && (
                                 <ul className="mt-2 space-y-1 text-xs text-ink-2">
@@ -158,7 +158,7 @@ export function ClubPage({ headingId }: { headingId: string }) {
                                 </ul>
                             )}
                         </>
-                    ) : <p className="mt-2 text-sm text-ink-3">The board did not judge this season</p>}
+                    ) : <p className="mt-2 text-sm text-ink-3">{t("sr.noBoard")}</p>}
                 </Card>
             </motion.div>
         </div>
@@ -178,16 +178,16 @@ export function AwardPage({ headingId, award }: { headingId: string; award: "mvp
     const inTop20 = award === "rookie" ? view.awards.top20.find(t => t.playerId === p.playerId)?.rank : undefined
 
     const facts: MomentFact[] = [
-        { label: "Rating", value: rating2(p.rating), hint: `Weighted ${rating2(p.score)}` },
-        { label: "Maps", value: p.maps, hint: plural(p.rounds, "round") },
-        { label: "K/D", value: p.deaths ? (p.kills / p.deaths).toFixed(2) : String(p.kills), hint: `${p.kills} kills, ${p.deaths} deaths` },
-        { label: "ADR", value: p.adr.toFixed(1), hint: "Damage a round" },
+        { label: t("sr.rating"), value: rating2(p.rating), hint: t("sr.weighted", { n: rating2(p.score) }) },
+        { label: t("sr.mapsLabel"), value: p.maps, hint: tn("sr.rounds", p.rounds) },
+        { label: t("sr.kd"), value: p.deaths ? (p.kills / p.deaths).toFixed(2) : String(p.kills), hint: t("sr.kdHint", { kills: p.kills, deaths: p.deaths }) },
+        { label: t("sr.adr"), value: p.adr.toFixed(1), hint: t("sr.adrHint") },
     ]
     const extras = [
-        p.mvps > 0 ? plural(p.mvps, "match MVP") : null,
-        p.trophies > 0 ? plural(p.trophies, "title") : null,
-        p.majors > 0 ? plural(p.majors, "Major") : null,
-        inTop20 ? `#${inTop20} in the Top 20` : null,
+        p.mvps > 0 ? tn("sr.matchMvps", p.mvps) : null,
+        p.trophies > 0 ? tn("sr.titles", p.trophies) : null,
+        p.majors > 0 ? tn("sr.majors", p.majors) : null,
+        inTop20 ? t("sr.inTop20", { rank: inTop20 }) : null,
     ].filter((x): x is string => !!x)
 
     return (
@@ -206,14 +206,14 @@ export function AwardPage({ headingId, award }: { headingId: string; award: "mvp
                 <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-ink/95 to-transparent" />
                 <div className="absolute bottom-4 left-5">
                     <p className="font-display text-[clamp(48px,5vw,72px)] font-extrabold leading-none tabular-nums text-gold">{rating2(p.rating)}</p>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2">Season rating</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2">{t("sr.seasonRating")}</p>
                 </div>
             </motion.div>
 
             <div className="min-w-0 max-w-2xl flex-1">
                 <motion.div {...reveal(0.2)} className="flex items-center gap-4">
                     <TrophyImage kind="award" size={big ? 72 : 60} className="drop-shadow-lg" />
-                    <MomentOverline>Awards ceremony · {award === "mvp" ? "Player of the season" : "Rookie of the year"}</MomentOverline>
+                    <MomentOverline>{t("sr.ceremony", { award: reviewPageLabel(award) })}</MomentOverline>
                 </motion.div>
                 <motion.h2 {...reveal(0.32, 22)} id={headingId} className={cn("mt-3 font-display font-extrabold uppercase leading-[0.86] text-ink-1 [overflow-wrap:anywhere]", big ? "text-[clamp(72px,8vw,136px)]" : "text-[clamp(60px,6.6vw,112px)]")}>
                     {p.name}
@@ -221,13 +221,13 @@ export function AwardPage({ headingId, award }: { headingId: string; award: "mvp
                 <motion.div {...reveal(0.45)} className="mt-4 flex flex-wrap items-center gap-3 text-lg text-ink-2">
                     {p.nationality && <CountryFlag country={p.nationality} size={24} />}
                     {p.realName && <span>{p.realName}</span>}
-                    <span className="text-ink-3">· Age {p.age}</span>
+                    <span className="text-ink-3">· {t("sr.age", { n: p.age })}</span>
                     <RoleTag role={p.role} className="text-[13px]" />
                 </motion.div>
                 <motion.div {...reveal(0.52)} className="mt-3 flex items-center gap-2.5 text-base text-ink-1">
                     <TeamLogoDisplay team={team} size={26} />
                     <span className="font-semibold">{p.teamName}</span>
-                    {p.ours && <span className="rounded-sm border border-gold/50 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">Your club</span>}
+                    {p.ours && <span className="rounded-sm border border-gold/50 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("sr.yourClub")}</span>}
                 </motion.div>
                 <MomentRule className="mt-6 max-w-none" delay={0.5} />
                 <motion.div {...reveal(0.65)} className="mt-6">
@@ -238,8 +238,8 @@ export function AwardPage({ headingId, award }: { headingId: string; award: "mvp
                 )}
                 <motion.p {...reveal(0.85)} className="mt-3 text-xs text-ink-3">
                     {award === "mvp"
-                        ? `Best season score of ${view.awards.ranked} players with at least ${view.awards.minMaps} official maps; each map counts at its competition's weight.`
-                        : `Best ranked player aged 20 or younger, or in his first season of official maps.`}
+                        ? t("sr.mvpRule", { ranked: view.awards.ranked, min: view.awards.minMaps })
+                        : t("sr.rookieRule")}
                 </motion.p>
             </div>
         </div>
@@ -256,8 +256,8 @@ export function Top20Page({ headingId }: { headingId: string }) {
     useEffect(() => {
         if (shown >= rows.length) { setFinisher("top20", null); return }
         setFinisher("top20", () => setShown(rows.length))
-        const t = setTimeout(() => setShown(n => n + 1), shown === 0 ? 700 : 110)
-        return () => clearTimeout(t)
+        const timer = setTimeout(() => setShown(n => n + 1), shown === 0 ? 700 : 110)
+        return () => clearTimeout(timer)
     }, [shown, rows.length, setFinisher])
     useEffect(() => () => setFinisher("top20", null), [setFinisher])
 
@@ -286,7 +286,7 @@ export function Top20Page({ headingId }: { headingId: string }) {
                         {r.nationality && <CountryFlag country={r.nationality} size={14} />}
                         <span className="truncate text-xs text-ink-3">{r.teamName}</span>
                     </div>
-                    {r.ours && <span className="shrink-0 rounded-sm border border-gold/50 px-1 py-px text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">Yours</span>}
+                    {r.ours && <span className="shrink-0 rounded-sm border border-gold/50 px-1 py-px text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("sr.yours")}</span>}
                     <span className="w-14 shrink-0 text-right font-display text-[22px] font-bold leading-none tabular-nums text-ink-1">{rating2(r.rating)}</span>
                 </motion.li>
             ))}
@@ -297,15 +297,15 @@ export function Top20Page({ headingId }: { headingId: string }) {
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-10">
             <PageHead
                 id={headingId}
-                overline={`Awards ceremony · Season ${view.season}`}
-                title="Top 20 players"
-                sub={`Ranked on official maps (at least ${view.awards.minMaps}), each map weighted by its competition.${ours ? ` ${plural(ours, "of your players", "of your players")} made the list.` : ""}`}
+                overline={t("sr.ceremonySeason", { n: view.season })}
+                title={t("sr.top20Title")}
+                sub={`${t("sr.top20Sub", { min: view.awards.minMaps })}${ours ? ` ${tn("sr.top20Ours", ours)}` : ""}`}
             />
             <div className="mt-7 grid w-full grid-cols-2 gap-x-6">
                 {column(rows.filter(r => (r.rank ?? 99) <= 10))}
                 {column(rows.filter(r => (r.rank ?? 99) > 10))}
             </div>
-            <p className="sr-only" aria-live="polite">{shown >= rows.length ? "Top 20 revealed" : ""}</p>
+            <p className="sr-only" aria-live="polite">{shown >= rows.length ? t("sr.top20Revealed") : ""}</p>
         </div>
     )
 }
@@ -317,7 +317,7 @@ export function TeamOfSeasonPage({ headingId }: { headingId: string }) {
     const reduce = useAppReducedMotion()
     return (
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-10">
-            <PageHead id={headingId} overline={`Season ${view.season}`} title="Team of the season" sub="The best AWPer, the best IGL and the three best others on the season ranking." />
+            <PageHead id={headingId} overline={t("sr.seasonN", { n: view.season })} title={t("sr.teamTitle")} sub={t("sr.teamSub")} />
             <ul className="mt-8 grid w-full grid-cols-5 gap-4">
                 {view.teamOfSeason.map((p, i) => (
                     <motion.li
@@ -331,7 +331,7 @@ export function TeamOfSeasonPage({ headingId }: { headingId: string }) {
                             <PlayerPortrait src={p.portraitPath} seed={p.playerId} alt={p.name} fill className="object-cover object-top" />
                             <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-ink/95 to-transparent" />
                             <RoleTag role={p.role} className="absolute left-3 top-3 bg-ink/70" />
-                            {p.ours && <span className="absolute right-3 top-3 rounded-sm border border-gold/60 bg-ink/70 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">Your club</span>}
+                            {p.ours && <span className="absolute right-3 top-3 rounded-sm border border-gold/60 bg-ink/70 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("sr.yourClub")}</span>}
                             <p className="absolute bottom-3 left-3 font-display text-[40px] font-extrabold leading-none tabular-nums text-gold">{rating2(p.rating)}</p>
                         </div>
                         <div className="px-4 pb-4 pt-3 text-left">
@@ -340,7 +340,7 @@ export function TeamOfSeasonPage({ headingId }: { headingId: string }) {
                                 <TeamLogoDisplay team={teamOf(p.teamId)} size={16} />
                                 <span className="truncate">{p.teamName}</span>
                             </p>
-                            <p className="mt-1.5 text-xs text-ink-3">{plural(p.maps, "map")} · ADR {p.adr.toFixed(1)} · {p.kills}–{p.deaths}</p>
+                            <p className="mt-1.5 text-xs text-ink-3">{tn("sr.maps", p.maps)} · {t("sr.adr")} {p.adr.toFixed(1)} · {p.kills}–{p.deaths}</p>
                         </div>
                     </motion.li>
                 ))}
@@ -362,9 +362,9 @@ export function RecordsPage({ headingId }: { headingId: string }) {
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-10">
             <PageHead
                 id={headingId}
-                overline={`Season ${view.season}`}
-                title="Records of the season"
-                sub={fell ? `${plural(fell, "all-time record")} fell this season.` : "Season bests from every official match."}
+                overline={t("sr.seasonN", { n: view.season })}
+                title={t("sr.recordsTitle")}
+                sub={fell ? tn("sr.recordsFell", fell) : t("sr.recordsSub")}
             />
             <div className={cn("mt-8 grid w-full gap-5", champions.length ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]" : "grid-cols-1")}>
                 <motion.ul {...reveal(0.3)} className="grid grid-cols-2 gap-4">
@@ -373,7 +373,7 @@ export function RecordsPage({ headingId }: { headingId: string }) {
                             <Card highlight={r.allTime || r.ours} className="h-full">
                                 <div className="flex items-center justify-between gap-2">
                                     <CardLabel>{r.label}</CardLabel>
-                                    {r.allTime && <span className="rounded-sm border border-gold/60 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">All-time record</span>}
+                                    {r.allTime && <span className="rounded-sm border border-gold/60 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("sr.allTime")}</span>}
                                 </div>
                                 <p className="mt-2 font-display text-[52px] font-extrabold leading-none tabular-nums text-ink-1">{r.value}</p>
                                 <p className={cn("mt-2 truncate text-base font-semibold", r.ours ? "text-gold" : "text-ink-1")}>{r.holder}{r.holder !== r.teamName ? <span className="font-normal text-ink-3"> · {r.teamName}</span> : null}</p>
@@ -385,19 +385,19 @@ export function RecordsPage({ headingId }: { headingId: string }) {
                 {champions.length > 0 && (
                     <motion.div {...reveal(0.45)}>
                         <Card className="h-full">
-                            <CardLabel>Champions of the season</CardLabel>
+                            <CardLabel>{t("sr.champions")}</CardLabel>
                             <ul className="mt-3 space-y-2.5">
-                                {champions.map((t, i) => (
-                                    <li key={`${t.name}-${i}`} className="flex items-center gap-3">
-                                        <TrophyImage kind={t.art} size={34} />
+                                {champions.map((tr, i) => (
+                                    <li key={`${tr.name}-${i}`} className="flex items-center gap-3">
+                                        <TrophyImage kind={tr.art} size={34} />
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-semibold text-ink-1">{t.name}</p>
-                                            <p className={cn("truncate text-xs", t.ours ? "font-semibold text-gold" : "text-ink-3")}>{t.teamName}</p>
+                                            <p className="truncate text-sm font-semibold text-ink-1">{tr.name}</p>
+                                            <p className={cn("truncate text-xs", tr.ours ? "font-semibold text-gold" : "text-ink-3")}>{tr.teamName}</p>
                                         </div>
                                     </li>
                                 ))}
                             </ul>
-                            {view.titles.length > champions.length && <p className="mt-3 text-xs text-ink-3">and {plural(view.titles.length - champions.length, "more title")}</p>}
+                            {view.titles.length > champions.length && <p className="mt-3 text-xs text-ink-3">{tn("sr.moreTitles", view.titles.length - champions.length)}</p>}
                         </Card>
                     </motion.div>
                 )}
@@ -429,7 +429,7 @@ export function StoryPage({ headingId }: { headingId: string }) {
     if (story.source === "storylines") {
         return (
             <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-10">
-                <PageHead id={headingId} overline={`Season ${view.season} · ${view.club.teamName}`} title="Story of the season" />
+                <PageHead id={headingId} overline={t("sr.storyOverline", { n: view.season, team: view.club.teamName })} title={t("sr.storyTitleHead")} />
                 <div className={cn("mt-8 grid w-full gap-4", story.arcs.length > 1 ? "grid-cols-2" : "max-w-3xl grid-cols-1")}>
                     {story.arcs.map((arc, i) => (
                         <motion.div key={`${arc.title}-${i}`} {...reveal(0.25 + i * 0.1)}>
@@ -449,7 +449,7 @@ export function StoryPage({ headingId }: { headingId: string }) {
     const cols = split < beats.length ? [beats.slice(0, split), beats.slice(split)] : [beats]
     return (
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-10">
-            <PageHead id={headingId} overline={`Season ${view.season} · ${view.club.teamName}`} title="Story of the season" sub="The season as it happened, week by week." />
+            <PageHead id={headingId} overline={t("sr.storyOverline", { n: view.season, team: view.club.teamName })} title={t("sr.storyTitleHead")} sub={t("sr.storySub")} />
             <div className={cn("mt-8 grid w-full gap-x-10", cols.length > 1 ? "grid-cols-2" : "max-w-3xl grid-cols-1")}>
                 {cols.map((col, c) => (
                     <ol key={c} className="space-y-3.5">

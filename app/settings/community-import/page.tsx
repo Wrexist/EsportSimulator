@@ -26,6 +26,8 @@ import type { WorkshopModItem, ActiveModPointer } from "@/types/electron-window"
 
 import { MAX_MOD_BYTES, parseModContent, validateModReferences } from "@/electron/mod-content"
 import { mergeSnapshot } from "@/engine/mod-loader"
+import { t, tn } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
 
 type Status = { kind: "ok"; msg: string } | { kind: "err"; msg: string } | null
 
@@ -83,11 +85,11 @@ export default function CommunityImportPage() {
         try {
             const ok = await setActiveMod({ source: "workshop", workshopId: id })
             if (ok) {
-                setStatus({ kind: "ok", msg: "Workshop mod activated. Start a new career to use its database." })
-                toast({ title: "Workshop mod activated" })
+                setStatus({ kind: "ok", msg: t("ci.wsActivated") })
+                toast({ title: t("ci.wsActivatedToast") })
                 await loadWorkshop()
             } else {
-                setStatus({ kind: "err", msg: "Could not activate that Workshop item." })
+                setStatus({ kind: "err", msg: t("ci.wsActivateFailed") })
             }
         } finally {
             setWsBusy(false)
@@ -99,10 +101,10 @@ export default function CommunityImportPage() {
         try {
             const ok = await setActiveMod({ source })
             if (ok) {
-                setStatus({ kind: "ok", msg: source === "none" ? "Base game selected for new careers. Existing careers are unchanged." : "Imported database selected for new careers." })
+                setStatus({ kind: "ok", msg: source === "none" ? t("ci.baseSelected") : t("ci.importedSelected") })
                 await loadWorkshop()
-            } else { setStatus({ kind: "err", msg: "Could not change the active database." }) }
-        } catch { setStatus({ kind: "err", msg: "Could not change the active database." }) }
+            } else { setStatus({ kind: "err", msg: t("ci.switchFailed") }) }
+        } catch { setStatus({ kind: "err", msg: t("ci.switchFailed") }) }
         finally { setWsBusy(false) }
     }
 
@@ -115,43 +117,43 @@ export default function CommunityImportPage() {
             if (!result.ok) { setStatus({ kind: "err", msg: result.error }); return }
             const base = await Promise.all(["players", "teams", "tournaments"].map(async name => {
                 const response = await fetch(`/data/snapshot/${name}.json`)
-                if (!response.ok) throw new Error("Could not load the base database for validation")
+                if (!response.ok) throw new Error(t("ci.baseLoadFailed"))
                 return response.json()
             }))
             const data = result.value
             const referenceError = validateModReferences(mergeSnapshot(base[0], data.players), mergeSnapshot(base[1], data.teams), mergeSnapshot(base[2], data.tournaments))
             if (referenceError) { setStatus({ kind: "err", msg: referenceError }); return }
-            setPreview({ text: raw, counts: `${data.players?.length || 0} players / ${data.teams?.length || 0} teams / ${data.tournaments?.length || 0} tournaments`, author: typeof data.manifest?.author === "string" ? data.manifest.author : "Author not supplied" })
+            setPreview({ text: raw, counts: [tn("ci.players", data.players?.length || 0), tn("ci.teams", data.teams?.length || 0), tn("ci.tournaments", data.tournaments?.length || 0)].join(" / "), author: typeof data.manifest?.author === "string" ? data.manifest.author : t("ci.noAuthor") })
         } catch (error) {
-            setStatus({ kind: "err", msg: error instanceof Error ? error.message : "Could not preview database" })
+            setStatus({ kind: "err", msg: error instanceof Error ? error.message : t("ci.previewFailed") })
         } finally { setBusy(false) }
     }
     const installPreview = async () => {
         if (!preview) return
         setBusy(true)
         try {
-            if (!await window.electron?.mods?.install(preview.text)) throw new Error("Installation failed. The previous database is retained.")
+            if (!await window.electron?.mods?.install(preview.text)) throw new Error(t("ci.installFailedKept"))
             setInstalled(true)
-            if (!await setActiveMod({ source: "community" })) throw new Error("Database installed but not activated. Select imported database below.")
+            if (!await setActiveMod({ source: "community" })) throw new Error(t("ci.installedNotActive"))
             setPreview(null); setPasted(""); await loadWorkshop()
-            setStatus({ kind: "ok", msg: "Database installed for new careers. A backup of the previous import is available." })
-        } catch (error) { setStatus({ kind: "err", msg: error instanceof Error ? error.message : "Installation failed" }) }
+            setStatus({ kind: "ok", msg: t("ci.installed") })
+        } catch (error) { setStatus({ kind: "err", msg: error instanceof Error ? error.message : t("ci.installFailed") }) }
         finally { setBusy(false) }
     }
     const restorePrevious = async () => {
         setBusy(true)
         try {
-            if (!await window.electron?.mods?.restore()) throw new Error("No valid previous import could be restored.")
-            if (!await setActiveMod({ source: "community" })) throw new Error("Restored, but activation failed. Select imported database below.")
+            if (!await window.electron?.mods?.restore()) throw new Error(t("ci.restoreNone"))
+            if (!await setActiveMod({ source: "community" })) throw new Error(t("ci.restoredNotActive"))
             await loadWorkshop(); setInstalled(await modExists())
-            setStatus({ kind: "ok", msg: "Previous database restored for new careers." })
-        } catch (error) { setStatus({ kind: "err", msg: error instanceof Error ? error.message : "Restore failed" }) }
+            setStatus({ kind: "ok", msg: t("ci.restored") })
+        } catch (error) { setStatus({ kind: "err", msg: error instanceof Error ? error.message : t("ci.restoreFailed") }) }
         finally { setBusy(false) }
     }
     const onFile = async (file: File) => {
-        if (file.size > MAX_MOD_BYTES) { setPreview(null); setStatus({ kind: "err", msg: "Database exceeds 16 MiB" }); return }
+        if (file.size > MAX_MOD_BYTES) { setPreview(null); setStatus({ kind: "err", msg: t("ci.tooBig") }); return }
         try { await applyPayload(await file.text()) }
-        catch { setStatus({ kind: "err", msg: "File could not be read" }) }
+        catch { setStatus({ kind: "err", msg: t("ci.readFailed") }) }
     }
 
     const onRemove = async () => {
@@ -162,11 +164,11 @@ export default function CommunityImportPage() {
                 setInstalled(false)
                 setStatus({
                     kind: "ok",
-                    msg: "Community database removed. Start a new career to revert.",
+                    msg: t("ci.removed"),
                 })
-                toast({ title: "Community database removed" })
+                toast({ title: t("ci.removedToast") })
             } else {
-                setStatus({ kind: "err", msg: "Failed to remove files." })
+                setStatus({ kind: "err", msg: t("ci.removeFailed") })
             }
         } finally {
             setBusy(false)
@@ -177,13 +179,13 @@ export default function CommunityImportPage() {
     return (
         <div className="mx-auto max-w-[960px] space-y-4 pb-16">
             <ScreenHeader
-                eyebrow="Settings"
-                title="Community database"
-                subtitle="Replace the default roster data with a community database or a Steam Workshop mod. Files stay on this machine and only affect new careers."
+                eyebrow={t("settings.title")}
+                title={t("ci.title")}
+                subtitle={t("ci.subtitle")}
                 aside={
                     <>
-                        {installed && <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-positive"><CheckCircle2 size={14} /> Imported database available</span>}
-                        <Button asChild variant="ghost" className="gap-2"><Link href="/settings"><ArrowLeft size={16} /> Settings</Link></Button>
+                        {installed && <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-positive"><CheckCircle2 size={14} /> {t("ci.available")}</span>}
+                        <Button asChild variant="ghost" className="gap-2"><Link href="/settings"><ArrowLeft size={16} /> {t("settings.title")}</Link></Button>
                     </>
                 }
             />
@@ -192,7 +194,7 @@ export default function CommunityImportPage() {
                 <Panel>
                     <p className="flex items-start gap-2 text-sm text-ink-2">
                         <AlertCircle size={16} className="mt-0.5 shrink-0 text-caution" />
-                        Community databases and Workshop mods work in the desktop app only.
+                        {t("ci.desktopOnly")}
                     </p>
                 </Panel>
             )}
@@ -206,18 +208,18 @@ export default function CommunityImportPage() {
 
             {electronAvailable && (
                 <Panel
-                    title={<span className="flex items-center gap-2">Steam Workshop {active.source === "workshop" && <span className="text-xs font-semibold text-positive">Active</span>}</span>}
+                    title={<span className="flex items-center gap-2">Steam Workshop {active.source === "workshop" && <span className="text-xs font-semibold text-positive">{t("ci.active")}</span>}</span>}
                     actions={
                         <>
-                            <Button variant="ghost" size="sm" disabled={wsBusy} onClick={() => void loadWorkshop()} className="gap-1.5"><RefreshCw size={13} /> Refresh</Button>
-                            <Button variant="outline" size="sm" disabled={!wsAvailable} onClick={() => void openWorkshop()} className="gap-1.5"><ExternalLink size={13} /> Browse</Button>
+                            <Button variant="ghost" size="sm" disabled={wsBusy} onClick={() => void loadWorkshop()} className="gap-1.5"><RefreshCw size={13} /> {t("ci.refresh")}</Button>
+                            <Button variant="outline" size="sm" disabled={!wsAvailable} onClick={() => void openWorkshop()} className="gap-1.5"><ExternalLink size={13} /> {t("ci.browse")}</Button>
                         </>
                     }
                     padded={false}
                 >
-                    <p className="px-4 pt-3 text-xs text-ink-3">Subscribe to a database mod on the Workshop, activate it here, then start a new career.</p>
-                    {!wsAvailable && <p className="px-4 py-3 text-sm text-ink-3">Steam isn&apos;t connected, so subscriptions can&apos;t be listed. Launch through Steam to manage Workshop mods.</p>}
-                    {wsAvailable && wsMods.length === 0 && <p className="px-4 py-3 text-sm text-ink-3">No subscribed mods. Browse the Workshop, subscribe, then refresh.</p>}
+                    <p className="px-4 pt-3 text-xs text-ink-3">{t("ci.wsHint")}</p>
+                    {!wsAvailable && <p className="px-4 py-3 text-sm text-ink-3">{t("ci.noSteam")}</p>}
+                    {wsAvailable && wsMods.length === 0 && <p className="px-4 py-3 text-sm text-ink-3">{t("ci.noMods")}</p>}
                     {wsMods.length > 0 && (
                         <ul className="mt-2 divide-y divide-line border-t border-line">
                             {wsMods.map((m) => {
@@ -227,26 +229,26 @@ export default function CommunityImportPage() {
                                         <div className="min-w-0">
                                             <p className="flex flex-wrap items-center gap-2 text-sm">
                                                 <span className="truncate font-semibold text-ink-1">{m.title}</span>
-                                                {m.isEmMod && <span className="text-xs text-ink-3">Database schema 1</span>}
-                                                {isActive && <span className="text-xs font-semibold text-positive">Active</span>}
-                                                {!m.installed && <span className="text-xs text-ink-3">Downloading…</span>}
-                                                {m.needsUpdate && <span className="text-xs text-caution">Update pending</span>}
+                                                {m.isEmMod && <span className="text-xs text-ink-3">{t("ci.schema")}</span>}
+                                                {isActive && <span className="text-xs font-semibold text-positive">{t("ci.active")}</span>}
+                                                {!m.installed && <span className="text-xs text-ink-3">{t("ci.downloading")}</span>}
+                                                {m.needsUpdate && <span className="text-xs text-caution">{t("ci.updatePending")}</span>}
                                             </p>
                                             <p className="mt-0.5 flex items-center gap-3 text-xs text-ink-3">
-                                                {typeof m.teams === "number" && <span>{m.teams} teams</span>}
-                                                {typeof m.players === "number" && <span className="inline-flex items-center gap-1"><Users size={12} /> {m.players} players</span>}
-                                                {m.author && <span>by {m.author}</span>}
+                                                {typeof m.teams === "number" && <span>{tn("ci.teams", m.teams)}</span>}
+                                                {typeof m.players === "number" && <span className="inline-flex items-center gap-1"><Users size={12} /> {tn("ci.players", m.players)}</span>}
+                                                {m.author && <span>{t("ci.by", { author: m.author })}</span>}
                                             </p>
                                         </div>
                                         <div className="flex shrink-0 gap-2">
                                             {isActive ? (
                                                 <>
-                                                    <Button variant="outline" size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate} onClick={() => void activateWorkshop(m.id)}>Use installed version</Button>
-                                                    <Button variant="ghost" size="sm" disabled={wsBusy} onClick={() => void switchToCommunitySource()}>Deactivate</Button>
+                                                    <Button variant="outline" size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate} onClick={() => void activateWorkshop(m.id)}>{t("ci.useInstalled")}</Button>
+                                                    <Button variant="ghost" size="sm" disabled={wsBusy} onClick={() => void switchToCommunitySource()}>{t("ci.deactivate")}</Button>
                                                 </>
                                             ) : (
                                                 <Button variant="outline" size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate} onClick={() => void activateWorkshop(m.id)} className="gap-1.5">
-                                                    <Download size={13} /> Activate
+                                                    <Download size={13} /> {t("ci.activate")}
                                                 </Button>
                                             )}
                                         </div>
@@ -258,32 +260,32 @@ export default function CommunityImportPage() {
                 </Panel>
             )}
 
-            <Panel title="Import a database" padded={false}>
+            <Panel title={t("ci.import")} padded={false}>
                 <div className="divide-y divide-line">
                     {electronAvailable && (
                         <div className="flex items-center justify-between gap-6 px-4 py-3">
                             <div>
-                                <p className="text-sm font-semibold text-ink-1">Mod folder with images</p>
-                                <p className="text-xs text-ink-3">Choose the unpacked mod folder. PNG, JPEG and WebP images are kept locally so careers keep their portraits when you switch mods.</p>
+                                <p className="text-sm font-semibold text-ink-1">{t("ci.folder")}</p>
+                                <p className="text-xs text-ink-3">{t("ci.folderHint")}</p>
                             </div>
                             <Button variant="outline" size="sm" disabled={busy} onClick={async () => {
                                 setBusy(true)
                                 try {
                                     const text = await window.electron?.mods?.readFolder()
                                     if (text) await applyPayload(text)
-                                    else setStatus({ kind: "err", msg: "No valid folder selected. The folder must contain database JSON and all referenced PNG, JPEG or WebP images." })
+                                    else setStatus({ kind: "err", msg: t("ci.noFolder") })
                                 } finally { setBusy(false) }
-                            }} className="gap-1.5"><FolderOpen size={13} /> Choose folder</Button>
+                            }} className="gap-1.5"><FolderOpen size={13} /> {t("ci.chooseFolder")}</Button>
                         </div>
                     )}
                     <div className="flex items-center justify-between gap-6 px-4 py-3">
                         <div>
-                            <label htmlFor="community-json-file" className="text-sm font-semibold text-ink-1">JSON file</label>
-                            <p className="text-xs text-ink-3">Optional <code>players</code>, <code>teams</code> and <code>tournaments</code> arrays. Imported tournaments are stored, but the career calendar still uses the built-in competitions.</p>
+                            <label htmlFor="community-json-file" className="text-sm font-semibold text-ink-1">{t("ci.jsonFile")}</label>
+                            <p className="text-xs text-ink-3"><Trans k="ci.jsonHint" tags={{ c: txt => <code>{txt}</code> }} /></p>
                         </div>
                         <input
                             id="community-json-file"
-                            aria-label="Select community database JSON"
+                            aria-label={t("ci.selectJson")}
                             type="file"
                             accept="application/json,.json"
                             disabled={busy || !electronAvailable}
@@ -297,12 +299,12 @@ export default function CommunityImportPage() {
                     </div>
                     <div className="space-y-3 px-4 py-3">
                         <div>
-                            <label htmlFor="community-json-paste" className="text-sm font-semibold text-ink-1">Paste JSON</label>
-                            <p className="text-xs text-ink-3">Up to 16 MiB. No ZIP files or scripts.</p>
+                            <label htmlFor="community-json-paste" className="text-sm font-semibold text-ink-1">{t("ci.paste")}</label>
+                            <p className="text-xs text-ink-3">{t("ci.pasteHint")}</p>
                         </div>
                         <Textarea
                             id="community-json-paste"
-                            aria-label="Community database JSON"
+                            aria-label={t("ci.jsonAria")}
                             maxLength={MAX_MOD_BYTES}
                             value={pasted}
                             onChange={(e) => setPasted(e.target.value)}
@@ -312,10 +314,10 @@ export default function CommunityImportPage() {
                             className="font-mono text-xs"
                         />
                         <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => void applyPayload(pasted)} disabled={busy || !pasted.trim() || !electronAvailable}>Preview import</Button>
+                            <Button variant="outline" onClick={() => void applyPayload(pasted)} disabled={busy || !pasted.trim() || !electronAvailable}>{t("ci.preview")}</Button>
                             {installed && (
                                 <Button variant="ghost" onClick={() => void onRemove()} disabled={busy} className="gap-1.5 text-negative!">
-                                    <Trash2 size={14} /> Remove imported database
+                                    <Trash2 size={14} /> {t("ci.remove")}
                                 </Button>
                             )}
                         </div>
@@ -324,24 +326,24 @@ export default function CommunityImportPage() {
             </Panel>
 
             {preview && (
-                <Panel title="Review database" actions={<span className="text-xs tabular-nums text-ink-3">{preview.counts}</span>}>
+                <Panel title={t("ci.review")} actions={<span className="text-xs tabular-nums text-ink-3">{preview.counts}</span>}>
                     <p className="text-sm text-ink-1">{preview.author}</p>
-                    <p className="mt-2 text-xs leading-relaxed text-ink-3">Matching IDs replace base entries; new IDs are added. This replaces the whole previous import. Existing careers keep their data. JSON alone can&apos;t bring new images; use the folder import for those.</p>
+                    <p className="mt-2 text-xs leading-relaxed text-ink-3">{t("ci.reviewHint")}</p>
                     <div className="mt-4 flex gap-2">
-                        <Button disabled={busy} onClick={() => void installPreview()}>Install database</Button>
-                        <Button variant="ghost" disabled={busy} onClick={() => setPreview(null)}>Cancel</Button>
+                        <Button disabled={busy} onClick={() => void installPreview()}>{t("ci.install")}</Button>
+                        <Button variant="ghost" disabled={busy} onClick={() => setPreview(null)}>{t("ci.cancel")}</Button>
                     </div>
                 </Panel>
             )}
 
             {electronAvailable && (
-                <Panel title="Database for new careers" padded={false}>
+                <Panel title={t("ci.forNew")} padded={false}>
                     <div className="flex flex-wrap gap-2 px-4 py-3">
-                        <Button variant="outline" size="sm" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("none")}>Use base game</Button>
-                        <Button variant="outline" size="sm" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("community")}>Use imported database</Button>
-                        <Button variant="ghost" size="sm" disabled={busy || wsBusy} onClick={() => void restorePrevious()}>Restore previous import</Button>
+                        <Button variant="outline" size="sm" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("none")}>{t("ci.useBase")}</Button>
+                        <Button variant="outline" size="sm" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("community")}>{t("ci.useImported")}</Button>
+                        <Button variant="ghost" size="sm" disabled={busy || wsBusy} onClick={() => void restorePrevious()}>{t("ci.restorePrev")}</Button>
                     </div>
-                    {modPath && <p className="border-t border-line px-4 py-2 text-xs text-ink-3">Stored in <code className="break-all">{modPath}</code></p>}
+                    {modPath && <p className="border-t border-line px-4 py-2 text-xs text-ink-3">{t("ci.storedIn")} <code className="break-all">{modPath}</code></p>}
                 </Panel>
             )}
         </div>
