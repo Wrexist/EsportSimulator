@@ -141,7 +141,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
 
                 {/* Calls × players: what each call buys each player, at its real cost. */}
                 <div className="mt-2.5 overflow-hidden rounded-md border border-line">
-                    <div className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
+                    <div className="grid grid-cols-[160px_repeat(var(--cols),minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[148px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
                         <div className="flex items-end px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">{t("decision.playerCash")}</div>
                         {calls.map(o => {
                             const label = strategyLabel(o.id)
@@ -177,7 +177,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         })}
                     </div>
                     {!folded && preview.options[0]?.players.map((p, row) => (
-                        <div key={p.id} className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
+                        <div key={p.id} className="grid grid-cols-[160px_repeat(var(--cols),minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[148px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
                             <div className="flex h-7 min-w-0 items-center gap-1.5 px-2 text-xs">
                                 <span className="min-w-0 truncate font-semibold text-ink-1" title={names[p.id] ?? p.id}>{names[p.id] ?? p.id}</span>
                                 <span className="ml-auto shrink-0 tabular-nums text-positive">{money(p.cash)}</span>
