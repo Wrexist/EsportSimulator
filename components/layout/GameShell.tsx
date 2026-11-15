@@ -100,6 +100,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // Full-screen moments (titles, tier moves, signings, welcome) come first;
     // the legend pick of a major opens after its title moment.
     const momentPending = useMomentPending()
+    // A blocking screen (title moment, legend pick) must stay on top; the
+    // inbox drawer's layer is above it, so the drawer closes and stays shut
+    // until the screen is answered (COMP-24).
+    const blockingScreen = momentPending || !!pendingLegendPick
+    useEffect(() => { if (blockingScreen) useInboxDrawer.getState().close() }, [blockingScreen])
 
     // The chosen language: its file loads, then everything below re-renders in it.
     useUiLanguageSync(useSettingsStore(state => state.language))
@@ -515,7 +520,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
             {!IS_DEMO && !hideChrome && !isMatchRoute && !momentPending && !pendingLegendPick && <ReviewAsk />}
             {demoWeeks > 0 && !hideChrome && !isLiveMatch && <DemoWeeksPill weeksLeft={demoWeeks} />}
-            {!hideChrome && !isLiveMatch && (
+            {!hideChrome && !isLiveMatch && !blockingScreen && (
                 <>
                     <Suspense fallback={null}><InboxUrlBridge /></Suspense>
                     <InboxDrawer />
