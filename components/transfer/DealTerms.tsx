@@ -61,7 +61,8 @@ function MoneyInput({ value, onChange, label, suffix }: { value: number; onChang
                     aria-label={label}
                     value={value}
                     onChange={(e) => onChange(Number(e.target.value))}
-                    className="h-11 pl-7 pr-12 font-display text-xl font-bold tabular-nums"
+                    // MARKET-12: no native spinner over the "/ match" suffix (the box is typed into).
+                    className="h-11 pl-7 pr-12 font-display text-xl font-bold tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
                 {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-3">{suffix}</span>}
             </div>
@@ -253,7 +254,7 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
 /** G13: the clauses he signs with; each one moves the wage he asks. */
 function ClauseTerms({ n }: { n: NegotiationState }) {
     const releases: ReleaseClause[] = ["none", "high", "low"]
-    const fee = releaseClauseFee(n.clauses.release, n.salaryOffer)
+    const fee = releaseClauseFee(n.clauses.release, n.salaryOffer, n.currentTeam ? n.buyoutOffer : 0)
     return (
         <details className="rounded border border-line bg-shell px-3 py-2" open={n.clauses.release !== "none" || n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0}>
             <summary className="cursor-pointer text-xs font-semibold text-ink-2">

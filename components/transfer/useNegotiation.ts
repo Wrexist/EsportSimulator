@@ -336,7 +336,7 @@ export function useNegotiation(playerId: string | null, active = true) {
                 startWeek: currentWeek,
                 endWeek: currentWeek + duration,
                 buyout: Math.max(salary * 20, fee * 2),
-                ...clauseFields(agreed, salary),
+                ...clauseFields(agreed, salary, fee),
             }
         )
         if (result.success) {
