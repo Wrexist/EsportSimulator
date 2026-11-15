@@ -366,11 +366,12 @@ export default function LiveMatchPage() {
     const dockPlaying = isWaitingForStrategy ? (isAutoTactics && !decisionHold) : isPlaying
 
     const breakCard = !roundBeat && intermission && (intermission.kind === "halftime" || intermission.kind === "map-end") ? intermission : null
+    // Over the map the card is about (the screen stays on a finished map until the next one starts, MATCHDAY-18).
     const breakStats: HalfStat[] = breakCard ? (() => {
         const count = (side: "home" | "away", types: string[]) => roundHistory.filter(r => r.winner === side && types.includes(r.winType ?? "")).length
-        const pistol = roundHistory.find(r => r.round === (breakCard.kind === "halftime" ? 1 : 13))
+        const pistols = roundHistory.filter(r => r.round === 1 || (breakCard.kind === "map-end" && r.round === 13))
         return [
-            ...(pistol ? [{ label: t("live.stat.pistol"), home: pistol.winner === "home" ? 1 : 0, away: pistol.winner === "away" ? 1 : 0 }] : []),
+            ...(pistols.length ? [{ label: t("live.stat.pistol"), home: pistols.filter(r => r.winner === "home").length, away: pistols.filter(r => r.winner === "away").length }] : []),
             { label: t("live.stat.eliminations"), home: count("home", ["ELIMINATION"]), away: count("away", ["ELIMINATION"]) },
             { label: t("live.stat.bomb"), home: count("home", ["BOMB_EXPLODED", "BOMB_DEFUSE"]), away: count("away", ["BOMB_EXPLODED", "BOMB_DEFUSE"]) },
             { label: t("live.stat.time"), home: count("home", ["TIME"]), away: count("away", ["TIME"]) },

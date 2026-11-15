@@ -707,7 +707,12 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         ]
         if (step.round.managerCall?.regroup) buyLogEntries.push({ type: "SYSTEM", message: t("feed.regroup") })
 
-        setGameState(prev => ({ ...prev, round: currentRoundNumber, time: 0, status: "IN_PROGRESS" }))
+        // A new map: the screen leaves the finished map (kept on screen through the map break).
+        setGameState(prev => ({
+            ...prev,
+            ...(prev.currentMapIndex !== mapIndex ? { currentMapIndex: mapIndex, homeScore: 0, awayScore: 0 } : {}),
+            round: currentRoundNumber, time: 0, status: "IN_PROGRESS",
+        }))
         const roundStartMsg = commentaryManager.generate("ROUND_START", { round: currentRoundNumber })
         setLogs(prev => [...buyLogEntries.reverse(), { type: "SYSTEM", message: roundStartMsg }, ...prev])
 
@@ -947,8 +952,9 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     if (playerIsHomeSide || playerIsAwaySide) playMatchOutcomeCue(runtime.match.id, playerWon)
                 } else if (transition === "MAP_END") {
                     const nextMapId = runtime.canonicalMaps[roundState.currentMapIndex]
-                    uiTimeRef.current = -1
-                    setGameState(prev => ({ ...prev, currentMapIndex: roundState.currentMapIndex, homeScore: 0, awayScore: 0, round: 1, time: -1 }))
+                    // The screen (scorebug, rounds, radar, break stats) stays on the
+                    // finished map during the break; the next map's first round
+                    // moves it on (startNextRound, MATCHDAY-18).
                     settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)

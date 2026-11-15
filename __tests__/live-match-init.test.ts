@@ -246,4 +246,34 @@ describe("buildRestoredGameState", () => {
         // series scores always pulled from simState (caller can't override)
         expect(gs.homeSeriesScore).toBe(1)
     })
+
+    // MATCHDAY-18: during a BO3 map break the screen stays on the finished
+    // map; a reload then resumes on the next map at 0-0, not at the old score.
+    test("a checkpoint saved on the finished map resumes the next map from the sim", () => {
+        const nextMap = { ...baseSim, currentMapIndex: 1, currentRound: 1, homeRounds: 0, awayRounds: 0 }
+        const gs = buildRestoredGameState({
+            savedGameState: { round: 18, homeScore: 5, awayScore: 13, status: "IN_PROGRESS", time: 80, isPaused: false, currentMapIndex: 0 } as any,
+            simState: nextMap,
+            currentMapIndex: 1,
+        })
+        expect(gs).toMatchObject({ currentMapIndex: 1, round: 1, homeScore: 0, awayScore: 0, time: -1, status: "IN_PROGRESS" })
+        // Same map: the saved screen is kept.
+        const same = buildRestoredGameState({
+            savedGameState: { round: 9, homeScore: 5, awayScore: 3, status: "IN_PROGRESS", time: 12, isPaused: true, currentMapIndex: 1 } as any,
+            simState: nextMap,
+            currentMapIndex: 1,
+        })
+        expect(same).toMatchObject({ round: 9, homeScore: 5, awayScore: 3, time: 12, isPaused: true })
+    })
+})
+
+// MATCHDAY-18: the map-end break keeps the finished map on screen; the next
+// map's first round moves the screen on (source contract of the live hook).
+describe("map break keeps the finished map on screen", () => {
+    const src = require("fs").readFileSync(require("path").resolve(__dirname, "../hooks/useLiveMatch.ts"), "utf8") as string
+    test("MAP_END no longer switches the shown map; startNextRound does", () => {
+        const mapEnd = src.slice(src.indexOf('} else if (transition === "MAP_END") {'), src.indexOf('} else if (transition === "OVERTIME") {'))
+        expect(mapEnd).not.toMatch(/currentMapIndex:/)
+        expect(src).toMatch(/prev\.currentMapIndex !== mapIndex \? \{ currentMapIndex: mapIndex, homeScore: 0, awayScore: 0 \}/)
+    })
 })

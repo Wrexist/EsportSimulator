@@ -143,14 +143,17 @@ export function buildRestoredGameState(args: {
     currentMapIndex: number
 }): LiveGameState {
     const { savedGameState, simState, currentMapIndex } = args
+    // Saved during a map break, the screen was still on the finished map:
+    // its round, score and clock do not belong to the map that resumes.
+    const shown = typeof savedGameState?.currentMapIndex !== "number" || savedGameState.currentMapIndex === currentMapIndex ? savedGameState : undefined
     return {
-        round: savedGameState?.round ?? Math.max(1, simState.currentRound - 1),
-        homeScore: savedGameState?.homeScore ?? simState.homeRounds,
-        awayScore: savedGameState?.awayScore ?? simState.awayRounds,
+        round: shown?.round ?? Math.max(1, simState.currentRound - 1),
+        homeScore: shown?.homeScore ?? simState.homeRounds,
+        awayScore: shown?.awayScore ?? simState.awayRounds,
         homeSeriesScore: simState.homeSeriesScore,
         awaySeriesScore: simState.awaySeriesScore,
         status: savedGameState?.status ?? "IN_PROGRESS",
-        time: typeof savedGameState?.time === "number" ? savedGameState.time : -1,
+        time: typeof shown?.time === "number" ? shown.time : -1,
         isPaused: Boolean(savedGameState?.isPaused ?? false),
         currentMapIndex,
     }
