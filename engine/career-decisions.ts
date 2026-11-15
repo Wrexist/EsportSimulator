@@ -1,5 +1,5 @@
 import type { GameSave } from './save-types'
-import { captainId } from './personality'
+import { captainId, isOfficialMatch } from './personality'
 import { eventText } from '@/lib/news-ref'
 
 /** Small, situation-driven decisions. One open decision and at least eight weeks between them. */
@@ -17,7 +17,13 @@ export function generateCareerDecision(save: GameSave): void {
     // The assistant coach's win-streak decision (engine/processors/event-processor.ts)
     // already asks about this run: one prompt per winning run (HOME-06).
     const streakAsked = save.eventsLog.some(e => e.type === 'win_streak' && e.week > save.currentWeek - 8)
-    const recent = save.completedMatches.filter(m => m.week <= save.currentWeek && m.week >= save.currentWeek - 4 && (m.homeTeamId === team.id || m.awayTeamId === team.id))
+    // "Three straight wins" counts competitive matches only (no scrims or
+    // friendlies), oldest first by week, day, then the order they were played.
+    const recent = save.completedMatches
+        .map((m, i) => ({ m, i }))
+        .filter(({ m }) => m.week <= save.currentWeek && m.week >= save.currentWeek - 4 && (m.homeTeamId === team.id || m.awayTeamId === team.id) && isOfficialMatch(m))
+        .sort((a, b) => a.m.week - b.m.week || (a.m.day ?? 6) - (b.m.day ?? 6) || a.i - b.i)
+        .map(({ m }) => m)
     const story = low && low.morale < 40 ? {
         key: 'confidence', player: low, ...eventText({ key: 'cdec.support.t', params: { name: low.nickname } }, { key: 'cdec.support.m', params: { name: low.nickname } }),
         choices: [{ id: 'support', text: 'Support session: $500, morale +8, loyalty +2', ref: { key: 'cdec.c.support' }, effects: { money: -500, morale: 8, loyalty: 2 } }, { id: 'talk', text: 'Private conversation: morale +3', ref: { key: 'cdec.c.private' }, effects: { morale: 3 } }],

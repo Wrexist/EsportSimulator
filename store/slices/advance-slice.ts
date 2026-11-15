@@ -27,6 +27,8 @@ export interface ContinueRunState {
 export interface AdvanceStopNotice extends AdvanceStop {
     week: number
     day: number
+    /** Every signal a grouped stop covers ("2 decisions need an answer"). */
+    keys?: string[]
 }
 
 export interface AdvanceState {
@@ -157,7 +159,7 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                 const end = get()
                 // A moment explains itself full-screen; no notice under Continue.
                 const notice: AdvanceStopNotice | null = stop && stop.kind !== "moment"
-                    ? { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: end.currentWeek, day: end.currentDay }
+                    ? { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: end.currentWeek, day: end.currentDay, ...(stop.keys ? { keys: stop.keys } : {}) }
                     : null
                 const covered = stop?.keys ?? (stop ? [stop.key] : [])
                 const marks = !!stop && stop.kind !== "moment" && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error"

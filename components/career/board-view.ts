@@ -9,7 +9,7 @@ import type { BoardMove, BoardObjective, BoardState } from "@/engine/save-types"
 import { objectiveProgressNow, type ObjectiveProgressSource } from "@/engine/board-expectations"
 import { BOARD_TUNING } from "@/lib/balance-tuning"
 import { formatCurrency } from "@/lib/utils-extended"
-import { ordinalLabel, t, tn } from "@/lib/i18n"
+import { intlLocale, ordinalLabel, t, tn } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 
 export type BoardTone = "positive" | "neutral" | "caution" | "negative"
@@ -198,5 +198,7 @@ function round1(n: number): number {
 
 export function signedDelta(n: number): string {
     const r = round1(n)
-    return r > 0 ? `+${r}` : r < 0 ? `−${Math.abs(r)}` : "0"
+    // The language's decimal mark ("+0,8" in German), like the week report.
+    const shown = Math.abs(r).toLocaleString(intlLocale(), { maximumFractionDigits: 1, useGrouping: false })
+    return r > 0 ? `+${shown}` : r < 0 ? `−${shown}` : "0"
 }

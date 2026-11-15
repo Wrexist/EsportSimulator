@@ -63,6 +63,8 @@ interface MomentsHost extends MomentHolder {
     saveId: string | null
     isInitialized: boolean
     currentWeek: number
+    currentDay?: number
+    timeMode?: string
     playerTeamId: string | null
     players: PlayerSaveData[]
     teams: TeamSaveData[]
@@ -86,7 +88,7 @@ export const BIG_SIGNING_RATING = 85
 
 /** Build the signing moment from the career as it is right after the deal. */
 export function buildSigningMoment(
-    state: Pick<Store, "currentWeek" | "playerTeamId" | "players" | "teams">,
+    state: Pick<Store, "currentWeek" | "playerTeamId" | "players" | "teams"> & Partial<Pick<Store, "currentDay" | "timeMode">>,
     signing: SigningInput,
 ): SigningMoment | null {
     const player = state.players.find(p => p.id === signing.playerId)
@@ -107,6 +109,8 @@ export function buildSigningMoment(
         }
     } catch { /* the reveal works without them */ }
     const rivalNames = (signing.rivalNames ?? []).slice(0, 3)
+    // The contract paper dates the deal (and its end) on today's day in daily mode.
+    const day = state.timeMode === "HYBRID_DAILY" ? Math.max(0, Math.floor(state.currentDay ?? 0)) : 0
     return {
         key: `signing:${player.id}:${state.currentWeek}`,
         kind: "signing",
@@ -115,6 +119,7 @@ export function buildSigningMoment(
         fee,
         salaryPerWeek: Math.max(0, Math.round(signing.salaryPerWeek)),
         contractEndWeek: signing.contractEndWeek,
+        ...(day > 0 ? { day } : {}),
         fromTeamName: fromTeam?.name ?? null,
         rating,
         big: rating >= BIG_SIGNING_RATING,

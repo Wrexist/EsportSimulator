@@ -113,6 +113,8 @@ export interface SigningMoment extends MomentBase {
     fee: number
     salaryPerWeek: number
     contractEndWeek: number
+    /** Day of the week the deal was signed (daily mode); the contract paper dates its end from it. */
+    day?: number
     /** Selling club; null for a free agent. */
     fromTeamName: string | null
     /** Overall rating when signed. */

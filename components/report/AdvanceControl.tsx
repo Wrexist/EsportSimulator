@@ -17,7 +17,7 @@ import { useShallow } from "zustand/react/shallow"
 import { ArrowRight, ChevronDown, Loader2, Play, Swords, X } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { selectPlayableMatchId } from "@/lib/playable-match"
-import { forfeitStops, type StopSource } from "@/lib/advance-stops"
+import { advanceStopStillOpen, forfeitStops, type StopSource } from "@/lib/advance-stops"
 import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -64,6 +64,9 @@ export function AdvanceControl() {
     const pendingMatchId = useGameStore(selectPlayableMatchId)
     // A live match that was left mid-way resumes on the live screen, not its prep.
     const pendingIsLive = useGameStore(s => !!pendingMatchId && liveMatchInProgress(s, pendingMatchId))
+    // A "Decision waiting" notice ends when that decision is answered (in the inbox or on Home).
+    const stopAnswered = useGameStore(s => !!s.advanceStop && !advanceStopStillOpen(s.advanceStop, s.eventsLog))
+    useEffect(() => { if (stopAnswered) dismissAdvanceStop() }, [stopAnswered, dismissAdvanceStop])
     const hasCareer = !!saveId && !!playerTeamId
     const running = !!continueRun
     const locked = isLoading || !!gameOverReason || runOver || !hasCareer || running
@@ -182,7 +185,7 @@ export function AdvanceControl() {
         <div className="relative shrink-0">
             {control}
             {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20). */}
-            {advanceStop && !running && !onStopMatch && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
+            {advanceStop && !running && !onStopMatch && !stopAnswered && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
         </div>
     )
 }

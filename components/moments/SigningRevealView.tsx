@@ -97,7 +97,8 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     const name = player?.nickname ?? t("mo.sign.newPlayer")
     const archetype = archetypeOf(player)
     const endSeason = Math.floor((moment.contractEndWeek - 1) / 52) + 1
-    const endDate = gameStartDate ? formatGameCalendarDate(gameCalendarDate(gameStartDate, moment.contractEndWeek), { month: "short", year: "numeric" }) : null
+    // The same end date as the signed contract paper (same day of the week).
+    const endDate = gameStartDate ? formatGameCalendarDate(gameCalendarDate(gameStartDate, moment.contractEndWeek, moment.day ?? 0), { month: "short", year: "numeric" }) : null
     const weeks = Math.max(0, moment.contractEndWeek - moment.week)
 
     const facts: MomentFact[] = [

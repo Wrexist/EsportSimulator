@@ -235,6 +235,21 @@ export function stoppedEventIds(keys: readonly string[]): string[] {
     return keys.filter(k => k.startsWith("event:") || k.startsWith("offer:")).map(k => k.slice(k.indexOf(":") + 1))
 }
 
+/**
+ * False once every decision or offer a stop names has been answered (or
+ * withdrawn, or is gone): its "Decision waiting" notice no longer applies.
+ * Other stops stay until dismissed or the next advance.
+ */
+export function advanceStopStillOpen(stop: Pick<AdvanceStop, "key" | "kind"> & { keys?: string[] }, eventsLog: readonly GameEventSaveData[]): boolean {
+    if (stop.kind !== "event" && stop.kind !== "offer") return true
+    const ids = stoppedEventIds(stop.keys?.length ? stop.keys : [stop.key])
+    if (ids.length === 0) return true
+    return ids.some(id => {
+        const e = eventsLog.find(x => x.id === id) as (GameEventSaveData & { selectedChoiceId?: string }) | undefined
+        return !!e && e.selectedChoiceId === undefined && !(e.data as Record<string, unknown> | undefined)?.isWithdrawn
+    })
+}
+
 /** Several new items of one kind become one stop ("2 decisions need an answer"). */
 const GROUPED: Partial<Record<StopKind, (n: number) => string>> = {
     event: n => tn("stop.grp.event", n),
