@@ -2,7 +2,7 @@
 import { intlLocale, t, tn } from "@/lib/i18n"
 import { countryName } from "@/lib/country"
 
-import { memo, useEffect, useMemo, useState, type KeyboardEvent } from "react"
+import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import Link from "next/link"
 import { ArrowDown, ArrowUp, Bell, BellOff, Bookmark, ChevronLeft, ChevronRight, Search, SlidersHorizontal, Star, X } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
@@ -31,19 +31,21 @@ import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { ScoutedRating } from "./ScoutedRating"
 import { DealPanel } from "./DealPanel"
 import { TeamLink } from "@/components/ui/EntityLink"
-import { describeCriteria, isNarrowing, matchesMarketSearch, MAX_SAVED_SEARCHES, type MarketCriteria } from "@/engine/market-search"
+import { describeCriteria, isNarrowing, matchesMarketSearch, MAX_SAVED_SEARCHES, sameCriteria, type MarketCriteria } from "@/engine/market-search"
 import { toast } from "@/lib/toast"
 import { marketStandings, rivalInterest, type MarketStanding } from "@/engine/transfer-hype"
 import { StandingBadge } from "./StandingBadge"
 import { MarqueeTargets, type MarqueeTarget } from "./MarqueeTargets"
 
 type Mode = "transfers" | "scouting"
-type SortField = "ovr" | "age" | "value" | "name"
+type SortField = "ovr" | "age" | "value" | "wage" | "name"
 type StatusFilter = "all" | "listed" | "free" | "scouted" | "watchlist"
 
 const PAGE_SIZE = 25
 const MARQUEE_COUNT = 4
 const MARQUEE_CONTRACT_WEEKS = 26
+/** "Recent moves" looks back this many weeks. */
+const RECENT_MOVES_WEEKS = 4
 const STANDING_ORDER: Record<MarketStanding, number> = { ICON: 0, STAR: 1, WONDERKID: 2 }
 const ROLES = [
     { value: "ALL", label: "market.role.ALL" },
@@ -88,6 +90,8 @@ interface Row {
     team: TeamSaveData | undefined
     knowledge: VisibleStats
     value: number
+    /** The wage he signs for at his preferred length (the "Wage ask" column). */
+    wage: number
 }
 
 function Segmented<T extends string | number>({ options, value, onChange, label }: { options: readonly { value: T; label: string }[]; value: T; onChange: (v: T) => void; label: string }) {
@@ -123,10 +127,10 @@ function SortHead({ field, label, sort, dir, onSort, className }: { field: SortF
     )
 }
 
-const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, scouting, standing, onSelect }: {
-    row: Row; selected: boolean; wage: number; watchlisted: boolean; scouting: boolean; standing?: MarketStanding; onSelect: (id: string) => void
+const MarketRow = memo(function MarketRow({ row, selected, watchlisted, scouting, standing, onSelect }: {
+    row: Row; selected: boolean; watchlisted: boolean; scouting: boolean; standing?: MarketStanding; onSelect: (id: string) => void
 }) {
-    const { player, team, knowledge, value } = row
+    const { player, team, knowledge, value, wage } = row
     const status = !team ? "free" : player.forSale ? "listed" : "contracted"
     const onKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
         if (e.target !== e.currentTarget) return
@@ -275,6 +279,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                 team: teamByPlayer.get(p.id),
                 knowledge: getVisibleStats(p, scoutedPlayers, myTeam.rosterIds, currentWeek),
                 value: evaluatePlayer(p, undefined, undefined, currentWeek).transferValue,
+                wage: signingWageAsk(p, currentWeek, myTeam),
             })
         }
         return rows
@@ -289,8 +294,11 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     }, [players, currentWeek, market, myTeam])
 
     // Marquee targets: the top standings that can be had now, with their rivals counted.
+    // MARKET-24: those the club can pay for come first; the rest are marked out of reach.
     const marquee = useMemo<MarqueeTarget[]>(() => {
         if (mode !== "transfers" || !myTeam) return []
+        const maxFee = getBoardSanctionedFee(boardState, myTeam.budget).maxFee
+        const reachable = (p: Omit<MarqueeTarget, "rivalCount">) => p.reason === "free" || p.value <= maxFee * 1.1
         const picks: Omit<MarqueeTarget, "rivalCount">[] = []
         for (const r of market) {
             const standing = standings.get(r.player.id)
@@ -300,12 +308,13 @@ export function MarketBoard({ mode }: { mode: Mode }) {
             if (!reason) continue
             picks.push({ player: r.player, team: r.team, standing, value: r.value, reason, contractWeeksLeft: weeks })
         }
-        picks.sort((a, b) => STANDING_ORDER[a.standing] - STANDING_ORDER[b.standing] || b.value - a.value || a.player.id.localeCompare(b.player.id))
+        picks.sort((a, b) => Number(reachable(b)) - Number(reachable(a)) || STANDING_ORDER[a.standing] - STANDING_ORDER[b.standing] || b.value - a.value || a.player.id.localeCompare(b.player.id))
         return picks.slice(0, MARQUEE_COUNT).map(p => ({
             ...p,
+            outOfReach: !reachable(p),
             rivalCount: rivalInterest(p.player, { teams, players, currentWeek, playerTeamId, saveId, standing: p.standing }).length,
         }))
-    }, [mode, myTeam, market, standings, contractWeeks, teams, players, currentWeek, playerTeamId, saveId])
+    }, [mode, myTeam, boardState, market, standings, contractWeeks, teams, players, currentWeek, playerTeamId, saveId])
 
     const filtered = useMemo(() => {
         const list = market.filter(({ player, team, knowledge, value }) => matchesMarketSearch({
@@ -320,6 +329,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
             let cmp = 0
             if (sort === "age") cmp = a.player.age - b.player.age
             else if (sort === "value") cmp = (a.team ? a.value : 0) - (b.team ? b.value : 0)
+            else if (sort === "wage") cmp = a.wage - b.wage
             else cmp = a.player.nickname.localeCompare(b.player.nickname)
             return cmp * sign
         })
@@ -331,6 +341,17 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     const pageRows = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
     // Docked panel follows the selection; before any click it shows the top row.
     const activeId = (selectedId && market.some(r => r.player.id === selectedId)) ? selectedId : pageRows[0]?.player.id ?? null
+
+    // MARKET-20: below xl the deal panel sits under the table; bring it into
+    // view when a player is picked, so the click visibly does something.
+    const asideRef = useRef<HTMLElement>(null)
+    useEffect(() => {
+        if (!selectedId || typeof window === "undefined" || window.matchMedia("(min-width: 1280px)").matches) return
+        const aside = asideRef.current
+        if (!aside) return
+        const top = aside.getBoundingClientRect().top
+        if (top > window.innerHeight * 0.6 || top < 0) aside.scrollIntoView({ block: "start", behavior: "smooth" })
+    }, [selectedId])
 
     const missingRoles = useMemo(() => {
         if (!myTeam) return []
@@ -356,7 +377,16 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     const scout = employedScout(staff, myTeam, currentWeek)
     const missionPlayer = activeScoutingMission ? players.find(p => p.id === activeScoutingMission.playerId) : undefined
     const reportCount = scoutedPlayers.length
-    const recent = [...(transferHistory || [])].sort((a, b) => b.week - a.week).slice(0, 6)
+    // MARKET-17: your own deals first, then the week's biggest fees; other
+    // clubs' free pickups only for an Icon, Star or Wonderkid.
+    const recent = (transferHistory || [])
+        .filter(mv => mv.week >= currentWeek - RECENT_MOVES_WEEKS + 1)
+        .map(mv => ({ mv, mine: mv.fromTeamId === playerTeamId || mv.toTeamId === playerTeamId }))
+        .filter(({ mv, mine }) => mine || mv.fee > 0 || standings.has(mv.playerId))
+        .sort((a, b) => Number(b.mine) - Number(a.mine) || b.mv.week - a.mv.week || b.mv.fee - a.mv.fee)
+        .slice(0, 6)
+    const activeSearch = (savedSearches || []).find(sv => sameCriteria(sv.criteria, criteria))
+    const watchlistEmpty = status === "watchlist" && !market.some(r => watchSet.has(r.player.id))
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
@@ -405,7 +435,12 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                 />
                             </div>
                             <Segmented label={t("common.role")} options={ROLES} value={role} onChange={v => { setRole(v); resetPage() }} />
-                            <Segmented label={t("market.col.status")} options={STATUSES} value={status} onChange={v => { setStatus(v); resetPage() }} />
+                            <Segmented label={t("market.col.status")} options={STATUSES} value={status} onChange={v => {
+                                setStatus(v)
+                                // MARKET-25: a free agent costs no fee, so his wage is what to sort by.
+                                if (v === "free" && sort === "value") { setSort("wage"); setDir("asc") }
+                                resetPage()
+                            }} />
                             <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 text-xs" aria-expanded={showFilters} onClick={() => setShowFilters(s => !s)}>
                                 <SlidersHorizontal size={13} /> {t("market.filters")}{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ""}
                             </Button>
@@ -443,8 +478,8 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                             <Bookmark size={13} className="shrink-0 text-ink-3" aria-hidden="true" />
                             {(savedSearches || []).length === 0 && !naming && <span className="text-ink-3">{t("market.saveHint")}</span>}
                             {(savedSearches || []).map(sv => (
-                                <span key={sv.id} className="inline-flex items-center rounded-sm border border-line-strong">
-                                    <button type="button" onClick={() => applyCriteria(sv.criteria)} title={describeCriteria(sv.criteria, { role: formatRole })} className="max-w-[180px] truncate px-2 py-1 font-semibold text-ink-2 hover:text-ink-1">{sv.name}</button>
+                                <span key={sv.id} className={cn("inline-flex items-center rounded-sm border", sv.id === activeSearch?.id ? "border-gold" : "border-line-strong")}>
+                                    <button type="button" onClick={() => applyCriteria(sv.criteria)} aria-pressed={sv.id === activeSearch?.id} title={describeCriteria(sv.criteria, { role: formatRole })} className={cn("max-w-[180px] truncate px-2 py-1 font-semibold hover:text-ink-1", sv.id === activeSearch?.id ? "text-ink-1" : "text-ink-2")}>{sv.name}</button>
                                     <button type="button" onClick={() => toggleMarketSearchAlerts(sv.id)} aria-label={sv.alerts ? t("market.alertsOff", { name: sv.name }) : t("market.alertsOn", { name: sv.name })} aria-pressed={sv.alerts} className={cn("border-l border-line px-1.5 py-1", sv.alerts ? "text-gold" : "text-ink-3 hover:text-ink-1")}>
                                         {sv.alerts ? <Bell size={12} /> : <BellOff size={12} />}
                                     </button>
@@ -461,7 +496,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                     <Button type="submit" size="sm" className="h-7 px-2.5 text-xs">{t("market.save")}</Button>
                                     <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setNaming(false)}>{t("market.cancel")}</Button>
                                 </form>
-                            ) : isNarrowing(criteria) && (savedSearches || []).length < MAX_SAVED_SEARCHES && (
+                            ) : isNarrowing(criteria) && !activeSearch && (savedSearches || []).length < MAX_SAVED_SEARCHES && (
                                 <button type="button" onClick={() => setNaming(true)} className="ml-auto font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline">{t("market.saveSearch")}</button>
                             )}
                         </div>
@@ -479,7 +514,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                         <SortHead field="age" label={t("market.col.age")} sort={sort} dir={dir} onSort={onSort} className="text-center" />
                                         <SortHead field="ovr" label={t("common.ovr")} sort={sort} dir={dir} onSort={onSort} className="text-center" />
                                         <SortHead field="value" label={t("market.col.value")} sort={sort} dir={dir} onSort={onSort} className="text-right" />
-                                        <th data-slot="table-head" className="px-3 text-right">{t("market.col.wageAsk")}</th>
+                                        <SortHead field="wage" label={t("market.col.wageAsk")} sort={sort} dir={dir} onSort={onSort} className="text-right" />
                                         <th data-slot="table-head" className="pl-3 pr-4 xl:max-2xl:hidden">{t("market.col.status")}</th>
                                     </tr>
                                 </thead>
@@ -489,7 +524,6 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                             key={row.player.id}
                                             row={row}
                                             selected={row.player.id === activeId}
-                                            wage={signingWageAsk(row.player, currentWeek, myTeam)}
                                             watchlisted={watchSet.has(row.player.id)}
                                             scouting={activeScoutingMission?.playerId === row.player.id}
                                             standing={standings.get(row.player.id)}
@@ -498,8 +532,15 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                     ))}
                                     {pageRows.length === 0 && (
                                         <tr><td colSpan={8} className="px-4 py-10 text-center">
-                                            <p className="text-sm text-ink-3">{t("market.noMatch")}</p>
-                                            <Button variant="outline" size="sm" className="mt-3" onClick={clearAll}>{t("market.clearFilters")}</Button>
+                                            {watchlistEmpty ? (
+                                                // MARKET-22: an empty shortlist is not a filter problem.
+                                                <p className="text-sm text-ink-3">{t("market.watchlistEmpty")}</p>
+                                            ) : (
+                                                <>
+                                                    <p className="text-sm text-ink-3">{t("market.noMatch")}</p>
+                                                    <Button variant="outline" size="sm" className="mt-3" onClick={clearAll}>{t("market.clearFilters")}</Button>
+                                                </>
+                                            )}
                                         </td></tr>
                                     )}
                                 </tbody>
@@ -520,18 +561,19 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                     </Panel>
                 </div>
 
-                <aside className="min-w-0 space-y-4 xl:sticky xl:top-4 xl:self-start">
+                <aside ref={asideRef} className="min-w-0 scroll-mt-4 space-y-4 xl:sticky xl:top-4 xl:self-start">
                     {activeId ? <DealPanel key={activeId} playerId={activeId} mode={mode} standing={standings.get(activeId)} /> : (
                         <Panel><p className="text-sm text-ink-3">{t("market.pickPlayer")}</p></Panel>
                     )}
                     {recent.length > 0 && (
                         <Panel title={t("market.recentMoves")} padded={false}>
                             <ul className="divide-y divide-line">
-                                {recent.map(mv => (
+                                {recent.map(({ mv, mine }) => (
                                     <li key={mv.id} className="flex items-center justify-between gap-3 px-4 py-2 text-xs">
                                         <div className="min-w-0">
-                                            <p className="truncate font-semibold text-ink-1">{mv.playerName}</p>
-                                            <p className="truncate text-ink-3">{mv.fromTeamName || t("market.row.free")} → {mv.toTeamName || t("market.released")}</p>
+                                            <p className={cn("truncate font-semibold", mine ? "text-gold" : "text-ink-1")}>{mv.playerName}</p>
+                                            {/* A free agent end is named in the interface language, not the stored "Free Agent". */}
+                                            <p className="truncate text-ink-3">{mv.fromTeamId && mv.fromTeamId !== "FA" ? mv.fromTeamName : t("market.row.free")} → {mv.toTeamId && mv.toTeamId !== "FA" ? mv.toTeamName : t("market.released")}</p>
                                         </div>
                                         <div className="shrink-0 text-right tabular-nums">
                                             <p className="text-ink-2">{mv.fee > 0 ? formatCurrency(mv.fee, "$", true) : t("market.free")}</p>

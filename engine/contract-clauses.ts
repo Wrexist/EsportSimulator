@@ -85,9 +85,18 @@ export function wageWithClauses(wage: number, terms: ClauseTerms): number {
     return Math.max(0, wage * T.RELEASE_WAGE[terms.release] - appearance - title)
 }
 
-/** Release clause fee for an agreed weekly wage (0 = none). */
-export function releaseClauseFee(release: ReleaseClause, wagePerWeek: number): number {
-    return release === "none" ? 0 : Math.round(Math.max(0, wagePerWeek) * CLAUSE_TUNING.RELEASE_FEE_WEEKS[release])
+/**
+ * Release clause fee for an agreed weekly wage (0 = none). MARKET-14: after a
+ * fee signing it is never below the fee just paid (a low clause), and a high
+ * clause keeps its usual ratio to a low one, so a clause can't hand the player
+ * to another club for less than he cost.
+ */
+export function releaseClauseFee(release: ReleaseClause, wagePerWeek: number, feePaid = 0): number {
+    if (release === "none") return 0
+    const weeks = CLAUSE_TUNING.RELEASE_FEE_WEEKS
+    const byWage = Math.max(0, wagePerWeek) * weeks[release]
+    const byFee = Math.max(0, Number.isFinite(feePaid) ? feePaid : 0) * weeks[release] / weeks.low
+    return Math.round(Math.max(byWage, byFee))
 }
 
 /** Weekly chance a club that can pay a clause does, from how many weeks of wage it is. */
@@ -98,10 +107,10 @@ export function releaseTriggerChance(fee: number, wagePerWeek: number): number {
     return Math.max(0, Math.min(T.RELEASE_TRIGGER_LOW, T.RELEASE_TRIGGER_LOW + (T.RELEASE_TRIGGER_HIGH - T.RELEASE_TRIGGER_LOW) * t))
 }
 
-/** The clause fields to write on a new contract at the agreed wage. */
-export function clauseFields(terms: ClauseTerms, wagePerWeek: number): Pick<ContractSaveData, "releaseClause" | "appearanceBonus" | "tournamentWinBonus"> {
+/** The clause fields to write on a new contract at the agreed wage (and the fee paid for him). */
+export function clauseFields(terms: ClauseTerms, wagePerWeek: number, feePaid = 0): Pick<ContractSaveData, "releaseClause" | "appearanceBonus" | "tournamentWinBonus"> {
     const out: Pick<ContractSaveData, "releaseClause" | "appearanceBonus" | "tournamentWinBonus"> = {}
-    const release = releaseClauseFee(terms.release, wagePerWeek)
+    const release = releaseClauseFee(terms.release, wagePerWeek, feePaid)
     if (release > 0) out.releaseClause = release
     if (terms.appearanceBonus > 0) out.appearanceBonus = Math.round(terms.appearanceBonus)
     if (terms.titleBonus > 0) out.tournamentWinBonus = Math.round(terms.titleBonus)

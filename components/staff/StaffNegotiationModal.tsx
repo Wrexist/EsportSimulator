@@ -18,6 +18,7 @@ import { CheckCircle2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { settlementsLeft } from "@/engine/finance-forecast"
 import { roleLabel, specializationLabel } from "@/components/staff/staff-effects"
 interface StaffNegotiationModalProps {
     staffId: string
@@ -208,7 +209,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                 <dl className="divide-y divide-line rounded-lg border border-line text-sm" data-testid="staff-cost-breakdown">
                                     {!isRenewal && <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.now")}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(signingBonus, "$", false)}</dd></div>}
                                     <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.everyWeek")}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(salaryOffer, "$", false)}</dd></div>
-                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.total", { n: durationOffer })}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency((isRenewal ? 0 : signingBonus) + Math.max(0, Math.floor(salaryOffer)) * durationOffer, "$", false)}</dd></div>
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.total", { n: durationOffer })}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency((isRenewal ? 0 : signingBonus) + Math.max(0, Math.floor(salaryOffer)) * settlementsLeft(currentWeek + durationOffer, currentWeek), "$", false)}</dd></div>
                                 </dl>
 
                                 <div className="flex items-center justify-between text-sm">

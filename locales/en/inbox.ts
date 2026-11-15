@@ -203,7 +203,7 @@ export const INBOX = {
     "ib.unknown": "Unknown",
     "ib.perWeek": "{{amount}}/wk",
     "ib.bid.notListed": "No longer on the transfer list",
-    "ib.bid.playsThisWeek": "You play this week, so the roster must stay intact",
+    "ib.bid.playsThisWeek": "You play this week, so the roster must stay intact. You can accept after the match on {{day}}.",
     "ib.toast.sold": "{{name}} sold to {{club}}",
     "ib.toast.soldAnon": "{{name}} sold",
     "ib.toast.bidRejected": "Bid for {{name}} rejected",
@@ -255,4 +255,5 @@ export const INBOX = {
     "jo.welcome": "Welcome to {{club}}!",
     "jo.turnedDown": "You turned down {{club}}.",
     "jo.declined": "You declined the offer from {{club}}. Your team appreciates your loyalty.",
+    "ib.res.soldElsewhere": "Closed: the player was sold to {{club}}",
 } as const

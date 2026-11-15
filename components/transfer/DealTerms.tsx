@@ -17,6 +17,7 @@ import { releaseClauseFee, releaseTriggerChance, type ReleaseClause } from "@/en
 import type { MarketStanding } from "@/engine/transfer-hype"
 import { ContractPaper } from "./ContractPaper"
 import { feeOfferBlock } from "./negotiation-rules"
+import { settlementsLeft } from "@/engine/finance-forecast"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -60,7 +61,8 @@ function MoneyInput({ value, onChange, label, suffix }: { value: number; onChang
                     aria-label={label}
                     value={value}
                     onChange={(e) => onChange(Number(e.target.value))}
-                    className="h-11 pl-7 pr-12 font-display text-xl font-bold tabular-nums"
+                    // MARKET-12: no native spinner over the "/ match" suffix (the box is typed into).
+                    className="h-11 pl-7 pr-12 font-display text-xl font-bold tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
                 {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-3">{suffix}</span>}
             </div>
@@ -192,6 +194,9 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
 
     // CONTRACT
     const preview = n.costPreview
+    // MARKET-15: a fee that takes the club under the board's season-end cash target.
+    const feeDue = n.currentTeam ? n.buyoutOffer : 0
+    const belowCashTarget = feeDue > 0 && n.cashTarget !== null && n.budget - feeDue < n.cashTarget
     return (
         <div className="space-y-3">
             <Overline>{n.currentTeam ? t("terms.step2") : t("terms.freeContract")}</Overline>
@@ -234,9 +239,13 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
             )}
             <dl className="divide-y divide-line">
                 {n.currentTeam && <Row label={t("terms.feeDue")} value={money(n.buyoutOffer)} />}
-                <Row label={t("terms.fundsAfter")} value={money(n.budget - n.buyoutOffer)} tone={n.budget < n.buyoutOffer ? "text-negative" : undefined} />
-                <Row label={t("terms.wagesTerm")} value={money(n.salaryOffer * Math.max(0, n.durationOffer - 1))} />
-                <Row label={n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0 ? t("terms.totalBeforeBonuses", { weeks: n.durationOffer }) : t("terms.total", { weeks: n.durationOffer })} value={money((n.currentTeam ? n.buyoutOffer : 0) + n.salaryOffer * Math.max(0, n.durationOffer - 1))} />
+                <Row
+                    label={<>{t("terms.fundsAfter")}{belowCashTarget && <span className="mt-0.5 block text-caution">{t("terms.belowCashTarget", { amount: formatCurrency(n.cashTarget ?? 0, "$", true) })}</span>}</>}
+                    value={money(n.budget - n.buyoutOffer)}
+                    tone={n.budget < n.buyoutOffer ? "text-negative" : belowCashTarget ? "text-caution" : undefined}
+                />
+                <Row label={t("terms.wagesTerm")} value={money(n.salaryOffer * settlementsLeft(n.durationOffer, 0))} />
+                <Row label={n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0 ? t("terms.totalBeforeBonuses", { weeks: n.durationOffer }) : t("terms.total", { weeks: n.durationOffer })} value={money((n.currentTeam ? n.buyoutOffer : 0) + n.salaryOffer * settlementsLeft(n.durationOffer, 0))} />
                 {preview && <Row label={t("terms.weeklyNet")} value={formatCurrency(preview.weeklyNet, "$", false)} tone={preview.weeklyNet < 0 ? "text-negative" : "text-positive"} />}
                 {preview && <Row label={t("terms.runway")} value={preview.runwayWeeks >= 999 ? t("terms.noDeficit") : tn("deal.weeks", preview.runwayWeeks)} tone={preview.runwayWeeks < 12 ? "text-caution" : undefined} />}
             </dl>
@@ -252,7 +261,7 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
 /** G13: the clauses he signs with; each one moves the wage he asks. */
 function ClauseTerms({ n }: { n: NegotiationState }) {
     const releases: ReleaseClause[] = ["none", "high", "low"]
-    const fee = releaseClauseFee(n.clauses.release, n.salaryOffer)
+    const fee = releaseClauseFee(n.clauses.release, n.salaryOffer, n.currentTeam ? n.buyoutOffer : 0)
     return (
         <details className="rounded border border-line bg-shell px-3 py-2" open={n.clauses.release !== "none" || n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0}>
             <summary className="cursor-pointer text-xs font-semibold text-ink-2">

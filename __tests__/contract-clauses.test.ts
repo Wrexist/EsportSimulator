@@ -45,6 +45,19 @@ describe("wage with clauses", () => {
         expect(releaseTriggerChance(releaseClauseFee("high", 1000), 1000)).toBeCloseTo(CLAUSE_TUNING.RELEASE_TRIGGER_HIGH)
         expect(sanitizeClauseFields({ releaseClause: -5, appearanceBonus: Number.NaN, sellOn: { teamId: "x", pct: 2 } })).toEqual({})
     })
+
+    test("MARKET-14: after a fee signing the clause is never below the fee just paid", () => {
+        // Audit: sweyu cost $76,398 at $362/wk; "Low" read $18,100 (50 weeks of wage).
+        expect(releaseClauseFee("low", 362)).toBe(18_100)
+        expect(releaseClauseFee("low", 362, 76_398)).toBe(76_398)
+        expect(releaseClauseFee("high", 362, 76_398)).toBeGreaterThan(releaseClauseFee("low", 362, 76_398))
+        expect(releaseClauseFee("high", 362, 76_398)).toBe(Math.round(76_398 * 120 / 50))
+        // A big wage still sets the clause when it is above the fee; free agents are unchanged.
+        expect(releaseClauseFee("low", 10_000, 50_000)).toBe(500_000)
+        expect(releaseClauseFee("low", 1000, 0)).toBe(releaseClauseFee("low", 1000))
+        expect(releaseClauseFee("none", 362, 76_398)).toBe(0)
+        expect(clauseFields({ release: "low", appearanceBonus: 0, titleBonus: 0 }, 362, 76_398)).toEqual({ releaseClause: 76_398 })
+    })
 })
 
 function fixture(): GameSave {

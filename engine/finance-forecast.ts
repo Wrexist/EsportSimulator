@@ -41,3 +41,14 @@ export function quotePlayerSigning(team: TeamSaveData, players: PlayerSaveData[]
     const report = EconomyEngine.processWeeklyFinances(projectedTeam, players, projectedContracts, staff, currentWeek + 1, academyProspectCount)
     return { cashAfterSigning, weeklyNet: report.net, runwayWeeks: cashRunway(cashAfterSigning, report.net) }
 }
+
+/**
+ * Wage settlements a contract still pays from now (MARKET-10). The weekly
+ * settlement for week w charges contracts with startWeek <= w < endWeek, and
+ * this week's has already run, so a deal ending at endWeek pays for weeks
+ * currentWeek + 1 .. endWeek - 1. Payroll, the deal panel and the staff hire
+ * card all count with this.
+ */
+export function settlementsLeft(endWeek: number, currentWeek: number): number {
+    return Math.max(0, Math.floor(endWeek) - Math.floor(currentWeek) - 1)
+}

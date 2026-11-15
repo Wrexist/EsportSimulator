@@ -73,4 +73,27 @@ describe("MARKET-03: sponsor tiers pay differently under the wage cap", () => {
             expect(avg).toBeLessThan(oldDeals * 1.1)
         }
     })
+
+    // MARKET-02: the roll and the betting premium could put an Elite below a
+    // Premium (audit: Elite $1,863 vs Premium $1,886) or a betting Standard.
+    test("within one week's offers, Elite >= Premium >= Standard (betting included)", () => {
+        for (const [rep, bill] of [[39, 1_000], [55, 2_000], [55, 8_000], [75, 40_000], [95, 120_000]]) {
+            for (let w = 1; w <= 200; w++) {
+                const offers = SponsorGenerator.generateVariedOffers(team(rep), w, new SeededRNG(9000 + w), bill)
+                const pays = (tier: string) => offers.filter(o => o.tier === tier).map(o => o.weeklyPayout)
+                const [s, p, e] = [pays("STANDARD"), pays("PREMIUM"), pays("ELITE")]
+                if (p.length) expect(Math.min(...p)).toBeGreaterThanOrEqual(Math.max(0, ...s))
+                if (e.length) expect(Math.min(...e)).toBeGreaterThanOrEqual(Math.max(0, ...s, ...p))
+            }
+        }
+    })
+
+    test("the audit's rep-39 week: Elite no longer pays less than Premium (uncapped legacy path too)", () => {
+        for (let w = 1; w <= 200; w++) {
+            const offers = SponsorGenerator.generateVariedOffers(team(39), w, new SeededRNG(w))
+            const best = (tier: string) => Math.max(0, ...offers.filter(o => o.tier === tier).map(o => o.weeklyPayout))
+            const worstElite = Math.min(...offers.filter(o => o.tier === "ELITE").map(o => o.weeklyPayout))
+            expect(worstElite).toBeGreaterThanOrEqual(Math.max(best("PREMIUM"), best("STANDARD")))
+        }
+    })
 })

@@ -75,6 +75,12 @@ export function isNarrowing(criteria: MarketCriteria): boolean {
         .some(k => (k === "query" ? criteria.query.trim() !== "" : criteria[k] !== DEFAULT_MARKET_CRITERIA[k]))
 }
 
+/** True when two searches filter the same players (the query ignores case and outer spaces). MARKET-23. */
+export function sameCriteria(a: MarketCriteria, b: MarketCriteria): boolean {
+    return (Object.keys(DEFAULT_MARKET_CRITERIA) as (keyof MarketCriteria)[])
+        .every(k => (k === "query" ? a.query.trim().toLowerCase() === b.query.trim().toLowerCase() : a[k] === b[k]))
+}
+
 /** Plain-words summary: "AWPer · ≤ 21 · free agents". */
 export function describeCriteria(c: MarketCriteria, labels: { role?: (r: string) => string } = {}): string {
     const parts: string[] = []

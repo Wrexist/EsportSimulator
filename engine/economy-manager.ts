@@ -383,7 +383,7 @@ export class SponsorGenerator {
     const allCategories: (keyof typeof SponsorGenerator.SPONSOR_NAMES)[] = ["TECH", "ENERGY", "BETTING", "LIFESTYLE"]
     const usedNames = new Set<string>()
 
-    return tiers.map((tier, index) => {
+    const offers: SponsorSaveData[] = tiers.map((tier, index) => {
       const offerRng = new SeededRNG(rng.int(1, 2147483646))
 
       // Pick a category - varied across offers
@@ -464,6 +464,17 @@ export class SponsorGenerator {
         brandEffect
       }
     })
+
+    // MARKET-02: a higher tier never pays less than a lower one in the same
+    // week (the per-offer roll and the betting premium could put a Premium or a
+    // betting Standard above an Elite). Lower tiers are all within the hard
+    // cap, so lifting a higher tier to their best keeps it within the cap too.
+    const rank = { STANDARD: 0, PREMIUM: 1, ELITE: 2 } as const
+    for (const tier of ["PREMIUM", "ELITE"] as const) {
+      const floor = Math.max(0, ...offers.filter(o => rank[o.tier] < rank[tier]).map(o => o.weeklyPayout))
+      for (const o of offers) if (o.tier === tier && o.weeklyPayout < floor) o.weeklyPayout = floor
+    }
+    return offers
   }
 
   private static generateGoals(

@@ -73,6 +73,21 @@ describe("SQUAD-02 — the role reconciler keeps paid and signed roles", () => {
         reconcileTeamRoles([incumbent, retrained, ...others])
         expect(retrained.role).toBe(PlayerRole.IGL)
         expect(retrained.secondaryRole).toBe(PlayerRole.RIFLER)
+        // MARKET-16: the qualifying incumbent keeps his role too.
+        expect(incumbent.role).toBe(PlayerRole.IGL)
+    })
+
+    test("MARKET-16: signing a second player for a role doesn't turn the starter into a Rifler", () => {
+        const starter = makePlayer("neiter", { role: PlayerRole.SUPPORT, grenades: 85, teamwork: 85 })
+        const signed = makePlayer("sweyu", { role: PlayerRole.SUPPORT, grenades: 80, teamwork: 80, roleLocked: true })
+        const others = [makePlayer("p3"), makePlayer("p4"), makePlayer("p5")]
+        reconcileTeamRoles([starter, ...others, signed])
+        expect(starter.role).toBe(PlayerRole.SUPPORT)
+        expect(signed.role).toBe(PlayerRole.SUPPORT)
+        // An incumbent who no longer qualifies still falls back, as before.
+        const weak = makePlayer("weak", { role: PlayerRole.SUPPORT, grenades: 40, teamwork: 40 })
+        reconcileTeamRoles([weak, makePlayer("q2"), makePlayer("q3"), makePlayer("q4"), signed])
+        expect(weak.role).toBe(PlayerRole.RIFLER)
     })
 
     test("secondary roles from training survive a reconcile for unlocked players too", () => {

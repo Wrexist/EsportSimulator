@@ -71,8 +71,15 @@ export function reconcileTeamRoles(players: PlayerSaveData[]): void {
 
     // 2. Hysteresis pass: keep an incumbent if they still qualify for their
     //    current role. Their slot is locked — no other candidate competes.
+    //    MARKET-16: a locked player in the same role (a signing for that
+    //    role, a retraining) doesn't demote a qualifying incumbent to Rifler:
+    //    the role is held twice and the manager picks who starts.
     for (const spec of SPECIALTIES) {
-        if (lockedRoles.has(spec.id)) continue
+        if (lockedRoles.has(spec.id)) {
+            const incumbent = players.find(p => !assignedPlayerIds.has(p.id) && p.role === spec.id && spec.criteria(p))
+            if (incumbent) assignedPlayerIds.add(incumbent.id)
+            continue
+        }
         const incumbent = players.find(p =>
             !assignedPlayerIds.has(p.id) &&
             p.role === spec.id &&
