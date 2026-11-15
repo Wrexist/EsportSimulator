@@ -7,6 +7,7 @@
 
 import { attachModalFocus } from './modal-focus'
 import { t } from "./i18n"
+import { useLocale } from "./use-locale"
 import { useEffect, useRef } from 'react'
 
 /**
@@ -21,9 +22,11 @@ export function ScreenReaderOnly({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Skip to main content link
+ * Skip to main content link. It renders outside the locale-keyed shell
+ * (app/layout.tsx), so it follows language changes itself (I18N-20).
  */
 export function SkipToContent() {
+    useLocale()
     return (
         <a
             href="#main-content"
