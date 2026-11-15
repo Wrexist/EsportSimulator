@@ -6708,5 +6708,7 @@
  "sp.lastEnded": "Dein Vertrag mit {{name}} endete in Woche {{week}}. Unterschreib einen neuen aus den Angeboten dieser Woche unten.",
  "sp.lastEndedCooldown": "Dein Vertrag mit {{name}} endete in Woche {{week}}. Ab Woche {{from}} unterschreibt die Marke wieder. Unterschreib einen neuen Vertrag aus den Angeboten dieser Woche unten.",
  "ib.res.soldElsewhere": "Erledigt: Der Spieler wurde an {{club}} verkauft",
- "terms.belowCashTarget": "Unter dem Ziel des Vorstands von {{amount}} zum Saisonende"
+ "terms.belowCashTarget": "Unter dem Ziel des Vorstands von {{amount}} zum Saisonende",
+ "market.watchlistEmpty": "Deine Beobachtungsliste ist leer. Markiere einen Spieler auf dem Markt mit dem Stern, um Preis und Vertrag hier zu verfolgen.",
+ "marquee.outOfReach": "Außer Reichweite"
 }

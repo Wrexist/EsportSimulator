@@ -244,3 +244,19 @@ describe("watchlist", () => {
         expect(slice.isPlayerWatchlisted("anything")).toBe(false)
     })
 })
+
+describe("saveMarketSearch (MARKET-23)", () => {
+    const awpers = { query: "", role: "AWPER", status: "all", age: "all", maxFee: 0, contractMax: 0, region: "ALL" } as const
+    test("saving the same criteria again (other week or name) replaces the old search", () => {
+        const h = makeHarness(makeBaseState({ players: [], savedSearches: [], academyPlayers: [], academyPendingProspects: [] } as never))
+        const slice = createScoutingSlice(h.set, h.get)
+        expect(slice.saveMarketSearch("AWPer", { ...awpers })).toBe(true)
+        h.set(s => { s.currentWeek = 6; s.savedSearches![0].alerts = false })
+        expect(slice.saveMarketSearch("Snipers", { ...awpers, query: "  " })).toBe(true)
+        expect(h.state().savedSearches).toHaveLength(1)
+        expect(h.state().savedSearches![0]).toMatchObject({ name: "Snipers", alerts: false })
+        // Different criteria are a second search.
+        expect(slice.saveMarketSearch("Young AWPers", { ...awpers, age: "young" })).toBe(true)
+        expect(h.state().savedSearches).toHaveLength(2)
+    })
+})

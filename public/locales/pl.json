@@ -7116,5 +7116,7 @@
  "sp.lastEnded": "Umowa z {{name}} wygasła w tygodniu {{week}}. Podpisz nową spośród tegotygodniowych ofert poniżej.",
  "sp.lastEndedCooldown": "Umowa z {{name}} wygasła w tygodniu {{week}}. Marka może znów podpisać umowę od tygodnia {{from}}. Podpisz nową umowę spośród tegotygodniowych ofert poniżej.",
  "ib.res.soldElsewhere": "Zamknięte: zawodnik został sprzedany do {{club}}",
- "terms.belowCashTarget": "Poniżej celu zarządu: {{amount}} na koniec sezonu"
+ "terms.belowCashTarget": "Poniżej celu zarządu: {{amount}} na koniec sezonu",
+ "market.watchlistEmpty": "Twoja lista obserwowanych jest pusta. Oznacz zawodnika gwiazdką na rynku, żeby śledzić tu jego cenę i kontrakt.",
+ "marquee.outOfReach": "Poza zasięgiem"
 }

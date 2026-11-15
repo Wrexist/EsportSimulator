@@ -391,4 +391,6 @@ export const MARKET = {
     "fin.axisWeek": "W{{n}}",
     "fin.cat.SCOUTING": "Scouting",
     "terms.belowCashTarget": "Below the board's {{amount}} season-end cash target",
+    "market.watchlistEmpty": "Your shortlist is empty. Star a player in the market to follow his price and contract here.",
+    "marquee.outOfReach": "Out of reach",
 } as const

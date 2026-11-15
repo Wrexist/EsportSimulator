@@ -15,7 +15,7 @@ import { nextDeterministicId } from "@/store/utils/helpers"
 
 import { employedScout } from "@/engine/recruitment"
 import { scoutTierFromAccuracy } from "@/engine/scouting-system"
-import { isNarrowing, marketCandidates, matchesMarketSearch, MAX_SAVED_SEARCHES, newSavedSearch } from "@/engine/market-search"
+import { isNarrowing, marketCandidates, matchesMarketSearch, MAX_SAVED_SEARCHES, newSavedSearch, sameCriteria } from "@/engine/market-search"
 import type { GameSave } from "@/engine/save-types"
 
 const SCOUTING_COST_BASIC = 3000
@@ -123,12 +123,16 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
 
     saveMarketSearch: (name, criteria) => {
         const state = get()
+        // MARKET-23: the same criteria saved again (another week or name) replace
+        // the old search, so one search never sends its alerts twice.
         const current = state.savedSearches || []
-        if (!isNarrowing(criteria) || current.length >= MAX_SAVED_SEARCHES) return false
+        const duplicate = current.find(s => sameCriteria(s.criteria, criteria))
+        const others = current.filter(s => s !== duplicate)
+        if (!isNarrowing(criteria) || others.length >= MAX_SAVED_SEARCHES) return false
         // Players matching now are not news; the first alert names only later arrivals.
         const seen = marketCandidates(state as unknown as GameSave).filter(c => matchesMarketSearch(c, criteria)).map(c => c.player.id)
-        const search = newSavedSearch(name, criteria, state.currentWeek, seen)
-        set({ savedSearches: [...current.filter(s => s.id !== search.id), search] })
+        const search = { ...newSavedSearch(name, criteria, state.currentWeek, seen), alerts: duplicate?.alerts ?? true }
+        set({ savedSearches: [...others.filter(s => s.id !== search.id), search] })
         return true
     },
 

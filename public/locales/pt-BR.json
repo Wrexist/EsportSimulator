@@ -6912,5 +6912,7 @@
  "sp.lastEnded": "Seu contrato com {{name}} terminou na semana {{week}}. Assine um novo entre as propostas desta semana abaixo.",
  "sp.lastEndedCooldown": "Seu contrato com {{name}} terminou na semana {{week}}. A marca pode assinar de novo a partir da semana {{from}}. Assine um novo contrato entre as propostas desta semana abaixo.",
  "ib.res.soldElsewhere": "Encerrada: o jogador foi vendido para {{club}}",
- "terms.belowCashTarget": "Abaixo da meta da diretoria de {{amount}} no fim da temporada"
+ "terms.belowCashTarget": "Abaixo da meta da diretoria de {{amount}} no fim da temporada",
+ "market.watchlistEmpty": "Sua lista de monitorados está vazia. Marque um jogador com a estrela no mercado para acompanhar aqui o preço e o contrato dele.",
+ "marquee.outOfReach": "Fora de alcance"
 }
