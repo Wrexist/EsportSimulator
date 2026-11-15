@@ -162,7 +162,7 @@ export default function SettingsPage() {
       localStorage.removeItem("game-metrics")
       localStorage.removeItem("error-reports")
       localStorage.removeItem("performance-metrics")
-      localStorage.removeItem("skipQuickSimConfirm")
+      // skipQuickSimConfirm is a preference and stays (START-38).
     } catch {
       // Storage clear is best-effort; proceed regardless
     }
@@ -222,8 +222,8 @@ export default function SettingsPage() {
       {activeTab === "SETTINGS" && (
         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
           <div className="space-y-4">
-            <Panel title={t("settings.panel.language")} padded={false}><LanguageSettings /></Panel>
-            <Panel title={t("settings.panel.display")} padded={false}><DisplaySettings /></Panel>
+            {/* START-38: Language is the first row of Display (as in the main-menu dialog), not a panel of one row. */}
+            <Panel title={t("settings.panel.display")} padded={false}><LanguageSettings /><div className="border-t border-line"><DisplaySettings /></div></Panel>
             <Panel title={t("settings.panel.audio")} padded={false}><AudioSettings /></Panel>
             <Panel title={t("settings.panel.accessibility")} padded={false}><AccessibilitySettings /></Panel>
           </div>
@@ -290,7 +290,7 @@ export default function SettingsPage() {
             <Panel title={t("settings.panel.controls")} padded={false}><ControlsSettings /></Panel>
 
             <Panel title={t("settings.panel.about")} padded={false}>
-              <SettingRow label={`Esports Manager v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`} hint={t("settings.aboutHint")}>
+              <SettingRow label={`Esports Manager: FPS v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`} hint={t("settings.aboutHint")}>
                 <div className="flex gap-2">
                   <Button asChild variant="outline" size="sm"><Link href="/credits">{t("settings.credits")}</Link></Button>
                   <Button ref={licensesButtonRef} variant="outline" size="sm" onClick={() => setLicensesOpen(true)}>{t("settings.licenses")}</Button>

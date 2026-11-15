@@ -217,7 +217,6 @@ export const NEWGAME = {
     "dc.err.loadBody": "Retry in a moment.",
     "dc.err.start": "Could not start the Draft Cup",
     "dc.err.startBody": "Your draft is kept. Try again.",
-    "dc.newGame": "New game",
     "dc.step1": "Draft Cup · Step 1 of 2",
     "dc.title": "Draft Cup",
     "dc.subtitle": "Draft five players under a {{budget}}-point budget, then win three knockout matches in a row: best of three, with a best-of-five grand final. One loss ends the run.",
@@ -314,4 +313,5 @@ export const NEWGAME = {
     "lg.delete": "Delete",
     "lg.deleteSave": "Delete save",
     "lg.imported": "Imported",
+    "dc.namesShort": "Manager name, team name and tag need two characters or more.",
 } as const

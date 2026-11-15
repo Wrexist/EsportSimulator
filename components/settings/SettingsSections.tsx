@@ -63,15 +63,16 @@ export function SettingSelect<T extends string | number>({ id, value, onChange, 
     )
 }
 
-function SettingSlider({ label, value, onChange, min, max, step, suffix = "%", commitOnRelease = false }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; suffix?: string; commitOnRelease?: boolean }) {
+function SettingSlider({ label, value, onChange, min, max, step, suffix = "%", commitOnRelease = false, disabled = false }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; suffix?: string; commitOnRelease?: boolean; disabled?: boolean }) {
     // commitOnRelease: show the value while dragging, apply it on release (the UI scale
     // zooms the page, which would move the slider under the pointer mid-drag).
     const [pending, setPending] = useState<number | null>(null)
     const shown = pending ?? value
     return (
-        <div className="flex w-52 items-center gap-3">
+        <div className={cn("flex w-52 items-center gap-3", disabled && "opacity-40")}>
             <Slider
                 aria-label={label}
+                disabled={disabled}
                 aria-valuetext={`${shown}${suffix}`}
                 value={[shown]}
                 onValueChange={(vals) => commitOnRelease ? setPending(vals[0]) : onChange(vals[0])}
@@ -176,15 +177,16 @@ export function AudioSettings() {
                 <Switch id="set-sound" checked={s.soundEnabled} onCheckedChange={s.setSoundEnabled} />
             </SettingRow>
             <SettingRow label={t("settings.masterVolume")}>
-                <SettingSlider label={t("settings.masterVolume")} value={s.masterVolume} min={0} max={100} step={1}
+                {/* START-38: with sound off the volumes do nothing, like Hover sounds. */}
+                <SettingSlider label={t("settings.masterVolume")} value={s.masterVolume} min={0} max={100} step={1} disabled={!s.soundEnabled}
                     onChange={(v) => { s.setMasterVolume(v); soundManager.setMasterVolume(v) }} />
             </SettingRow>
             <SettingRow label={t("settings.musicVolume")}>
-                <SettingSlider label={t("settings.musicVolume")} value={s.musicVolume} min={0} max={100} step={1}
+                <SettingSlider label={t("settings.musicVolume")} value={s.musicVolume} min={0} max={100} step={1} disabled={!s.soundEnabled}
                     onChange={(v) => { s.setMusicVolume(v); soundManager.setMusicVolume(v) }} />
             </SettingRow>
             <SettingRow label={t("settings.effectsVolume")} hint={t("settings.effectsVolumeHint")}>
-                <SettingSlider label={t("settings.effectsVolume")} value={s.sfxVolume} min={0} max={100} step={1}
+                <SettingSlider label={t("settings.effectsVolume")} value={s.sfxVolume} min={0} max={100} step={1} disabled={!s.soundEnabled}
                     onChange={(v) => { s.setSfxVolume(v); soundManager.setSfxVolume(v) }} />
             </SettingRow>
             <SettingRow id="set-ui-sounds" label={t("settings.uiSounds")} hint={t("settings.uiSoundsHint")}>
@@ -328,10 +330,15 @@ export function ControlsSettings() {
                             <li key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4 py-1.5">
                                 <span className="text-sm text-ink-2">{t(shortcut.description)}</span>
                                 <span className="flex shrink-0 items-center gap-1">
-                                    {shortcut.keys.map((key, i) => (
-                                        <span key={i} className="flex items-center gap-1">
-                                            <Kbd>{keyLabel(key)}</Kbd>
-                                            {i < shortcut.keys.length - 1 && <span className="text-xs text-ink-3">+</span>}
+                                    {[shortcut.keys, ...(shortcut.altKeys ? [shortcut.altKeys] : [])].map((combo, c) => (
+                                        <span key={c} className="flex items-center gap-1">
+                                            {c > 0 && <span className="px-0.5 text-xs text-ink-3">{t("shortcuts.or")}</span>}
+                                            {combo.map((key, i) => (
+                                                <span key={i} className="flex items-center gap-1">
+                                                    <Kbd>{keyLabel(key)}</Kbd>
+                                                    {i < combo.length - 1 && <span className="text-xs text-ink-3">+</span>}
+                                                </span>
+                                            ))}
                                         </span>
                                     ))}
                                 </span>

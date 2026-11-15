@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { navHubsFor, navLabel, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
 import { NavigationSearch } from "./NavigationSearch"
 import { InboxButton } from "@/components/inbox/InboxButton"
+import { Logotype } from "@/components/brand/Logotype"
 import { t } from "@/lib/i18n"
 import { useLocale } from "@/lib/use-locale"
 
@@ -153,6 +154,13 @@ export function TopBar() {
                     </Link>
                 )}
 
+                {/* START-43: outside a career the left side is the game's logotype, back to the main menu. */}
+                {hideCareerControls && (
+                    <Link href="/main-menu" aria-label={t("ng.mainMenu")} title={t("ng.mainMenu")} className="flex shrink-0 items-center rounded-sm pr-2">
+                        <Logotype size="compact" decorative />
+                    </Link>
+                )}
+
                 {!hideCareerControls && (
                     <nav ref={navRef} aria-label={t("topbar.mainNavigation")} className="relative flex h-full min-w-0 flex-1 items-stretch gap-1 overflow-hidden">
                         {/* Hidden copy of the labels: their natural width decides labels vs icons. */}
@@ -190,7 +198,8 @@ export function TopBar() {
                 )}
 
                 <div className="ml-auto flex shrink-0 items-center gap-2 @min-[80rem]/topbar:gap-3">
-                    <NavigationSearch compact disabled={false} pro={pro} />
+                    {/* START-43: "Go to…" lists career screens, so it needs a career. */}
+                    {!hideCareerControls && <NavigationSearch compact disabled={false} pro={pro} />}
 
                     {!hideCareerControls && !betweenClubs && !pro && (
                         <div className="hidden flex-col items-end leading-none @min-[80rem]/topbar:flex" title={t("topbar.funds")}>
