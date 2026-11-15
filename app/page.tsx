@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 import { eventRegionName } from "@/lib/display-names"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -26,6 +26,7 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { Meter } from "@/src/components/ui/Meter"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { DraftCupBracket } from "@/components/draft-cup/DraftCupBracket"
+import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
 import { ProCareerPanel } from "@/components/pro/ProCareerPanel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
@@ -131,6 +132,9 @@ export default function Page() {
   const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
   // MODES-01/07: in a pro career the staff run the club: no board or finance cards.
   const proActive = useGameStore(s => !!s.proCareer && s.proCareer.retiredWeek == null)
+  // MODES-19: a created club short of five can reopen the roster builder (it
+  // was lost when the app reloaded while the builder was open).
+  const [rosterBuilderOpen, setRosterBuilderOpen] = useState(false)
 
   // The season recap and the awards ceremony are the season review moment
   // now (components/moments/SeasonReviewMomentView); past reviews replay
@@ -389,6 +393,13 @@ export default function Page() {
 
   return (
     <div className="space-y-5 pb-12">
+      {rosterBuilderOpen && playerTeam && (
+        <RosterBuilderModal
+          isOpen
+          onComplete={() => setRosterBuilderOpen(false)}
+          teamColors={{ primary: playerTeam.customTeamData?.primaryColor ?? "", secondary: playerTeam.customTeamData?.secondaryColor ?? "" }}
+        />
+      )}
       {draftCup ? (
       <ScreenHeader
         eyebrow={timeMode === "HYBRID_DAILY"
@@ -484,6 +495,9 @@ export default function Page() {
                       <td colSpan={5} className="px-4 py-3 text-sm text-caution">
                         {tn("home.startersMissing", 5 - starters.length)}{" "}
                         <Link href="/transfers" className="font-semibold underline underline-offset-2">{t("home.findPlayers")}</Link>
+                        {playerTeam?.customTeamData && !draftCup && !proActive && (
+                          <>{" · "}<button type="button" onClick={() => setRosterBuilderOpen(true)} className="rounded-sm font-semibold underline underline-offset-2">{t("home.openRosterBuilder")}</button></>
+                        )}
                       </td>
                     </tr>
                   )}

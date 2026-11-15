@@ -248,6 +248,7 @@
  "home.schedule": "Расписание",
  "home.noMatchesPlayed": "Матчей ещё не сыграно.",
  "home.news": "Новости",
+ "home.openRosterBuilder": "Открыть сборку состава",
  "decisions.title": "Решения",
  "decisions.toDo": "Осталось: {{count}}",
  "decisions.allDone": "Всё сделано",

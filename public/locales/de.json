@@ -226,6 +226,7 @@
  "home.schedule": "Spielplan",
  "home.noMatchesPlayed": "Noch keine Matches gespielt.",
  "home.news": "News",
+ "home.openRosterBuilder": "Kaderplaner öffnen",
  "decisions.title": "Entscheidungen",
  "decisions.toDo": "{{count}} offen",
  "decisions.allDone": "Alles erledigt",

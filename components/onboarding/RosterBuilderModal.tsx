@@ -76,7 +76,9 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
     })))
 
     const playerTeam = getPlayerTeam()
-    const [signedPlayers, setSignedPlayers] = useState<string[]>([])
+    // Opened again from Home (MODES-19), the builder starts from the players
+    // already signed. Callers mount it only once the club exists.
+    const [signedPlayers, setSignedPlayers] = useState<string[]>(() => [...(playerTeam?.rosterIds ?? [])])
     // Actual buyout fees paid per signing. transferPlayer deducts the budget
     // live, so "spent" must be recorded at sign time — re-deriving it from the
     // signed players' contracts is wrong: after signing, their contract is the
@@ -153,7 +155,9 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
     }, [signedPlayers, freeAgents, playersWithTeamInfo])
 
     const weeklyCommitment = useMemo(
-        () => signedPlayerDetails.reduce((total, p) => total + autoContract(p, currentWeek, playerTeam).salaryPerWeek, 0),
+        () => signedPlayerDetails.reduce((total, p) => total + (playerTeam && p.currentTeamId === playerTeam.id && p.existingContract
+            ? p.existingContract.salaryPerWeek
+            : autoContract(p, currentWeek, playerTeam).salaryPerWeek), 0),
         [signedPlayerDetails, currentWeek, playerTeam],
     )
 

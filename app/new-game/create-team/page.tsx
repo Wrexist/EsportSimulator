@@ -466,11 +466,12 @@ export default function CreateTeamPage() {
 
     return (
         <div className="relative min-h-dvh overflow-hidden bg-ink">
-            <RosterBuilderModal
-                isOpen={showRosterBuilder}
+            {/* Mounted only once the club exists: the builder reads its roster when it opens (MODES-19). */}
+            {showRosterBuilder && <RosterBuilderModal
+                isOpen
                 onComplete={handleRosterComplete}
                 teamColors={{ primary: teamData.primaryColor, secondary: teamData.secondaryColor }}
-            />
+            />}
 
             <Image
                 src="/esport-ui-assets/backgrounds/club-campus-dusk.webp"

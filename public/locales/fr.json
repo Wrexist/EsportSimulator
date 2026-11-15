@@ -237,6 +237,7 @@
  "home.schedule": "Calendrier",
  "home.noMatchesPlayed": "Aucun match joué pour l'instant.",
  "home.news": "Actualités",
+ "home.openRosterBuilder": "Ouvrir l'outil de composition",
  "decisions.title": "Décisions",
  "decisions.toDo": "{{count}} à faire",
  "decisions.allDone": "Tout est fait",

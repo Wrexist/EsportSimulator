@@ -248,6 +248,7 @@
  "home.schedule": "Terminarz",
  "home.noMatchesPlayed": "Nie rozegrano jeszcze żadnego meczu.",
  "home.news": "Wiadomości",
+ "home.openRosterBuilder": "Otwórz kreator składu",
  "decisions.title": "Decyzje",
  "decisions.toDo": "Do zrobienia: {{count}}",
  "decisions.allDone": "Wszystko zrobione",

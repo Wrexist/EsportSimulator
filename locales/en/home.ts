@@ -99,6 +99,7 @@ export const HOME = {
     "home.schedule": "Schedule",
     "home.noMatchesPlayed": "No matches played yet.",
     "home.news": "News",
+    "home.openRosterBuilder": "Open the roster builder",
 
     // Decisions panel (components/dashboard/ActionCenter.tsx)
     "decisions.title": "Decisions",
