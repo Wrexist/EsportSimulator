@@ -8,8 +8,8 @@
  *   MARKET-09 unscouted players don't sort by their hidden rating
  */
 import {
-    ACCEPT_WITHIN, acceptedWage, clampFeeOffer, feeOfferBlock, initialFeeOffer, signingWageAsk,
-    wageChance, wageRange, wageThreshold, WAGE_BAND,
+    ACCEPT_WITHIN, acceptedWage, bandChance, chanceWithCounter, clampFeeOffer, counterOffer, durationWageFactor, FEE_BAND,
+    feeOfferBlock, initialFeeOffer, maxFeeOffer, signingWageAsk, wageChance, wageRange, wageThreshold, WAGE_BAND,
 } from "@/components/transfer/negotiation-rules"
 import { NO_CLAUSES, type ClauseTerms } from "@/engine/contract-clauses"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
@@ -155,5 +155,66 @@ describe("MARKET-09: OVR sort doesn't rank hidden ratings", () => {
     test("unscouted players go last, by name, in both directions", () => {
         expect(order("desc")).toEqual(["scoutedTop", "scoutedMid", "aHidden", "hiddenAmateur", "hiddenStar"])
         expect(order("asc")).toEqual(["scoutedMid", "scoutedTop", "aHidden", "hiddenAmateur", "hiddenStar"])
+    })
+})
+
+describe("MARKET-07: a rejected offer gets a counter-offer, not the exact hidden price", () => {
+    test("the audit's cases: the counter is above the exact minimum, a plain figure, and within the sure price", () => {
+        // EaB / Mul011: value $68,000, exact minimum shown was $70,064.
+        // Riign Above / sweyu: exact minimum shown was $76,398.
+        for (const [acceptAt, value] of [[70_064, 68_000], [76_398, 78_000]]) {
+            const sure = Math.ceil(value * FEE_BAND[1] * ACCEPT_WITHIN)
+            for (const roll of [1.02, 1.05, 1.1]) {
+                const c = counterOffer(acceptAt, sure, roll)
+                expect(c).toBeGreaterThan(acceptAt)
+                expect(c).toBeLessThanOrEqual(sure)
+                expect(c % 100 === 0 || c === sure).toBe(true)
+            }
+        }
+    })
+
+    test("a counter is always accepted by the rule that rejected the offer", () => {
+        const rng = new SeededRNG(5)
+        for (let i = 0; i < 2_000; i++) {
+            const value = rng.range(500, 2_000_000)
+            const minPrice = Math.round(value * rng.range(FEE_BAND[0], FEE_BAND[1]))
+            const sure = Math.ceil(value * FEE_BAND[1] * ACCEPT_WITHIN)
+            const c = counterOffer(minPrice * ACCEPT_WITHIN, sure, rng.range(1.02, 1.1))
+            expect(c).toBeGreaterThanOrEqual(minPrice * ACCEPT_WITHIN) // submitBuyout's acceptance test
+        }
+    })
+
+    test("wage counters use $10 steps and never pass the sure wage", () => {
+        const base = 400
+        const sure = wageRange(base, NO_CLAUSES)[1]
+        const acceptAt = acceptedWage(base, 1.0, NO_CLAUSES)
+        const c = counterOffer(acceptAt, sure, 1.04)
+        expect(c).toBeGreaterThanOrEqual(acceptAt)
+        expect(c).toBeLessThanOrEqual(sure)
+        expect(c % 10 === 0 || c === sure).toBe(true)
+    })
+
+    test("with a counter on the table, offers at or above it show a sure yes", () => {
+        const chance = bandChance(70_500 / 68_000, FEE_BAND)
+        expect(chance).toBeLessThan(1)
+        expect(chanceWithCounter(chance, 70_500, 71_500)).toBe(chance)
+        expect(chanceWithCounter(chance, 71_500, 71_500)).toBe(1)
+        expect(chanceWithCounter(chance, 71_500, null)).toBe(chance)
+    })
+})
+
+describe("MARKET-03 / MARKET-04: opening terms", () => {
+    test("a fee typed under a higher limit is brought back within a lower one", () => {
+        // Audit: $78,000 typed, limit fell from $78,320 to $75,920 after a $3,000 scouting fee.
+        const limit = maxFeeOffer(94_900, { maxFee: 75_920, fraction: 0.8 })
+        expect(Math.min(78_000, limit)).toBe(75_920)
+        expect(feeOfferBlock(Math.min(78_000, limit), 94_900, { maxFee: 75_920, fraction: 0.8 })).toBeNull()
+    })
+
+    test("at his ideal length the opening wage is the table's wage ask", () => {
+        const pref = { minWeeks: 40, maxWeeks: 160, idealWeeks: 90 }
+        expect(durationWageFactor(pref.idealWeeks, pref)).toBe(0.95)
+        // At 104 weeks (the old opening length) he asks a little more than the column.
+        expect(durationWageFactor(104, pref)).toBeGreaterThan(0.95)
     })
 })

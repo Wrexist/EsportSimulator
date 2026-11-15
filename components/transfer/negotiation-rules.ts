@@ -105,3 +105,27 @@ export function durationWageFactor(duration: number, pref: DurationPref): number
 export function signingWageAsk(player: PlayerSaveData, currentWeek: number, buyer?: Pick<TeamSaveData, "reputation"> & Partial<Pick<TeamSaveData, "leagueTier">>): number {
     return wageRange(negotiationBaseWage(player, currentWeek, buyer) * 0.95, NO_CLAUSES)[1]
 }
+
+/** Counter-offers round up to a plain figure: $10 steps under $1k, $100 under $100k, $1,000 above. */
+function counterStep(value: number): number {
+    return value >= 100_000 ? 1_000 : value >= 1_000 ? 100 : 10
+}
+
+/**
+ * MARKET-07: what the other side asks for after a rejected offer. It sits a
+ * hidden 2-10% (`roll`) above the lowest figure they would take, rounded up to
+ * a plain figure, and never above the sure price shown in the band, so the
+ * exact hidden minimum is never printed. Always accepted when offered.
+ */
+export function counterOffer(acceptAt: number, sure: number, roll: number): number {
+    const floor = Math.ceil(acceptAt)
+    const raw = floor * Math.max(1, roll)
+    const step = counterStep(raw)
+    const rounded = Math.ceil(raw / step) * step
+    return Math.max(floor, Math.min(rounded, Math.ceil(sure)))
+}
+
+/** The shown chance: a counter on the table is a sure yes at or above it (MARKET-07). */
+export function chanceWithCounter(chance: number, offer: number, counter: number | null): number {
+    return counter !== null && offer >= counter ? 1 : chance
+}

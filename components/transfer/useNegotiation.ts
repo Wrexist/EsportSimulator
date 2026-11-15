@@ -33,7 +33,7 @@ import { contractDemandLines, contractLengthFactor, getArchetype } from "@/engin
 import { formatCurrency } from "@/lib/utils-extended"
 import { clauseFields, NO_CLAUSES, wageWithClauses, type ClauseTerms } from "@/engine/contract-clauses"
 import {
-    ACCEPT_WITHIN, bandChance, clampFeeOffer, durationWageFactor, FEE_BAND, feeOfferBlock, initialFeeOffer,
+    ACCEPT_WITHIN, bandChance, chanceWithCounter, clampFeeOffer, counterOffer, durationWageFactor, FEE_BAND, feeOfferBlock, initialFeeOffer, maxFeeOffer,
     wageChance as wageChanceFor, wageRange as wageRangeFor, wageThreshold,
 } from "./negotiation-rules"
 import { rivalFeePremium, rivalInterest } from "@/engine/transfer-hype"
@@ -109,6 +109,9 @@ export function useNegotiation(playerId: string | null, active = true) {
     const [initializedKey, setInitializedKey] = useState("")
     const [failureMessage, setFailureMessage] = useState<string | null>(null)
     const [pendingDeal, setPendingDeal] = useState<PendingDeal | null>(null)
+    /** MARKET-07: the counter-offers on the table this week (the wage one holds for the length and clauses it was made at). */
+    const [feeCounter, setFeeCounter] = useState<number | null>(null)
+    const [wageCounter, setWageCounter] = useState<{ value: number; key: string } | null>(null)
     const sessionKey = `${saveId}:${playerId}:${currentWeek}`
     const originalOwner = useRef<string | null>(null)
     // transferPlayer is synchronous, but React batches state updates — a
@@ -181,14 +184,18 @@ export function useNegotiation(playerId: string | null, active = true) {
     }
     const setDurationOffer = (val: number) => setDurationOfferRaw(Math.max(MIN_CONTRACT_WEEKS, Math.min(MAX_CONTRACT_WEEKS, Math.floor(val || 52))))
 
-    const feeChance = askingValue > 0 ? bandChance(buyoutOffer / askingValue, FEE_BAND) : 1
+    // MARKET-03: an offer that can't be made has no chance to show.
+    const feeChance = feeOfferBlock(buyoutOffer, budget, boardSanction) ? 0
+        : chanceWithCounter(askingValue > 0 ? bandChance(buyoutOffer / askingValue, FEE_BAND) : 1, buyoutOffer, feeCounter)
     const durationOk = durationOffer >= durationPref.minWeeks && durationOffer <= durationPref.maxWeeks
     // MARKET-10: band and odds come from the acceptance rule itself (clause
     // credits are fixed sums, so scaling the clause-adjusted centre was off).
     const wageBase = wageBeforeClauses(durationOffer)
     /** Where the player's hidden minimum can sit (effective, after the 3% grace). */
     const wageRange = wageRangeFor(wageBase, clauses)
-    const wageChance = !durationOk ? 0 : wageBase > 0 ? wageChanceFor(salaryOffer, wageBase, clauses) : 1
+    const termsKey = (duration: number) => `${duration}|${clauses.release}|${clauses.appearanceBonus}|${clauses.titleBonus}`
+    const activeWageCounter = wageCounter && wageCounter.key === termsKey(durationOffer) ? wageCounter.value : null
+    const wageChance = !durationOk ? 0 : chanceWithCounter(wageBase > 0 ? wageChanceFor(salaryOffer, wageBase, clauses) : 1, salaryOffer, activeWageCounter)
     /** Lowest wage with a sure yes at the current length. */
     const sureWage = wageRange[1]
     /** Where the club's hidden price can sit (effective, after the 3% grace). */
@@ -197,7 +204,9 @@ export function useNegotiation(playerId: string | null, active = true) {
         : [0, 0]
 
     const openingFee = initialFeeOffer(askingValue, budget, boardSanction)
-    const openingWage = wageRangeFor(wageBeforeClauses(104), NO_CLAUSES)[1]
+    // MARKET-04: open at the length he wants, so the opening wage is the table's "Wage ask".
+    const openingWeeks = durationPref.idealWeeks
+    const openingWage = wageRangeFor(wageBeforeClauses(openingWeeks), NO_CLAUSES)[1]
 
     // Initialization: fresh terms whenever the player, week or save changes.
     useEffect(() => {
@@ -205,9 +214,11 @@ export function useNegotiation(playerId: string | null, active = true) {
             const initialTeam = teams.find(t => t.rosterIds.includes(playerId))
             originalOwner.current = initialTeam?.id || null
             setBuyoutOfferRaw(0)
-            setDurationOfferRaw(104)
+            setDurationOfferRaw(openingWeeks)
             setClausesRaw(NO_CLAUSES)
             setNegotiationLog([])
+            setFeeCounter(null)
+            setWageCounter(null)
             setFailureMessage(null)
             setPendingDeal(null)
             dealSubmittedRef.current = false
@@ -230,7 +241,15 @@ export function useNegotiation(playerId: string | null, active = true) {
             setFailureMessage(null)
             dealSubmittedRef.current = false
         }
-    }, [active, initializedKey, sessionKey, playerSave, playerId, teams, openingFee, openingWage])
+    }, [active, initializedKey, sessionKey, playerSave, playerId, teams, openingFee, openingWage, openingWeeks])
+
+    // MARKET-03: funds or the board's limit dropped while the fee is still
+    // being offered (a scouting fee paid from this panel, a weekly settlement):
+    // bring the typed fee back within them. An agreed fee is left alone.
+    const feeLimit = maxFeeOffer(budget, boardSanction)
+    useEffect(() => {
+        if (stage === "BUYOUT") setBuyoutOfferRaw(v => Math.min(v, feeLimit))
+    }, [feeLimit, stage])
 
     /** The signing reveal (Phase 5.4a): a full-screen moment with the deal as made. */
     const celebrateSigning = (signing: Parameters<typeof queueSigningMoment>[0]) => {
@@ -245,11 +264,14 @@ export function useNegotiation(playerId: string | null, active = true) {
         const variance = getNegotiationRng("BUYOUT_THRESHOLD").range(0.9, 1.1)
         const minPrice = Math.round(askingValue * variance)
 
-        if (sanitizedBuyoutOffer >= minPrice * 0.97) {
+        if (sanitizedBuyoutOffer >= minPrice * ACCEPT_WITHIN) {
             setNegotiationLog(prev => [...prev, t("nego.log.feeAccepted", { club: currentTeam?.name ?? t("nego.log.theClub"), fee: money(sanitizedBuyoutOffer) })])
             setStage("CONTRACT")
         } else {
-            setNegotiationLog(prev => [...prev, t("nego.log.feeRejected", { fee: money(sanitizedBuyoutOffer), club: currentTeam?.name ?? t("nego.log.theClub"), min: money(Math.ceil(minPrice * 0.97)) })])
+            // MARKET-07: a counter-offer, never the exact hidden price.
+            const counter = counterOffer(minPrice * ACCEPT_WITHIN, feeRange[1], getNegotiationRng("BUYOUT_COUNTER").range(1.02, 1.1))
+            setFeeCounter(counter)
+            setNegotiationLog(prev => [...prev, t("nego.log.feeRejected", { fee: money(sanitizedBuyoutOffer), club: currentTeam?.name ?? t("nego.log.theClub"), counter: money(counter) })])
         }
     }
 
@@ -281,7 +303,11 @@ export function useNegotiation(playerId: string | null, active = true) {
             setPendingDeal({ salary: sanitizedSalary, duration: sanitizedDuration, fee: sanitizedBuyoutOffer, clauses })
             setStage("SIGN")
         } else {
-            setNegotiationLog(prev => [...prev, t("nego.log.wageRejected", { wage: money(sanitizedSalary), min: money(Math.ceil(minimumSalary * ACCEPT_WITHIN)) })])
+            // MARKET-07: a counter-offer at this length and these clauses, never the exact minimum.
+            const sure = wageRangeFor(wageBeforeClauses(sanitizedDuration), clauses)[1]
+            const counter = counterOffer(minimumSalary * ACCEPT_WITHIN, sure, getNegotiationRng("CONTRACT_COUNTER").range(1.02, 1.1))
+            setWageCounter({ value: counter, key: termsKey(sanitizedDuration) })
+            setNegotiationLog(prev => [...prev, t("nego.log.wageRejected", { wage: money(sanitizedSalary), counter: money(counter) })])
         }
     }
 
