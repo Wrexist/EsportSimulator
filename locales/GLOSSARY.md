@@ -48,7 +48,7 @@ General rules for every language:
 | Half | Halbzeit | Mitad | Mi-temps | Połowa | Tempo | Половина |
 | Overtime | Verlängerung | Prórroga | Prolongations | Dogrywka | Prorrogação | Овертайм |
 | Tactics / playbook | Taktik / Playbook | Tácticas / playbook | Tactiques / playbook | Taktyka / playbook | Táticas / playbook | Тактика / плейбук |
-| Recruitment | Rekrutierung | Fichajes | Recrutement | Rekrutacja | Contratações | Трансферы (раздел) |
+| Recruitment | Rekrutierung | Fichajes | Recrutement | Rekrutacja | Contratações | Рынок (раздел) |
 | Transfers | Transfers | Traspasos | Transferts | Transfery | Transferências | Трансферы |
 | Transfer fee | Ablöse | Traspaso (importe) | Indemnité de transfert | Kwota odstępnego | Valor da transferência | Сумма трансфера |
 | Free agent | vereinsloser Spieler | agente libre | joueur libre | wolny agent | agente livre | свободный агент |
