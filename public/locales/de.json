@@ -6741,5 +6741,8 @@
  "marquee.outOfReach": "Außer Reichweite",
  "fin.upgradeGain": "Stufe {{n}} bringt etwa {{gain}}/Wo. mehr, wenn die neue Linie verkauft wird: Sie hat sich nach {{payback}} bezahlt gemacht.",
  "fin.upgradeNoGain": "Stufe {{n}} bringt bei deiner aktuellen Follower-Zahl keine zusätzlichen Fan-Einnahmen.",
- "fin.tipNetOneOff": "Woche {{week}}: netto {{amount}} aus der Wochenabrechnung; {{other}} aus Transfers und Einmalposten"
+ "fin.tipNetOneOff": "Woche {{week}}: netto {{amount}} aus der Wochenabrechnung; {{other}} aus Transfers und Einmalposten",
+ "nw.rivalry.t": "Top-10-Duell: {{home}} gegen {{away}}",
+ "nw.rivalry.c": "Zwei Clubs aus den Top 10 der Welt treffen diese Woche aufeinander. Direkter Vergleich bisher: {{home}} {{homeWins}}–{{awayWins}} {{away}}.",
+ "nw.rivalry.first": "Zwei Clubs aus den Top 10 der Welt treffen diese Woche aufeinander: {{home}} und {{away}} haben noch nie gegeneinander gespielt."
 }

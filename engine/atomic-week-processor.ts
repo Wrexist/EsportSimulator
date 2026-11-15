@@ -117,15 +117,18 @@ function eventCauseLabel(event: GameEventSaveData): string {
 
 /**
  * When the managed club's match falls, for the week-start "Match Day!"
- * notice. In daily mode the week starts on day 0 and the match is often days
- * later ("on Sun, Jan 10"), not "today" (HOME-09). Weekly mode plays the
- * whole week in this tick, so "today" stays. Stored text is English.
+ * notice. The week starts on day 0 and the match is often days later
+ * ("on Sun, Jan 10"), not "today" (HOME-09); weekly mode shows the same
+ * match day on Home and the Calendar, so it is dated there too (HOME-23).
+ * With no known day: "today" in daily mode, "this week" in weekly mode.
+ * Stored text is English.
  */
 export function matchDayWhen(
     save: Pick<GameSave, "timeMode" | "gameStartDate">,
     match: { week: number; day?: number },
 ): TextRef {
-    if (save.timeMode !== "HYBRID_DAILY" || typeof match.day !== "number" || match.day <= 0) return { key: "evn.when.today" }
+    if (typeof match.day !== "number") return { key: save.timeMode === "HYBRID_DAILY" ? "evn.when.today" : "evn.when.week" }
+    if (match.day <= 0) return { key: "evn.when.today" }
     if (!save.gameStartDate || Number.isNaN(new Date(save.gameStartDate).getTime())) return { key: "evn.when.week" }
     // Same date math as lib/game-calendar (gameCalendarDate), without its UI-locale import.
     const date = new Date(save.gameStartDate)

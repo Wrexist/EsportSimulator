@@ -7151,5 +7151,8 @@
  "marquee.outOfReach": "Poza zasięgiem",
  "fin.upgradeGain": "Poziom {{n}} daje około {{gain}}/tydz. więcej, gdy nowa linia jest w sprzedaży: zwraca się po {{payback}}.",
  "fin.upgradeNoGain": "Przy obecnej liczbie obserwujących poziom {{n}} nie zwiększa przychodów od fanów.",
- "fin.tipNetOneOff": "Tydzień {{week}}: bilans {{amount}} z rozliczenia tygodniowego; {{other}} z transferów i pozycji jednorazowych"
+ "fin.tipNetOneOff": "Tydzień {{week}}: bilans {{amount}} z rozliczenia tygodniowego; {{other}} z transferów i pozycji jednorazowych",
+ "nw.rivalry.t": "Starcie czołowej dziesiątki: {{home}} – {{away}}",
+ "nw.rivalry.c": "W tym tygodniu zmierzą się dwa kluby z czołowej dziesiątki świata. Bilans bezpośrednich meczów: {{home}} {{homeWins}}–{{awayWins}} {{away}}.",
+ "nw.rivalry.first": "W tym tygodniu zmierzą się dwa kluby z czołowej dziesiątki świata: {{home}} i {{away}} jeszcze nigdy ze sobą nie grały."
 }

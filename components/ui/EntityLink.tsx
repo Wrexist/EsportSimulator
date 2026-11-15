@@ -20,7 +20,8 @@ interface EntityLinkProps {
 
 export function teamHref(id: string) { return `/team/${encodeURIComponent(id)}` }
 export function playerHref(id: string) { return `/player/${encodeURIComponent(id)}` }
-export function tournamentHref(id: string) { return `/tournaments/${encodeURIComponent(id)}` }
+/** Regional league divisions ("league_…") have no tournament page: they open the league table. */
+export function tournamentHref(id: string) { return id.startsWith("league_") ? "/league" : `/tournaments/${encodeURIComponent(id)}` }
 
 function make(href: (id: string) => string) {
     return function EntityLink({ id, children, className, title }: EntityLinkProps) {

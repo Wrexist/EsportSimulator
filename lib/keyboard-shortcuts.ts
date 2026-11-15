@@ -30,6 +30,7 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     {
         label: "shortcuts.group.navigation",
         shortcuts: [
+            { keys: ["Ctrl", "K"], description: "search.title" },
             { keys: ["1"], description: "shortcuts.home" },
             { keys: ["2"], description: "shortcuts.openInbox" },
             { keys: ["I"], description: "shortcuts.toggleInbox" },

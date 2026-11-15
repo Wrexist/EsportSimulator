@@ -22,7 +22,7 @@ import type { GameSave, BoardState, BoardExpectationTier, BoardObjective, BoardM
 import { getSeasonNumber } from "./career-stats"
 import { BOARD_TUNING, LEAGUE_TUNING } from "@/lib/balance-tuning"
 import { EconomyEngine } from "./economy-engine"
-import { divisionOfTeam, ordinal, playedInSplit, tablePosition, weekOfSeason } from "./season/regional-league"
+import { divisionOfTeam, divisionWithPendingResults, ordinal, playedInSplit, tablePosition, weekOfSeason } from "./season/regional-league"
 import { adjustManagerReputation, closeStint } from "./manager-timeline"
 import { plural } from "@/lib/plural"
 import { JOIN_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
@@ -184,7 +184,7 @@ export function getBoardSanctionedFee(
 }
 
 /** Trophies the player's club lifted within a given season window. */
-export function trophiesInSeason(save: GameSave, seasonNumber: number): number {
+export function trophiesInSeason(save: Pick<GameSave, "teams" | "playerTeamId" | "managerDetails">, seasonNumber: number): number {
     const start = Math.max((seasonNumber - 1) * 52 + 1, save.managerDetails?.tenureStartWeek ?? 1)
     const end = seasonNumber * 52
     const team = save.teams.find(t => t.id === save.playerTeamId)
@@ -280,33 +280,46 @@ export function ensureSeasonObjectives(save: GameSave, board: BoardState): void 
     }
 }
 
+/** What objective progress is read from (a save, or the live store state). */
+export type ObjectiveProgressSource = Pick<GameSave, "teams" | "playerTeamId" | "currentWeek" | "managerDetails" | "league" | "completedMatches">
+
+/**
+ * Progress on one objective right now: the table as it reads with this
+ * week's played league matches counted (the same table Home's league card
+ * and the League page show), the live world rank and the live budget. One
+ * source for the week tick, Home and Club → Board (HOME-02 / MODES-30).
+ * A settled objective (MET / MISSED) keeps its stored values.
+ */
+export function objectiveProgressNow(save: ObjectiveProgressSource, o: BoardObjective): Pick<BoardObjective, "current" | "status"> {
+    if (o.status === "MET" || o.status === "MISSED") return { current: o.current, status: o.status }
+    const team = save.teams.find(t => t.id === save.playerTeamId)
+    if (!team) return { current: o.current, status: o.status }
+    if (o.id === "league") {
+        const raw = save.league?.current?.divisions.find(d => d.id === o.divisionId)
+        const division = raw ? divisionWithPendingResults(raw, save.completedMatches) : undefined
+        // Before the club's first league match of the split the table is
+        // just the draw order: not a result, so the objective hasn't started.
+        if (playedInSplit(division, team.id) === 0) return { current: undefined, status: undefined }
+        const current = tablePosition(division, team.id)
+        return { current, status: current !== undefined && current <= o.target ? "ON_TRACK" : "AT_RISK" }
+    }
+    if (o.id === "ranking") return { current: team.worldRanking, status: (team.worldRanking ?? 999) <= o.target ? "ON_TRACK" : "AT_RISK" }
+    if (o.id === "trophies") {
+        const current = trophiesInSeason(save, getSeasonNumber(save.currentWeek))
+        return { current, status: current >= o.target ? "MET" : "AT_RISK" }
+    }
+    return { current: Math.round(team.budget), status: team.budget >= o.target ? "ON_TRACK" : "AT_RISK" }
+}
+
 /** Live progress on each objective (UI + weekly report). */
 export function refreshObjectiveProgress(save: GameSave, board: BoardState): void {
     const team = save.teams.find(t => t.id === save.playerTeamId)
     if (!team || !board.objectives) return
     for (const o of board.objectives) {
         if (o.status === "MET" || o.status === "MISSED") continue
-        if (o.id === "league") {
-            const division = save.league?.current?.divisions.find(d => d.id === o.divisionId)
-            // Before the club's first league match of the split the table is
-            // just the draw order: not a result, so the objective hasn't started.
-            if (playedInSplit(division, team.id) === 0) {
-                o.current = undefined
-                o.status = undefined
-                continue
-            }
-            o.current = tablePosition(division, team.id)
-            o.status = o.current !== undefined && o.current <= o.target ? "ON_TRACK" : "AT_RISK"
-        } else if (o.id === "ranking") {
-            o.current = team.worldRanking
-            o.status = (team.worldRanking ?? 999) <= o.target ? "ON_TRACK" : "AT_RISK"
-        } else if (o.id === "trophies") {
-            o.current = trophiesInSeason(save, getSeasonNumber(save.currentWeek))
-            o.status = o.current >= o.target ? "MET" : "AT_RISK"
-        } else {
-            o.current = Math.round(team.budget)
-            o.status = team.budget >= o.target ? "ON_TRACK" : "AT_RISK"
-        }
+        const now = objectiveProgressNow(save, o)
+        o.current = now.current
+        o.status = now.status
     }
 }
 

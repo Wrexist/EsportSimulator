@@ -28,7 +28,7 @@ export const DURABLE_CAREER_KEYS = [
     "lastCommittedWeekTick", "lastRngSeed", "legendaryPlayers", "mapRotation", "marketStaff",
     "nextMarketRefreshWeek", "staffMarketRefreshWeek", "pendingCelebration", "pendingLegendPick", "physicalMatchPreview",
     "playerTeamId", "randomWorld", "sandbox", "savedSearches", "seenMomentKeys", "signedLegendIds", "socialFeed",
-    "tournamentQualifications", "weekReports",
+    "tournamentQualifications", "weekReports", "advanceSeenKeys",
 ] as const
 
 type DurableKey = typeof DURABLE_CAREER_KEYS[number]

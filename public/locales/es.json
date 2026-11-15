@@ -6946,5 +6946,8 @@
  "marquee.outOfReach": "Fuera de alcance",
  "fin.upgradeGain": "El nivel {{n}} suma unos {{gain}}/sem. con su nueva línea a la venta: se amortiza en {{payback}}.",
  "fin.upgradeNoGain": "Con tus seguidores actuales, el nivel {{n}} no suma ingresos de afición.",
- "fin.tipNetOneOff": "Semana {{week}}: neto {{amount}} de la liquidación semanal; {{other}} de traspasos y partidas puntuales"
+ "fin.tipNetOneOff": "Semana {{week}}: neto {{amount}} de la liquidación semanal; {{other}} de traspasos y partidas puntuales",
+ "nw.rivalry.t": "Duelo del top 10: {{home}} contra {{away}}",
+ "nw.rivalry.c": "Dos clubes del top 10 mundial se enfrentan esta semana. Historial: {{home}} {{homeWins}}–{{awayWins}} {{away}}.",
+ "nw.rivalry.first": "Dos clubes del top 10 mundial se enfrentan esta semana: {{home}} y {{away}} nunca se han enfrentado."
 }

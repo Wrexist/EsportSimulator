@@ -6,7 +6,8 @@ import { Newspaper, Trophy, Users, Zap, Award, Briefcase, Building2, DollarSign,
 import { useMemo, type ReactNode } from "react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
-import { intlLocale, t } from "@/lib/i18n"
+import { t } from "@/lib/i18n"
+import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
 import { newsContent, newsTitle } from "@/lib/news-text"
 
 // Hoisted: built once at module load instead of per item per render.
@@ -27,9 +28,10 @@ const FALLBACK_ICON = <Newspaper size={14} />
 
 /** News list: crest or category icon, headline, source line, two-line summary. */
 export function NewsFeed({ limit }: { limit?: number }) {
-    const { newsFeed, getDateForWeek, teams } = useGameStore(useShallow(state => ({
+    const { newsFeed, gameStartDate, completedMatches, teams } = useGameStore(useShallow(state => ({
         newsFeed: state.newsFeed,
-        getDateForWeek: state.getDateForWeek,
+        gameStartDate: state.gameStartDate,
+        completedMatches: state.completedMatches,
         teams: state.teams,
     })))
 
@@ -43,6 +45,13 @@ export function NewsFeed({ limit }: { limit?: number }) {
         return m
     }, [teams])
 
+    // Newest week first. Items of one week keep their stored order (newest
+    // first): the week tick and match results add to the feed at different
+    // times, so the stored array can jump back and forth in time (HOME-07).
+    const sorted = useMemo(() => (newsFeed ?? []).map((item, i) => ({ item, i })).sort((a, b) => b.item.week - a.item.week || a.i - b.i).map(x => x.item), [newsFeed])
+    // Match day of a result item: stored on newer items, else from the match.
+    const dayByMatchId = useMemo(() => new Map(completedMatches.map(m => [m.id, m.day])), [completedMatches])
+
     if (!newsFeed || newsFeed.length === 0) {
         return (
             <p className="px-4 py-3 text-sm text-ink-3" role="status" aria-live="polite">
@@ -51,7 +60,7 @@ export function NewsFeed({ limit }: { limit?: number }) {
         )
     }
 
-    const items = limit ? newsFeed.slice(0, limit) : newsFeed
+    const items = limit ? sorted.slice(0, limit) : sorted
 
     return (
         <ul className="divide-y divide-line">
@@ -66,10 +75,12 @@ export function NewsFeed({ limit }: { limit?: number }) {
                 const categoryIcon = CATEGORY_ICON_MAP[categoryKey] || FALLBACK_ICON
                 const categoryLabel = CATEGORIES.has(categoryKey) ? t(`news.category.${categoryKey}`) : t("home.news")
 
+                // The day it happened (a match result: its match day), else the week's first day.
                 let dateStr = ""
                 try {
-                    const d = getDateForWeek(item.week)
-                    if (d && !isNaN(d.getTime())) dateStr = d.toLocaleDateString(intlLocale(), { month: "short", day: "numeric" })
+                    const day = item.day ?? (item.matchId ? dayByMatchId.get(item.matchId) : undefined) ?? 0
+                    const d = gameStartDate ? gameCalendarDate(gameStartDate, item.week, day) : null
+                    if (d && !isNaN(d.getTime())) dateStr = formatGameCalendarDate(d, { month: "short", day: "numeric" })
                 } catch {
                     // Date parsing failed - leave blank
                 }

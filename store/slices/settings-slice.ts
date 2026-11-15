@@ -17,6 +17,38 @@ export const settingsInitialState: SettingsState = {
   showBugReportButton: false,
 }
 
+/**
+ * The daily day cursor when the career last left daily mode (this session),
+ * so a Daily → Weekly → Daily round trip in the same week returns to the
+ * same day instead of the start of the week (HOME-19).
+ */
+let lastDailyCursor: { saveId: string | null; week: number; day: number } | null = null
+
+/**
+ * Day to resume daily mode on, coming from weekly mode: never earlier than
+ * the day the career left daily mode this week, nor than the last own match
+ * already played this week (weekly mode can play it), so no day is played
+ * twice and the calendar never runs backwards (HOME-19). A week begun in
+ * weekly mode with nothing played yet starts on day 0, as before.
+ */
+export function dailyDayOnReturn(state: {
+  saveId?: string | null
+  currentWeek: number
+  playerTeamId?: string | null
+  completedMatches?: readonly { week: number; day?: number; homeTeamId: string; awayTeamId: string }[]
+}): number {
+  let day = 0
+  const cursor = lastDailyCursor
+  if (cursor && cursor.week === state.currentWeek && cursor.saveId === (state.saveId ?? null)) day = cursor.day
+  const me = state.playerTeamId
+  if (me) {
+    for (const m of state.completedMatches ?? []) {
+      if (m.week === state.currentWeek && (m.homeTeamId === me || m.awayTeamId === me) && typeof m.day === "number") day = Math.max(day, m.day)
+    }
+  }
+  return Math.max(0, Math.min(6, day))
+}
+
 export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => ({
   // Only squad/budget are acknowledged explicitly (on their own pages). Decision, match and week
   // are recorded by the actions themselves or proven by career state in syncFirstSession.
@@ -87,10 +119,16 @@ export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => 
       state.timeMode = mode
       if (mode === "HYBRID_DAILY") {
         state.currentDay =
-          wasMode === "HYBRID_DAILY" ? Math.max(0, Math.min(6, state.currentDay)) : 0
+          wasMode === "HYBRID_DAILY" ? Math.max(0, Math.min(6, state.currentDay)) : dailyDayOnReturn(state)
       } else {
+        if (wasMode === "HYBRID_DAILY") lastDailyCursor = { saveId: state.saveId ?? null, week: state.currentWeek, day: state.currentDay }
         state.currentDay = 6
       }
+      // A match-day notice belongs to the mode it was raised in: in daily
+      // mode the match may not be due yet, and its Sim would do nothing
+      // (HOME-20). The top bar shows Play match again when it is due.
+      const withStop = state as typeof state & { advanceStop?: { kind?: string } | null }
+      if (wasMode !== mode && withStop.advanceStop?.kind === "match") withStop.advanceStop = null
     })
     // The mode and its day cursor are career state: saved at once, like a day step.
     if (changed && get().isInitialized && get().saveId) void get().saveGame?.()?.catch(() => { /* surfaced by saveGame */ })

@@ -743,7 +743,7 @@ const NON_CAREER_STORE_KEYS = [
     // transient UI / runtime
     "weekProgress", "toasts", "isLoading", "error", "lastLoadError", "isInitialized", "_hasHydrated",
     // Continue run + weekly report UI (the reports themselves are saved as weekReports)
-    "continueRun", "advanceStop", "advanceSeenKeys", "weekReportOpen", "weekReportToast",
+    "continueRun", "advanceStop", "weekReportOpen", "weekReportToast",
     // indexes rebuilt on hydration
     "_teamIndex", "_playerIndex", "_contractByPlayerIndex", "_staffIndex", "_completedMatchIds",
 ]
@@ -805,6 +805,7 @@ function sentinelCareer(): GameSave {
         activelyPlayingLegendIds: ["rt-active-legend"],
         momentQueue: [{ key: "rt-moment", kind: "welcome", week: 8, teamId: team }],
         seenMomentKeys: ["rt-seen-moment"],
+        advanceSeenKeys: ["injury:rt-player:Wrist", "board:board_pulse_8"],
         academyPlayers: [{ id: "rt-prospect", nickname: "Kid" }],
         academyMatchHistory: [{ id: "rt-academy-match" }],
         academyRoster: { IGL: "rt-prospect", Entry: null, AWPer: null, Support: null, Rifler: null },

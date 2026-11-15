@@ -76,6 +76,7 @@ import {
 
 import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import { eventText, newsText } from "@/lib/news-ref"
+import { sideScore } from "@/lib/week-changes"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
@@ -577,9 +578,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // Post-match news headline (player team's perspective).
             const winner = homeWon ? homeTeam : awayTeam
             const loser = homeWon ? awayTeam : homeTeam
-            const scoreStr = homeWon
-                ? `${result.homeScore}-${result.awayScore}`
-                : `${result.awayScore}-${result.homeScore}`
+            // Rounds for a single map, maps for a series, as the result screen shows it (HOME-07).
+            const scoreStr = sideScore(result, homeWon)
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_match"),
                 ...newsText(
@@ -590,6 +590,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 teamId: winner.id,
                 matchId: match.id,
                 week: state.currentWeek,
+                ...(typeof match.day === "number" ? { day: match.day } : {}),
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
         })

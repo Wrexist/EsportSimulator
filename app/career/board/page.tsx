@@ -23,6 +23,7 @@ import {
     boardWeeks,
     confidenceTrail,
     graceWeeksLeft,
+    liveObjectives,
     objectiveView,
     signedDelta,
 } from "@/components/career/board-view"
@@ -66,7 +67,7 @@ function reviewRules(): Array<[string, string]> {
  * formal review.
  */
 export default function BoardPage() {
-    const { hydrated, isLoading, playerTeamId, teams, boardState, currentWeek, managerDetails } = useGameStore(useShallow(s => ({
+    const { hydrated, isLoading, playerTeamId, teams, boardState, currentWeek, managerDetails, league, completedMatches } = useGameStore(useShallow(s => ({
         hydrated: s._hasHydrated,
         isLoading: s.isLoading,
         playerTeamId: s.playerTeamId,
@@ -74,6 +75,8 @@ export default function BoardPage() {
         boardState: s.boardState,
         currentWeek: s.currentWeek,
         managerDetails: s.managerDetails,
+        league: s.league,
+        completedMatches: s.completedMatches,
     })))
     const team = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     const weeks = useMemo(() => boardWeeks(boardState?.history), [boardState?.history])
@@ -90,7 +93,7 @@ export default function BoardPage() {
     const tier = getTierTargets(expectation)
     // The season's real rank target (the same number as the ranking objective, COMP-12).
     const rankTarget = boardState?.rankTarget ?? fallback.rankTarget
-    const objectives = (boardState?.objectives ?? []).map(objectiveView)
+    const objectives = liveObjectives(boardState?.objectives, { teams, playerTeamId, currentWeek, managerDetails, league, completedMatches }).map(objectiveView)
     const warnings = boardState?.warnings ?? (boardState?.onNotice ? 2 : 0)
     const lastWeek = weeks.find(w => w.week === currentWeek) ?? null
     const sanctioned = boardState && team ? getBoardSanctionedFee(boardState, team.budget) : null

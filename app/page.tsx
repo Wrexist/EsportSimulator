@@ -15,7 +15,7 @@ import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { StorylinesPanel } from "@/components/storylines/StorylinesPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { BoardConfidenceChip } from "@/components/career/BoardConfidence"
-import { graceWeeksLeft } from "@/components/career/board-view"
+import { graceWeeksLeft, liveObjectives } from "@/components/career/board-view"
 import { LeagueSnapshot } from "@/components/league/LeagueSnapshot"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { Button } from "@/components/ui/button"
@@ -44,6 +44,7 @@ import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
+import { sideScore } from "@/lib/week-changes"
 import { ordinalLabel, t, tn } from "@/lib/i18n"
 
 const tierLabel = (tier: string) => ["S_TIER", "A_TIER", "B_TIER", "C_TIER"].includes(tier) ? t(`common.tier.${tier}`) : tier
@@ -65,29 +66,6 @@ const FINANCE_STATE: Record<string, { className: string }> = {
   RISK: { className: "text-caution" },
   CRISIS: { className: "text-negative" },
   INSOLVENT: { className: "text-negative" },
-}
-
-type MatchLike = {
-  id: string
-  week: number
-  homeTeamId: string
-  awayTeamId: string
-  isScrim?: boolean
-  tournamentId?: string | null
-  result?: { winnerId?: string; homeScore: number; awayScore: number; maps?: { finalScore?: { team1: number; team2: number } }[] }
-}
-
-/** Score from the player's side: round score for a BO1, map score otherwise. */
-function scoreFor(match: MatchLike, teamId: string): string {
-  const r = match.result
-  if (!r) return "—"
-  const isHome = match.homeTeamId === teamId
-  const maps = r.maps
-  if (maps && maps.length === 1 && maps[0]?.finalScore) {
-    const fs = maps[0].finalScore
-    return isHome ? `${fs.team1}–${fs.team2}` : `${fs.team2}–${fs.team1}`
-  }
-  return isHome ? `${r.homeScore}–${r.awayScore}` : `${r.awayScore}–${r.homeScore}`
 }
 
 function tournamentFor(id?: string | null) {
@@ -129,7 +107,8 @@ export default function Page() {
 
   const boardState = useGameStore(s => s.boardState)
   const league = useGameStore(s => s.league)
-  const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
+  const managerDetails = useGameStore(s => s.managerDetails)
+  const tenureStartWeek = managerDetails?.tenureStartWeek
   // MODES-01/07: in a pro career the staff run the club: no board or finance cards.
   const proActive = useGameStore(s => !!s.proCareer && s.proCareer.retiredWeek == null)
   // MODES-19: a created club short of five can reopen the roster builder (it
@@ -376,8 +355,9 @@ export default function Page() {
   const trophiesThisSeason = (playerTeam?.trophies ?? []).filter(t => t.week >= seasonStartWeek).length
   const sanctioned = boardState && playerTeam ? getBoardSanctionedFee(boardState, playerTeam.budget) : null
   const rankOnTrack = worldRank > 0 && worldRank <= rankTarget
-  // Phase 4.4: the board's real objectives (league finish, ranking, budget).
-  const objectives = boardState?.objectives ?? []
+  // Phase 4.4: the board's real objectives (league finish, ranking, budget),
+  // read now so they match the league card and the header (HOME-02).
+  const objectives = liveObjectives(boardState?.objectives, { teams, playerTeamId: playerTeamId ?? "", currentWeek, managerDetails, league, completedMatches })
   const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
     : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : o.id === "trophies" ? `${o.current}` : ordinalLabel(o.current)
   const objectiveTarget = (o: (typeof objectives)[number]) =>
@@ -521,7 +501,7 @@ export default function Page() {
                     <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT.has(o.id) ? t(`home.objective.${o.id}`) : o.label}</dt>
                     <dd className="shrink-0 text-xs tabular-nums">
                       <span className="text-ink-3">{t("home.target", { value: objectiveTarget(o) })}</span>
-                      <span className={cn("ml-2", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>
+                      <span className={cn("ml-2", o.current === undefined ? "text-ink-3" : o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>
                     </dd>
                   </div>
                 )) : (
@@ -600,9 +580,10 @@ export default function Page() {
                         <Link href={`/match/${m.id}/result`} className="flex h-11 items-center gap-3 px-4 transition-colors hover:bg-raised">
                           <FormGuide results={[won ? "W" : "L"]} />
                           <TeamLogoDisplay team={opp} size={22} />
-                          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
-                          <span className="hidden truncate text-xs text-ink-3 sm:inline">{comp} · {t("common.weekShort", { n: m.week })}</span>
-                          <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{scoreFor(m as MatchLike, playerTeamId || "")}</span>
+                          {/* The opponent's name wins the space; a long league label truncates (HOME-15). */}
+                          <span className="min-w-[6rem] flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
+                          <span className="hidden min-w-0 max-w-[45%] truncate text-xs text-ink-3 sm:inline" title={`${comp} · ${t("common.weekShort", { n: m.week })}`}>{comp} · {t("common.weekShort", { n: m.week })}</span>
+                          <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{sideScore(m.result, m.homeTeamId === playerTeamId)}</span>
                         </Link>
                       </li>
                     )
@@ -612,9 +593,9 @@ export default function Page() {
             </Panel>
           </div>
 
-          {/* Two columns below 2xl: the rail is far taller than this column,
-              so News sits here instead of leaving the bottom half empty (HOME-19). */}
-          <Panel title={t("home.news")} padded={false} className="hidden xl:block 2xl:hidden">
+          {/* Two columns (xl and up): the rail is far taller than this column,
+              so News sits here instead of leaving the bottom half empty (HOME-19, HOME-09). */}
+          <Panel title={t("home.news")} padded={false} className="hidden xl:block">
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>
@@ -627,7 +608,7 @@ export default function Page() {
           <ActionCenter />
           <StorylinesPanel />
           <LastWeekPanel />
-          <Panel title={t("home.news")} padded={false} className="xl:hidden 2xl:block">
+          <Panel title={t("home.news")} padded={false} className="xl:hidden">
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>

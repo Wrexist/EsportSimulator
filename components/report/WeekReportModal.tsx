@@ -38,7 +38,7 @@ export function WeekReportModal() {
         // Document bubble phase: focused controls still get their keys, but
         // Space never reaches the shell's advance hotkey (a window listener)
         // while the report is open. Escape closes; Enter/Space close unless a
-        // control has focus (the focused Continue button closes natively).
+        // control has focus (the focused close button closes natively).
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); return }
             if (e.key !== " " && e.key !== "Enter") return
@@ -113,8 +113,9 @@ export function WeekReportModal() {
                     ) : (
                         <p className="text-xs text-ink-3">{t("wr.footer")}</p>
                     )}
+                    {/* "Close report", not "Continue": it only closes; time advances from the top bar (HOME-25). */}
                     <Button ref={doneRef} onClick={close} className="h-10 px-6">
-                        {t("advance.continue")}
+                        {t("wr.close")}
                     </Button>
                 </footer>
             </div>

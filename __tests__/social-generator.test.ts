@@ -108,3 +108,23 @@ describe("generateSocialPosts", () => {
         expect(generateSocialPosts(makeInput({ playerTeam: undefined }))).toEqual([])
     })
 })
+
+describe("HOME-12: the feed reacts to the latest match, not the career's first", () => {
+    const own = (id: string, week: number, win: boolean, extra: Record<string, unknown> = {}) => ({
+        id, homeTeamId: "player", awayTeamId: "rivA", week,
+        result: { homeScore: win ? 1 : 0, awayScore: win ? 0 : 1, winnerId: win ? "player" : "rivA", maps: [{ homeScore: win ? 13 : 8, awayScore: win ? 8 : 13 }] },
+        ...extra,
+    }) as unknown as CompletedMatchSaveData
+
+    test("uses the newest official match, in rounds for a single map", () => {
+        const posts = generateSocialPosts(makeInput({ completedMatches: [own("scrim1", 1, true, { isScrim: true }), own("old", 3, false), own("latest", 9, true)] }))
+        const official = posts.find(p => p.id.startsWith("sp_official_"))!
+        expect(official.id).toBe("sp_official_latest")
+        expect(official.content).toContain("13–8")
+    })
+
+    test("posts nothing about a result older than last week", () => {
+        const posts = generateSocialPosts(makeInput({ completedMatches: [own("old", 3, true)] }))
+        expect(posts.some(p => p.id.startsWith("sp_official_"))).toBe(false)
+    })
+})

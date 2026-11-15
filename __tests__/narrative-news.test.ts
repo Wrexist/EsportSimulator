@@ -55,7 +55,8 @@ describe("post-match headlines (HOME-03 / HOME-10)", () => {
         const save = leagueWorld()
         generateNarrativeNews(save, new SeededRNG(5))
         const head = save.newsFeed.find(n => n.id.startsWith("headline_league_s1_m1"))!
-        expect(head.content).toContain("US defeats X4 1-0 in CIS Division 5.")
+        // A single map reads in rounds, as on the result screen (HOME-07).
+        expect(head.content).toContain("US defeats X4 13–8 in CIS Division 5.")
         expect(head.content).not.toContain("tournament play")
         expect(head.content).not.toContain("0-1")
     })
@@ -76,5 +77,35 @@ describe("post-match headlines (HOME-03 / HOME-10)", () => {
         expect(heads).not.toContain("m_ours")
         // Still two headlines from the rest of last week's results.
         expect(heads).toHaveLength(2)
+    })
+})
+
+describe("HOME-08: the top-10 clash item", () => {
+    function clashWorld(meetings: number): GameSave {
+        const save = world()
+        save.completedMatches = Array.from({ length: meetings }, (_, i) => ({ id: `h${i}`, homeTeamId: "a", awayTeamId: "b", week: 2, tournamentId: "cup_1", result: { winnerId: "a", homeScore: 1, awayScore: 0, maps: [] } })) as never
+        save.scheduledMatches = [{ id: "clash", homeTeamId: "a", awayTeamId: "b", week: 10, tournamentId: "cup_1", stage: "Group", format: "BO3", seed: 1 }] as never
+        return save
+    }
+    function clash(meetings: number) {
+        for (let seed = 0; seed < 50; seed++) {
+            const save = clashWorld(meetings)
+            generateNarrativeNews(save, new SeededRNG(seed))
+            const item = save.newsFeed.find(n => n.id.startsWith("rivalry_"))
+            if (item) return item
+        }
+        throw new Error("no clash item")
+    }
+
+    test("a first meeting says so instead of a 0 - 0 record", () => {
+        const item = clash(0)
+        expect(item.content).not.toMatch(/0 ?[-–] ?0/)
+        expect(item.content).toContain("never played each other")
+        expect(item.contentRef?.key).toBe("nw.rivalry.first")
+        expect(item.titleRef?.key).toBe("nw.rivalry.t")
+    })
+
+    test("with meetings it gives the head-to-head", () => {
+        expect(clash(2).content).toContain("A 2–0 B")
     })
 })

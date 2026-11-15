@@ -6,6 +6,7 @@
  */
 
 import type { BoardMove, BoardObjective, BoardState } from "@/engine/save-types"
+import { objectiveProgressNow, type ObjectiveProgressSource } from "@/engine/board-expectations"
 import { BOARD_TUNING } from "@/lib/balance-tuning"
 import { formatCurrency } from "@/lib/utils-extended"
 import { ordinalLabel, t, tn } from "@/lib/i18n"
@@ -114,6 +115,15 @@ export function objectiveLabel(o: Pick<BoardObjective, "id" | "label" | "target"
     if (o.id === "finance") return t("brd.obj.finance", { amount: formatCurrency(o.target) })
     if (o.id === "trophies") return tn("brd.obj.trophies", o.target)
     return l
+}
+
+/**
+ * The board's objectives with progress read now (live table with this
+ * week's played matches, world rank, budget), not as of the last week tick,
+ * so Home, Club → Board and the League page agree (HOME-02 / MODES-30).
+ */
+export function liveObjectives(objectives: readonly BoardObjective[] | undefined, source: ObjectiveProgressSource): BoardObjective[] {
+    return (objectives ?? []).map(o => ({ ...o, ...objectiveProgressNow(source, o) }))
 }
 
 export function objectiveView(o: BoardObjective): ObjectiveView {

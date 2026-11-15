@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { ListOrdered } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
-import { isLeagueMatchId } from "@/engine/season/regional-league"
+import { divisionWithPendingResults, isLeagueMatchId } from "@/engine/season/regional-league"
 import { LEAGUE_TUNING, leagueCentralPayment } from "@/lib/balance-tuning"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
@@ -55,7 +55,15 @@ export default function LeaguePage() {
         gameStartDate: s.gameStartDate,
     })))
 
-    const split = league?.current
+    // Divisions as the table will read after this week's tick: league matches
+    // already played this week count now, the same table Home's league card and
+    // the board objective read (HOME-02 / MODES-30).
+    const split = useMemo(() => {
+        const raw = league?.current
+        if (!raw) return raw
+        const divisions = raw.divisions.map(d => divisionWithPendingResults(d, completedMatches))
+        return divisions.every((d, i) => d === raw.divisions[i]) ? raw : { ...raw, divisions }
+    }, [league, completedMatches])
     const own = useMemo(() => split?.divisions.find(d => !!playerTeamId && d.teamIds.includes(playerTeamId)), [split, playerTeamId])
     const [selectedId, setSelectedId] = useState<string | null>(null)
 

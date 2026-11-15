@@ -388,4 +388,7 @@ export const NEWS = {
     "bd.rev.FAILED.t": "Board furious with {{club}}",
     "bd.rev.FAILED.m": "A season well below expectations. The board's confidence has crashed to {{c}}/100.",
     "bd.rev.FAILED.mNotice": "A season well below expectations. The board's confidence has crashed to {{c}}/100: you are on notice and must deliver next season.",
+    "nw.rivalry.t": "Top-10 clash: {{home}} vs {{away}}",
+    "nw.rivalry.c": "Two of the world's top 10 clubs meet this week. Head-to-head so far: {{home}} {{homeWins}}–{{awayWins}} {{away}}.",
+    "nw.rivalry.first": "Two of the world's top 10 clubs meet this week: {{home}} and {{away}} have never played each other before.",
 } as const

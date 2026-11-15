@@ -108,12 +108,17 @@ export class EventProcessor {
         }
 
         // 4. Streak Detection (User team)
-        // Check last 5 matches for user team
+        // Check the last 5 official matches, newest first: by week, then day,
+        // then the order they were played in (completedMatches is oldest
+        // first), so a loss later in a week ends a streak (HOME-04). Scrims
+        // don't count, as in the season record.
         if (playerTeam) {
             const userMatches = save.completedMatches
-                .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-                .sort((a, b) => b.week - a.week)
+                .map((m, i) => ({ m, i }))
+                .filter(({ m }) => !m.isScrim && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
+                .sort((a, b) => b.m.week - a.m.week || (b.m.day ?? 6) - (a.m.day ?? 6) || b.i - a.i)
                 .slice(0, 5)
+                .map(({ m }) => m)
 
             let winStreak = 0
             let lossStreak = 0
@@ -130,7 +135,10 @@ export class EventProcessor {
                 }
             }
 
-            if (winStreak === 3) { // Trigger on exactly 3 to avoid spam
+            // One prompt per winning run: the career "momentum" decision
+            // (engine/career-decisions.ts) asks the same question (HOME-06).
+            const momentumAsked = save.eventsLog.some(e => e.id.startsWith("career_decision_") && e.id.endsWith("_momentum") && e.week > save.currentWeek - 8)
+            if (winStreak === 3 && !momentumAsked) { // Trigger on exactly 3 to avoid spam
                 const eventId = `streak_win_${save.currentWeek}`
                 if (!transaction.generatedEventIds.includes(eventId)) {
                     save.eventsLog.push({
