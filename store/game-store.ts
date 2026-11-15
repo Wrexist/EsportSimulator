@@ -415,6 +415,8 @@ export interface GameStoreState extends AdvanceState, MomentsState {
     teamId?: string;
     playerId?: string;
     matchId?: string;
+    /** Day of the week it happened (HOME-08). */
+    day?: number;
     link?: string;
     engagement?: { likes: number; views: number; };
   }[]
