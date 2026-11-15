@@ -16,6 +16,7 @@ import { Search, UserPlus, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PlayerSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
+import { potentialOvr } from "@/lib/potential-ovr"
 import { toast } from "@/lib/toast"
 import { GameDifficulty } from "@/types/team-creator"
 import { PlayerRole } from "@/types/enums"
@@ -48,6 +49,8 @@ interface PlayerWithTeamInfo extends PlayerSaveData {
     existingContract: { salaryPerWeek: number; buyout: number } | null
     isFreeAgent: boolean
     ovr: number
+    /** Potential on the OVR scale (never below `ovr`), START-24. */
+    potOvr: number
 }
 
 type RoleFilter = "ALL" | PlayerRole
@@ -135,6 +138,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                 existingContract: contract ? { salaryPerWeek: contract.salaryPerWeek, buyout: contract.buyout || 0 } : null,
                 isFreeAgent: !contract || !contract.teamId,
                 ovr: 0,
+                potOvr: 0,
             }
         })
     }, [players, contracts, teams])
@@ -147,7 +151,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
             .filter(p => !p.id.startsWith("prospect_"))
             .filter(p => p.isFreeAgent)
             .filter(p => !p.isRetired && !p.isLegendary)
-            .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating }))
+            .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating, potOvr: potentialOvr(p) }))
     }, [playersWithTeamInfo, playerTeam])
 
     const availablePlayers = useMemo(() => {
@@ -164,7 +168,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
         const wage = (p: PlayerWithTeamInfo) => autoContract(p, currentWeek).salaryPerWeek
         pool = [...pool].sort((a, b) => {
             switch (sortBy) {
-                case "potential": return (b.potential || 0) - (a.potential || 0)
+                case "potential": return b.potOvr - a.potOvr
                 case "age": return (a.age || 25) - (b.age || 25)
                 case "salary": return wage(a) - wage(b)
                 default: return b.ovr - a.ovr
@@ -420,7 +424,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                                             </td>
                                             <td className="px-3"><RoleTag role={player.role} /></td>
                                             <td className="px-3 text-center"><RatingChip value={player.ovr} size="sm" /></td>
-                                            <td className="px-3 text-center text-sm tabular-nums text-ink-2">{Math.round(player.skill || 50)} → {Math.round(Math.max(player.potential || 60, player.skill || 50))}</td>
+                                            <td className="px-3 text-center text-sm tabular-nums text-ink-2">{Math.max(player.ovr, player.potOvr)}</td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-1">
                                                 {formatCurrency(contract.salaryPerWeek, "$", false)}
                                                 {contract.transferFee > 0 && <span className="block text-xs text-ink-3">{t("rb.buyout", { amount: formatCurrency(contract.transferFee) })}</span>}
