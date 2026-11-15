@@ -7,6 +7,8 @@ import { Trophy } from "lucide-react"
 import { isMajorTournament } from "@/engine/official-stats"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { trophyArtFor, trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
+import { recordEventName } from "@/lib/tournament-instances"
+import { useGameStore } from "@/store/game-store"
 import { Panel } from "@/src/components/ui/Panel"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 
@@ -31,6 +33,9 @@ interface TrophyCabinetProps {
 
 /** The club's won titles on one shelf, each with its project trophy art (lib/trophy-art). */
 function TrophyCabinetInner({ trophies, title, className }: TrophyCabinetProps) {
+    // Titles stored by older versions carry the data year ("… 2025"): name
+    // each with the year it was won in, as /trophies and /rankings do.
+    const gameStartDate = useGameStore(state => state.gameStartDate)
     return (
         <Panel
             title={title ?? t("squad.trophies.title")}
@@ -48,13 +53,14 @@ function TrophyCabinetInner({ trophies, title, className }: TrophyCabinetProps) 
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                     {trophies.map(trophy => {
                         const art = trophyArtFor(trophyArtKind(trophy))
+                        const name = recordEventName(trophy.tournamentName, trophy.tournamentId, trophy.week, gameStartDate)
                         return (
                             <li
                                 key={`${trophy.tournamentId}-${trophy.week}`}
                                 className="flex min-w-0 flex-col items-center rounded-md border border-line bg-raised px-3 pb-3 pt-4 text-center"
                             >
                                 <Image src={art.src} alt={art.label} width={64} height={64} className="h-16 w-16 object-contain" />
-                                <p className="mt-3 line-clamp-2 text-sm font-semibold leading-snug text-ink-1" title={trophy.tournamentName}>{trophy.tournamentName}</p>
+                                <p className="mt-3 line-clamp-2 text-sm font-semibold leading-snug text-ink-1" title={name}>{name}</p>
                                 <p className="mt-1 text-xs tabular-nums text-ink-3">
                                     {t("common.week", { n: trophy.week })}
                                     {trophy.mvpId && <span className="text-gold"> · {t("squad.trophies.mvp")}</span>}

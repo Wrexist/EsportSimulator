@@ -140,7 +140,7 @@ export const NEWS = {
     "ev.sellOn.t": "Sell-on paid: {{name}}",
     "ev.sellOn.m": "{{club}} sold {{name}} for {{fee}}. Your {{pct}}% sell-on brings in {{amount}}.",
     "ev.draw.t": "League draw: {{division}}",
-    "ev.draw.m": "Season {{season}}, split {{split}}: {{clubs}} clubs, {{format}}, weeks {{from}}–{{to}}.{{moved}}{{first}} Top {{up}} go up, bottom {{down}} go down.",
+    "ev.draw.m": "Season {{season}}, split {{split}}: {{clubs}} clubs, {{format}}, weeks {{from}}–{{to}}.{{moved}}{{first}} {{top}}{{sep}}{{bottom}}.",
     "ev.draw.double": "home and away",
     "ev.draw.single": "single round robin",
     "ev.draw.promoted": " Promoted from Division {{level}}.",

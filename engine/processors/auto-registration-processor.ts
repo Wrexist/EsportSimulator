@@ -25,12 +25,12 @@ import {
     normalizeQualificationStatus,
 } from "../circuit-engine"
 import { seniorRosterEligibility } from "../recruitment"
+import { QUALIFIER_REGION, qualifierEntryBlock } from "../tournament/qualification-path"
 import { QualificationEngine } from "../tournament-qualification"
 import { logger } from "@/lib/logger"
+import { instanceName } from "@/lib/tournament-instances"
 
 const LOOKAHEAD_WEEKS = 4
-/** Club region -> regional qualifier region (RMRs exist for EU, NA and ASIA). */
-const QUALIFIER_REGION: Record<string, string> = { CIS: "EU", MENA: "EU", BR: "NA", SA: "NA", OCE: "ASIA", OCEANIA: "ASIA" }
 
 interface AutoRegistrationContext {
     playerTeamId: string
@@ -44,16 +44,11 @@ interface AutoRegistrationContext {
 
 /**
  * The Register button's qualifier double-entry rules: no qualifier while
- * already in its main event, and only one qualifier per main event.
+ * already in (or invited to) the event it leads to, and only one qualifier
+ * per main event (engine/tournament/qualification-path.ts).
  */
 function openEntryBlocked(save: GameSave, teamId: string, def: TournamentDefinition, seasonNumber: number): boolean {
-    if (!def.qualifierFor) return false
-    const entered = (instanceId: string) => save.tournamentQualifications.some(q =>
-        q.teamId === teamId && (q.status === "QUALIFIED" || q.status === "REGISTERED") &&
-        isQualificationForTournament(q, instanceId, save.currentWeek))
-    if (entered(buildInstanceId(def.qualifierFor, seasonNumber))) return true
-    return FULL_TOURNAMENT_CALENDAR.some(s => s.qualifierFor === def.qualifierFor && s.id !== def.id
-        && entered(buildInstanceId(s.id, seasonNumber)))
+    return qualifierEntryBlock(save, teamId, def, seasonNumber) !== null
 }
 
 export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationContext): void {
@@ -84,7 +79,7 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
                     const startWeek = (s - 1) * 52 + def.startWeek
                     const id = buildInstanceId(def.id, s)
                     if (startWeek < save.currentWeek || startWeek > save.currentWeek + LOOKAHEAD_WEEKS || known.has(id)) continue
-                    upcoming.push({ id, seriesId: def.id, name: def.name, startWeek, seasonNumber: s })
+                    upcoming.push({ id, seriesId: def.id, name: instanceName(def, s, save.gameStartDate), startWeek, seasonNumber: s })
                     known.add(id)
                 }
             }
@@ -131,6 +126,7 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
             )
             if (!eligibility.canRegister) return
 
+            const eventName = instanceName(tournamentDef, t.seasonNumber || getSeasonFromWeek(t.startWeek || save.currentWeek), save.gameStartDate)
             save.tournamentQualifications.push(normalizeQualificationStatus({
                 tournamentId: t.id,
                 seriesId: tournamentSeriesId,
@@ -149,8 +145,8 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
                 data: {
                     tournamentId: t.id,
                     ...eventText({ key: "evn.autoReg.t" }, isOpen
-                        ? { key: "evn.autoReg.open", params: { event: t.name } }
-                        : { key: "evn.autoReg.m", params: { event: t.name, entry: { key: `tm.entry.${tournamentDef.entryType}` } } }),
+                        ? { key: "evn.autoReg.open", params: { event: eventName } }
+                        : { key: "evn.autoReg.m", params: { event: eventName, entry: { key: `tm.entry.${tournamentDef.entryType}` } } }),
                     severity: "success",
                 },
             })

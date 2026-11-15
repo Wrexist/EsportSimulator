@@ -155,7 +155,7 @@ export const MOMENTS = {
     "trophyArt.c": "Pewter C-tier trophy",
     "trophyArt.league": "League title shield",
     "trophyArt.award": "Season award medal",
-    "lp.kicker": "Major champion reward",
+    "lp.kicker": "S-tier champion reward",
     "lp.title": "Choose your legend",
     "lp.subtitle": "{{event}}: pick a legend to join your roster",
     "lp.skill": "Skill {{n}}",

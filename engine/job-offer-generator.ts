@@ -26,6 +26,7 @@ const JOB_OFFER_BASE_CHANCE = 0.05 // 5% base chance per week
 const MAJOR_WIN_BONUS = 0.30       // +30% chance after winning a major
 const TOURNAMENT_WIN_BONUS = 0.15  // +15% chance after any tournament win
 const GOOD_RECORD_BONUS = 0.10     // +10% chance if positive win ratio
+const MAX_RANKS_BELOW_CURRENT = 40 // offering clubs are at most this many places below yours
 
 // ===== JOB OFFER GENERATOR =====
 
@@ -269,7 +270,11 @@ export class JobOfferGenerator {
                 if (!hasRecentWin) return false
             }
 
-            // Lower ranked teams always interested in proven managers
+            // A club far down the world (more than ~40 places, two tiers)
+            // is no step for the manager: no offer from it (COMP-17). If no
+            // club is in range this week, no offer is sent.
+            if (teamRank > currentRank + MAX_RANKS_BELOW_CURRENT) return false
+
             // Similar ranked teams might want you
             return true
         })

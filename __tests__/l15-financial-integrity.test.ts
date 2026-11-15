@@ -191,8 +191,9 @@ test("weekly match integration pays contractual bonuses once and reconciles the 
     const processor = new AtomicWeekProcessor(new SaveManager(new FixtureStorage()))
     const result = await processor.processWeek(save, { playerTeamId: save.playerTeamId, trainingFocus: new Map() }, new SeededRNG(save.lastRngSeed))
     expect(result.success).toBe(true)
-    expect(save.completedMatches).toHaveLength(1)
-    const bonuses = save.financeLedger.filter(e => e.id.startsWith("contract_bonus_"))
+    // The managed club's one match (other clubs may play the week-2 open qualifier).
+    expect(save.completedMatches.filter(m => m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId)).toHaveLength(1)
+    const bonuses = save.financeLedger.filter(e => e.id.startsWith("contract_bonus_") && e.teamId === save.playerTeamId)
     expect(bonuses.reduce((n, e) => n + e.amount, 0)).toBe(550)
     const net = save.financeLedger.filter(e => e.teamId === save.playerTeamId).reduce((n, e) => n + (e.type === "INCOME" ? e.amount : -e.amount), 0)
     expect(save.teams[0].budget).toBe(opening + net)

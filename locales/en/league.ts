@@ -30,7 +30,7 @@ export const LEAGUE = {
     "league.forfeitShort": "FF",
     "league.contextSide": "{{position}}, {{points}}",
     "league.contextVs": "{{a}} v {{b}}",
-    "league.outcome.champions": "Champions of {{size}} in {{division}} ({{wins}}W–{{losses}}L, {{points}}).",
+    "league.outcome.champions": "Champions of {{division}} (1st of {{size}}, {{wins}}W–{{losses}}L, {{points}}).",
     "league.outcome.place": "{{position}} of {{size}} in {{division}} ({{wins}}W–{{losses}}L, {{points}}).",
     "league.outcome.promoted": "{{head}} Promoted to {{division}}.",
     "league.outcome.relegated": "{{head}} Relegated to {{division}}.",

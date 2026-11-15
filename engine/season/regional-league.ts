@@ -311,6 +311,7 @@ function drawSplit(save: GameSave, season: number, cfg: typeof LEAGUE_TUNING.SPL
         const first = mine.fixtures.filter(f => f.home === save.playerTeamId || f.away === save.playerTeamId).sort((a, b) => a.week - b.week)[0]
         const opp = first ? teamsById.get(first.home === save.playerTeamId ? first.away : first.home)?.name : undefined
         const eventId = `league_draw_${id}_${save.playerTeamId}`
+        const bottomLevel = Math.max(...divisions.filter(d => d.region === mine.region).map(d => d.level))
         if (!save.eventsLog.some(e => e.id === eventId)) {
             save.eventsLog.unshift({
                 id: eventId, type: "TOURNAMENT", week: save.currentWeek, acknowledged: false,
@@ -321,7 +322,16 @@ function drawSplit(save: GameSave, season: number, cfg: typeof LEAGUE_TUNING.SPL
                             season, split: cfg.split, clubs: mine.teamIds.length, format: { key: mine.format === "DOUBLE" ? "ev.draw.double" : "ev.draw.single" },
                             from: firstWeek, to: lastWeek, moved,
                             first: first && opp ? { key: "ev.draw.first", params: { opp, week: first.week } } : "",
-                            up: LEAGUE_TUNING.PROMOTED, down: LEAGUE_TUNING.RELEGATED,
+                            // The club's own zones, as the League page words them
+                            // (zoneRules): Division 1 plays for the title, the
+                            // lowest division has no relegation.
+                            top: mine.level > 1
+                                ? { key: "league.rule.promoted", params: { count: LEAGUE_TUNING.PROMOTED, division: { key: "league.divisionLevel", params: { level: mine.level - 1 } } } }
+                                : { key: "league.rule.title" },
+                            sep: mine.level < bottomLevel ? ". " : "",
+                            bottom: mine.level < bottomLevel
+                                ? { key: "league.rule.relegated", params: { count: LEAGUE_TUNING.RELEGATED, division: { key: "league.divisionLevel", params: { level: mine.level + 1 } } } }
+                                : "",
                         },
                     }),
                     severity: "info",

@@ -1,0 +1,195 @@
+/**
+ * Headless season (COMP-02/08/16): the real week processor over a fresh
+ * career world, the way the store runs a week on the daily calendar
+ * (automatic entry, computer registrations, the week tick, then every
+ * fixture of the week on its day). Runs a whole season and into the next.
+ *
+ * Slow (about three minutes): one world is simulated once and every test
+ * reads it.
+ */
+import path from "node:path"
+import { enableMapSet } from "immer"
+import { computeWeek } from "@/engine/worker/compute-week"
+import { SnapshotLoader } from "@/data/snapshot-loader"
+import { AIManager } from "@/engine/ai-manager"
+import { TrainingFocus } from "@/types"
+import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
+import { TournamentManager } from "@/engine/tournament-manager"
+import { SeededRNG } from "@/engine/rng"
+import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
+import { playAutoMatch } from "@/engine/processors/auto-match"
+import { feederEvents, hasRankedInvites } from "@/engine/tournament/qualification-path"
+import { isMajorTournament } from "@/engine/official-stats"
+import type { GameSave, TournamentSaveData } from "@/engine/save-types"
+
+enableMapSet()
+jest.setTimeout(20 * 60 * 1000)
+
+const WEEKS = 58 // season 1, then season 2's Kato Open
+let save: GameSave
+/** World ranking of every club on the week each event started. */
+const ranksAtStart = new Map<string, Map<string, number>>()
+/** World ranking of each invited club on the week its invite appeared ("event|club"). */
+const rankWhenInvited = new Map<string, number>()
+
+beforeAll(async () => {
+    const loader = new SnapshotLoader(path.join(process.cwd(), "public/data/snapshot"))
+    const loaded = await loader.loadSnapshot()
+    if (!loaded.success) throw Error(loaded.error)
+    const snap = loader.getSnapshot()!
+    // Manage the world #5 club: good enough for the Majors, not invited everywhere.
+    const club = [...snap.teams].sort((a, b) => (a.worldRanking ?? 999) - (b.worldRanking ?? 999))[4]
+    save = loader.createCareerFromSnapshot("comp-season", club.id, 1)! as GameSave
+    AIManager.initializeTeamData(save)
+    save.lastRngSeed = 4242
+    let n = 0
+    const nextId = (_s: unknown, prefix: string, ...parts: unknown[]) => `${prefix}_${parts.join("_")}_${n++}`
+    for (let i = 0; i < WEEKS; i++) {
+        const rng = new SeededRNG(save.lastRngSeed)
+        applyAutoRegistration(save, { playerTeamId: save.playerTeamId!, nextId: nextId as never })
+        TournamentManager.simulateWeeklyRegistrationsV2(save, save.currentWeek, rng)
+        const before = new Set(save.tournaments.filter(t => t.teamIds.length && t.currentStage !== "Registration").map(t => t.id))
+        const r = await computeWeek(save, { playerTeamId: save.playerTeamId!, trainingFocus: new Map([[save.playerTeamId!, { focus: TrainingFocus.AIM, intensity: 5 }]]) }, rng.getState())
+        if (!r.result.success) throw Error(r.result.error)
+        save = { ...r.save, lastRngSeed: r.rngState } as GameSave
+        delete (save as Partial<GameSave>).gameOverReason
+        for (const q of save.tournamentQualifications) {
+            const key = `${q.tournamentId}|${q.teamId}`
+            if (q.qualifiedVia === "Direct Invite" && !rankWhenInvited.has(key)) rankWhenInvited.set(key, save.teams.find(c => c.id === q.teamId)?.worldRanking ?? 999)
+        }
+        for (const t of save.tournaments) {
+            if (!before.has(t.id) && t.teamIds.length && !ranksAtStart.has(t.id)) ranksAtStart.set(t.id, new Map(save.teams.map(c => [c.id, c.worldRanking ?? 999])))
+        }
+        // The week's days: every due fixture on its day (store timedDaySim), the managed club's too.
+        const prng = new SeededRNG(save.lastRngSeed)
+        for (let day = 0; day <= 6; day++) {
+            for (let pass = 0; pass < 8; pass++) {
+                const removed = new Set<string>()
+                const due = save.scheduledMatches.filter(m => m.week <= save.currentWeek && (m.day ?? 6) <= day)
+                    .sort((a, b) => ((a.day ?? 6) - (b.day ?? 6)) || a.id.localeCompare(b.id))
+                for (const m of due) {
+                    const home = save.teams.find(t => t.id === m.homeTeamId), away = save.teams.find(t => t.id === m.awayTeamId)
+                    if (home && away) playAutoMatch(save, m, home, away, { rng: prng, playerTeamId: save.playerTeamId!, removedMatchIds: removed })
+                }
+                if (!removed.size) break
+                save.scheduledMatches = save.scheduledMatches.filter(m => !removed.has(m.id))
+            }
+        }
+        save.lastRngSeed = prng.getState()
+    }
+})
+
+const instance = (id: string) => save.tournaments.find(t => t.id === id) as TournamentSaveData
+const s1 = (seriesId: string) => instance(`${seriesId}_s1`)
+/** Last week a match of this instance was played. */
+const lastMatchWeek = (id: string) => Math.max(0, ...save.completedMatches.filter(m => m.tournamentId === id).map(m => m.week),
+    ...(instance(id)?.playoffBracket ?? []).filter(m => m.isCompleted && m.week).map(m => m.week!))
+const viaRows = (mainId: string) => save.tournamentQualifications.filter(q => q.tournamentId === mainId && q.qualifiedVia?.startsWith("Via "))
+
+const mainEvents = () => FULL_TOURNAMENT_CALENDAR.filter(d => d.tier !== "QUALIFIER" && d.format !== "league" && d.startWeek <= 52)
+const fedEvents = () => FULL_TOURNAMENT_CALENDAR.filter(d => feederEvents(d.id).length > 0)
+
+describe("a headless season of the qualification path", () => {
+    test("every season-1 event was created and finished", () => {
+        for (const d of FULL_TOURNAMENT_CALENDAR) {
+            const t = s1(d.id)
+            expect([d.id, !!t]).toEqual([d.id, true])
+            expect([d.id, t.isCompleted]).toEqual([d.id, true])
+        }
+    })
+
+    test("every main event has exactly its slot count", () => {
+        for (const d of mainEvents()) expect([d.id, s1(d.id).teamIds.length]).toEqual([d.id, d.slots])
+        // Qualifiers are full too.
+        for (const d of FULL_TOURNAMENT_CALENDAR.filter(x => x.qualifierFor)) expect([d.id, s1(d.id).teamIds.length]).toEqual([d.id, d.slots])
+    })
+
+    test("qualifier winners actually enter the main event", () => {
+        for (const d of fedEvents()) {
+            const main = s1(d.id)
+            const places = FULL_TOURNAMENT_CALENDAR.filter(f => f.qualifierFor === d.id).reduce((n, f) => n + (f.qualifierSlots ?? 0), 0)
+            const rows = viaRows(main.id)
+            expect([d.id, rows.length]).toEqual([d.id, places])
+            for (const q of rows) expect([d.id, q.teamId, main.teamIds.includes(q.teamId)]).toEqual([d.id, q.teamId, true])
+        }
+    })
+
+    test("no club is both invited to an event and in that event's qualifiers", () => {
+        for (const d of fedEvents()) {
+            const invited = save.tournamentQualifications.filter(q => q.tournamentId === `${d.id}_s1` && q.qualifiedVia === "Direct Invite").map(q => q.teamId)
+            for (const f of feederEvents(d.id)) {
+                const both = invited.filter(id => s1(f.id).teamIds.includes(id))
+                expect([d.id, f.id, both]).toEqual([d.id, f.id, []])
+            }
+        }
+    })
+
+    test("qualifiers finish before their main event starts", () => {
+        for (const f of FULL_TOURNAMENT_CALENDAR.filter(x => x.qualifierFor)) {
+            const q = s1(f.id), main = s1(f.qualifierFor!)
+            expect([f.id, lastMatchWeek(q.id) < main.startWeek]).toEqual([f.id, true])
+        }
+    })
+
+    test("the world's top clubs reach the Majors", () => {
+        for (const major of FULL_TOURNAMENT_CALENDAR.filter(d => isMajorTournament(`${d.id}_s1`) && hasRankedInvites(d))) {
+            const t = s1(major.id)
+            const ranks = ranksAtStart.get(t.id)!
+            const top8 = [...ranks.entries()].sort((a, b) => a[1] - b[1]).slice(0, 8).map(([id]) => id)
+            // The invites go out weeks earlier, so the ranking may have moved a
+            // little: nearly all of the top 8 on the opening week, and every
+            // invite went to a top-16 club on the week it was sent.
+            expect(top8.filter(id => t.teamIds.includes(id)).length).toBeGreaterThanOrEqual(6)
+            const invited = save.tournamentQualifications.filter(q => q.tournamentId === t.id && q.qualifiedVia === "Direct Invite").map(q => q.teamId)
+            expect(invited).toHaveLength(major.inviteSlots!)
+            for (const id of invited) expect([id, rankWhenInvited.get(`${t.id}|${id}`)! <= 16]).toEqual([id, true])
+        }
+    })
+
+    test("a won qualifier is no title; trophies are kept per season", () => {
+        const trophies = save.teams.flatMap(t => t.trophies ?? [])
+        expect(trophies.filter(t => t.tier === "QUALIFIER")).toEqual([])
+        for (const t of save.teams) {
+            const ids = (t.trophies ?? []).map(x => x.tournamentId)
+            expect(new Set(ids).size).toBe(ids.length)
+        }
+        // Every finished season-1 title went to its winner's cabinet.
+        for (const d of mainEvents()) {
+            const t = s1(d.id)
+            const winner = save.teams.find(c => c.id === t.winnerId)!
+            expect([d.id, winner.trophies.some(x => x.tournamentId === t.id)]).toEqual([d.id, true])
+        }
+    })
+})
+
+describe("season 1 to season 2", () => {
+    test("season 1 is archived: names carry 2027, past winners stay", () => {
+        expect(s1("iem_katowice").name).toBe("Winter Open Katova 2027")
+        expect(s1("major_copenhagen").name).toMatch(/2027$/)
+        const champion = save.teams.find(c => c.id === s1("iem_katowice").winnerId)!
+        expect(champion.trophies.find(x => x.tournamentId === "iem_katowice_s1")?.tournamentName).toBe("Winter Open Katova 2027")
+        expect(save.careerStats?.seasons?.[0]?.seasonNumber).toBe(1)
+    })
+
+    test("nothing of season 1 leaks into season 2", () => {
+        // Season-2 instances are new rows with their own year and their own field.
+        const open2 = instance("iem_katowice_open_s2")
+        expect(open2).toBeDefined()
+        expect(open2.name).toBe("Winter Open Katova Open Qualifier S2")
+        expect(open2.startWeek).toBe(54)
+        expect(open2.teamIds).toHaveLength(getTournamentById("iem_katowice_open")!.slots)
+        // Its own fixtures, all in season 2.
+        const open2Matches = save.completedMatches.filter(m => m.tournamentId === open2.id)
+        expect(open2Matches.length).toBeGreaterThan(0)
+        expect(open2Matches.filter(m => m.week < 54)).toEqual([])
+        // No club is left "Registered" for a season-1 event that is over.
+        const staleRegistrations = save.tournamentQualifications.filter(q =>
+            q.status === "REGISTERED" && /_s1$/.test(q.tournamentId) && instance(q.tournamentId)?.isCompleted && !instance(q.tournamentId).teamIds.includes(q.teamId))
+        expect(staleRegistrations).toEqual([])
+        // Season-2 invites for Winter Open Katova went out (it starts in week 61) and are separate from season 1's.
+        const invites2 = save.tournamentQualifications.filter(q => q.tournamentId === "iem_katowice_s2" && q.qualifiedVia === "Direct Invite")
+        expect(invites2).toHaveLength(getTournamentById("iem_katowice")!.inviteSlots!)
+        // Invited clubs don't play season 2's open qualifier.
+        for (const q of invites2) expect(open2.teamIds.includes(q.teamId)).toBe(false)
+    })
+})

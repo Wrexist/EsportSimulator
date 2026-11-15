@@ -468,6 +468,11 @@ export function runMigrationLadder(save: unknown): GameSave {
             for (const f of Array.isArray(team?.facilities) ? team.facilities : []) {
                 if (typeof f?.description === "string") f.description = modernizeFacilityDescription(f.description)
             }
+            // Older builds put won qualifiers in the trophy cabinet; a
+            // qualifier hands out a place, not a title (COMP-12).
+            if (Array.isArray(team?.trophies) && team.trophies.some(t => t?.tier === "QUALIFIER")) {
+                team.trophies = team.trophies.filter(t => t?.tier !== "QUALIFIER")
+            }
         }
     }
 
