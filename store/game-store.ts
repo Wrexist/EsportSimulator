@@ -60,6 +60,7 @@ import { generateSeed } from "@/engine/rng"
 import { buildEntityIndexes, type SaveIndexes } from "@/store/indexes"
 import { pendingPlayableMatch } from "@/lib/playable-match"
 import { pruneGameState } from "@/store/utils/array-pruning"
+import { deepFreezeState } from "@/store/utils/deep-freeze"
 import { perfTrace } from "@/engine/perf-trace"
 import { logger } from "@/lib/logger"
 import { createSettingsSlice } from "@/store/slices/settings-slice"
@@ -2151,8 +2152,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // and committed as one plain partial. Doing this inside an Immer
             // producer made Immer walk and deep-freeze the entire save on every
             // tick: ~0.1 s for a new career, ~2 s by season 10 (L27). The
-            // committed values are identical; the state is simply not frozen,
-            // exactly as it already is after loadGame.
+            // committed values are identical. Immer still has to freeze them
+            // before its next producer (the academy step used to pay that,
+            // ENGINE-03), so the save is frozen once below with a faster walk.
             const committed = processedSave as GameSave & { currentDay: number; selectedWeeklyActivity: null }
             const live = get()
             // Keys the old producer read from the merged draft fall back to the
@@ -2179,6 +2181,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // new careers do. Without this a save/reload re-assigned roles
             // and the reloaded career diverged from the uninterrupted one.
             reconcileAllRoles(committed.teams, committed.players)
+            // ENGINE-03: freeze what Immer would freeze in the next producer
+            // anyway (it cannot be skipped: an unfrozen career makes every
+            // later store update walk all of it), about 4x faster than Immer.
+            deepFreezeState(committed)
+            phase("05a_freeze")
             set({ ...(committed as unknown as Partial<GameStoreState>), weekProgress: "applying" })
             phase("05_commit")
 

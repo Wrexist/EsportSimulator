@@ -628,6 +628,12 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     processAcademyWeek: () => {
+        // Nothing to do without an academy or once this week's report exists:
+        // return before opening a producer (ENGINE-03).
+        const current = get()
+        const ownTeam = current.teams.find(t => t.id === current.playerTeamId)
+        if (!ownTeam?.academyFacility || ownTeam.academyFacility.level === 0) return
+        if (current.academyWeeklyReports.some(report => report.week === current.currentWeek)) return
         set((state) => {
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team || !team.academyFacility || team.academyFacility.level === 0) return

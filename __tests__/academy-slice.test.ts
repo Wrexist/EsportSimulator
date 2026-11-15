@@ -305,3 +305,25 @@ test("L15 academy development does not charge upkeep a second time", () => {
     expect(h.state().financeLedger).toHaveLength(0)
     expect(h.state().academyWeeklyReports).toHaveLength(1)
 })
+
+describe("processAcademyWeek without work (ENGINE-03)", () => {
+    test("no academy: returns without opening a producer, so the state object is untouched", () => {
+        const h = makeHarness(makeBaseState({ academyWeeklyReports: [], academyScoutingMissions: [] }))
+        const before = h.state()
+        createAcademySlice(h.set, h.get).processAcademyWeek()
+        expect(h.state()).toBe(before)
+    })
+
+    test("this week's report already exists: the state object is untouched", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { academyFacility: { level: 1, builtWeek: 1 } })],
+            academyWeeklyReports: [], academyScoutingMissions: [],
+        }))
+        const slice = createAcademySlice(h.set, h.get)
+        slice.processAcademyWeek()
+        const after = h.state()
+        expect(after.academyWeeklyReports).toHaveLength(1)
+        slice.processAcademyWeek()
+        expect(h.state()).toBe(after)
+    })
+})

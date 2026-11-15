@@ -111,7 +111,9 @@ export class AIManager {
             manageAcademyFn(team, save, activeRng)
 
             // Phase 10: Role Refinement (Team-Based)
-            const teamPlayers = save.players.filter(p => team.rosterIds.includes(p.id))
+            // Same players in the same (save) order; a Set instead of a roster scan per player.
+            const rosterIds = new Set(team.rosterIds)
+            const teamPlayers = save.players.filter(p => rosterIds.has(p.id))
             reconcileTeamRoles(teamPlayers)
             // G5: field the best role-balanced five (roles are fresh from the reconciler).
             setAILineup(team, playersById, save.currentWeek)
