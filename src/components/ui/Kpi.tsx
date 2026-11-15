@@ -15,7 +15,9 @@ export function Kpi({ label, value, hint, className, valueClassName }: KpiProps)
     return (
         <div className={cn("min-w-0", className)}>
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</p>
-            <p className={cn("mt-1 font-display text-[28px] font-bold leading-none tabular-nums text-ink-1", valueClassName)}>{value}</p>
+            {/* Inline children keep the value's one-line height (CROSSCUT-12): a RatingChip's text-3xl
+                brings its own 36px line-height and sat 3-6px below the other KPI values. */}
+            <p className={cn("mt-1 font-display text-[28px] font-bold leading-none tabular-nums text-ink-1 [&>span]:leading-none", valueClassName)}>{value}</p>
             {hint != null && <p className="mt-1 text-xs text-ink-3">{hint}</p>}
         </div>
     )
