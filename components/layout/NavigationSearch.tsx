@@ -83,7 +83,9 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
                                     onSelect={() => {
                                         if (disabled) return
                                         setOpen(false)
-                                        openWeekReport(reportWeek)
+                                        // After this key event: the report closes on Enter, and its
+                                        // key listener would otherwise get the Enter that picked it.
+                                        window.setTimeout(() => openWeekReport(reportWeek), 0)
                                     }}
                                     className="gap-3 rounded px-3 py-2.5 text-ink-2 data-[selected=true]:bg-hover data-[selected=true]:text-ink-1"
                                 ><FileText size={16} /><span className="flex-1">{t("wr.toastTitle", { week: reportWeek })}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>
