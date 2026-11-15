@@ -239,7 +239,9 @@ export function playerLine(s: PlayerMatchStats, p: PlayerTally): string {
     if (adr < 60) bad.push(t('why.p.lowAdr', { adr }))
     if (s.kast < 60) bad.push(t('why.p.kast', { pct: 100 - Math.round(s.kast) }))
     const parts = [...good.slice(0, 2), ...bad.slice(0, 1)]
-    if (!parts.length) return t('why.p.steady', { kills: s.kills, deaths: s.deaths, adr })
+    // Nothing stood out: "steady" only for an ordinary rating; a low one (the
+    // screen marks it red and lists the player as struggling) is a quiet game (MATCHDAY-09).
+    if (!parts.length) return t(s.rating < 0.9 ? 'why.p.quiet' : 'why.p.steady', { kills: s.kills, deaths: s.deaths, adr })
     const text = parts.join(', ')
     return text.charAt(0).toUpperCase() + text.slice(1) + '.'
 }
