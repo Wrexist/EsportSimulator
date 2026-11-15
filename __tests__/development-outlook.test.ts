@@ -60,6 +60,19 @@ function outlookFor(save: GameSave, p: PlayerSaveData, weeks = 12) {
 }
 
 describe("developmentOutlook", () => {
+    test("SQUAD-04: the age chip reads against the best training age, the forecast keeps the real factor", () => {
+        const at = (age: number) => {
+            const p = makePlayer("p1", { age })
+            const save = makeSave(makeTeam({ rosterIds: ["p1"] }), [p])
+            return outlookFor(save, p).factors.find(f => f.label === `Age ${age}`)!
+        }
+        expect(at(20).display).toBeCloseTo(0.32 / 0.34)
+        expect(at(22).display).toBeCloseTo(1)
+        expect(at(22).multiplier).toBeCloseTo(0.34)
+        expect(at(26).display).toBeCloseTo(0.24 / 0.34)
+        expect(at(26).multiplier).toBeCloseTo(0.24)
+    })
+
     test("forecast equals twelve real training weeks (facility, professional)", () => {
         const p = makePlayer("p1", { rifle: 50, reaction: 60, potential: 80, personality: { archetype: "PROFESSIONAL" } as PlayerSaveData["personality"] })
         const team = makeTeam({ rosterIds: ["p1"], facilities: [{ type: "TRAINING", level: 2 }] as TeamSaveData["facilities"] })

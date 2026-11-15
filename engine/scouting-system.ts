@@ -70,14 +70,16 @@ export function fuzzyBand(trueValue: number, halfWidth: number, playerId: string
     const frac = ((Math.abs(h) % 2001) / 1000) - 1 // -1 .. 1
     const offset = Math.round(frac * halfWidth * 0.5) // within ±halfWidth/2 → true value stays inside
     const center = trueValue + offset
+    // SQUAD-28: attributes are fractional; the band reads in whole points.
     return [
-        Math.max(0, Math.min(99, center - halfWidth)),
-        Math.max(0, Math.min(99, center + halfWidth)),
+        Math.max(0, Math.min(99, Math.round(center - halfWidth))),
+        Math.max(0, Math.min(99, Math.round(center + halfWidth))),
     ]
 }
 
 export function formatScoutedRating(value: number | [number, number]): string {
-    return Array.isArray(value) ? `${value[0]}\u2013${value[1]}` : String(value)
+    // SQUAD-28: an exact (fully scouted) attribute is fractional too.
+    return Array.isArray(value) ? `${Math.round(value[0])}\u2013${Math.round(value[1])}` : String(Math.round(value))
 }
 
 /** Sorting may use the displayed estimate, never the hidden underlying rating. */

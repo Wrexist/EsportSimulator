@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { Children, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 export interface KpiProps {
@@ -25,9 +25,8 @@ export function Kpi({ label, value, hint, className, valueClassName }: KpiProps)
 export function KpiStrip({ children, className }: { children: ReactNode; className?: string }) {
     return (
         <div className={cn("flex items-stretch divide-x divide-line rounded-lg border border-line bg-panel", className)}>
-            {Array.isArray(children)
-                ? children.map((child, i) => <div key={i} className="px-5 py-3">{child}</div>)
-                : <div className="px-5 py-3">{children}</div>}
+            {/* SQUAD-24: conditional KPIs (null/false) get no empty bordered cell. */}
+            {Children.toArray(children).map((child, i) => <div key={i} className="px-5 py-3">{child}</div>)}
         </div>
     )
 }

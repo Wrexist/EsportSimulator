@@ -6,9 +6,10 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { TeamSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { getTierStyle, type TierLevel } from "@/engine/tier-system"
+import { calculateTeamTier, getTierStyle, type TierLevel } from "@/engine/tier-system"
 import { TeamLogoImage, PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
+import { countryName } from "@/lib/country"
 import { PlayerLink, TeamLink, TournamentLink } from "@/components/ui/EntityLink"
 import { Panel } from "@/src/components/ui/Panel"
 import { RatingChip } from "@/src/components/ui/RatingChip"
@@ -51,6 +52,9 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
     }, [results, team.id])
 
     const tier = getTierStyle(team.tier as TierLevel)
+    // SQUAD-25: the tier by world ranking, the one club select shows ("Amateur"), not the snapshot's "Academy".
+    const tierLabel = team.worldRanking != null ? t(`ng.tier.${calculateTeamTier(team.worldRanking)}`)
+        : TIER_KEYS.has(String(team.tier)) ? t(`tier.${team.tier}`) : tier.label
     const trophies = [...(team.trophies ?? [])].sort((a, b) => b.week - a.week)
 
     return (
@@ -64,8 +68,9 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                     <h1 className="font-display text-4xl font-bold uppercase leading-none text-ink-1">{team.name}</h1>
                     <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-ink-3">
                         {team.worldRanking != null && <span className="font-semibold text-ink-2">{t("rk.worldN", { n: team.worldRanking })}</span>}
-                        <span aria-hidden="true">·</span><span>{TIER_KEYS.has(String(team.tier)) ? t(`tier.${team.tier}`) : tier.label}</span>
-                        {team.region && <><span aria-hidden="true">·</span><CountryFlag country={team.region} showName size={14} /></>}
+                        <span aria-hidden="true">·</span><span>{tierLabel}</span>
+                        {/* SQUAD-25: the region once, as club select names it (the flag glyph repeated "CIS"). */}
+                        {team.region && <><span aria-hidden="true">·</span><span>{countryName(team.region)}</span></>}
                     </p>
                 </div>
             </header>

@@ -608,7 +608,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
-  updateTeamBudget: (teamId: string, amount: number) => void
+  updateTeamBudget: (teamId: string, amount: number, description?: string) => void
 
   // Phase 60: Job Market
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }

@@ -226,6 +226,19 @@ describe("updateTeamBudget", () => {
         slice.updateTeamBudget("rival", 50_000)
         expect(h.state().teams[1].budget).toBe(100_000) // unchanged
     })
+
+    test("SQUAD-26: the ledger line keeps the caller's description; a bad one falls back", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { budget: 50_000, rosterIds: ["p1"] })],
+        }))
+        const slice = createTeamSettingsSlice(h.set, h.get)
+        slice.updateTeamBudget("player", -3000, "Weapon drill: Pistol Precision (ace)")
+        slice.updateTeamBudget("player", -1000, "x".repeat(161))
+        slice.updateTeamBudget("player", -1000)
+        expect(h.state().financeLedger.map(e => e.description)).toEqual([
+            "Weapon drill: Pistol Precision (ace)", "Training expense", "Training expense",
+        ])
+    })
 })
 
 describe("treatInjury", () => {

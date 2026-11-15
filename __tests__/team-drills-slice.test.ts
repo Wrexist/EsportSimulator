@@ -17,8 +17,10 @@
  */
 
 import { produce, enableMapSet } from "immer"
-import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
-import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
+import { createTeamDrillsSlice, TEAM_DRILL_MASTERY_XP } from "@/store/slices/team-drills-slice"
+import { trainingAgeFactor } from "@/engine/development-rates"
+import { getArchetype, trainingFactor } from "@/engine/personality"
+import type { PlayerSaveData, StaffSaveData, TeamSaveData } from "@/engine/save-types"
 import type { StoreState } from "@/store/types"
 
 enableMapSet()
@@ -178,10 +180,16 @@ describe("runTeamDrill — XP + level-up", () => {
     })
 })
 
+/** Share of a listed drill gain a player keeps with no staff or facility: archetype × age (SQUAD-01). */
+function personalShare(p: PlayerSaveData): number {
+    return trainingFactor(getArchetype(p)) * trainingAgeFactor(p.age)
+}
+
 describe("runTeamDrill — stat gains + mapping", () => {
     test("drill terminology maps to player stat keys (agility→reaction, focus→stressResistance)", () => {
+        const p1 = makePlayer("p1", { reaction: 50, stressResistance: 50 })
         const h = makeHarness(makeBaseState({
-            players: [makePlayer("p1", { reaction: 50, stressResistance: 50 })],
+            players: [p1],
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
@@ -189,13 +197,15 @@ describe("runTeamDrill — stat gains + mapping", () => {
             { stat: "agility", amount: 5 },
             { stat: "focus", amount: 3 },
         ], 5)
-        expect(h.state().players[0].reaction).toBe(52)
-        expect(h.state().players[0].stressResistance).toBe(52)
+        // Catalog: Agility +2, Focus +2, scaled like weekly training.
+        expect(h.state().players[0].reaction).toBeCloseTo(50 + 2 * personalShare(p1))
+        expect(h.state().players[0].stressResistance).toBeCloseTo(50 + 2 * personalShare(p1))
     })
 
     test("entry/accuracy/mechanics also map (entry→rifle, mechanics→skill)", () => {
+        const p1 = makePlayer("p1", { rifle: 60, skill: 60 })
         const h = makeHarness(makeBaseState({
-            players: [makePlayer("p1", { rifle: 60, skill: 60 })],
+            players: [p1],
             teams: [makeTeam("player", ["p1"])],
         }))
         const slice = createTeamDrillsSlice(h.set, h.get)
@@ -203,8 +213,49 @@ describe("runTeamDrill — stat gains + mapping", () => {
             { stat: "entry", amount: 2 },
             { stat: "mechanics", amount: 3 },
         ], 5)
-        expect(h.state().players[0].rifle).toBe(63)
-        expect(h.state().players[0].skill).toBe(61)
+        // Catalog: Rifle +3, Skill +1.
+        expect(h.state().players[0].rifle).toBeCloseTo(60 + 3 * personalShare(p1))
+        expect(h.state().players[0].skill).toBeCloseTo(60 + 1 * personalShare(p1))
+    })
+
+    test("SQUAD-01: drill gains shrink with age like weekly training, and the coach and facility raise them", () => {
+        const young = makePlayer("young", { age: 20, rifle: 50, potential: 90, personality: { archetype: "LEADER" } as never })
+        const vet = makePlayer("vet", { age: 30, rifle: 50, potential: 90, personality: { archetype: "LEADER" } as never })
+        const h = makeHarness(makeBaseState({ players: [young, vet], teams: [makeTeam("player", ["young", "vet"])], staff: [] }))
+        createTeamDrillsSlice(h.set, h.get).runTeamDrill("recoil_master", [], 0)
+        const [y, v] = h.state().players
+        expect(y.rifle - 50).toBeCloseTo(3 * trainingAgeFactor(20))
+        expect(v.rifle - 50).toBeCloseTo(3 * trainingAgeFactor(30))
+        expect(v.rifle - 50).toBeLessThan(y.rifle - 50)
+
+        const coach = { id: "c1", teamId: "player", role: "coach", stats: { development: 80 }, unlockedTalentIds: [] } as unknown as StaffSaveData
+        const h2 = makeHarness(makeBaseState({
+            players: [makePlayer("young", { age: 20, rifle: 50, potential: 90, personality: { archetype: "LEADER" } as never })],
+            teams: [makeTeam("player", ["young"], { facilities: [{ type: "TRAINING", level: 2 }] as never })],
+            staff: [coach],
+        }))
+        createTeamDrillsSlice(h2.set, h2.get).runTeamDrill("recoil_master", [], 0)
+        expect(h2.state().players[0].rifle - 50).toBeGreaterThan(y.rifle - 50)
+    })
+
+    test("SQUAD-01: ten drills in a week no longer take a 26-year-old from 49 to his ceiling", () => {
+        const p1 = makePlayer("p1", { age: 26, skill: 49, rifle: 40, reaction: 53, potential: 70, fatigue: 0, personality: { archetype: "LEADER" } as never })
+        const h = makeHarness(makeBaseState({ players: [p1], teams: [makeTeam("player", ["p1"])], staff: [] }))
+        const slice = createTeamDrillsSlice(h.set, h.get)
+        for (let i = 0; i < 10; i++) {
+            h.set(st => { st.players[0].fatigue = 0 })
+            expect(slice.runTeamDrill("deathmatch_hour", [], 0).success).toBe(true)
+        }
+        // 10 × Skill +2 × 0.24 (age 26) = +4.8, not +20.
+        expect(h.state().players[0].skill).toBeCloseTo(49 + 10 * 2 * trainingAgeFactor(26))
+        expect(h.state().players[0].skill).toBeLessThan(55)
+    })
+
+    test("morale and health move by the listed amount (not development)", () => {
+        const p1 = makePlayer("p1", { morale: 50, age: 30 })
+        const h = makeHarness(makeBaseState({ players: [p1], teams: [makeTeam("player", ["p1"])] }))
+        createTeamDrillsSlice(h.set, h.get).runTeamDrill("team_dinner", [], 0)
+        expect(h.state().players[0].morale).toBe(53)
     })
 
     test("stat gains clamp at 100", () => {
@@ -264,6 +315,22 @@ describe("runTeamDrill — weapon mastery", () => {
         expect(wm).toBeDefined()
         expect(wm.RIFLE).toBeDefined()
         expect(wm.RIFLE).toBeGreaterThan(0)
+    })
+
+    test("SQUAD-02: a team drill adds a little mastery XP, and none to a mastered weapon", () => {
+        const h = makeHarness(makeBaseState({
+            players: [makePlayer("p1", { weaponMastery: { RIFLE: 1000, PISTOL: 100 } } as never)],
+            teams: [makeTeam("player", ["p1"])],
+        }))
+        const slice = createTeamDrillsSlice(h.set, h.get)
+        slice.runTeamDrill("recoil_master", [], 0)
+        slice.runTeamDrill("pistol_precision", [], 0)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const wm = (h.state().players[0] as any).weaponMastery
+        expect(wm.RIFLE).toBe(1000)
+        expect(wm.PISTOL).toBe(100 + TEAM_DRILL_MASTERY_XP)
+        // The paid Pistol Precision weapon drill (45 XP, one player) stays the stronger option.
+        expect(TEAM_DRILL_MASTERY_XP).toBeLessThan(45)
     })
 
     test("non-weapon stat gains do NOT touch weaponMastery", () => {

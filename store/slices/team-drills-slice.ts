@@ -7,10 +7,12 @@
  * every active roster player:
  *   - Fatigue cost (catalog cost, −20% with `player_fit_2` Iron Lung talent)
  *   - Flat 50 XP (with level-up handling and 1 talent point per level)
- *   - Per-stat point gains from the drill catalog (with drill terminology mapped
- *     to actual player stat keys: agility→reaction, focus→stressResistance,
- *     entry/accuracy→rifle, mechanics→skill)
- *   - Weapon mastery XP for weapon-themed drills (rifle/awp/smg/pistol)
+ *   - Per-stat gains from the drill catalog (drill terminology mapped to
+ *     player stat keys: agility→reaction, focus→stressResistance,
+ *     entry/accuracy→rifle, mechanics→skill), scaled like weekly training
+ *     (engine/drill-gains.ts, SQUAD-01) and capped at potential
+ *   - Weapon mastery XP for weapon-themed drills (rifle/awp/smg/pistol),
+ *     nothing once the weapon is mastered (SQUAD-02)
  *
  * Refuses to fire when the team is at its weekly training cap or any
  * roster player is exhausted (fatigue ≥ 90).
@@ -21,28 +23,23 @@
 
 import { liveText } from "@/lib/i18n"
 import type { SliceCreator } from "@/store/types"
-import type { PlayerSaveData } from "@/engine/save-types"
-import { WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
+import { WeaponMasteryManager, getMasteryLevel, type WeaponType } from "@/engine/weapon-mastery-system"
+import { drillClubFactors, drillGainsForPlayer } from "@/engine/drill-gains"
 import drillCatalog from "@/data/drills.json"
 import { nextDeterministicId } from "@/store/utils/helpers"
 
 const DRILL_XP_GAIN = 50
+/**
+ * Weapon mastery XP a free team drill adds per player (SQUAD-02). A paid
+ * weapon drill (WEAPON_DRILLS, $3,000-8,000) adds 40-75 XP to one player;
+ * the free team drill used to add 50 to all five, so the paid one never paid.
+ */
+export const TEAM_DRILL_MASTERY_XP = 10
 const EXHAUSTION_THRESHOLD = 90
 const DEFAULT_MAX_TRAINING_SLOTS = 10
 const DEFAULT_XP_TO_NEXT_LEVEL = 1000
 const IRON_LUNG_TALENT_ID = "player_fit_2"
 const IRON_LUNG_FATIGUE_REDUCTION = 0.8
-
-/** Map drill UI stat names to actual PlayerSaveData keys. */
-const STAT_MAPPING: Record<string, keyof PlayerSaveData> = {
-    agility: "reaction",
-    focus: "stressResistance",
-    entry: "rifle",
-    mechanics: "skill",
-    accuracy: "rifle",
-    leadership: "leader",
-    stressresistance: "stressResistance",
-}
 
 const WEAPON_STAT_NAMES = new Set(["RIFLE", "AWP", "SMG", "PISTOL"])
 
@@ -93,6 +90,8 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
             }
 
             // Apply fatigue + XP + stat gains to every active roster player.
+            const ctx = { team, staff: state.staff || [], currentWeek: state.currentWeek, lookup: (id: string) => state.players.find(x => x.id === id) }
+            const club = drillClubFactors(team, ctx.staff, ctx.currentWeek)
             roster.forEach(p => {
                 // Iron Lung talent reduces fatigue by 20% (rounded up).
                 let fatigueHit = cost
@@ -120,31 +119,20 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                     })
                 }
 
-                // Per-stat gains. Clamp every player stat to the 0-100 range.
-                gains.forEach(gain => {
-                    let statKey = gain.stat.toLowerCase()
-                    const mapped = STAT_MAPPING[statKey]
-                    if (mapped) statKey = mapped
-
+                // Per-stat gains, scaled like weekly training and capped at
+                // potential (G3; a stat already above it is held, never
+                // reduced). Computed from the player before this drill.
+                drillGainsForPlayer(p, drill.rewards, ctx, club).forEach(gain => {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const currentVal = (p as any)[statKey]
-                    if (currentVal !== undefined && typeof currentVal === "number") {
-                        // Respect potential (G3): drills accelerate growth toward
-                        // the player's potential but can't grind a stat past it —
-                        // matching processTraining, which clamps to potential. The
-                        // max(currentVal, …) guard means a stat already above
-                        // potential is held, never reduced.
-                        const cap = ["morale", "health"].includes(statKey) ? 100 : Math.min(100, Math.max(currentVal, p.potential ?? 100))
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        ;(p as any)[statKey] = Math.max(0, Math.min(cap, currentVal + gain.amount))
-                    }
+                    ;(p as any)[gain.stat] += gain.amount
                 })
             })
 
             // Consume the training slot.
             team.trainingSlotsUsed = (team.trainingSlotsUsed || 0) + 1
 
-            // Weapon-mastery XP for weapon-themed drills (50 XP/drill).
+            // Weapon-mastery XP for weapon-themed drills; Master is the last
+            // level, so a mastered weapon gains nothing (SQUAD-02).
             roster.forEach(p => {
                 gains.forEach(g => {
                     const stat = g.stat.toUpperCase()
@@ -152,7 +140,8 @@ export const createTeamDrillsSlice: SliceCreator<TeamDrillsActions> = (set) => (
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const currentMastery = WeaponMasteryManager.getPlayerMastery(p as any)
                     const currentXP = currentMastery[stat as WeaponType] || 0
-                    const newXP = currentXP + DRILL_XP_GAIN
+                    if (getMasteryLevel(currentXP) === "MASTER") return
+                    const newXP = currentXP + TEAM_DRILL_MASTERY_XP
 
                     if (!p.weaponMastery) p.weaponMastery = {}
                     // weaponMastery accepts both number and object shapes.

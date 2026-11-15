@@ -157,4 +157,5 @@ export const ACADEMY = {
     "ac.releaseTitle": "Release {{name}}?",
     "ac.releaseBody": "Costs a {{fee}} termination fee. Released prospects leave the game for good.",
     "ac.release": "Release",
+    "ac.scoutNote": "Every mission searches worldwide; the wider tiers find stronger prospects.",
 } as const

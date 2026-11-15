@@ -54,7 +54,7 @@ function GearTile({ item, equipped, budget, onBuy }: {
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 lg:hidden">{tierName(item.tier)}</p>
-                        <p className="truncate text-sm font-semibold text-ink-1" title={itemName(item)}>{itemName(item)}</p>
+                        <p className="line-clamp-2 text-sm font-semibold leading-snug text-ink-1" title={itemName(item)}>{itemName(item)}</p>
                     </div>
                     <span className="shrink-0 text-sm font-semibold tabular-nums text-ink-1" title={t("gear.shareTitle")}>+{gearStrengthPct(item).toFixed(1)}%</span>
                 </div>

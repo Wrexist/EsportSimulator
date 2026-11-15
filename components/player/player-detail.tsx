@@ -16,7 +16,7 @@ import { getPrestigeLabel } from "@/engine/prestige-system"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
 import { getMasteryInfo, WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
 import { playerEnergyPercent } from "@/lib/player-energy"
-import { formatCurrency, formatRole } from "@/lib/utils-extended"
+import { formatCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,7 +34,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { Sparkline } from "@/src/components/ui/Sparkline"
 import { TalentTree } from "../staff/TalentTree"
-import { RenewContractModal } from "./RenewContractModal"
+import { RenewContractModal, renewalTerms } from "./RenewContractModal"
 import { TransferListingModal } from "./TransferListingModal"
 import { RecruitmentProfile } from "./RecruitmentProfile"
 import { PlayerMatchHistory, usePlayerPerformances } from "./PlayerMatchHistory"
@@ -47,9 +47,12 @@ import { TeamLink } from "@/components/ui/EntityLink"
 import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
 import { PlayerStorylines } from "@/components/storylines/PlayerStorylines"
-import { ARCHETYPE_INFO, captainId, getArchetype, renewalSalary } from "@/engine/personality"
+import { captainId } from "@/engine/personality"
 import { releaseSettlement, RELEASE_CHEMISTRY_COST, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { visibleAcademyPotential } from "@/engine/academy-engine"
+import { potentialRevealText } from "@/app/academy/_components/academy-facts"
+import { stopRetrainingText } from "@/components/training/weekly-training"
 
 interface PlayerDetailProps {
     player: PlayerSaveData
@@ -76,8 +79,9 @@ function contractTone(weeksLeft: number): string {
     return "text-ink-1"
 }
 
+/** SQUAD-21: contract time in one unit (weeks), as the squad table shows it. */
 function formatWeeks(weeks: number): string {
-    return weeks >= 52 ? t("player.yrs", { n: (weeks / 52).toFixed(1) }) : tn("player.wks", weeks)
+    return tn("player.wks", weeks)
 }
 
 function Fact({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
@@ -133,6 +137,10 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const ovr = evaluation.overallRating
     // SQUAD-03: potential on the OVR scale, so it never reads below OVR.
     const potential = potentialOvr(player, currentWeek)
+    // SQUAD-22: an academy prospect's potential stays hidden until the academy reveals it.
+    const academyEntry = academyPlayers.find(p => p.playerId === player.id)
+    const potentialHidden = !!academyEntry && visibleAcademyPotential(academyEntry, player) == null
+    const revealText = academyEntry ? potentialRevealText(academyEntry.enrolledWeek, ownTeam?.academyFacility?.level || 1, currentWeek) : ""
     const tierLevel = getDisplayPlayerTier(ovr, viewedTeam?.tier as TierLevel)
     const prestige = getPrestigeLabel(player.prestigeScore || 0)
     const energy = playerEnergyPercent(player)
@@ -140,8 +148,8 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const contract = contracts.find(c => c.playerId === player.id)
     const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
     const canRenew = isOwnPlayer && !!contract && weeksLeft < 52
-    const renewedWage = contract ? renewalSalary(player, contract.salaryPerWeek, currentWeek) : 0
-    const renewalRaise = contract && contract.salaryPerWeek > 0 ? Math.round((renewedWage / contract.salaryPerWeek - 1) * 100) : 10
+    const renewal = contract ? renewalTerms(player, contract.salaryPerWeek, currentWeek) : null
+    const renewedWage = renewal?.newSalary ?? 0
     const isCaptain = !!viewedTeam && captainId(viewedTeam, id => allPlayers.find(p => p.id === id)) === player.id
 
     // Release: the rest of his contract is paid now (engine/roster-rules.ts, the store's rule).
@@ -153,6 +161,12 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
             : squadSize <= SENIOR_ROSTER_MIN ? t("player.releaseBlock.min", { min: SENIOR_ROSTER_MIN })
                 : funds < release.amount ? t("player.releaseBlock.funds", { cost: formatCurrency(release.amount, "$", false), funds: formatCurrency(Math.max(0, funds), "$", false) })
                     : null
+    // SQUAD-13: why Renew and Retrain are off, shown under the buttons like Release's reason.
+    const renewBlock = isOwnPlayer && contract && !canRenew ? t("player.renewOpens", { weeks: t("common.weeksShort", { count: contract.endWeek - 51 - currentWeek }) }) : null
+    const retrainBlock = !isOwnPlayer || activeRoleTraining ? null
+        : player.secondaryRole ? t("player.twoRoles")
+            : player.injury ? t("player.retrainInjured", { weeks: t("common.weeksShort", { count: player.injury.weeksRemaining }) })
+                : null
     const releaseText = tn("player.releaseText", release.weeksLeft, {
         wage: formatCurrency(release.wage, "$", false), amount: formatCurrency(release.amount, "$", false),
         after: formatCurrency(funds - release.amount, "$", false), chem: RELEASE_CHEMISTRY_COST, size: squadSize - 1, max: SENIOR_ROSTER_MAX,
@@ -221,7 +235,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                         </div>
 
                         <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
-                            <Fact label={t("player.potential")}><RatingChip value={potential} size="md" bare className="min-w-0 px-0 text-2xl" /></Fact>
+                            <Fact label={t("player.potential")}>
+                                {potentialHidden
+                                    ? <span title={t("ac.revealTip")}>?<span className="mt-1 block font-sans text-xs font-normal text-ink-3">{revealText}</span></span>
+                                    : <RatingChip value={potential} size="md" bare className="min-w-0 px-0 text-2xl" />}
+                            </Fact>
                             <Fact label={t("player.marketValue")}>{formatCurrency(evaluation.transferValue)}</Fact>
                             <Fact label={t("player.wagePerWeek")}>{contract ? formatCurrency(contract.salaryPerWeek, "$", false) : "—"}</Fact>
                             <Fact label={t("player.contract")} className={contract ? contractTone(weeksLeft) : "text-ink-3"}>{contract ? formatWeeks(weeksLeft) : t("player.none")}</Fact>
@@ -260,7 +278,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                             <Button
                                                 variant={canRenew ? "default" : "outline"}
                                                 disabled={!canRenew}
-                                                title={canRenew ? undefined : t("player.renewClosed")}
+                                                title={renewBlock ?? undefined}
                                                 className="flex-1"
                                             >
                                                 {t("player.renew")}
@@ -270,12 +288,19 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 )}
                                 {isOwnPlayer && (
                                     activeRoleTraining ? (
-                                        <Button variant="outline" className="flex-1" onClick={() => { cancelRoleTraining(player.id); toast.success(t("player.roleCancelled")) }}>
-                                            {t("player.stopRetraining")}
-                                        </Button>
+                                        // SQUAD-20: stopping settles money; confirm it first.
+                                        <ConfirmDialog
+                                            title={t("tr.stopTitle", { name: player.nickname })}
+                                            description={stopRetrainingText(activeRoleTraining)}
+                                            confirmText={t("player.stopRetraining")}
+                                            destructive
+                                            onConfirm={() => { cancelRoleTraining(player.id); toast.success(t("player.roleCancelled")) }}
+                                        >
+                                            <Button variant="outline" className="flex-1">{t("player.stopRetraining")}</Button>
+                                        </ConfirmDialog>
                                     ) : (
-                                        <Button variant="outline" className="flex-1" onClick={() => setTrainingModalOpen(true)} disabled={!!player.injury || !!player.secondaryRole}
-                                            title={player.secondaryRole ? t("player.twoRoles") : undefined}>
+                                        <Button variant="outline" className="flex-1" onClick={() => setTrainingModalOpen(true)} disabled={!!retrainBlock}
+                                            title={retrainBlock ?? undefined}>
                                             {t("player.retrainRole")}
                                         </Button>
                                     )
@@ -305,7 +330,21 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 ))}
                                 {canOffer && <Button className="flex-1" onClick={() => setNegotiationOpen(true)}>{t("player.offer")}</Button>}
                                 {isAcademy && <Button variant="outline" asChild className="flex-1"><Link href="/academy">{t("player.openAcademy")}</Link></Button>}
-                                {/* SQUAD-22: the reason Release is blocked, visible without a hover. */}
+                                {/* SQUAD-33: treatment from the injured player's own profile (the squad table's action). */}
+                                {isOwnPlayer && player.injury && player.injury.weeksRemaining > 0 && (
+                                    <ConfirmDialog
+                                        title={t("squad.treat.title")}
+                                        description={t("squad.treat.body")}
+                                        onConfirm={() => useGameStore.getState().treatInjury(player.id)}
+                                        confirmText={t("squad.treat.confirm")}
+                                        icon="info"
+                                    >
+                                        <Button variant="outline" className="flex-1">{t("squad.treat.button")}</Button>
+                                    </ConfirmDialog>
+                                )}
+                                {/* SQUAD-22/13: why an action is blocked, visible without a hover. */}
+                                {renewBlock && <p className="basis-full text-xs text-ink-3">{renewBlock}</p>}
+                                {retrainBlock && <p className="basis-full text-xs text-ink-3">{retrainBlock}</p>}
                                 {isOwnPlayer && releaseBlock && <p className="basis-full text-xs text-ink-3">{t("player.release")}: {releaseBlock}</p>}
                             </div>
                         )}
@@ -380,7 +419,8 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                             <Row label={t("player.row.signed")}>{t("common.week", { n: contract.startWeek })}</Row>
                                             <Row label={t("player.row.expires")}>{t("common.week", { n: contract.endWeek })}</Row>
                                             <Row label={t("player.row.timeLeft")} className={contractTone(weeksLeft)}>{formatWeeks(weeksLeft)}</Row>
-                                            {contract.buyout > 0 && <Row label={t("player.row.buyout")}>{formatCurrency(contract.buyout)}</Row>}
+                                            {/* SQUAD-12: nothing reads the buyout of your own players (release cost is below); it went stale on renewal. */}
+                                            {!isOwnPlayer && contract.buyout > 0 && <Row label={t("player.row.buyout")}>{formatCurrency(contract.buyout)}</Row>}
                                             {!!contract.matchWinBonus && <Row label={t("player.row.winBonus")}>{formatCurrency(contract.matchWinBonus, "$", false)}</Row>}
                                             {!!contract.tournamentWinBonus && <Row label={t("player.row.titleBonus")}>{formatCurrency(contract.tournamentWinBonus, "$", false)}</Row>}
                                             {!!contract.releaseClause && <Row label={t("player.row.releaseClause")}>{formatCurrency(contract.releaseClause)}</Row>}
@@ -399,18 +439,21 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <Row label={t("player.row.transferList")}>{player.forSale ? t("player.row.listedAt", { price: formatCurrency(player.transferListingPrice ?? evaluation.transferValue) }) : t("player.row.notListed")}</Row>
                                         {isOwnPlayer && <Row label={t("player.row.releaseCost")}>{t("player.row.releaseCostValue", { amount: formatCurrency(release.amount, "$", false) })}</Row>}
                                     </dl>
-                                    <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                                        Renewal adds a year at +{renewalRaise}% wage ({ARCHETYPE_INFO[getArchetype(player)].label}; the usual raise is 10%) and needs 26 weeks of the raise in the bank. Clubs bid on listed players each week; offers sit near market value.
-                                    </p>
+                                    {/* SQUAD-06: the same reason as the renew dialog, translated. */}
+                                    {renewal && (
+                                        <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
+                                            {t(renewal.market ? "player.renewNoteMarket" : "player.renewNote", { pct: renewal.raisePct, archetype: renewal.archetype, usual: renewal.usualPct })}
+                                        </p>
+                                    )}
                                 </Panel>
                             </div>
                         </TabsContent>
 
                         <TabsContent value="development" className="mt-3 space-y-4">
-                            <KpiStrip className="w-fit max-w-full flex-wrap">
+                            <KpiStrip className="w-full flex-wrap [&>*]:flex-1">
                                 <Kpi label={t("player.kpi.level")} value={player.level || 1} hint={`${Math.floor(player.xp || 0)} / ${player.xpToNextLevel || 1000} XP`} />
                                 <Kpi label={t("player.kpi.talentPoints")} value={player.talentPoints || 0} hint={t("player.kpi.onePerLevel")} />
-                                <Kpi label={t("player.potential")} value={potential} hint={t("player.kpi.trainingStops")} />
+                                <Kpi label={t("player.potential")} value={potentialHidden ? "?" : potential} hint={potentialHidden ? revealText : t("player.kpi.trainingStops")} />
                             </KpiStrip>
 
                             {isOwnPlayer && <DevelopmentOutlook player={player} />}
@@ -420,12 +463,20 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                     <div className="flex flex-wrap items-center justify-between gap-4">
                                         <div className="min-w-0 flex-1">
                                             <p className="text-sm text-ink-2">
-                                                <Trans k="player.becoming" params={{ role: formatRole(activeRoleTraining.targetRole), done: activeRoleTraining.weeksCompleted, total: activeRoleTraining.totalWeeks }} tags={{ b: s => <span className="font-semibold text-ink-1">{s}</span> }} />
+                                                <Trans k="player.becoming" params={{ role: t(`tr.role.${activeRoleTraining.targetRole}`), done: activeRoleTraining.weeksCompleted, total: activeRoleTraining.totalWeeks }} tags={{ b: s => <span className="font-semibold text-ink-1">{s}</span> }} />
                                             </p>
                                             <Meter value={(activeRoleTraining.weeksCompleted / activeRoleTraining.totalWeeks) * 100} label={t("player.retrainProgress")} tone="neutral" showValue={false} className="mt-2" trackClassName="w-full max-w-md" />
                                             <p className="mt-2 text-xs text-ink-3">{t("player.retrainCost")}</p>
                                         </div>
-                                        <Button variant="outline" onClick={() => { cancelRoleTraining(player.id); toast.success(t("player.roleCancelled")) }}>{t("player.stopRetraining")}</Button>
+                                        <ConfirmDialog
+                                            title={t("tr.stopTitle", { name: player.nickname })}
+                                            description={stopRetrainingText(activeRoleTraining)}
+                                            confirmText={t("player.stopRetraining")}
+                                            destructive
+                                            onConfirm={() => { cancelRoleTraining(player.id); toast.success(t("player.roleCancelled")) }}
+                                        >
+                                            <Button variant="outline">{t("player.stopRetraining")}</Button>
+                                        </ConfirmDialog>
                                     </div>
                                 </Panel>
                             )}
@@ -441,7 +492,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         return (
                                             <li key={weapon} className="grid grid-cols-[120px_minmax(0,1fr)_120px] items-center gap-4 px-4 py-2.5">
                                                 <span className="text-sm font-semibold text-ink-1">{t(`weapon.${weapon}`)}</span>
-                                                <Meter value={info.progress} label={t("player.masteryProgress", { weapon: t(`weapon.${weapon}`) })} tone="neutral" showValue={false} trackClassName="w-full" />
+                                                <div className="min-w-0">
+                                                    <Meter value={info.progress} label={t("player.masteryProgress", { weapon: t(`weapon.${weapon}`) })} tone="neutral" showValue={false} trackClassName="w-full" />
+                                                    {/* SQUAD-37: at a tier threshold the bar is empty; say what's next. */}
+                                                    {info.nextLevel && <p className="mt-1 text-[11px] tabular-nums text-ink-3">{t("tr.w.next", { level: t(`mastery.${info.nextLevel.toUpperCase()}`) })} · {t("tr.w.toGo", { n: info.xpToNext })}</p>}
+                                                </div>
                                                 <span className={cn("text-right text-sm", info.isMaster ? "font-semibold text-gold" : "text-ink-2")}>
                                                     {t(`mastery.${info.level}`)} <span className="text-xs tabular-nums text-ink-3">{mastery[weapon]} XP</span>
                                                 </span>
@@ -500,7 +555,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                         const result = startRoleTraining(player.id, role)
                         if (result.success) {
                             setTrainingModalOpen(false)
-                            toast.success(t("player.trainingStarted", { role: formatRole(role), name: player.nickname }))
+                            toast.success(t("player.trainingStarted", { role: t(`tr.role.${role}`), name: player.nickname }))
                         } else {
                             toast.error(result.message)
                         }
