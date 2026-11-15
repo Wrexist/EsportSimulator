@@ -116,6 +116,7 @@ import { foldWeeklyDigest } from "@/lib/inbox-digest"
 import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
+import { teamOvr } from "@/lib/team-ovr"
 import { eventText } from "@/lib/news-ref"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
@@ -1214,9 +1215,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             selectedTeam.startingLeagueTier = selectedTeam.leagueTier
           }
           const teamRoster = newSave.players.filter((p: any) => selectedTeam?.rosterIds?.includes(p.id))
-          const avgRating = teamRoster.length > 0
-            ? Math.round(teamRoster.reduce((acc: number, p: any) => acc + (p.skill || 75), 0) / teamRoster.length)
-            : 75
+          // The starting five's OVR, the Team OVR Home and the club picker show (HOME-22).
+          const avgRating = teamOvr(selectedTeam, newSave.players) ?? 0
 
           // Add Welcome Mail
           if (!unemployed && !draftCup) newSave.eventsLog.unshift({
