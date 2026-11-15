@@ -17,7 +17,7 @@ import { LiveFeedPanel } from "@/components/match/live/LiveFeed"
 import { RoundsPanel } from "@/components/match/live/RoundsPanel"
 import { DecisionCard } from "@/components/match/live/DecisionCard"
 import { RoundEndBanner } from "@/components/match/live/RoundEndBanner"
-import { MomentCallout, type MomentCalloutData } from "@/components/match/live/MomentCallout"
+import type { MomentCalloutData } from "@/components/match/live/MomentCallout"
 import { IntermissionCard, type HalfStat } from "@/components/match/live/IntermissionCard"
 import { CoachCallBanner, CoachCallBar } from "@/components/match/live/CoachCallBar"
 import { ChevronRight } from "lucide-react"
@@ -460,6 +460,7 @@ export default function LiveMatchPage() {
                         isAnimating={isPlaying}
                         currentTime={gameState.time}
                         roundOver={roundOver}
+                        moment={callout}
                         overlay={gameState.status === "FINISHED" && (endBeatDone || !finishedResult)
                             ? (
                                 // In the radar's overlay slot, above the scrubber (not floating over it).
@@ -472,10 +473,10 @@ export default function LiveMatchPage() {
                             : decisionOverlay ?? coachBar}
                         fillHeight
                     />
-                    <MomentCallout callout={callout} />
                     <CoachCallBanner call={coachCalls[coachCalls.length - 1] ?? null} ct={ownCT} />
                     <AnimatePresence>
-                        {roundBeat && <RoundEndBanner key={roundBeat.id} beat={roundBeat} homeName={homeTeam.name} awayName={awayTeam.name} names={names} />}
+                        {/* The round that ends the match has the end beat instead (its own winner line and match MVP, MATCHDAY-04). */}
+                        {roundBeat && gameState.status !== "FINISHED" && <RoundEndBanner key={roundBeat.id} beat={roundBeat} homeName={homeTeam.name} awayName={awayTeam.name} names={names} />}
                     </AnimatePresence>
                     <AnimatePresence>
                         {breakCard && (
