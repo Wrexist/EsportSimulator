@@ -6926,8 +6926,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "78b61bed08a11f7ba3000821c809bc47d55dcd8847f7207574ef750402e5f50d",
-      "bytes": 25680,
+      "sha256": "15006f20bcd1f0c637d47779247d812034fa1fa0a324f4a5470896bcba5e8f01",
+      "bytes": 25815,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -6983,6 +6983,11 @@
           "date": "2026-11-04",
           "previousSha256": "c6b7b6f74b82df3f83e8321d3ac480528ed0b48b6c80bb8069fecdbde9f24607",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "78b61bed08a11f7ba3000821c809bc47d55dcd8847f7207574ef750402e5f50d",
+          "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
         }
       ]
     },
@@ -91940,8 +91945,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "c9500b62552ae997ab476dbcc0096f76ce2e5a84336320e7bf89b81ea7ef4b7a",
-      "bytes": 412648,
+      "sha256": "f743b989796364ddb7d025f400cf0ac9f770bbb873e7c318d51611d902f66133",
+      "bytes": 412920,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92106,13 +92111,18 @@
           "date": "2026-11-15",
           "previousSha256": "14c8fb2f4884d7c5adee2c2fb1ff47ae3306b18873a6b7c9e7a0ef81907047e9",
           "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "c9500b62552ae997ab476dbcc0096f76ce2e5a84336320e7bf89b81ea7ef4b7a",
+          "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "fbf09418f52f69bf66b9205861b5e0f6b4de23dd45ff0e23038a3ce731a3e0f4",
-      "bytes": 434366,
+      "sha256": "4dac3c5e156d9cd162f1332c346767937681a9872747d604aa1047b89356e5cc",
+      "bytes": 434644,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92272,13 +92282,18 @@
           "date": "2026-11-15",
           "previousSha256": "2a7d619f99892407ba6484ac1eb9afad50b6bf12125a1f0bb0404c49880aab02",
           "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "fbf09418f52f69bf66b9205861b5e0f6b4de23dd45ff0e23038a3ce731a3e0f4",
+          "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "bb85e2677ab835d055378bcd8232104d24898cca900cbe13a46700b220dcd078",
-      "bytes": 443015,
+      "sha256": "321bb4cad3a8e9a0cf4423d4918c05ec97f6634241f23134f00ebfa0ab8d1eec",
+      "bytes": 443323,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92438,13 +92453,18 @@
           "date": "2026-11-15",
           "previousSha256": "5857b60016939e354b73011561f2248ce824df7d397bcf4cb9efdf2f93ff3668",
           "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "bb85e2677ab835d055378bcd8232104d24898cca900cbe13a46700b220dcd078",
+          "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "99752eed64b7847be505e4eabfdc307a1b81695bdce50e6bc4124b2820598ca8",
-      "bytes": 442018,
+      "sha256": "a81cd0acc4351b9276de8db6d6f1c48868740a03b83048b75bb449b1026d52ed",
+      "bytes": 442267,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92599,13 +92619,18 @@
           "date": "2026-11-15",
           "previousSha256": "014e8a1073f485705be07e54cd731cded406a9319f19ea3711300dda57ff1b85",
           "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "99752eed64b7847be505e4eabfdc307a1b81695bdce50e6bc4124b2820598ca8",
+          "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "12595456b6cc78e9ff0b83f6a50e8e98ade20138cb6aeb9562c0482dd21ab828",
-      "bytes": 427979,
+      "sha256": "9f8da58afc15206d788da836af55f01a521a2a0e515684f15c7a741e2f00e2ca",
+      "bytes": 428257,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92760,13 +92785,18 @@
           "date": "2026-11-15",
           "previousSha256": "d1a133a41d63136fd910def070c1ac1be0d2d12258bea1b364be5f6a62873a57",
           "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "12595456b6cc78e9ff0b83f6a50e8e98ade20138cb6aeb9562c0482dd21ab828",
+          "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "ee074bdfb48049ba3390a599d6a3004645f207f27080cfe6733da10df3c4508b",
-      "bytes": 603499,
+      "sha256": "6fb2c57ea2efe8f8c6d5d6b8a92de3dd91fe97f0e1b3530babe9315cec4549ee",
+      "bytes": 603800,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92921,6 +92951,11 @@
           "date": "2026-11-15",
           "previousSha256": "6f09405f65b23640ba34df9de9c86c6f4b1bd93021422acdfde66841411de2a8",
           "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "ee074bdfb48049ba3390a599d6a3004645f207f27080cfe6733da10df3c4508b",
+          "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
         }
       ]
     },
