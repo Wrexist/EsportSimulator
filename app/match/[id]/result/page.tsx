@@ -34,6 +34,7 @@ import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 import { ProGoalVerdict, useProGoal } from "@/components/pro/ProMatchGoal"
 
 // Confetti in the v2 palette: trophy gold, white, win green.
@@ -272,19 +273,21 @@ export default function MatchResultPage() {
     if (!match) return (
         <div className="flex min-h-[60vh] items-center justify-center">
             {notFound || stillScheduled ? (
-                <div role="alert" className="max-w-sm px-6 text-center">
-                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{stillScheduled ? t("result.notPlayed") : t("prep.notFound")}</p>
-                    <p className="mb-6 mt-2 text-sm text-ink-3">
-                        {stillScheduled
-                            ? t("result.notPlayedBody")
-                            : t("result.notFoundBody")}
-                    </p>
-                    <div className="flex justify-center gap-3">
-                        {stillScheduled && (
-                            <Button onClick={() => router.push(`/match/${id}/tactics`)}>{t("result.backToPrep")}</Button>
-                        )}
-                        <Button variant={stillScheduled ? "outline" : "default"} onClick={() => router.push("/schedule")}>{t("prep.backToSchedule")}</Button>
-                    </div>
+                // CROSSCUT-09: the shared not-found card, with both ways out inside it.
+                <div role="alert" className="w-full max-w-xl px-6">
+                    <EmptyState
+                        icon={stillScheduled ? Calendar : Swords}
+                        titleAs="h1"
+                        title={stillScheduled ? t("result.notPlayed") : t("prep.notFound")}
+                        description={stillScheduled ? t("result.notPlayedBody") : t("result.notFoundBody")}
+                    >
+                        <div className="flex justify-center gap-3">
+                            {stillScheduled && (
+                                <Button size="sm" onClick={() => router.push(`/match/${id}/tactics`)}>{t("result.backToPrep")}</Button>
+                            )}
+                            <Button size="sm" variant={stillScheduled ? "outline" : "default"} onClick={() => router.push("/schedule")}>{t("prep.backToSchedule")}</Button>
+                        </div>
+                    </EmptyState>
                 </div>
             ) : (
                 <LoadingState message={t("result.loading")} size="lg" />

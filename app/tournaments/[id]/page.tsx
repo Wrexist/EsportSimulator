@@ -59,6 +59,7 @@ import { TierTag } from "@/src/components/ui/TierTag"
 import TournamentBracket from "@/components/tournament/TournamentBracket"
 import TournamentStats from "@/components/tournament/TournamentStats"
 import { TeamLink } from "@/components/ui/EntityLink"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 
 // Prize split by placement — mirrors PRIZE_DISTRIBUTION_8 / _16 in
 // engine/processors/standings-processor.ts (deep fields use the 16-place
@@ -357,11 +358,9 @@ export default function TournamentDetailPage() {
 
     if (!displayTournament) {
         return (
-            <div className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
-                <h1 className="font-display text-3xl font-bold uppercase text-ink-1">{t("tm.notFound")}</h1>
-                <Button onClick={() => router.push("/tournaments")} variant="outline" className="mt-5 gap-2">
-                    <ArrowLeft className="h-4 w-4" /> {t("tm.back")}
-                </Button>
+            // CROSSCUT-09: the shared not-found card (icon, title, one sentence, one action).
+            <div className="mx-auto max-w-[1600px] py-10">
+                <EmptyState icon={Trophy} titleAs="h1" title={t("tm.notFound")} description={t("tm.notFoundBody")} action={{ label: t("tm.back"), href: "/tournaments" }} />
             </div>
         )
     }
