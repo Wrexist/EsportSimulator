@@ -58,3 +58,11 @@ describe("match prep page (MATCHDAY-02, CROSSCUT-11, CROSSCUT-17)", () => {
         expect(block.match(/whitespace-nowrap/g)?.length).toBeGreaterThanOrEqual(2)
     })
 })
+
+describe("MATCHDAY-06: the match-day notice stays off the match's own screens", () => {
+    test("the top bar hides the match stop notice under /match/<that match>/", () => {
+        const ctl = src("components/report/AdvanceControl.tsx")
+        expect(ctl).toMatch(/advanceStop\?\.kind === "match" \? advanceStop\.href\?\.match\(\/\^\\\/match\\\/\[\^\/\]\+\\\/\/\)\?\.\[0\]/)
+        expect(ctl).toMatch(/advanceStop && !running && !onStopMatch && <StopNotice \/>/)
+    })
+})
