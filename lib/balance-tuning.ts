@@ -706,6 +706,8 @@ export const STORY_TUNING = {
      */
     STANDOFF_MIN_WEEKS: 6,
     STANDOFF_MAX_WEEKS: 52,
+    /** MODES-20: a player the club signed fewer than this many weeks ago is not a standoff (he chose these terms). */
+    STANDOFF_MIN_TENURE_WEEKS: 20,
     /** Top-N players by overall rating at the club (the starting-five calibre). */
     STANDOFF_TOP_N: 5,
     /** Wage he asks: the usual renewal wage (Phase 5.2, by archetype) times this. */
