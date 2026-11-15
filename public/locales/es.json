@@ -299,6 +299,8 @@
  "firstSession.backHome": "Volver a Inicio",
  "firstSession.reviewResult": "Revisar tu resultado",
  "firstSession.week.help": "Al procesar la semana se aplican el entrenamiento, los salarios y los ingresos, y luego se guarda la carrera. Mira después Inicio y Finanzas para ver qué cambió.",
+ "firstSession.prepareMatch": "Preparar el partido",
+ "firstSession.match.today": "Tu partido es hoy. Prepara primero tu táctica o usa Jugar partido en la barra superior para jugarlo o simularlo ya.",
  "news.empty": "Todavía no hay titulares. Los resultados, los fichajes y las mejoras son noticia.",
  "news.category.MATCH": "Partido",
  "news.category.TRANSFER": "Traspaso",

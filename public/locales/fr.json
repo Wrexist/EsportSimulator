@@ -299,6 +299,8 @@
  "firstSession.backHome": "Retour à l'Accueil",
  "firstSession.reviewResult": "Revoir ton résultat",
  "firstSession.week.help": "Le traitement de la semaine applique l'entraînement, les salaires et les revenus, puis sauvegarde la carrière. Regarde ensuite l'Accueil et les Finances pour voir ce qui a changé.",
+ "firstSession.prepareMatch": "Préparer le match",
+ "firstSession.match.today": "Ton match a lieu aujourd'hui. Règle d'abord ta tactique, ou utilise Jouer le match dans la barre du haut pour le jouer ou le simuler maintenant.",
  "news.empty": "Pas encore de gros titres. Les résultats, les recrues et les améliorations font l'actualité.",
  "news.category.MATCH": "Match",
  "news.category.TRANSFER": "Transfert",

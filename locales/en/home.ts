@@ -162,6 +162,8 @@ export const HOME = {
     "firstSession.backHome": "Back to Home",
     "firstSession.reviewResult": "Review your result",
     "firstSession.week.help": "Processing the week applies training, wages and income, then saves the career. Check Home and Finances afterwards to see what changed.",
+    "firstSession.match.today": "Your match is today. Set up your tactics first, or use Play match in the top bar to play or simulate it now.",
+    "firstSession.prepareMatch": "Prepare the match",
 
     // News feed
     "news.empty": "No headlines yet. Results, signings and upgrades make the news.",

@@ -299,6 +299,8 @@
  "firstSession.backHome": "Voltar ao Início",
  "firstSession.reviewResult": "Ver seu resultado",
  "firstSession.week.help": "O fechamento da semana aplica treino, salários e receitas e depois salva a carreira. Confira Início e Finanças depois para ver o que mudou.",
+ "firstSession.prepareMatch": "Preparar a partida",
+ "firstSession.match.today": "Sua partida é hoje. Ajuste a tática primeiro ou use Jogar partida na barra superior para jogar ou simular agora.",
  "news.empty": "Nenhuma manchete por enquanto. Resultados, transferências e melhorias aparecem nas notícias.",
  "news.category.MATCH": "Partida",
  "news.category.TRANSFER": "Transferência",

@@ -285,6 +285,8 @@
  "firstSession.backHome": "Zurück zur Startseite",
  "firstSession.reviewResult": "Ergebnis ansehen",
  "firstSession.week.help": "Die Wochenabrechnung wendet Training, Gehälter und Einnahmen an und speichert dann die Karriere. Sieh danach auf der Startseite und unter Finanzen nach, was sich geändert hat.",
+ "firstSession.prepareMatch": "Match vorbereiten",
+ "firstSession.match.today": "Dein Match ist heute. Stell zuerst deine Taktik ein oder nutze „Match spielen“ in der oberen Leiste, um es jetzt zu spielen oder zu simulieren.",
  "news.empty": "Noch keine Schlagzeilen. Ergebnisse, Verpflichtungen und Ausbauten machen Nachrichten.",
  "news.category.MATCH": "Match",
  "news.category.TRANSFER": "Transfer",

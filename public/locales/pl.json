@@ -313,6 +313,8 @@
  "firstSession.backHome": "Wróć do ekranu Start",
  "firstSession.reviewResult": "Zobacz swój wynik",
  "firstSession.week.help": "Rozliczenie tygodnia uwzględnia trening, pensje i przychody, a potem zapisuje karierę. Sprawdź później Start i Finanse, żeby zobaczyć zmiany.",
+ "firstSession.prepareMatch": "Przygotuj mecz",
+ "firstSession.match.today": "Twój mecz jest dzisiaj. Najpierw ustaw taktykę albo użyj przycisku Rozegraj mecz na górnym pasku, żeby rozegrać go lub zasymulować od razu.",
  "news.empty": "Na razie brak nagłówków. Wyniki, transfery i rozbudowy trafiają do wiadomości.",
  "news.category.MATCH": "Mecz",
  "news.category.TRANSFER": "Transfer",
