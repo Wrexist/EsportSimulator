@@ -6710,5 +6710,8 @@
  "ib.res.soldElsewhere": "Erledigt: Der Spieler wurde an {{club}} verkauft",
  "terms.belowCashTarget": "Unter dem Ziel des Vorstands von {{amount}} zum Saisonende",
  "market.watchlistEmpty": "Deine Beobachtungsliste ist leer. Markiere einen Spieler auf dem Markt mit dem Stern, um Preis und Vertrag hier zu verfolgen.",
- "marquee.outOfReach": "Außer Reichweite"
+ "marquee.outOfReach": "Außer Reichweite",
+ "fin.upgradeGain": "Stufe {{n}} bringt etwa {{gain}}/Wo. mehr, wenn die neue Linie verkauft wird: Sie hat sich nach {{payback}} bezahlt gemacht.",
+ "fin.upgradeNoGain": "Stufe {{n}} bringt bei deiner aktuellen Follower-Zahl keine zusätzlichen Fan-Einnahmen.",
+ "fin.tipNetOneOff": "Woche {{week}}: netto {{amount}} aus der Wochenabrechnung; {{other}} aus Transfers und Einmalposten"
 }

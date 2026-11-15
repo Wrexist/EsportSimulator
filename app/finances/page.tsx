@@ -10,7 +10,7 @@ import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlayerPortrait } from "@/components/ui/asset-images"
+import { PlayerPortrait, StaffPortrait } from "@/components/ui/asset-images"
 import { LoadingState } from "@/components/ui/loading"
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
@@ -39,6 +39,11 @@ const MERCH_LINES = [
 ] as const
 const MERCH_MAX_LEVEL = 5
 const MERCH_UPGRADE_BASE = 50_000
+
+// MARKET-28: the rows the weekly settlement posts (engine/processors/finance-processor.ts).
+// The chart's net bars plot these, as the projection does; transfers, bonuses
+// and other one-off items move the balance line only.
+const SETTLEMENT_ROW = /^(inc_spon_|inc_fan_|inc_league_|exp_academy_|exp_equip_|exp_wage_p_|exp_wage_s_|exp_ops_|exp_fac_)/
 
 const LEDGER_CATEGORIES = new Set(["WAGES_PLAYER", "WAGES_STAFF", "FACILITIES", "PRIZE", "SPONSOR", "TRANSFER_IN", "TRANSFER_OUT", "OTHER", "MERCH", "TRAINING", "OPERATIONS", "LEAGUE", "SCOUTING"])
 
@@ -74,10 +79,12 @@ export default function FinancesPage() {
 
   const chartPoints = useMemo<CashPoint[]>(() => {
     if (!team) return []
-    const byWeek = new Map<number, { net: number; balance: number }>()
+    const byWeek = new Map<number, { net: number; oneOff: number; balance: number }>()
     for (const e of ledger) {
-      const w = byWeek.get(e.week) ?? { net: 0, balance: e.balance }
-      w.net += e.type === "INCOME" ? e.amount : -e.amount
+      const w = byWeek.get(e.week) ?? { net: 0, oneOff: 0, balance: e.balance }
+      const signed = e.type === "INCOME" ? e.amount : -e.amount
+      if (SETTLEMENT_ROW.test(e.id)) w.net += signed
+      else w.oneOff += signed
       w.balance = e.balance
       byWeek.set(e.week, w)
     }
@@ -85,9 +92,9 @@ export default function FinancesPage() {
       .filter(([week]) => week < currentWeek)
       .sort((a, b) => a[0] - b[0])
       .slice(-HISTORY_WEEKS)
-      .map(([week, w]) => ({ week, balance: w.balance, net: w.net, projected: false }))
+      .map(([week, w]) => ({ week, balance: w.balance, net: w.net, oneOff: w.oneOff, projected: false }))
     const thisWeek = byWeek.get(currentWeek)
-    const now: CashPoint = { week: currentWeek, balance: team.budget, net: thisWeek?.net ?? 0, projected: false }
+    const now: CashPoint = { week: currentWeek, balance: team.budget, net: thisWeek?.net ?? 0, oneOff: thisWeek?.oneOff ?? 0, projected: false }
     return [...history, now, ...projection.map(p => ({ week: p.week, balance: p.budget, net: p.net, projected: true }))]
   }, [ledger, projection, team, currentWeek])
 
@@ -119,6 +126,12 @@ export default function FinancesPage() {
   const upgradeCost = MERCH_UPGRADE_BASE * Math.pow(2, merchLevel - 1)
   const fanZone = team.facilities?.find(f => f.type === "FANZONE")?.level ?? 0
   const recentLedger = [...ledger].reverse().slice(0, 18)
+  // MARKET-19: what the next store level adds a week, with its new line on sale.
+  const nextLine = MERCH_LINES.find(l => l.level === merchLevel + 1)
+  const upgradeGain = nextLine
+    ? EconomyEngine.processWeeklyFinances({ ...team, merchStoreLevel: merchLevel + 1, activeMerchItems: [...activeLines.filter(id => id !== nextLine.id), nextLine.id] }, [], [], [], currentWeek + 1).income.fanbase - report.income.fanbase
+    : 0
+  const paybackWeeks = upgradeGain > 0 ? Math.ceil(upgradeCost / upgradeGain) : null
 
   const incomeRows = [
     { label: t("fin.in.sponsors"), amount: report.income.sponsors, note: sponsorsPaid.length
@@ -276,8 +289,13 @@ export default function FinancesPage() {
                       </tr>
                     ))}
                     {payroll.staffRows.map(({ staff: s, weeksLeft, paymentsLeft }) => (
-                      <tr key={s.id} data-slot="table-row" className="h-11 border-b border-line">
-                        <td className="pl-4 text-sm font-semibold text-ink-1">{s.name}</td>
+                      <tr key={s.id} data-slot="table-row" className="h-12 border-b border-line">
+                        <td className="py-1.5 pl-4">
+                          <Link href="/staff" className="flex items-center gap-2.5 hover:text-gold">
+                            <span className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised"><StaffPortrait src={s.portraitPath} alt={s.name} size={32} className="h-full w-full" /></span>
+                            <span className="text-sm font-semibold text-ink-1">{s.name}</span>
+                          </Link>
+                        </td>
                         <td className="px-3 text-xs text-ink-3">{t(`staffRole.${s.role}`)}</td>
                         <td className="px-3 text-right text-sm tabular-nums text-ink-1">{money(s.salaryPerWeek)}</td>
                         <td className={cn("px-3 text-right text-sm tabular-nums", weeksLeft !== null && weeksLeft <= 4 ? "text-negative" : "text-ink-2")}>{weeksLeft === null ? t("fin.rolling") : weeksLabel(weeksLeft)}</td>
@@ -306,7 +324,10 @@ export default function FinancesPage() {
                       <p className="truncate text-sm font-semibold text-ink-1">{s.name}</p>
                       <p className="text-xs text-ink-3">{t(`sponsorTier.${s.tier}`)} · {tn("fin.wksLeft", s.remainingWeeks ?? 0)}</p>
                     </div>
-                    <span className="text-sm tabular-nums text-ink-1">{money(s.weeklyPayout)}<span className="text-ink-3"> {t("terms.perWk")}</span></span>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm tabular-nums text-ink-1">{money(Math.floor(s.weeklyPayout * repFactor))}<span className="text-ink-3"> {t("terms.perWk")}</span></p>
+                      <p className="text-xs tabular-nums text-ink-3">{t("sp.base", { amount: money(s.weeklyPayout) })}</p>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -348,13 +369,20 @@ export default function FinancesPage() {
                 )
               })}
             </ul>
+            {merchLevel < MERCH_MAX_LEVEL && (
+              <p className={cn("mt-3 text-xs", paybackWeeks === null || paybackWeeks > 52 ? "text-caution" : "text-ink-3")}>
+                {paybackWeeks === null
+                  ? t("fin.upgradeNoGain", { n: merchLevel + 1 })
+                  : t("fin.upgradeGain", { n: merchLevel + 1, gain: money(upgradeGain), payback: weeksLabel(paybackWeeks) })}
+              </p>
+            )}
             {merchLevel < MERCH_MAX_LEVEL ? (
               funds >= upgradeCost ? (
-                <Button variant="outline" className="mt-3 h-9 w-full" onClick={handleUpgrade}>
+                <Button variant="outline" className="mt-2 h-9 w-full" onClick={handleUpgrade}>
                   {t("fin.upgrade", { n: merchLevel + 1, cost: money(upgradeCost) })}
                 </Button>
               ) : (
-                <p className="mt-3 rounded border border-line bg-shell px-3 py-2 text-center text-sm text-ink-3">{t("fin.short", { n: merchLevel + 1, cost: money(upgradeCost), short: money(upgradeCost - funds) })}</p>
+                <p className="mt-2 rounded border border-line bg-shell px-3 py-2 text-center text-sm text-ink-3">{t("fin.short", { n: merchLevel + 1, cost: money(upgradeCost), short: money(upgradeCost - funds) })}</p>
               )
             ) : (
               <p className="mt-3 text-center text-sm text-ink-3">{t("fin.maxed")}</p>

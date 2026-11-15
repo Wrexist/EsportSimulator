@@ -6914,5 +6914,8 @@
  "ib.res.soldElsewhere": "Cerrada: el jugador fue vendido a {{club}}",
  "terms.belowCashTarget": "Por debajo del objetivo de la directiva: {{amount}} a final de temporada",
  "market.watchlistEmpty": "Tu lista de seguimiento está vacía. Marca a un jugador con la estrella en el mercado para seguir aquí su precio y su contrato.",
- "marquee.outOfReach": "Fuera de alcance"
+ "marquee.outOfReach": "Fuera de alcance",
+ "fin.upgradeGain": "El nivel {{n}} suma unos {{gain}}/sem. con su nueva línea a la venta: se amortiza en {{payback}}.",
+ "fin.upgradeNoGain": "Con tus seguidores actuales, el nivel {{n}} no suma ingresos de afición.",
+ "fin.tipNetOneOff": "Semana {{week}}: neto {{amount}} de la liquidación semanal; {{other}} de traspasos y partidas puntuales"
 }

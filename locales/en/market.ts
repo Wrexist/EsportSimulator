@@ -393,4 +393,7 @@ export const MARKET = {
     "terms.belowCashTarget": "Below the board's {{amount}} season-end cash target",
     "market.watchlistEmpty": "Your shortlist is empty. Star a player in the market to follow his price and contract here.",
     "marquee.outOfReach": "Out of reach",
+    "fin.upgradeGain": "Level {{n}} adds about {{gain}}/wk with its new line on sale: it pays for itself in {{payback}}.",
+    "fin.upgradeNoGain": "Level {{n}} adds no fan income at your current following.",
+    "fin.tipNetOneOff": "Week {{week}}: net {{amount}} from the weekly settlement; {{other}} from transfers and one-off items",
 } as const

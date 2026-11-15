@@ -7118,5 +7118,8 @@
  "ib.res.soldElsewhere": "Zamknięte: zawodnik został sprzedany do {{club}}",
  "terms.belowCashTarget": "Poniżej celu zarządu: {{amount}} na koniec sezonu",
  "market.watchlistEmpty": "Twoja lista obserwowanych jest pusta. Oznacz zawodnika gwiazdką na rynku, żeby śledzić tu jego cenę i kontrakt.",
- "marquee.outOfReach": "Poza zasięgiem"
+ "marquee.outOfReach": "Poza zasięgiem",
+ "fin.upgradeGain": "Poziom {{n}} daje około {{gain}}/tydz. więcej, gdy nowa linia jest w sprzedaży: zwraca się po {{payback}}.",
+ "fin.upgradeNoGain": "Przy obecnej liczbie obserwujących poziom {{n}} nie zwiększa przychodów od fanów.",
+ "fin.tipNetOneOff": "Tydzień {{week}}: bilans {{amount}} z rozliczenia tygodniowego; {{other}} z transferów i pozycji jednorazowych"
 }
