@@ -45,6 +45,7 @@ import { applyFormResult, applyMoraleResult, resultSurpriseFactor } from "@/engi
 import { expectedScore } from "@/engine/world-ranking"
 import { isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "@/engine/personality"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
+import { applyMatchSponsorGoalProgress } from "@/engine/processors/match-sponsor-goals"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
 import { recordOfficialMatch } from "@/engine/official-stats"
 import { queueDecidedTitle } from "@/engine/processors/standings-processor"
@@ -71,7 +72,6 @@ import {
     MAX_MATCH_RATING,
 } from "@/store/utils/helpers"
 
-import { formatCurrency } from "@/lib/utils-extended"
 import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import { eventText, newsText } from "@/lib/news-ref"
 const NEWS_FEED_CAP = 50
@@ -350,56 +350,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
 
             // Sponsor goal progress: per-match "Win Matches" / "Win Tournament maps".
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;[homeTeam, awayTeam].forEach(team => {
-                const wonMatch = (team.id === homeTeam.id && homeWon) || (team.id === awayTeam.id && !homeWon)
-                if (!team.sponsors) return
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                team.sponsors.forEach((sponsor: any) => {
-                    if (!sponsor.goals) return
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    sponsor.goals.forEach((goal: any) => {
-                        if (goal.isCompleted) return
-                        if (goal.description.includes("Win Matches") && wonMatch) goal.current += 1
-                        if (goal.description.includes("Win Tournament maps")) {
-                            const mapsWon = team.id === homeTeam.id ? result.homeScore : result.awayScore
-                            goal.current += mapsWon
-                        }
-                        if (goal.current >= goal.target) {
-                            goal.current = goal.target
-                            goal.isCompleted = true
-                            const payoutEntryId = `fin_sponsor_match_${state.currentWeek}_${team.id}_${sponsor.id}_${goal.id}_${matchId}`
-                            const alreadyPaid = state.financeLedger.some(entry => entry.id === payoutEntryId)
-                            if (alreadyPaid) return
-                            team.budget += goal.bonusPayout
-                            state.financeLedger.push({
-                                id: payoutEntryId,
-                                week: state.currentWeek,
-                                teamId: team.id,
-                                type: "INCOME",
-                                category: "SPONSOR",
-                                amount: goal.bonusPayout,
-                                description: `Goal Reached: ${goal.description}`,
-                                balance: team.budget,
-                            })
-                            if (team.id === state.playerTeamId) {
-                                const eventId = `evt_sponsor_match_goal_${state.currentWeek}_${sponsor.id}_${goal.id}_${matchId}`
-                                if (!state.eventsLog.some(event => event.id === eventId)) {
-                                    state.eventsLog.unshift({
-                                        id: eventId,
-                                        type: "SPONSOR_OFFER",
-                                        week: state.currentWeek,
-                                        data: {
-                                            ...eventText({ key: "evn.sponsorGoal.t" }, { key: "evn.sponsorGoal.m", params: { sponsor: sponsor.name, amount: formatCurrency(goal.bonusPayout, "$", false) } }),
-                                        },
-                                        acknowledged: false,
-                                    })
-                                }
-                            }
-                        }
-                    })
-                })
-            })
+            // One shared path with the week tick's matches (MARKET-01): only
+            // official matches count, and the bonus pays through paySponsorGoalBonus.
+            applyMatchSponsorGoalProgress(state as unknown as GameSave, homeTeam, !isDraw && homeWon, result.homeScore, match)
+            applyMatchSponsorGoalProgress(state as unknown as GameSave, awayTeam, !isDraw && !homeWon, result.awayScore, match)
 
             // Player XP, level-ups, weapon mastery, morale/fatigue.
             const xpGains: Record<string, number> = {}
