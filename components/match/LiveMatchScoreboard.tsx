@@ -98,17 +98,6 @@ function SidePill({ ct }: { ct: boolean }) {
     )
 }
 
-function SeriesPips({ won, toWin, label, align }: { won: number; toWin: number; label: string; align: "left" | "right" }) {
-    if (toWin <= 1) return null
-    return (
-        <div className={cn("flex gap-1", align === "right" && "justify-end")} role="img" aria-label={label}>
-            {Array.from({ length: toWin }, (_, i) => (
-                <span key={i} className={cn("h-1.5 w-5 rounded-full", i < won ? "bg-ink-1" : "bg-hover")} />
-            ))}
-        </div>
-    )
-}
-
 /** Loss-bonus ladder: five steps ($1,400 → $3,400), the current one lit. */
 function LossBonus({ level, align }: { level?: number; align: "left" | "right" }) {
     if (typeof level !== "number") return null
@@ -278,7 +267,6 @@ function LiveMatchScoreboardImpl({
                         {ownTeam === "home" && <YouTag />}
                     </div>
                     <div className="flex items-center gap-3">
-                        <SeriesPips won={homeSeriesScore} toWin={toWin} label={t("scoreboard.mapsWon", { n: homeSeriesScore, of: toWin })} align="left" />
                         {!finished && <LossBonus level={homeLossLevel} align="left" />}
                     </div>
                 </div>
@@ -287,7 +275,14 @@ function LiveMatchScoreboardImpl({
 
             {/* CENTRE */}
             <div className="flex min-w-[400px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-4 py-2 min-[1440px]:min-w-[460px] min-[1440px]:px-6">
-                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
+                <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
+                    {/* A series says which map this is and the map score, in words (MATCHDAY-19). */}
+                    {toWin > 1 && (
+                        <>
+                            <span className="text-ink-1" data-series-line="">{t("scoreboard.series", { n: gameState.currentMapIndex + 1, of: toWin * 2 - 1, home: homeSeriesScore, away: awaySeriesScore })}</span>
+                            <span aria-hidden="true">·</span>
+                        </>
+                    )}
                     <span className="text-ink-2">{mapName}</span>
                     <span aria-hidden="true">·</span>
                     <span className={finished ? "text-ink-1" : undefined}>{finished ? t("dock.final") : t("scoreboard.rnd", { n: shownRound })}</span>
@@ -313,7 +308,6 @@ function LiveMatchScoreboardImpl({
                         {ownTeam === "away" && <YouTag />}
                     </div>
                     <div className="flex flex-row-reverse items-center gap-3">
-                        <SeriesPips won={awaySeriesScore} toWin={toWin} label={t("scoreboard.mapsWon", { n: awaySeriesScore, of: toWin })} align="right" />
                         {!finished && <LossBonus level={awayLossLevel} align="right" />}
                     </div>
                 </div>
