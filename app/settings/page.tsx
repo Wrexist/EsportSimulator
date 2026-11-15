@@ -13,6 +13,7 @@ import {
     Swords, Rocket, Heart, BarChart3, Calendar, Handshake, HeartCrack, RefreshCcw, Landmark,
 } from "lucide-react"
 import { useToast } from "@/lib/toast"
+import { debug } from "@/lib/debug-logger"
 import { cn } from "@/lib/utils"
 import { steamService as steamAchievements, Achievement } from "@/engine/steam-service"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
@@ -109,9 +110,11 @@ export default function SettingsPage() {
   const handleImportSave = async (file: File) => {
     try {
       const text = await file.text()
-      const { save, error } = saveManager.importSave(text)
+      const { save, error, errorCode } = saveManager.importSave(text)
       if (!save || error) {
-        toast({ title: t("settings.toast.importFailed"), description: error || t("settings.toast.invalidSave"), variant: "destructive" })
+        // START-30: plain words for the player, the schema detail for the log.
+        if (error) debug.error("Import failed:", error)
+        toast({ title: t("settings.toast.importFailed"), description: errorCode === "NEWER_VERSION" ? t("lg.err.newerBody") : t("settings.toast.invalidSave"), variant: "destructive" })
         return
       }
       const result = await saveManager.saveGame(save)
@@ -121,7 +124,8 @@ export default function SettingsPage() {
       }
       toast({ title: t("settings.toast.imported"), description: t("settings.toast.importedBody", { name: save.saveName }) })
     } catch (e) {
-      toast({ title: t("settings.toast.importFailed"), description: e instanceof Error ? e.message : t("common.unknownError"), variant: "destructive" })
+      debug.error("Import failed:", e)
+      toast({ title: t("settings.toast.importFailed"), description: t("settings.toast.invalidSave"), variant: "destructive" })
     }
   }
 
