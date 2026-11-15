@@ -531,7 +531,7 @@ export default function CreateTeamPage() {
                         <div className="mt-4 flex items-center gap-4">
                             <CrestPreview team={teamData} size={88} />
                             <div className="min-w-0">
-                                <p className="truncate font-display text-3xl font-bold uppercase leading-none text-ink-1">{teamData.name || t("ct.yourClub")}</p>
+                                <p className="line-clamp-2 break-words font-display text-3xl font-bold uppercase leading-none text-ink-1">{teamData.name || t("ct.yourClub")}</p>
                                 <p className="mt-1.5 text-sm text-ink-3">{teamData.shortName || t("ct.tagFallback")} · {t(`ct.region.${teamData.region}`)}</p>
                             </div>
                         </div>
