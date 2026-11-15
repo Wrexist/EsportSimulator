@@ -20,8 +20,8 @@ test("each shortcut description appears once per group and Ctrl+K is listed", ()
         expect(new Set(descriptions).size).toBe(descriptions.length)
     }
     const general = SHORTCUT_GROUPS.find(g => g.label === "shortcuts.group.general")!.shortcuts
-    expect(general.find(s => s.description === "shortcuts.openLoad")).toMatchObject({ keys: ["Ctrl", "L"], alt: ["F3"] })
-    expect(general.find(s => s.description === "shortcuts.showShortcuts")).toMatchObject({ keys: ["F1"], alt: ["?"] })
+    expect(general.find(s => s.description === "shortcuts.openLoad")).toMatchObject({ keys: ["Ctrl", "L"], altKeys: ["F3"] })
+    expect(general.find(s => s.description === "shortcuts.showShortcuts")).toMatchObject({ keys: ["F1"], altKeys: ["?"] })
     const nav = SHORTCUT_GROUPS.find(g => g.label === "shortcuts.group.navigation")!.shortcuts
     expect(nav.some(s => s.keys.join("+") === "Ctrl+K")).toBe(true)
 })

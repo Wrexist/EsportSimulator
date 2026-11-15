@@ -150,12 +150,12 @@ describe("MODES-02: the pro's role and the club's specialist", () => {
         expect(other.role).toBe(PlayerRole.RIFLER)
     })
 
-    test("manager career unchanged: a player signed for a role still takes its slot", () => {
+    test("manager career: a player signed for a role takes it and the qualifying incumbent keeps it too (MARKET-16)", () => {
         const awper = makePlayer("awp", { role: PlayerRole.AWPER, awp: 90, skill: 70, rifle: 70 })
         const signed = makePlayer("new", { role: PlayerRole.AWPER, roleLocked: true, awp: 60 })
         reconcileTeamRoles([awper, signed])
         expect(signed.role).toBe(PlayerRole.AWPER)
-        expect(awper.role).toBe(PlayerRole.RIFLER)
+        expect(awper.role).toBe(PlayerRole.AWPER)
     })
 })
 
