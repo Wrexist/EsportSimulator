@@ -562,6 +562,8 @@ export interface LogEntry {
   site?: "A" | "B"
   /** Where a KILL happened, e.g. "A site" (from the round script). */
   location?: string
+  /** A SYSTEM row that marks a section break (half time, next map, overtime, final). */
+  divider?: boolean
 }
 
 export interface ActiveMatchState {

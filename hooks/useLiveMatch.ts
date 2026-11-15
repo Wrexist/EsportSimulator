@@ -964,19 +964,19 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
-                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.nextMap", { map: (MAP_NAMES[nextMapId] || nextMapId).toUpperCase() }) }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.nextMap", { map: MAP_NAMES[nextMapId] || nextMapId }) }, ...prev])
                     // Warm the next map's walk graph before its pistol round is built.
                     if (nextMapId) warmRoundMap(nextMapId)
                     breakAt("map-end", nextMapId)
                     queueRoundStart("PISTOL", ROUND_BEAT_MS + BREAK_CARD_MS)
                 } else if (transition === "OVERTIME") {
-                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.overtimeStart") }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.overtimeStart") }, ...prev])
                     breakAt("overtime")
                     settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(true)
                 } else if (transition === "HALFTIME") {
-                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.halfTime") }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.halfTime") }, ...prev])
                     breakAt("halftime")
                     settle()
                     setIsPlaying(false)
@@ -984,7 +984,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     queueRoundStart("PISTOL", ROUND_BEAT_MS + BREAK_CARD_MS)
                 } else if (transition === "OVERTIME_SWITCH") {
                     const newSet = (roundState.currentRound - 25) % 6 === 0
-                    setLogs(prev => [{ type: "SYSTEM", message: newSet ? t("feed.overtimeNewSet") : t("feed.overtimeSwitch") }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: newSet ? t("feed.overtimeNewSet") : t("feed.overtimeSwitch") }, ...prev])
                     breakAt("overtime-switch")
                     settle()
                     setIsPlaying(false)
@@ -1231,8 +1231,18 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 .join(", ")
             const winnerName = homeWon ? homeTeam.name : awayTeam.name
             const seriesScore = homeWon ? `${sim.homeSeriesScore}-${sim.awaySeriesScore}` : `${sim.awaySeriesScore}-${sim.homeSeriesScore}`
+            // A best-of-one names the round score and the map, not "1-0" (MATCHDAY-15).
+            const playedMaps = done.state.maps.filter(m => m.rounds.length > 0)
+            const onlyMap = runtime.canonicalMaps.length === 1 && playedMaps.length === 1 ? playedMaps[0] : null
+            const finalLine = onlyMap
+                ? t("feed.finalMap", {
+                    team: winnerName,
+                    score: homeWon ? `${onlyMap.homeScore ?? 0}–${onlyMap.awayScore ?? 0}` : `${onlyMap.awayScore ?? 0}–${onlyMap.homeScore ?? 0}`,
+                    map: MAP_NAMES[onlyMap.map] || onlyMap.map,
+                })
+                : t("feed.final", { team: winnerName, series: seriesScore, maps: mapScores })
             setLogs(prev => [
-                { type: "SYSTEM", message: t("feed.final", { team: winnerName, series: seriesScore, maps: mapScores }) },
+                { type: "SYSTEM", divider: true, message: finalLine },
                 { type: "SYSTEM", message: tn("feed.skippedEnd", done.roundsPlayed) },
                 ...prev,
             ])
