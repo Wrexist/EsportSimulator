@@ -49,7 +49,7 @@ export function PlayerCareerRecord({ player }: { player: PlayerSaveData }) {
 
     return (
         <div className="space-y-4">
-            <KpiStrip className="w-fit max-w-full flex-wrap">
+            <KpiStrip className="w-full flex-wrap [&>*]:flex-1">
                 <Kpi label={t("career.officialMaps")} value={maps} hint={tn("career.matches", player.matchesPlayed || 0)} />
                 <Kpi label={t("career.rating")} value={maps ? player.avgRating.toFixed(2) : "—"} valueClassName={maps ? ratingClass(player.avgRating) : undefined} hint={t("career.roundsWeighted")} />
                 <Kpi label="K–D" value={maps ? <span>{kills}<span className="text-ink-3">–</span>{deaths}</span> : "—"} hint={maps && deaths > 0 ? t("career.ratio", { n: (kills / deaths).toFixed(2) }) : undefined} />
