@@ -514,9 +514,19 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                 <p className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", current ? "text-gold" : done ? "text-ink-3" : "text-ink-3/70")}>
                                     {actionLabel(step.action)}
                                 </p>
-                                <p className={cn("truncate text-xs", done ? "text-ink-1" : current ? "text-ink-2" : "text-ink-3")}>
-                                    {done && entry?.mapId && step.action !== "SIDE_PICK" ? MAP_NAMES[entry.mapId] : teamName(step.team)}
-                                </p>
+                                {/* A finished ban or pick keeps who made it beside the map; the decider
+                                    step shows its map (or a dash), never "Decider" twice (MATCHDAY-20). */}
+                                {(() => {
+                                    const mapName = done && entry?.mapId && step.action !== "SIDE_PICK" ? (MAP_NAMES[entry.mapId] ?? entry.mapId) : null
+                                    const by = step.team === "home" || step.team === "away" ? teamName(step.team) : null
+                                    const text = mapName ? (by ? `${mapName} · ${by}` : mapName) : by ?? "—"
+                                    return (
+                                        <p className={cn("truncate text-xs", done ? "text-ink-1" : current ? "text-ink-2" : "text-ink-3")} title={text}>
+                                            {mapName ?? by ?? "—"}
+                                            {mapName && by && <span className="text-ink-3"> · {by}</span>}
+                                        </p>
+                                    )
+                                })()}
                             </li>
                         )
                     })}
