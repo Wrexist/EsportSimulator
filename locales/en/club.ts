@@ -200,6 +200,7 @@ export const CLUB: Record<string, string> = {
     "sx.roundLost": "Round {{n}}: lost",
     "sx.roundHow": "{{text}} ({{how}})",
     "rk.playstyle.default": "Default",
+    "rk.eloHelp": "A team rating that changes with results and opponent strength. Check event entry rules for qualification and seeding.",
     // Map data panel (components/stats/MapDataPanel.tsx)
     "md.title": "Map data",
     "md.season": "Season",

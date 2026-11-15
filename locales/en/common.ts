@@ -75,4 +75,8 @@ export const COMMON = {
     "exit.stay": "Stay",
     "exit.withoutSaving": "Exit without saving",
     "exit.exit": "Exit",
+    "common.loadingCareer": "Preparing career setup",
+    "common.loadingTeamCreator": "Preparing team creator",
+    "common.openingMatchCentre": "Opening match centre…",
+    "common.logoAria": "{{name}} logo",
 } as const

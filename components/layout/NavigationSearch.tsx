@@ -14,6 +14,10 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
+    // macOS keyboards show the Command key; others the localized Ctrl ("Strg" in German).
+    const [mac, setMac] = useState(false)
+    useEffect(() => setMac(/Mac|iPhone|iPad/.test(navigator.platform)), [])
+    const shortcut = mac ? "⌘ K" : `${t("key.ctrl")} K`
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
@@ -43,7 +47,7 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
         >
             <Search size={15} className="shrink-0" />
             <span className={compact ? "hidden text-xs @min-[110rem]/topbar:inline" : "flex-1 text-left text-xs"}>{t("search.open")}</span>
-            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 @min-[110rem]/topbar:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>Ctrl K</kbd>
+            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 @min-[110rem]/topbar:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>{shortcut}</kbd>
         </button>
         </DialogTrigger>
             <DialogContent className="overflow-hidden p-0 sm:max-w-lg" showCloseButton={false}>

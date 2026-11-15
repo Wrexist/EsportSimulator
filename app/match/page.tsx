@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { matchCentreHref } from "./match-centre"
+import { t } from "@/lib/i18n"
 
 /**
  * Match hub entry (`/match`): the career lives in the client store, so the
@@ -31,5 +32,5 @@ export default function MatchCentreRedirect() {
         }))
     }, [ready, router])
 
-    return <p role="status" className="py-16 text-center text-sm text-ink-3">Opening match centre…</p>
+    return <p role="status" className="py-16 text-center text-sm text-ink-3">{t("common.openingMatchCentre")}</p>
 }
