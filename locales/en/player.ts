@@ -375,4 +375,5 @@ export const PLAYER = {
     "mastery.EXPERT": "Expert",
     "mastery.MASTER": "Master",
     "attr.consistency": "Consistency",
+    "outlook.drills": "Team drills on the Training screen come on top of this forecast: each adds its listed gains times the same factors, up to potential.",
 } as const

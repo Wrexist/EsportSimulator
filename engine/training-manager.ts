@@ -1,4 +1,4 @@
-import { liveText } from "@/lib/i18n"
+import { liveText, tRefEn } from "@/lib/i18n"
 import { GameSave, TeamSaveData, PlayerSaveData, RoleTrainingSession } from "./save-types"
 import { Role } from "@/types"
 import { PlayerRole } from "@/types/enums"
@@ -219,7 +219,8 @@ export class TrainingManager {
               type: "EXPENSE",
               category: "TRAINING",
               amount: session.weeklyCost,
-              description: `Role training: ${player?.nickname || 'Player'} → ${session.targetRole}`,
+              // SQUAD-26: the role's name ("Entry fragger"), not its id; lib/stored-text.ts translates it.
+              description: tRefEn({ key: "svd.p.roleTraining", params: { name: player?.nickname || 'Player', role: { key: `tr.role.${session.targetRole}` } } }),
               balance: team.budget
             })
           }

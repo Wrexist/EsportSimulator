@@ -14,6 +14,7 @@ import { TrainingFocus, calculateTrainingFatigue, calculateTrainingGains } from 
 import { facilityLevel, staffDevelopmentEffects } from "@/engine/organization-effects"
 import { getPlayerPassiveBonuses } from "@/engine/talent-trees"
 import type { PlayerSaveData, StaffSaveData, TeamSaveData } from "@/engine/save-types"
+import { formatCurrency } from "@/lib/utils-extended"
 
 /** The managed club's weekly regimen (store/game-store.ts). */
 export const TEAM_DEFAULT_FOCUS = TrainingFocus.AIM
@@ -101,4 +102,18 @@ export function drillStatLabel(stat: string): string {
     if (STAT_KEYS.has(mapped)) return statLabel(mapped)
     const direct = [...STAT_KEYS].find(k => k.toLowerCase() === key)
     return direct ? statLabel(direct) : stat
+}
+
+/**
+ * SQUAD-20: what stopping a retraining settles (TrainingManager.cancelTraining:
+ * half of what was paid so far comes back, the weeks done are lost).
+ */
+export function stopRetrainingText(rt: { weeklyCost?: number; weeksCompleted: number; totalWeeks: number }): string {
+    const paid = (rt.weeklyCost || 0) * rt.weeksCompleted
+    return t("tr.stopBody", {
+        refund: formatCurrency(Math.floor(paid * 0.5), "$", false),
+        paid: formatCurrency(paid, "$", false),
+        done: rt.weeksCompleted,
+        total: rt.totalWeeks,
+    })
 }

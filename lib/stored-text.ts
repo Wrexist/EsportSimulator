@@ -77,6 +77,9 @@ const RULES: Rule[] = [
     [/^Youth Academy — Upgrade to Level (\d+)$/, m => t("svd.p.academyUpgrade", { level: m[1] })],
     [/^(\w+) Facility — Upgrade to Level (\d+)$/, m => t("svd.p.facilityUpgrade", { facility: known(`fac.${m[1]}.name`, m[1]), level: m[2] })],
     [/^(\w+) Facility — Construction$/, m => t("svd.p.facilityBuild", { facility: known(`fac.${m[1]}.name`, m[1]) })],
+    // SQUAD-26: rows since then keep the English the key gives ("Performance Center: construction").
+    [/^(.+): upgrade to level (\d+)$/, m => t("svd.p.facilityUpgrade", { facility: segment(m[1]), level: m[2] })],
+    [/^(.+): construction$/, m => t("svd.p.facilityBuild", { facility: segment(m[1]) })],
     [/^Activity income: (.+)$/, m => t("svd.p.activityIncome", { name: segment(m[1]) })],
     [/^Activity: (.+)$/, m => t("svd.p.activity", { name: segment(m[1]) })],
     [/^Booked: (.+)$/, m => t("svd.p.booked", { name: segment(m[1]) })],
@@ -87,9 +90,10 @@ const RULES: Rule[] = [
     [/^Title contract bonus \((.+)\): (.+)$/, m => t("svd.p.titleBonus", { tournament: m[1], name: m[2] })],
     [/^Board backing — exceptional season$/, () => t("svd.p.boardBackingExceptional")],
     [/^Board backing — successful season$/, () => t("svd.p.boardBackingSuccessful")],
-    [/^Role training: (.+) → (\w+)$/, m => t("svd.p.roleTraining", { name: m[1], role: known(`market.role.${m[2]}`, m[2]) })],
+    [/^Role training: (.+) → (.+)$/, m => t("svd.p.roleTraining", { name: m[1], role: known(`market.role.${m[2]}`, known(`tr.role.${m[2]}`, segment(m[2]))) })],
     [/^Role training cancelled — refund: (.+)$/, m => t("svd.p.roleTrainingRefund", { name: m[1] })],
-    [/^Equipment purchase: (.+)$/, m => t("svd.p.equipment", { item: m[1] })],
+    [/^Equipment purchase: (.+)$/, m => t("svd.p.equipment", { item: known(`gear.item.${m[1]}`, segment(m[1])) })],
+    [/^Weapon drill: (.+) \((.+)\)$/, m => t("svd.p.weaponDrill", { drill: segment(m[1]), name: m[2] })],
     [/^(.+) - (\d+)(?:st|nd|rd|th) Place$/, m => t("svd.p.placement", { tournament: m[1], place: ordinalLabel(Number(m[2])) })],
     [/^(.+) split (\S+) prize: (\d+)(?:st|nd|rd|th) place$/, m => t("svd.p.splitPrize", { division: m[1], split: m[2], place: ordinalLabel(Number(m[3])) })],
     // Board confidence causes (engine/board-expectations.ts) and objectives

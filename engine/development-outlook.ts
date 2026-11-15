@@ -15,7 +15,7 @@ import type { PlayerSaveData, StaffSaveData, TeamSaveData } from "./save-types"
 import { facilityLevel, staffDevelopmentEffects } from "./organization-effects"
 import { ARCHETYPE_INFO, getArchetype, mentorTrainingFactor, trainingFactor } from "./personality"
 import { isFeatureUnlocked } from "./talent-trees"
-import { ageDeclineChance, naturalGrowthChance, naturalGrowthPerWeek, trainingAgeFactor } from "./development-rates"
+import { AGE_CURVE, ageDeclineChance, naturalGrowthChance, naturalGrowthPerWeek, trainingAgeFactor } from "./development-rates"
 
 export { ageDeclineChance, naturalGrowthChance }
 
@@ -35,7 +35,16 @@ export interface OutlookFactor {
     label: string
     /** Multiplier on weekly training gains (1 = no effect). */
     multiplier: number
+    /**
+     * What the chip shows when it differs from `multiplier`. The age factor
+     * (0.12–0.34) is shown against the best training age, so youth reads
+     * ±0% rather than a −70% penalty (SQUAD-04).
+     */
+    display?: number
 }
+
+/** Best training-age factor (AGE_CURVE.TRAINING), the age chip's ±0%. */
+export const BEST_TRAINING_AGE_FACTOR = Math.max(...AGE_CURVE.TRAINING.map(([, f]) => f))
 
 export interface StatForecast {
     stat: string
@@ -102,12 +111,13 @@ export function developmentOutlook(input: {
         const clubStaff = activeStaff(staff, team.id, currentWeek)
         const effectsOfStaff = staffDevelopmentEffects(clubStaff)
         const archetype = getArchetype(player)
-        const push = (label: string, m: number) => { if (Math.abs(m - 1) > 1e-9) factors.push({ label, multiplier: m }) }
+        const push = (label: string, m: number, display?: number) => { if (Math.abs(m - 1) > 1e-9) factors.push({ label, multiplier: m, ...(display !== undefined ? { display } : {}) }) }
         push(t("outlook.factor.facility", { n: trainingLevel }), 1 + trainingLevel * 0.1)
         push(t("outlook.factor.staff"), effectsOfStaff.trainingMultiplier)
         push(ARCHETYPE_INFO[archetype].label, focus === TrainingFocus.REST ? 1 : trainingFactor(archetype))
         push(t("outlook.factor.mentor"), mentorTrainingFactor(team, player.id, lookup))
-        push(t("outlook.factor.age", { age }), focus === TrainingFocus.REST ? 1 : trainingAgeFactor(age))
+        const ageFactor = focus === TrainingFocus.REST ? 1 : trainingAgeFactor(age)
+        push(t("outlook.factor.age", { age }), ageFactor, ageFactor / BEST_TRAINING_AGE_FACTOR)
         multiplier = factors.reduce((m, f) => m * f.multiplier, 1)
         tacticalMultiplier = (1 + tacticalLevel * 0.2) * effectsOfStaff.tacticMultiplier
         breakthrough = team.id === playerTeamId && clubStaff.some(s => s.role === "coach"

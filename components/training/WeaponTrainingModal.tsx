@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { t } from "@/lib/i18n"
+import { t, tRefEn } from "@/lib/i18n"
 
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -92,7 +92,8 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                 weaponMastery: result.newMastery,
                 energy: newEnergy
             })
-            if (playerTeamId) updateTeamBudget(playerTeamId, -result.cost)
+            // SQUAD-26: the ledger line names the drill and the player.
+            if (playerTeamId) updateTeamBudget(playerTeamId, -result.cost, tRefEn({ key: "svd.p.weaponDrill", params: { drill: { key: `tr.w.drill.${drillKey}` }, name: livePlayer.nickname } }))
 
             // Save game to persist changes
             try {

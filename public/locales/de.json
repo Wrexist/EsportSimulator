@@ -3014,8 +3014,8 @@
  "tr.teamDrills": "Teamdrills",
  "tr.run": "{{name}} starten",
  "tr.runDrill": "Drill starten",
- "tr.drillIntro.one": "Ein Drill wirkt sofort auf den {{count}} Spieler, der nicht umgeschult wird: die aufgeführten Zuwächse, die angezeigte Müdigkeit und +50 XP. Waffendrills bringen zusätzlich Beherrschungs-XP.",
- "tr.drillIntro.other": "Ein Drill wirkt sofort auf die {{count}} Spieler, die nicht umgeschult werden: die aufgeführten Zuwächse, die angezeigte Müdigkeit und +50 XP. Waffendrills bringen zusätzlich Beherrschungs-XP.",
+ "tr.drillIntro.one": "Ein Drill wirkt sofort auf den {{count}} Spieler, der nicht umgeschult wird: die angezeigte Müdigkeit, +50 XP und die aufgeführten Zuwächse, wie im Wochentraining mit Trainingsbonus und Alter verrechnet und nur bis zum Potenzial. Waffendrills bringen zusätzlich etwas Beherrschungs-XP.",
+ "tr.drillIntro.other": "Ein Drill wirkt sofort auf die {{count}} Spieler, die nicht umgeschult werden: die angezeigte Müdigkeit, +50 XP und die aufgeführten Zuwächse, wie im Wochentraining mit Trainingsbonus und Alter verrechnet und nur bis zum Potenzial. Waffendrills bringen zusätzlich etwas Beherrschungs-XP.",
  "tr.fatigue": "{{n}} Müdigkeit",
  "tr.programmes": "Einzelprogramme",
  "tr.weeklyFocus": "Wochenschwerpunkt",
@@ -6703,5 +6703,14 @@
  "bd.rev.MISSED.mNotice": "Die Saison blieb hinter den Zielen des Vorstands zurück. Das Vertrauen ist auf {{c}}/100 gesunken: Du hast die letzte Warnung.",
  "bd.rev.FAILED.t": "Vorstand von {{club}} verärgert",
  "bd.rev.FAILED.m": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen.",
- "bd.rev.FAILED.mNotice": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen: Du hast die letzte Warnung und musst nächste Saison liefern."
+ "bd.rev.FAILED.mNotice": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen: Du hast die letzte Warnung und musst nächste Saison liefern.",
+ "tr.belowCeiling": "{{n}} von {{total}} Spielern können hier noch zulegen; die übrigen sind an ihrem Potenzial.",
+ "tr.noGain": "Keine Zuwächse für {{names}} (am Potenzial)",
+ "tr.stopTitle": "Umschulung von {{name}} beenden?",
+ "tr.stopBody": "Du bekommst {{refund}} zurück (die Hälfte der bisher gezahlten {{paid}}). Die {{done}}/{{total}} absolvierten Wochen gehen verloren.",
+ "tr.finRetraining": "Rollen-Umschulung",
+ "tr.finRetrainingNote.one": "{{count}} Spieler, fällig beim Wochenupdate",
+ "tr.finRetrainingNote.other": "{{count}} Spieler, fällig beim Wochenupdate",
+ "svd.p.weaponDrill": "Waffendrill: {{drill}} ({{name}})",
+ "outlook.drills": "Teamdrills im Trainingsbildschirm kommen zu dieser Prognose hinzu: Jeder bringt seine aufgeführten Zuwächse mal dieselben Faktoren, bis zum Potenzial."
 }

@@ -81,25 +81,24 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                         </label>
 
                         {selectedRole && (
-                            <>
-                                <div className="flex items-center gap-2 text-sm">
-                                    <RoleTag role={player.role} />
-                                    <ArrowRight size={14} className="text-ink-3" />
-                                    <RoleTag role={selectedRole} className="border-gold text-ink-1" />
-                                    <span className="text-xs text-ink-3">{t("tr.rt.newPrimaryShort")}</span>
-                                </div>
-                                <dl className="divide-y divide-line rounded-lg border border-line">
-                                    <Line label={t("tr.rt.duration")} value={t("tr.rt.weeks", { n: DURATION })} />
-                                    <Line label={t("tr.rt.cost")} value={t("tr.rt.costValue", { weekly: formatCurrency(WEEKLY_COST, "$", false), total: formatCurrency(WEEKLY_COST * DURATION, "$", false) })} />
-                                    <Line label={t("tr.rt.energy")} value={t("tr.rt.energyValue")} />
-                                    <Line label={t("tr.rt.slots")} value={t("tr.rt.slotsValue", { n: maxTrainingSlots })} tone={slotsAvailable ? "text-ink-1" : "text-negative"} />
-                                    <Line label={t("tr.rt.completion")} value={[...(ROLE_BONUSES[selectedRole] || []).map(b => `+${b.amount} ${statLabel(b.stat)}`), t("tr.rt.morale")].join(", ")} />
-                                </dl>
-                                <p className="text-xs leading-relaxed text-ink-3">
-                                    {t("tr.rt.note")}
-                                </p>
-                            </>
+                            <div className="flex items-center gap-2 text-sm">
+                                <RoleTag role={player.role} />
+                                <ArrowRight size={14} className="text-ink-3" />
+                                <RoleTag role={selectedRole} className="border-gold text-ink-1" />
+                                <span className="text-xs text-ink-3">{t("tr.rt.newPrimaryShort")}</span>
+                            </div>
                         )}
+                        {/* SQUAD-20: the cost is the same for every role, so show it before a role is picked. */}
+                        <dl className="divide-y divide-line rounded-lg border border-line">
+                            <Line label={t("tr.rt.duration")} value={t("tr.rt.weeks", { n: DURATION })} />
+                            <Line label={t("tr.rt.cost")} value={t("tr.rt.costValue", { weekly: formatCurrency(WEEKLY_COST, "$", false), total: formatCurrency(WEEKLY_COST * DURATION, "$", false) })} />
+                            <Line label={t("tr.rt.energy")} value={t("tr.rt.energyValue")} />
+                            <Line label={t("tr.rt.slots")} value={t("tr.rt.slotsValue", { n: maxTrainingSlots })} tone={slotsAvailable ? "text-ink-1" : "text-negative"} />
+                            {selectedRole && <Line label={t("tr.rt.completion")} value={[...(ROLE_BONUSES[selectedRole] || []).map(b => `+${b.amount} ${statLabel(b.stat)}`), t("tr.rt.morale")].join(", ")} />}
+                        </dl>
+                        <p className="text-xs leading-relaxed text-ink-3">
+                            {t("tr.rt.note")}
+                        </p>
                     </div>
                 ) : (
                     <div className="flex items-center gap-2 py-2">

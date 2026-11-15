@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
 
 function pct(m: number) {
     const v = Math.round((m - 1) * 100)
-    return `${v > 0 ? "+" : "−"}${Math.abs(v)}%`
+    return v === 0 ? "±0%" : `${v > 0 ? "+" : "−"}${Math.abs(v)}%`
 }
 
 /**
@@ -61,13 +61,19 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                     )}
                     {outlook.factors.length > 0 && (
                         <p className="flex flex-wrap gap-1.5 text-xs">
-                            {outlook.factors.map(f => (
-                                <span key={f.label} className={cn("rounded border px-1.5 py-0.5 tabular-nums", f.multiplier >= 1 ? "border-positive/40 text-positive" : "border-negative/40 text-negative")}>
-                                    {f.label} {pct(f.multiplier)}
-                                </span>
-                            ))}
+                            {outlook.factors.map(f => {
+                                // SQUAD-04: the age chip is relative to the best training age.
+                                const shown = f.display ?? f.multiplier
+                                return (
+                                    <span key={f.label} className={cn("rounded border px-1.5 py-0.5 tabular-nums", shown >= 1 - 1e-9 ? "border-positive/40 text-positive" : "border-negative/40 text-negative")}>
+                                        {f.label} {pct(shown)}
+                                    </span>
+                                )
+                            })}
                         </p>
                     )}
+                    {/* SQUAD-01: drills are not in this forecast; say how they relate to it. */}
+                    {outlook.trainsWithClub && <p className="text-xs text-ink-3">{t("outlook.drills")}</p>}
                 </div>
                 <dl className="min-w-0 space-y-2 text-sm">
                     <div>

@@ -19,7 +19,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { MoneyBreakdown } from "@/components/finance/IncomeBreakdown"
 import { CashChart, type CashPoint } from "@/components/finance/CashChart"
 import { EconomyEngine } from "@/engine/economy-engine"
-import { cashRunway, forecastFinances } from "@/engine/finance-forecast"
+import { cashRunway, forecastFinances, roleTrainingCost } from "@/engine/finance-forecast"
 import { ECONOMY_CONSTANTS } from "@/lib/constants"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
@@ -108,7 +108,10 @@ export default function FinancesPage() {
   if (!team || !report) return <LoadingState message={t("fin.loading")} size="lg" className="min-h-[50vh]" />
 
   const funds = team.budget ?? 0
-  const net = report.net
+  // SQUAD-27: role retraining is charged by the week update, outside the economy settlement.
+  const retraining = roleTrainingCost(team)
+  const expensesTotal = report.expenses.total + retraining
+  const net = report.net - retraining
   const runway = cashRunway(funds, net)
   const season = Math.ceil(currentWeek / 52)
   const repFactor = EconomyEngine.sponsorReputationFactor(team.reputation)
@@ -134,6 +137,7 @@ export default function FinancesPage() {
     { label: t("fin.out.facilities"), amount: report.expenses.facilities, note: team.facilities?.length ? tn("fin.out.facilitiesCount", team.facilities.length) : t("fin.out.baseCampus") },
     { label: t("fin.out.equipment"), amount: report.expenses.equipment },
     { label: t("fin.out.academy"), amount: report.expenses.academy },
+    ...(retraining > 0 ? [{ label: t("tr.finRetraining"), amount: retraining, note: tn("tr.finRetrainingNote", team.activeRoleTraining?.length ?? 0) }] : []),
   ]
 
   const handleUpgrade = () => {
@@ -152,7 +156,7 @@ export default function FinancesPage() {
           <KpiStrip>
             <Kpi label={t("common.funds")} value={formatCurrency(funds, "$", true)} valueClassName={funds <= 0 ? "text-negative" : undefined} />
             <Kpi label={t("fin.kpi.income")} value={formatCurrency(report.income.total, "$", true)} />
-            <Kpi label={t("fin.kpi.expenses")} value={formatCurrency(report.expenses.total, "$", true)} />
+            <Kpi label={t("fin.kpi.expenses")} value={formatCurrency(expensesTotal, "$", true)} />
             <Kpi label={t("fin.kpi.net")} value={formatSignedCurrency(net, "$", true)} valueClassName={net < 0 ? "text-negative" : "text-positive"} />
             <Kpi label={t("fin.kpi.runway")} value={runway >= 999 ? "—" : tn("fin.wks", runway)} hint={runway >= 999 ? t("fin.noDeficit") : undefined} valueClassName={runway < 12 ? "text-caution" : undefined} />
           </KpiStrip>
@@ -193,7 +197,7 @@ export default function FinancesPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("fin.income")}</p>
           <MoneyBreakdown rows={incomeRows} total={report.income.total} tone="income" />
           <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("fin.expenses")}</p>
-          <MoneyBreakdown rows={expenseRows} total={report.expenses.total} tone="expense" />
+          <MoneyBreakdown rows={expenseRows} total={expensesTotal} tone="expense" />
           <div className="mt-3 flex items-baseline justify-between border-t border-line-strong pt-3">
             <span className="text-sm font-semibold text-ink-1">{t("fin.net")}</span>
             <span className={cn("font-display text-2xl font-bold tabular-nums", net < 0 ? "text-negative" : "text-positive")}>{formatSignedCurrency(net, "$", false)}</span>

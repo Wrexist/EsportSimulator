@@ -28,7 +28,7 @@
  *     branches set the correct success message.
  */
 
-import { liveText } from "@/lib/i18n"
+import { liveText, tRefEn } from "@/lib/i18n"
 import type { SliceCreator } from "@/store/types"
 import type { SponsorSaveData, FacilitySaveData } from "@/engine/save-types"
 import { EquipmentManager } from "@/engine/equipment-manager"
@@ -161,7 +161,8 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                     type: "EXPENSE",
                     category: "FACILITIES",
                     amount: cost,
-                    description: `${facility.type} Facility — Upgrade to Level ${facility.level}`,
+                    // SQUAD-26: the facility's name, not its enum (lib/stored-text.ts translates it back).
+                    description: tRefEn({ key: "svd.p.facilityUpgrade", params: { facility: { key: `fac.${facility.type}.name` }, level: facility.level } }),
                     balance: team.budget,
                 })
 
@@ -206,7 +207,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 type: "EXPENSE",
                 category: "FACILITIES",
                 amount: FACILITY_BUILD_COST,
-                description: `${facilityType} Facility — Construction`,
+                description: tRefEn({ key: "svd.p.facilityBuild", params: { facility: { key: `fac.${facilityType}.name` } } }),
                 balance: team.budget,
             })
 
@@ -356,7 +357,8 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                     type: "EXPENSE",
                     category: "FACILITIES",
                     amount: cost,
-                    description: `Equipment purchase: ${catalogId}`,
+                    // SQUAD-26: the item's name, not its catalog id.
+                    description: tRefEn({ key: "svd.p.equipment", params: { item: { key: `gear.item.${catalogId}` } } }),
                     balance: team.budget,
                 })
             }

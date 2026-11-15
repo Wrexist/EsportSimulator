@@ -358,4 +358,5 @@ export const STORED = {
     "svd.msg.gearMissing": "Equipment not found",
     "svd.msg.gearInstalled": "This equipment is already installed",
     "svd.msg.noFunds": "Insufficient funds",
+    "svd.p.weaponDrill": "Weapon drill: {{drill}} ({{name}})",
 } as const
