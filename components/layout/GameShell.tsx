@@ -32,6 +32,7 @@ import { MotionConfig } from "framer-motion"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { createSessionPersistence } from "@/lib/session-persistence"
 import { hasUnsavedChanges } from "@/lib/unsaved-changes"
+import { createSaveSoon } from "@/lib/save-soon"
 import { waitForPendingGameSave } from "@/store/game-store"
 import { useMomentPending } from "@/components/moments/moment-state"
 import { useLocale, useUiLanguageSync } from "@/lib/use-locale"
@@ -235,19 +236,27 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             if (allowClose) await electronBridge.confirmAppClose()
             else await electronBridge.cancelAppClose?.()
         })
+        // Browser tab: a save started on unload never finishes (the leave
+        // prompt blocks the page, then the reload tears it down), so with
+        // auto-save on each career change is written a moment after it
+        // happens. The desktop app saves through its close path above.
+        const saveSoon = electronBridge ? null : createSaveSoon({
+            subscribe: listener => useGameStore.subscribe(listener),
+            getState: useGameStore.getState,
+            enabled: () => useSettingsStore.getState().autoSave && !isLiveMatchPath(window.location.pathname),
+            hasUnsavedChanges,
+            save: () => useGameStore.getState().saveGame(),
+        })
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             if (electronBridge) return
             const state = useGameStore.getState()
-            if (useSettingsStore.getState().autoSave && state.saveId) {
-                if (!state.isLoading) void state.saveGame().catch(() => {})
-                event.preventDefault()
-                event.returnValue = ""
-            } else if (hasUnsavedChanges(state)) {
-                // Auto-save off: the browser's own leave prompt is the only
-                // warning a tab close can show.
-                event.preventDefault()
-                event.returnValue = ""
-            }
+            if (!hasUnsavedChanges(state)) return
+            // Progress not on disk yet (auto-save off, or a write still in
+            // flight): the browser's own leave prompt is the only warning a
+            // tab close can show. Staying lets a running save finish.
+            if (useSettingsStore.getState().autoSave && !state.isLoading) void state.saveGame().catch(() => {})
+            event.preventDefault()
+            event.returnValue = ""
         }
         const handleVisibilityChange = () => {
             runtimeWindow.__esimWindowFocused = !document.hidden
@@ -262,6 +271,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         return () => {
             disposed = true
             persistence.dispose()
+            saveSoon?.dispose()
             unsubscribeClose?.()
             exitResolverRef.current?.(false)
             exitResolverRef.current = null

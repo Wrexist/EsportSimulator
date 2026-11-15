@@ -73,3 +73,13 @@ export function recordEventName(name: string, tournamentId: string | null | unde
     const { startWeek, duration } = eventWeeksFor(tournamentId, recordWeek)
     return getDynamicTournamentName(name, startWeek, gameStartDate, duration)
 }
+
+/**
+ * Name of a match's event on its result screen: the saved instance's name
+ * (which carries the year it is played in) before the calendar entry's data
+ * name, which still says the data's year ("Winter Open Katova 2025").
+ */
+export function matchEventName(storedName: string | null | undefined, definitionName: string | null | undefined, tournamentId: string | null | undefined, matchWeek: number, gameStartDate?: string | null): string | undefined {
+    if (storedName) return storedName
+    return definitionName ? recordEventName(definitionName, tournamentId, matchWeek, gameStartDate) : undefined
+}

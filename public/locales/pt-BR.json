@@ -7107,5 +7107,11 @@
  "insight.favouredLosses.one": "{{count}} perdido com a mais forte",
  "insight.favouredLosses.many": "{{count}} perdidos com a mais forte",
  "insight.favouredLosses.other": "{{count}} perdidos com a mais forte",
- "feed.finalMap": "Fim: {{team}} vence por {{score}} em {{map}}"
+ "feed.finalMap": "Fim: {{team}} vence por {{score}} em {{map}}",
+ "stage.ro16": "Oitavas de final",
+ "stage.ro32": "Dezesseis-avos de final",
+ "stage.ro64": "Fase de 64",
+ "stage.ro16Match": "Oitavas de final · partida {{n}}",
+ "stage.ro32Match": "Dezesseis-avos de final · partida {{n}}",
+ "stage.ro64Match": "Fase de 64 · partida {{n}}"
 }

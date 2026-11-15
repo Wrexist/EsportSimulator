@@ -20,7 +20,7 @@ import {
 import type { StoryArc } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL, leadingBeat } from "@/engine/storylines/view"
 import type { StoryArcKind } from "@/engine/storylines/types"
-import { getLocale, listJoin, t, tn } from "@/lib/i18n"
+import { getLocale, intlLocale, listJoin, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { storyKindName } from "@/lib/story-names"
 import { lineText } from "@/lib/news-text"
@@ -354,10 +354,11 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     return t("wr.h.sentence", { sentence: `${sentence.charAt(0).toUpperCase()}${sentence.slice(1)}` })
 }
 
-/** Delta text: one decimal under 10, whole numbers above. */
+/** Delta text: one decimal under 10, whole numbers above, with the language's decimal mark ("0,2" in German). */
 export function fmtDelta(d: number): string {
     const a = Math.abs(d)
-    return a >= 10 ? String(Math.round(a)) : a >= 1 ? (Math.round(a * 10) / 10).toString() : (Math.round(a * 10) / 10 || Math.round(a * 100) / 100).toString()
+    const shown = a >= 10 ? Math.round(a) : a >= 1 ? Math.round(a * 10) / 10 : (Math.round(a * 10) / 10 || Math.round(a * 100) / 100)
+    return shown.toLocaleString(intlLocale(), { maximumFractionDigits: 2, useGrouping: false })
 }
 
 export function signedDelta(d: number): string {

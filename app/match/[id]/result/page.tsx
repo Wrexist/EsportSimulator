@@ -29,6 +29,8 @@ import { markOutcomeCue, playMatchOutcomeCue } from "@/lib/match-outcome-sound"
 import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { matchEventName } from "@/lib/tournament-instances"
+import { celebrationPlayed, markCelebrationPlayed } from "@/lib/match-celebration"
 import { MAP_NAMES } from "@/data/map-pool"
 import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { Panel } from "@/src/components/ui/Panel"
@@ -46,7 +48,7 @@ const CONFETTI_COLORS = ['#F2B53A', '#F2F4F7', '#3DD68C']
 export default function MatchResultPage() {
     const { id } = useParams<{ id: string }>()
     const router = useRouter()
-    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek, currentDay, timeMode, financeLedger } = useGameStore(useShallow(state => ({
+    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek, currentDay, timeMode, financeLedger, gameStartDate } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
         players: state.players,
@@ -59,6 +61,7 @@ export default function MatchResultPage() {
         currentDay: state.currentDay,
         timeMode: state.timeMode,
         financeLedger: state.financeLedger,
+        gameStartDate: state.gameStartDate,
     })))
     const [match, setMatch] = useState<CompletedMatchSaveData | null>(null)
     const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview")
@@ -121,13 +124,16 @@ export default function MatchResultPage() {
         if (titleMoment) markOutcomeCue(match.id)
         else playMatchOutcomeCue(match.id, playerWon)
 
-        if (playerWon && !titleMoment) {
+        // The celebration plays the first time this result opens, not on every visit.
+        const careerId = useGameStore.getState().saveId
+        if (playerWon && !titleMoment && !celebrationPlayed(careerId, match.id, "confetti")) {
             confettiTriggered.current = true
 
             // Preload then fire the burst — keeps canvas-confetti out of the
             // critical bundle for non-winning paths.
             preloadConfetti().then(() => {
                 if (cancelled) return
+                markCelebrationPlayed(careerId, match.id, "confetti")
                 const duration = 3000
                 const end = Date.now() + duration
 
@@ -184,6 +190,9 @@ export default function MatchResultPage() {
         const homeWon = match.result.homeScore > match.result.awayScore
         const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
         if (!playerWon) return
+        // Shown once per match: a later visit to this result stays quiet.
+        const careerId = useGameStore.getState().saveId
+        if (celebrationPlayed(careerId, match.id, "advancement")) return
 
         // Find the tournament and check for next stage
         const tournament = tournaments?.find(t => t.id === match.tournamentId)
@@ -214,10 +223,11 @@ export default function MatchResultPage() {
 
             // Delay showing the advancement animation to let victory confetti play first
             setTimeout(() => {
+                markCelebrationPlayed(careerId, match.id, "advancement")
                 setAdvancementData({
                     fromStage: currentBracketMatch.stage ? stageName(currentBracketMatch.stage) : t("result.currentRound"),
                     toStage: nextMatch.stage ? stageName(nextMatch.stage) : t("result.nextRound"),
-                    tournamentName: tournamentDef?.name || tournament.name || t("intro.tournament"),
+                    tournamentName: matchEventName(tournament.name, tournamentDef?.name, match.tournamentId, match.week, useGameStore.getState().gameStartDate) || t("intro.tournament"),
                     isChampionship
                 })
                 setShowAdvancement(true)
@@ -343,7 +353,7 @@ export default function MatchResultPage() {
     const isTournament = !leagueStage && !!match.tournamentId && match.tournamentId !== "SCRIM"
     const liveTournament = isTournament ? tournaments?.find(t => t.id === match.tournamentId) : undefined
     const tournamentDef = isTournament ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId) : undefined
-    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || t("intro.tournament")) : match.tournamentId === "SCRIM" ? t("result.scrim") : t("intro.friendly"))
+    const competitionName = leagueStage ?? (isTournament ? (matchEventName(liveTournament?.name, tournamentDef?.name, match.tournamentId, match.week, gameStartDate) || t("intro.tournament")) : match.tournamentId === "SCRIM" ? t("result.scrim") : t("intro.friendly"))
     let tournamentLine: string | null = null
     let tournamentTone = "text-positive"
     if (isPlayerMatch && leagueStage) {
@@ -900,7 +910,7 @@ export default function MatchResultPage() {
                     fromStage={advancementData.fromStage}
                     toStage={advancementData.toStage}
                     teamName={teams.find(tm => tm.id === playerTeamId)?.name || t("live.yourTeam")}
-                    teamLogo={teams.find(t => t.id === playerTeamId)?.logoPath}
+                    team={teams.find(t => t.id === playerTeamId)}
                     tournamentName={advancementData.tournamentName}
                     isChampionship={advancementData.isChampionship}
                     onComplete={() => setShowAdvancement(false)}

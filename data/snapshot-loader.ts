@@ -195,11 +195,13 @@ export class SnapshotLoader {
     createCareerFromSnapshot(
         saveName: string,
         playerTeamId: string,
-        startWeek: number = 1
+        startWeek: number = 1,
+        /** Same seed, same players and contracts (the Draft Cup rebuilds its world after a reload). */
+        seed?: number
     ): GameSave | null {
         if (!this.snapshot) return null
 
-        const creationSeed = generateSeed()
+        const creationSeed = seed ?? generateSeed()
         const creationRng = new SeededRNG(creationSeed)
         const saveId = `save_${Date.now()}_${creationSeed.toString(36)}_${Math.floor(creationRng.next() * 1_000_000_000).toString(36)}`
         const now = new Date().toISOString()
