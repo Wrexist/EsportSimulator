@@ -5274,7 +5274,7 @@
  "ib.unknown": "Desconhecido",
  "ib.perWeek": "{{amount}}/sem.",
  "ib.bid.notListed": "Não está mais à venda",
- "ib.bid.playsThisWeek": "Você joga nesta semana, então o elenco precisa ficar completo",
+ "ib.bid.playsThisWeek": "Você joga nesta semana, então o elenco precisa ficar completo. Dá para aceitar depois da partida de {{day}}.",
  "ib.toast.sold": "{{name}} vendido para {{club}}",
  "ib.toast.soldAnon": "{{name}} vendido",
  "ib.toast.bidRejected": "Proposta por {{name}} recusada",

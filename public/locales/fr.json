@@ -5274,7 +5274,7 @@
  "ib.unknown": "Inconnu",
  "ib.perWeek": "{{amount}}/sem.",
  "ib.bid.notListed": "N'est plus sur la liste des transferts",
- "ib.bid.playsThisWeek": "Tu joues cette semaine, l'effectif doit rester complet",
+ "ib.bid.playsThisWeek": "Tu joues cette semaine, l'effectif doit rester complet. Tu pourras accepter après le match de {{day}}.",
  "ib.toast.sold": "{{name}} vendu à {{club}}",
  "ib.toast.soldAnon": "{{name}} vendu",
  "ib.toast.bidRejected": "Offre pour {{name}} refusée",

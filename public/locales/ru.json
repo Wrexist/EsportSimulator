@@ -5416,7 +5416,7 @@
  "ib.unknown": "Неизвестно",
  "ib.perWeek": "{{amount}}/нед.",
  "ib.bid.notListed": "Больше не выставлен на трансфер",
- "ib.bid.playsThisWeek": "На этой неделе у тебя матч, состав должен остаться целым",
+ "ib.bid.playsThisWeek": "На этой неделе у тебя матч, состав должен остаться целым. Принять предложение можно после матча ({{day}}).",
  "ib.toast.sold": "{{name}}: продажа в {{club}}",
  "ib.toast.soldAnon": "{{name}}: продажа",
  "ib.toast.bidRejected": "Предложение за {{name}} отклонено",
