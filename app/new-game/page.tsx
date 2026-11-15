@@ -357,15 +357,16 @@ export default function TeamSelectionPage() {
         return (
             <div className="relative flex min-h-dvh overflow-hidden bg-ink">
                 <KeyArt />
-                <div className="relative z-10 flex min-h-dvh w-full max-w-[560px] flex-col px-16 py-14 animate-in fade-in duration-200 [@media(max-height:800px)]:py-8">
+                <div className="relative z-10 flex min-h-dvh w-full max-w-[560px] flex-col px-16 py-14 animate-in fade-in duration-200 [@media(max-height:800px)]:max-w-[640px] [@media(max-height:800px)]:py-6">
                     <Link href="/main-menu" className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                         <ArrowLeft size={16} /> {t("ng.mainMenu")}
                     </Link>
 
-                    <div className="my-auto w-full max-w-[420px] py-12 [@media(max-height:800px)]:py-4">
-                        <ScreenHeader eyebrow={t("ng.step1.eyebrow")} title={t("ng.step1.title")} subtitle={t("ng.step1.subtitle")} />
+                    <div className="my-auto w-full max-w-[420px] py-12 [@media(max-height:800px)]:max-w-[500px] [@media(max-height:800px)]:py-3">
+                        {/* START-35: on a short window the intro line (it lists the paths below) gives way to the paths. */}
+                        <ScreenHeader eyebrow={t("ng.step1.eyebrow")} title={t("ng.step1.title")} subtitle={t("ng.step1.subtitle")} className="[@media(max-height:760px)]:[&_h1+p]:hidden" />
 
-                        <div className="mt-8 space-y-2 [@media(max-height:800px)]:mt-5">
+                        <div className="mt-8 space-y-2 [@media(max-height:800px)]:mt-4">
                             <label htmlFor="manager-name" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.managerName")}</label>
                             <Input
                                 id="manager-name"
@@ -392,18 +393,18 @@ export default function TeamSelectionPage() {
                             (existing club, no club); the other three ignore it. Always rendered,
                             so nothing moves when a path is hovered or focused. START-35: no
                             padded box, so all five buttons share one width and left edge. */}
-                        <div className="mt-8 space-y-2 [@media(max-height:800px)]:mt-5">
+                        <div className="mt-8 space-y-2 [@media(max-height:800px)]:mt-4">
                             <div role="group" className="space-y-2 border-b border-line pb-2">
-                                <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
+                                <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                     <span>
-                                        <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.existing")}</span>
+                                        <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.existing")}</span>
                                         <span className="mt-1 block text-[13px] font-medium">{t("ng.path.existing.sub")}</span>
                                     </span>
                                     <ChevronRight />
                                 </Button>
-                                <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
+                                <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                     <span>
-                                        <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.unemployed")}</span>
+                                        <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.unemployed")}</span>
                                         <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.unemployed.sub")}</span>
                                     </span>
                                     <ChevronRight />
@@ -416,23 +417,23 @@ export default function TeamSelectionPage() {
                                     </span>
                                 </label>
                             </div>
-                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
+                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.create")}</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.create")}</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.create.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
+                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.pro")}</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.pro")}</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.pro.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleDraftCup} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
+                            <Button onClick={handleDraftCup} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.draft")}</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.draft")}</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.draft.sub")}</span>
                                 </span>
                                 <ChevronRight />

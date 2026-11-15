@@ -174,3 +174,12 @@ describe("START-43: the top bar outside a career", () => {
         expect(bar).toContain("{!hideCareerControls && <NavigationSearch")
     })
 })
+
+describe("START-35: step 1 fits 1280x720", () => {
+    test("no padded box around the first two paths; tighter below 800 px of height", () => {
+        const file = src("app/new-game/page.tsx")
+        expect(file).not.toContain("rounded-md border border-line p-2")
+        expect(file).toContain("[@media(max-height:760px)]:[&_h1+p]:hidden")
+        expect(file.match(/\[@media\(max-height:800px\)\]:py-2"/g)).toHaveLength(5)
+    })
+})
