@@ -2217,7 +2217,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               milestones.forEach(ms => {
                 if (claimMilestoneToast(ms.id)) get().addToast({ message: ms.message, type: "achievement" })
                 set((s) => {
-                  s.eventsLog.unshift({
+                  // The assistant coach's win-streak decision this week already
+                  // tells the run: no second line in the round-up (HOME-13).
+                  const told = ms.id.startsWith("ms_streak_") && s.eventsLog.some(e => e.type === "win_streak" && e.week >= s.currentWeek - 1)
+                  if (!told) s.eventsLog.unshift({
                     id: ms.id,
                     week: s.currentWeek,
                     type: "MILESTONE",
