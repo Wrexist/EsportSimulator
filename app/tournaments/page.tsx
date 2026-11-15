@@ -241,7 +241,8 @@ export default function TournamentsPage() {
                                         : { key: "open", tone: "neutral" }
 
         const teamsEntered = liveTournament?.teamIds?.length || 0
-        const canRegister = !!eligibility?.canRegister && !isRegistered && !isQualified && !isPast && !isEliminated
+        // A live event's field is set: no sign-up once it has started.
+        const canRegister = !!eligibility?.canRegister && !isRegistered && !isQualified && !isPast && !isActive && !isEliminated
         const name = getDynamicTournamentName(tournament.name, effectiveStart, gameStartDate, tournament.duration)
 
         return (
