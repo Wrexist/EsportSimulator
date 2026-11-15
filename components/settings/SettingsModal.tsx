@@ -2,20 +2,36 @@
 
 import { useFocusTrap } from "@/lib/accessibility"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AccessibilitySettings, AudioSettings, ControlsSettings, DisplaySettings, GameplaySettings, LanguageSettings } from "./SettingsSections"
-import { t } from "@/lib/i18n"
+import { getLocale, subscribeLocale, t } from "@/lib/i18n"
 
 interface SettingsModalProps {
     isOpen: boolean
     onClose: () => void
+    /** Tab to open on (the page passes pendingSettingsReopen() after a language change). */
+    initialTab?: Tab
 }
 
-type Tab = "display" | "audio" | "game" | "controls"
+export type Tab = "display" | "audio" | "game" | "controls"
+
+/**
+ * A language change remounts the whole shell (GameShell keys on the locale),
+ * which unmounts the page hosting this dialog (I18N-12). While the dialog is
+ * open it notes the change here, so the remounted page can open it again on
+ * the same tab. The note is short-lived: a page mounted later never reopens it.
+ */
+let reopen: { tab: Tab; at: number } | null = null
+const REOPEN_WINDOW_MS = 5000
+
+/** The tab to reopen the dialog on after a language change, or null. Does not clear the note (StrictMode runs initialisers twice). */
+export function pendingSettingsReopen(): Tab | null {
+    return reopen && Date.now() - reopen.at < REOPEN_WINDOW_MS ? reopen.tab : null
+}
 
 const TABS: { id: Tab; label: string }[] = [
     { id: "display", label: "settings.panel.display" },
@@ -28,9 +44,20 @@ const TABS: { id: Tab; label: string }[] = [
  * Settings dialog for the main menu (no career loaded). Every control applies
  * live, so the footer only closes.
  */
-export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-    const [activeTab, setActiveTab] = useState<Tab>("display")
+export function SettingsModal({ isOpen, onClose, initialTab }: SettingsModalProps) {
+    const [activeTab, setActiveTab] = useState<Tab>(initialTab ?? "display")
     const dialogRef = useFocusTrap(isOpen, onClose)
+    const tabRef = useRef(activeTab)
+    tabRef.current = activeTab
+
+    useEffect(() => {
+        if (!isOpen) return
+        reopen = null
+        const locale = getLocale()
+        return subscribeLocale(() => {
+            if (getLocale() !== locale) reopen = { tab: tabRef.current, at: Date.now() }
+        })
+    }, [isOpen])
 
     return (
         <AnimatePresence>
