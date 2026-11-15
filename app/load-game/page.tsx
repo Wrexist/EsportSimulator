@@ -97,6 +97,8 @@ function LoadGamePageInner() {
     const [recoveringSlotId, setRecoveringSlotId] = useState<string | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    // START-36: a save whose recovery found no backup can only fail again.
+    const [noBackupIds, setNoBackupIds] = useState<ReadonlySet<string>>(new Set())
 
     // useCallback keeps the effect dep stable.
     const refreshSlots = useCallback(async () => {
@@ -137,6 +139,7 @@ function LoadGamePageInner() {
         setRecoveringSlotId(id)
         try {
             if (await attemptSaveRecovery(id)) router.push("/")
+            else if (useGameStore.getState().lastLoadError?.errorCode === "RECOVERY_FAILED") setNoBackupIds(prev => new Set(prev).add(id))
         } finally {
             setRecoveringSlotId(null)
         }
@@ -282,7 +285,7 @@ function LoadGamePageInner() {
                                                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
                                                         {slot.betweenClubs
                                                             ? <Briefcase size={18} className="text-ink-3" aria-hidden="true" />
-                                                            : slot.teamName
+                                                            : slot.teamName && !corrupted
                                                             ? <TeamLogoImage src={slot.teamLogo} team={slot.teamPreview} alt={slot.teamName} size={34} />
                                                             : <AlertCircle size={18} className={corrupted ? "text-negative" : "text-ink-3"} />}
                                                     </span>
@@ -292,6 +295,7 @@ function LoadGamePageInner() {
                                                             {corrupted ? t("lg.unreadable") : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
                                                             {isActive && <span className="ml-2 font-semibold text-gold">{t("lg.loaded")}</span>}
                                                             {slot.sandbox && <span className="ml-2 rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution" title={t("lg.sandboxTip")}>{t("ng.sandbox")}</span>}
+                                                            {slot.saveId?.startsWith("imported_") && <span className="ml-2 rounded-sm bg-raised px-1.5 py-0.5 text-[11px] font-semibold text-ink-2">{t("lg.imported")}</span>}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -309,9 +313,11 @@ function LoadGamePageInner() {
                                             <td className="w-44 pr-4">
                                                 <div className="flex items-center justify-end gap-1.5">
                                                     {corrupted ? (
-                                                        <Button size="sm" variant="outline" disabled={recoveringSlotId === slot.saveId} onClick={() => slot.saveId && handleRecover(slot.saveId)}>
-                                                            {recoveringSlotId === slot.saveId ? t("lg.recovering") : t("lg.recover")}
-                                                        </Button>
+                                                        !(slot.saveId && noBackupIds.has(slot.saveId)) && (
+                                                            <Button size="sm" variant="outline" disabled={recoveringSlotId === slot.saveId} onClick={() => slot.saveId && handleRecover(slot.saveId)}>
+                                                                {recoveringSlotId === slot.saveId ? t("lg.recovering") : t("lg.recover")}
+                                                            </Button>
+                                                        )
                                                     ) : (
                                                         <Button size="sm" variant="outline" disabled={!!loadingSlotId} onClick={() => slot.saveId && handleLoad(slot.saveId)} aria-busy={busy || undefined}>
                                                             {busy ? <><Loader2 size={13} className="animate-spin" /> {t("lg.loading")}</> : isActive ? t("lg.reload") : t("lg.load")}

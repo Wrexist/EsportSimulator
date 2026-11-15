@@ -1,6 +1,6 @@
 "use client"
 import { t, tn } from "@/lib/i18n"
-import { eventRegionName } from "@/lib/display-names"
+import { clubRegionName } from "@/lib/display-names"
 
 import { CAREER_DIFFICULTY, type CareerDifficulty } from "@/lib/balance-tuning"
 import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
@@ -14,6 +14,7 @@ import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
@@ -21,7 +22,7 @@ import { Panel } from "@/src/components/ui/Panel"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
-import { ArrowLeft, ChevronRight, Loader2, Lock, Search, X } from "lucide-react"
+import { ArrowLeft, ChevronRight, Info, Loader2, Lock, Search, X } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { ManagerProgression, ManagerTier, TEAM_REP_TIERS, TIER_THRESHOLDS } from "@/engine/manager-progression"
 import { loadCareerProfile, recordNewCampaign } from "@/engine/manager-career-profile"
@@ -356,15 +357,15 @@ export default function TeamSelectionPage() {
         return (
             <div className="relative flex min-h-dvh overflow-hidden bg-ink">
                 <KeyArt />
-                <div className="relative z-10 flex min-h-dvh w-full max-w-[560px] flex-col px-16 py-14 animate-in fade-in duration-200">
+                <div className="relative z-10 flex min-h-dvh w-full max-w-[560px] flex-col px-16 py-14 animate-in fade-in duration-200 [@media(max-height:800px)]:py-8">
                     <Link href="/main-menu" className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                         <ArrowLeft size={16} /> {t("ng.mainMenu")}
                     </Link>
 
-                    <div className="my-auto w-full max-w-[420px] py-12">
+                    <div className="my-auto w-full max-w-[420px] py-12 [@media(max-height:800px)]:py-4">
                         <ScreenHeader eyebrow={t("ng.step1.eyebrow")} title={t("ng.step1.title")} subtitle={t("ng.step1.subtitle")} />
 
-                        <div className="mt-8 space-y-2">
+                        <div className="mt-8 space-y-2 [@media(max-height:800px)]:mt-5">
                             <label htmlFor="manager-name" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.managerName")}</label>
                             <Input
                                 id="manager-name"
@@ -389,24 +390,25 @@ export default function TeamSelectionPage() {
 
                         {/* START-22: "Randomised world" sits with the two starts that use it
                             (existing club, no club); the other three ignore it. Always rendered,
-                            so nothing moves when a path is hovered or focused. */}
-                        <div className="mt-8 space-y-2">
-                            <div role="group" className="space-y-2 rounded-md border border-line p-2">
-                                <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
+                            so nothing moves when a path is hovered or focused. START-35: no
+                            padded box, so all five buttons share one width and left edge. */}
+                        <div className="mt-8 space-y-2 [@media(max-height:800px)]:mt-5">
+                            <div role="group" className="space-y-2 border-b border-line pb-2">
+                                <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
                                     <span>
                                         <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.existing")}</span>
                                         <span className="mt-1 block text-[13px] font-medium">{t("ng.path.existing.sub")}</span>
                                     </span>
                                     <ChevronRight />
                                 </Button>
-                                <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
+                                <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
                                     <span>
                                         <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.unemployed")}</span>
                                         <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.unemployed.sub")}</span>
                                     </span>
                                     <ChevronRight />
                                 </Button>
-                                <label className="flex items-start gap-3 px-2 pb-1 pt-2 text-sm text-ink-1">
+                                <label className="flex items-start gap-3 px-1 pb-1 pt-1 text-sm text-ink-1">
                                     <Switch checked={randomWorld} onCheckedChange={setRandomWorld} aria-describedby="random-world-hint" className="mt-0.5" />
                                     <span>
                                         <span className="font-semibold">{t("ng.randomWorld")}</span>
@@ -414,21 +416,21 @@ export default function TeamSelectionPage() {
                                     </span>
                                 </label>
                             </div>
-                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
+                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.create")}</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.create.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
+                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.pro")}</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.pro.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleDraftCup} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
+                            <Button onClick={handleDraftCup} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2.5">
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.draft")}</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.draft.sub")}</span>
@@ -476,7 +478,8 @@ export default function TeamSelectionPage() {
                 }
             />
 
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_460px]">
+            {/* START-25: a narrower detail pane below 1280 px keeps OVR and Budget in view. */}
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_460px]">
                 {/* Club list */}
                 <Panel padded={false} className="flex min-h-0 flex-col overflow-hidden" bodyClassName="flex min-h-0 flex-1 flex-col">
                     <div className="flex flex-wrap items-end gap-x-4 border-b border-line px-4 pt-2">
@@ -500,23 +503,30 @@ export default function TeamSelectionPage() {
                                 ))}
                             </TabsList>
                         </Tabs>
-                        <label className="mb-2.5 ml-auto flex items-center gap-2 text-sm text-ink-2">
-                            <Switch checked={sandboxMode} onCheckedChange={setSandboxMode} aria-describedby="sandbox-hint" />
-                            {t("ng.sandbox")}
-                            <span id="sandbox-hint" className="sr-only">{t("ng.sandboxHint")}</span>
-                        </label>
+                        {/* START-44 / MODES-31: the hint shows on hover and keyboard focus. */}
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <label className="mb-2.5 ml-auto flex items-center gap-2 text-sm text-ink-2">
+                                    <Switch checked={sandboxMode} onCheckedChange={setSandboxMode} aria-describedby="sandbox-hint" />
+                                    {t("ng.sandbox")}
+                                    <Info size={13} aria-hidden="true" className="text-ink-3" />
+                                    <span id="sandbox-hint" className="sr-only">{t("ng.sandboxHint")}</span>
+                                </label>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" align="end" className="max-w-xs">{t("ng.sandboxHint")}</TooltipContent>
+                        </Tooltip>
                     </div>
 
                     <div className="min-h-0 flex-1 overflow-y-auto">
-                        <table data-slot="table" className="w-full border-collapse text-left">
+                        <table data-slot="table" className="w-full table-fixed border-collapse text-left">
                             <thead data-slot="table-header" className="sticky top-0 z-10">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="w-16 pl-4 text-right">{t("ng.col.rank")}</th>
+                                    <th data-slot="table-head" className="w-14 pl-4 text-right">{t("ng.col.rank")}</th>
                                     <th data-slot="table-head" className="pl-4">{t("ng.col.club")}</th>
-                                    <th data-slot="table-head" className="px-3">{t("ng.col.region")}</th>
-                                    <th data-slot="table-head" className="px-3">{t("ng.col.tier")}</th>
-                                    <th data-slot="table-head" className="px-3 text-center">{t("common.ovr")}</th>
-                                    <th data-slot="table-head" className="px-3 text-right">{t("ng.col.budget")}</th>
+                                    <th data-slot="table-head" className="hidden w-36 px-3 xl:table-cell">{t("ng.col.region")}</th>
+                                    <th data-slot="table-head" className="w-24 px-3">{t("ng.col.tier")}</th>
+                                    <th data-slot="table-head" className="w-16 px-3 text-center">{t("common.ovr")}</th>
+                                    <th data-slot="table-head" className="w-28 px-3 text-right">{t("ng.col.budget")}</th>
                                     <th data-slot="table-head" className="w-28 pr-4 text-right"><span className="sr-only">{t("ng.col.access")}</span></th>
                                 </tr>
                             </thead>
@@ -536,21 +546,27 @@ export default function TeamSelectionPage() {
                                             onKeyDown={onRowKeyDown(team)}
                                             className={cn("h-12 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover", locked && "text-ink-3")}
                                         >
-                                            <td className="w-16 pl-4 text-right text-xs font-semibold tabular-nums text-ink-3">#{team.worldRanking}</td>
+                                            <td className="pl-4 text-right text-xs font-semibold tabular-nums text-ink-3">#{team.worldRanking}</td>
                                             <td className="py-1.5 pl-4 pr-3">
                                                 <div className={cn("flex min-w-0 items-center gap-3", locked && "opacity-60")}>
                                                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-raised">
                                                         <TeamLogoImage src={team.logoPath} alt={team.name} size={26} />
                                                     </span>
-                                                    <h3 className={cn("truncate text-sm font-semibold", selected ? "text-gold" : "text-ink-1")}>{team.name}</h3>
-                                                    <span className="text-xs text-ink-3">{team.shortName}</span>
+                                                    <div className="min-w-0">
+                                                        <div className="flex min-w-0 items-baseline gap-3">
+                                                            <h3 className={cn("truncate text-sm font-semibold", selected ? "text-gold" : "text-ink-1")}>{team.name}</h3>
+                                                            <span className="hidden shrink-0 text-xs text-ink-3 xl:inline">{team.shortName}</span>
+                                                        </div>
+                                                        {/* Below 1280 px the Region column is hidden; the region shows here. */}
+                                                        <p className="truncate text-xs text-ink-3 xl:hidden">{team.shortName} · {clubRegionName(team.region)}</p>
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td className="px-3 text-xs font-semibold text-ink-2">{eventRegionName(team.region)}</td>
-                                            <td className="px-3 text-sm text-ink-2">{t(`ng.tier.${team.calculatedTier}`)}</td>
+                                            <td className="hidden truncate whitespace-nowrap px-3 text-xs font-semibold text-ink-2 xl:table-cell">{clubRegionName(team.region)}</td>
+                                            <td className="truncate px-3 text-sm text-ink-2">{t(`ng.tier.${team.calculatedTier}`)}</td>
                                             <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(budgetFor(team.id))}</td>
-                                            <td className="w-28 pr-4 text-right text-xs text-ink-3">
+                                            <td className="pr-4 text-right text-xs text-ink-3">
                                                 {locked && (
                                                     <span className="inline-flex items-center gap-1"><Lock size={12} /> {t("ng.levelLock", { n: ManagerProgression.getRequiredLevel(team.reputation) })}</span>
                                                 )}
@@ -573,7 +589,8 @@ export default function TeamSelectionPage() {
                 <Panel padded={false} as="aside" className="flex min-h-0 flex-col overflow-hidden" bodyClassName="flex min-h-0 flex-1 flex-col">
                     {selectedTeam && selectedStats ? (
                         <>
-                            <div className="min-h-0 flex-1 overflow-y-auto">
+                            {/* START-25: on a short window the roster keeps room for about three rows. */}
+                            <div className="min-h-0 flex-1 overflow-y-auto [@media(max-height:760px)]:min-h-[168px]">
                                 <div className="flex items-center gap-4 border-b border-line p-5">
                                     <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
                                         <TeamLogoImage src={selectedTeam.logoPath} alt={selectedTeam.name} size={52} />
@@ -581,7 +598,7 @@ export default function TeamSelectionPage() {
                                     <div className="min-w-0">
                                         <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{selectedTeam.name}</h2>
                                         <p className="mt-1.5 text-sm text-ink-3">
-                                            {selectedTeam.region} · {t(`ng.tier.${selectedTeam.calculatedTier}`)} · {selectedTeam.shortName}
+                                            {clubRegionName(selectedTeam.region)} · {t(`ng.tier.${selectedTeam.calculatedTier}`)} · {selectedTeam.shortName}
                                         </p>
                                     </div>
                                 </div>
@@ -663,7 +680,7 @@ export default function TeamSelectionPage() {
                                             </Button>
                                         ))}
                                     </div>
-                                    <p className="mt-1.5 text-xs text-ink-3">{t(`ng.diff.${difficulty}.hint`)}</p>
+                                    <p className="mt-1.5 text-xs text-ink-3 [@media(max-height:760px)]:hidden">{t(`ng.diff.${difficulty}.hint`)}</p>
                                 </fieldset>
                                 {selectedSandbox && (
                                     <p className="mb-3 flex items-start gap-2 text-xs text-caution">

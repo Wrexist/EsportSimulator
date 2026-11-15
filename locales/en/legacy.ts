@@ -380,7 +380,7 @@ export const LEGACY: Record<string, string> = {
     "job.worldRank": "World #{{rank}}",
     "job.budget": "budget {{amount}}",
     "job.boardGoal": "Board: {{goal}}.",
-    "job.boardGoalRank": "Board: {{goal}}, finish the season in the world top {{rank}}.",
+    "job.boardGoalRank": "Board: {{goal}}, finish the season ranked #{{rank}} or better.",
     "job.wage": "Wage {{wage}}/wk · signing funds for the club {{funds}}",
     "job.takeQ": "Take this job?",
     "job.notYet": "Not yet",
