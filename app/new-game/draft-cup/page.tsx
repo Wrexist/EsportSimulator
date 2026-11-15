@@ -155,7 +155,7 @@ export default function DraftCupPage() {
 
     if (step === "setup") {
         return (
-            <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8">
+            <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-4 bg-ink px-8 py-6">
                 <Link href="/new-game" onClick={() => saveCareerDraft({ step: "welcome" })} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                     <ArrowLeft size={16} /> {t("dc.newGame")}
                 </Link>
@@ -269,7 +269,11 @@ export default function DraftCupPage() {
                                                         <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("common.ovr")}</span>
                                                         <span className="font-display text-2xl font-bold leading-none tabular-nums text-ink-1">{o.overall}</span>
                                                     </span>
-                                                    <span className={cn("rounded px-1.5 py-0.5 text-sm font-bold tabular-nums", selected ? "bg-gold text-ink" : "bg-raised text-ink-1")}>{o.price}</span>
+                                                    {/* MODES-15: the chip is the price in draft points; say so. */}
+                                                    <span title={t("dc.priceHint")} className="text-right">
+                                                        <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dc.price")}</span>
+                                                        <span className={cn("rounded px-1.5 py-0.5 text-sm font-bold tabular-nums", selected ? "bg-gold text-ink" : "bg-raised text-ink-1")}>{o.price}</span>
+                                                    </span>
                                                 </span>
                                             </button>
                                         </li>
