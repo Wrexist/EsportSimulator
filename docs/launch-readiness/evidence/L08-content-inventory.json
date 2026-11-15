@@ -6095,8 +6095,8 @@
     },
     {
       "path": "data/identity-refresh.json",
-      "sha256": "18df604828f01a625589cd733d3d1aee84ffbeddf1e356414f3fb1ac4813c650",
-      "bytes": 189711,
+      "sha256": "5b86f5d53c972120b26d1a705f785cbba68c7ea4f2b417dd7e67c4cfb360308e",
+      "bytes": 189733,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -6119,7 +6119,14 @@
         "releaseDisposition": "include",
         "basis": "project implementation and game-data review",
         "reviewBasis": "project implementation and game-data review"
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-15",
+          "previousSha256": "18df604828f01a625589cd733d3d1aee84ffbeddf1e356414f3fb1ac4813c650",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "data/index.ts",
@@ -7046,8 +7053,8 @@
     },
     {
       "path": "data/tournaments.json",
-      "sha256": "238caf543af988972a0fbb2f40fb6e59c149af8a727ea1d1674df9c6cd4ef0c8",
-      "bytes": 30088,
+      "sha256": "9bccd6195ca7d1ced8c799504d799b1c605cb0fe8b3121f82c8921c291b59b51",
+      "bytes": 30161,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -7076,6 +7083,11 @@
           "date": "2026-11-04",
           "previousSha256": "7be42157dd8212af528eb0097371730edac7b7891e62f2646e7d5632d58a5e1c",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "238caf543af988972a0fbb2f40fb6e59c149af8a727ea1d1674df9c6cd4ef0c8",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
@@ -90634,7 +90646,7 @@
     },
     {
       "path": "public/data/snapshot/players.json",
-      "sha256": "2254ec7444f136147b60bc4d31b031676f0ba6c81944b0c34457f8726d6e8154",
+      "sha256": "f03345c556ab38986046b297207f30d8aabe71e5966599d45f69c7b5c78012a0",
       "bytes": 1095504,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
@@ -90646,7 +90658,14 @@
       "releaseDisposition": "include",
       "basis": "project implementation and game-data review",
       "reviewBasis": "project implementation and game-data review",
-      "derivativeEvidence": "docs/launch-readiness/evidence/2026-09-25-portrait-sync.json"
+      "derivativeEvidence": "docs/launch-readiness/evidence/2026-09-25-portrait-sync.json",
+      "reviewHistory": [
+        {
+          "date": "2026-11-15",
+          "previousSha256": "2254ec7444f136147b60bc4d31b031676f0ba6c81944b0c34457f8726d6e8154",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "public/data/snapshot/sources.json",
@@ -91921,8 +91940,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "14c8fb2f4884d7c5adee2c2fb1ff47ae3306b18873a6b7c9e7a0ef81907047e9",
-      "bytes": 397237,
+      "sha256": "c9500b62552ae997ab476dbcc0096f76ce2e5a84336320e7bf89b81ea7ef4b7a",
+      "bytes": 412648,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92082,13 +92101,18 @@
           "date": "2026-11-04",
           "previousSha256": "6e2192cdf16b490af4c2deab7da130c529f2f5dd0d2a1b5a7fdadbb9e5c79c49",
           "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "14c8fb2f4884d7c5adee2c2fb1ff47ae3306b18873a6b7c9e7a0ef81907047e9",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "2a7d619f99892407ba6484ac1eb9afad50b6bf12125a1f0bb0404c49880aab02",
-      "bytes": 417162,
+      "sha256": "fbf09418f52f69bf66b9205861b5e0f6b4de23dd45ff0e23038a3ce731a3e0f4",
+      "bytes": 434366,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92243,13 +92267,18 @@
           "date": "2026-11-04",
           "previousSha256": "7ea72ef80bdd37aaa1cdf2695eb65e597a6161938fe87656062af269994de76c",
           "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "2a7d619f99892407ba6484ac1eb9afad50b6bf12125a1f0bb0404c49880aab02",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "5857b60016939e354b73011561f2248ce824df7d397bcf4cb9efdf2f93ff3668",
-      "bytes": 425396,
+      "sha256": "bb85e2677ab835d055378bcd8232104d24898cca900cbe13a46700b220dcd078",
+      "bytes": 443015,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92404,13 +92433,18 @@
           "date": "2026-11-04",
           "previousSha256": "14c8f3b9a0a77db6cec51797d6b500d9cf2b88283a45aab6ce1cadcfad2c8299",
           "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "5857b60016939e354b73011561f2248ce824df7d397bcf4cb9efdf2f93ff3668",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "014e8a1073f485705be07e54cd731cded406a9319f19ea3711300dda57ff1b85",
-      "bytes": 423338,
+      "sha256": "99752eed64b7847be505e4eabfdc307a1b81695bdce50e6bc4124b2820598ca8",
+      "bytes": 442018,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92560,13 +92594,18 @@
           "date": "2026-11-04",
           "previousSha256": "6350d27aa05be0f846c23ace647142316c8b41a4cf2e6c93fa77f9053d3f78fc",
           "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "014e8a1073f485705be07e54cd731cded406a9319f19ea3711300dda57ff1b85",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "d1a133a41d63136fd910def070c1ac1be0d2d12258bea1b364be5f6a62873a57",
-      "bytes": 411338,
+      "sha256": "12595456b6cc78e9ff0b83f6a50e8e98ade20138cb6aeb9562c0482dd21ab828",
+      "bytes": 427979,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92716,13 +92755,18 @@
           "date": "2026-11-04",
           "previousSha256": "6aa33e99c8493217291c4250160f0ace475418a8f0810e4bef2394353e5db9e5",
           "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "d1a133a41d63136fd910def070c1ac1be0d2d12258bea1b364be5f6a62873a57",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "6f09405f65b23640ba34df9de9c86c6f4b1bd93021422acdfde66841411de2a8",
-      "bytes": 577675,
+      "sha256": "ee074bdfb48049ba3390a599d6a3004645f207f27080cfe6733da10df3c4508b",
+      "bytes": 603499,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92872,6 +92916,11 @@
           "date": "2026-11-04",
           "previousSha256": "0ca67388cdd46e8e10d2aa903c4fff54a6dcdb1401d0c9bbf492d65b51877456",
           "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-15",
+          "previousSha256": "6f09405f65b23640ba34df9de9c86c6f4b1bd93021422acdfde66841411de2a8",
+          "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
