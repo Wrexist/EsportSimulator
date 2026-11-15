@@ -8,7 +8,6 @@ import { intlLocale, t, tn } from "@/lib/i18n"
  */
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useShallow } from "zustand/react/shallow"
 import { ArrowLeft, Check, Loader2, RefreshCw } from "lucide-react"
@@ -33,6 +32,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { toast } from "@/lib/toast"
 import { debug } from "@/lib/debug-logger"
 import { cn } from "@/lib/utils"
+import { goBackOr } from "@/lib/navigation-back"
 
 const SWATCHES = PRESET_COLORS.slice(0, 8)
 
@@ -155,10 +155,11 @@ export default function DraftCupPage() {
 
     if (step === "setup") {
         return (
-            <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8">
-                <Link href="/new-game" onClick={() => saveCareerDraft({ step: "welcome" })} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
-                    <ArrowLeft size={16} /> {t("dc.newGame")}
-                </Link>
+            <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8 [@media(max-height:800px)]:gap-4 [@media(max-height:800px)]:py-6">
+                {/* START-40: back to where the player came from (main menu or New career), never out of the app. */}
+                <button type="button" onClick={() => { saveCareerDraft({ step: "welcome" }); goBackOr(router, "/main-menu") }} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
+                    <ArrowLeft size={16} /> {t("ng.back")}
+                </button>
                 <ScreenHeader eyebrow={t("dc.step1")} title={t("dc.title")}
                     subtitle={t("dc.subtitle", { budget: DRAFT_BUDGET })} />
 
@@ -211,6 +212,7 @@ export default function DraftCupPage() {
 
                 <div className="flex items-center justify-between gap-4">
                     <p className="text-xs text-ink-3">{t("dc.ownSave")}</p>
+                    {!nameOk && <p className="ml-auto text-right text-xs text-caution">{t("dc.namesShort")}</p>}
                     <Button onClick={startDraft} disabled={!nameOk || !!busy} aria-busy={busy === "world" || undefined} className="h-12 px-6 font-display text-xl font-bold tracking-[0.04em]">
                         {busy === "world" ? <><Loader2 className="animate-spin" /> {t("dc.building")}</> : t("dc.startDraft")}
                     </Button>
@@ -280,8 +282,9 @@ export default function DraftCupPage() {
                     ))}
                 </div>
 
-                <aside className="flex min-h-0 flex-col gap-4">
-                    <Panel title={teamName} actions={<span className="text-xs text-ink-3">{shortName}</span>}>
+                {/* START-41: the opponents keep about four rows; on a short window the column scrolls. */}
+                <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto">
+                    <Panel className="shrink-0" title={teamName} actions={<span className="text-xs text-ink-3">{shortName}</span>}>
                         <div>
                             <div className="flex items-baseline justify-between">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dc.budget")}</span>
@@ -306,7 +309,7 @@ export default function DraftCupPage() {
                         </p>
                     </Panel>
 
-                    <Panel title={t("dc.opponents")} padded={false} className="min-h-0 flex-1 overflow-hidden" bodyClassName="max-h-full overflow-y-auto">
+                    <Panel title={t("dc.opponents")} padded={false} className="min-h-[200px] flex-1 overflow-hidden" bodyClassName="max-h-full overflow-y-auto">
                         <ul>
                             {opponentIds.map(id => {
                                 const club = teamsById.get(id)
@@ -322,7 +325,7 @@ export default function DraftCupPage() {
                         </ul>
                     </Panel>
 
-                    <Button onClick={startCup} disabled={!complete || !!busy} aria-busy={busy === "start" || undefined} className="h-12 w-full font-display text-xl font-bold tracking-[0.04em]">
+                    <Button onClick={startCup} disabled={!complete || !!busy} aria-busy={busy === "start" || undefined} className="h-12 w-full shrink-0 font-display text-xl font-bold tracking-[0.04em]">
                         {busy === "start" ? <><Loader2 className="animate-spin" /> {t("ng.starting")}</> : complete ? t("dc.startCup") : t("dc.pickMore", { n: DRAFT_ROLES.length - pickList.length })}
                     </Button>
                 </aside>

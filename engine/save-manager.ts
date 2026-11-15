@@ -1034,13 +1034,21 @@ export class SaveManager {
             } catch {
                 // A corrupt save must stay visible — silently dropping it
                 // hides a file that attemptRecovery could still restore.
-                // Surface it as a flagged slot instead of skipping it.
+                // Surface it as a flagged slot instead of skipping it. Its last
+                // cached summary (any stamp) still names the club and the save
+                // (START-36), so the player can tell which career it is.
+                let known: SaveSlotMetadata | undefined
+                try {
+                    const raw = await this.storage.getItem(SLOT_META_PREFIX + key.slice(STORAGE_KEYS.SAVE_PREFIX.length))
+                    const meta = raw ? JSON.parse(raw) as { slot?: SaveSlotMetadata } : undefined
+                    if (meta?.slot?.slotId === key) known = meta.slot
+                } catch { /* no usable summary */ }
                 slots.push({
                     slotId: key,
                     saveId: key.slice(STORAGE_KEYS.SAVE_PREFIX.length) || null,
-                    saveName: "Corrupted save",
+                    saveName: typeof known?.saveName === "string" && known.saveName ? known.saveName : "Corrupted save",
                     currentWeek: null,
-                    teamName: null,
+                    teamName: typeof known?.teamName === "string" && known.teamName ? known.teamName : null,
                     updatedAt: null,
                     isEmpty: false,
                     isCorrupted: true,
@@ -1257,9 +1265,11 @@ export class SaveManager {
     }
 
     /**
-     * Import save from JSON string
+     * Import save from JSON string. `errorCode` tells the screen what went
+     * wrong without showing schema text (START-30): NEWER_VERSION for a save
+     * from a newer build, INVALID for anything that is not a usable save.
      */
-    importSave(json: string): { save: GameSave | null; error?: string } {
+    importSave(json: string): { save: GameSave | null; error?: string; errorCode?: "NEWER_VERSION" | "INVALID" } {
         try {
             const parsed = parseUntrustedJson<Record<string, unknown>>(json)
 
@@ -1268,7 +1278,7 @@ export class SaveManager {
             // would otherwise pass straight through untouched and corrupt state.
             const schema = validateSaveSchema(parsed)
             if (!schema.ok && schema.newerVersion) {
-                return { save: null, error: schema.issues[0] || "Save is from a newer game version" }
+                return { save: null, error: schema.issues[0] || "Save is from a newer game version", errorCode: "NEWER_VERSION" }
             }
 
             const migrated = this.migrateSave(parsed)
@@ -1278,10 +1288,10 @@ export class SaveManager {
             // game state.
             const postSchema = validateSaveSchema(migrated)
             if (!postSchema.ok) {
-                return { save: null, error: postSchema.issues[0] || "Invalid save schema" }
+                return { save: null, error: postSchema.issues[0] || "Invalid save schema", errorCode: "INVALID" }
             }
             if (!validateSaveStructure(migrated)) {
-                return { save: null, error: "Invalid save structure" }
+                return { save: null, error: "Invalid save structure", errorCode: "INVALID" }
             }
 
             // Generate new ID to avoid conflicts
@@ -1293,6 +1303,7 @@ export class SaveManager {
             return {
                 save: null,
                 error: error instanceof Error ? error.message : "Invalid JSON",
+                errorCode: "INVALID",
             }
         }
     }

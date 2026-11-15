@@ -4,6 +4,8 @@
 
 export interface Shortcut {
     keys: string[]
+    /** Another combo for the same action, shown after "or" (START-37). */
+    altKeys?: string[]
     /** Translation key (locales/en/settings.ts); show it with t(). */
     description: string
 }
@@ -18,14 +20,11 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     {
         label: "shortcuts.group.general",
         shortcuts: [
-            { keys: ["Ctrl", "S"], description: "shortcuts.saveGame" },
-            { keys: ["Ctrl", "L"], description: "shortcuts.openLoad" },
-            { keys: ["F2"], description: "shortcuts.quickSave" },
-            { keys: ["F3"], description: "shortcuts.openLoad" },
-            { keys: ["F10"], description: "shortcuts.openSettings" },
+            // One row per action (START-37): F2 saves exactly like Ctrl+S, F10 is Settings (row "9").
+            { keys: ["Ctrl", "S"], altKeys: ["F2"], description: "shortcuts.saveGame" },
+            { keys: ["Ctrl", "L"], altKeys: ["F3"], description: "shortcuts.openLoad" },
             { keys: ["F11"], description: "shortcuts.fullscreen" },
-            { keys: ["F1"], description: "shortcuts.showShortcuts" },
-            { keys: ["?"], description: "shortcuts.showShortcuts" },
+            { keys: ["F1"], altKeys: ["?"], description: "shortcuts.showShortcuts" },
         ],
     },
     {
@@ -40,7 +39,7 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: ["6"], description: "shortcuts.recruitment" },
             { keys: ["7"], description: "shortcuts.competition" },
             { keys: ["8"], description: "shortcuts.club" },
-            { keys: ["9"], description: "shortcuts.settings" },
+            { keys: ["9"], altKeys: ["F10"], description: "shortcuts.settings" },
             { keys: ["Esc"], description: "shortcuts.back" },
         ],
     },

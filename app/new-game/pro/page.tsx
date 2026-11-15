@@ -27,11 +27,12 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { toast } from "@/lib/toast"
 import { debug } from "@/lib/debug-logger"
 import { cn } from "@/lib/utils"
+import { clubRegionName } from "@/lib/display-names"
 
 interface SnapshotTeam { id: string; name: string; shortName?: string; region?: string; reputation?: number; logoPath?: string; rosterIds?: string[] }
 
-const KNOWN_REGIONS = new Set(["EU", "CIS", "BR", "NA", "ASIA", "MENA", "OCE"])
-const regionLabel = (r: string | undefined) => r && KNOWN_REGIONS.has(r) ? t(`pro.region.${r}`) : (r ?? "")
+// START-29: the same region names as the club list and the job offers.
+const regionLabel = (r: string | undefined) => clubRegionName(r)
 
 export default function ProCareerSetupPage() {
     const router = useRouter()

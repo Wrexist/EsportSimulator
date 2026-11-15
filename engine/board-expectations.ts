@@ -220,6 +220,9 @@ export function leagueObjective(save: GameSave, teamId: string): BoardObjective 
         target = safe
         label = `Avoid relegation from ${division.name} (${ordinal(safe)} or better)`
     } else {
+        // START-28: last place must not meet the objective (an empty created
+        // club in the bottom division is expected last, so slack reached n).
+        if (target >= n) target = n - 1
         label = target === 1 ? `Win ${division.name}` : `Finish ${ordinal(target)} or better in ${division.name}`
     }
     return { id: "league", label, target, divisionId: division.id }

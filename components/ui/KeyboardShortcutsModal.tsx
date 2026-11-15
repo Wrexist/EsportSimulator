@@ -32,14 +32,19 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
                 <div key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4">
                   <span className="text-sm text-ink-2">{t(shortcut.description)}</span>
                   <div className="flex items-center gap-1 shrink-0">
-                    {shortcut.keys.map((key, i) => (
-                      <span key={i}>
-                        <kbd className="px-2 py-0.5 rounded bg-hover border border-line text-xs font-mono text-ink-1">
-                          {keyLabel(key)}
-                        </kbd>
-                        {i < shortcut.keys.length - 1 && (
-                          <span className="text-ink-3 mx-0.5">+</span>
-                        )}
+                    {[shortcut.keys, ...(shortcut.altKeys ? [shortcut.altKeys] : [])].map((combo, c) => (
+                      <span key={c}>
+                        {c > 0 && <span className="text-ink-3 text-xs mx-1">{t("shortcuts.or")}</span>}
+                        {combo.map((key, i) => (
+                          <span key={i}>
+                            <kbd className="px-2 py-0.5 rounded bg-hover border border-line text-xs font-mono text-ink-1">
+                              {keyLabel(key)}
+                            </kbd>
+                            {i < combo.length - 1 && (
+                              <span className="text-ink-3 mx-0.5">+</span>
+                            )}
+                          </span>
+                        ))}
                       </span>
                     ))}
                   </div>

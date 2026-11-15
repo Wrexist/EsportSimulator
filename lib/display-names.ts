@@ -65,11 +65,21 @@ const FIXED_STAGES: Record<string, string> = {
 }
 
 const EVENT_REGIONS = ["INTERNATIONAL", "EU", "NA", "SA", "ASIA", "CIS", "OCEANIA", "MENA"]
-/** A tournament's region code (EU, NA, INTERNATIONAL, …) as a name. */
+/** Club region codes that name an event region differently (START-29). */
+const REGION_ALIASES: Record<string, string> = { BR: "SA", OCE: "OCEANIA" }
+/**
+ * A tournament's or club's region code (EU, NA, BR, OCE, INTERNATIONAL, …)
+ * as a name. Every screen that shows a club's region uses this one, so a
+ * club reads the same in the picker, its detail pane, the pro setup and
+ * the job offers.
+ */
 export function eventRegionName(region: string | null | undefined): string {
     if (!region) return ""
-    return EVENT_REGIONS.includes(region) ? t(`tm.region.${region}`) : region
+    const code = REGION_ALIASES[region] ?? region
+    return EVENT_REGIONS.includes(code) ? t(`tm.region.${code}`) : region
 }
+/** A club's region code as a name (same names as event regions). */
+export const clubRegionName = eventRegionName
 
 const EVENT_FORMATS = ["bracket", "double_elim", "swiss", "league"]
 /** A tournament format; `long` gives "Single elimination" instead of "Single elim". */

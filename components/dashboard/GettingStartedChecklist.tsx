@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { FIRST_SESSION_STEPS, firstSessionGuidance, firstSessionLabel, restoreFirstSession } from '@/lib/first-session'
 import { t } from '@/lib/i18n'
+import { toast } from '@/lib/toast'
 
 /**
  * First-session objective chain (L22). A small, nonmodal "next step" card driven by career state.
@@ -35,6 +36,12 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
         if (initialized && !loading && !active && guide.status === 'active') sync()
     }, [sync, initialized, loading, active, guide.status, rosterKey, lastResultId, state.week])
 
+    // START-33: the visible words are the accessible name; where it comes back is said after skipping.
+    const skip = () => {
+        state.dismiss()
+        toast.info(t("firstSession.skipLabel"))
+    }
+
     if (!state.initialized || state.loading || state.ended || !team || guide.status !== 'active' || state.active) return null
     const next = firstSessionGuidance(guide, { team, players: state.players, matches: state.matches, completed: state.completed, currentWeek: state.week, activeMatchId: state.active })
     if (!next) return null
@@ -49,7 +56,7 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
                 <span className="min-w-0 truncate text-ink-2">{t("firstSession.next", { step: next.title })}</span>
                 <span className="ml-auto flex items-center gap-2">
                     <Button asChild size="sm" variant="outline"><Link href={next.action.href}>{next.action.label}</Link></Button>
-                    <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label={t("firstSession.skipLabel")}>{t("firstSession.skip")}</button>
+                    <button type="button" onClick={skip} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" title={t("firstSession.skipLabel")}>{t("firstSession.skip")}</button>
                 </span>
             </section>
         )
@@ -61,7 +68,7 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
                 <p id="first-session-title" className="text-sm font-semibold text-ink-1">
                     {t("firstSession.title")} <span className="ml-2 text-xs font-normal tabular-nums text-ink-3">{t("firstSession.progressDone", { done, total: FIRST_SESSION_STEPS.length })}</span>
                 </p>
-                <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label={t("firstSession.skipLabel")}>{t("firstSession.skip")}</button>
+                <button type="button" onClick={skip} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" title={t("firstSession.skipLabel")}>{t("firstSession.skip")}</button>
             </header>
 
             <div className="p-4">

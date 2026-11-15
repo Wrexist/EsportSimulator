@@ -45,7 +45,7 @@ export interface TeamCreationResult {
 export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
     story: {
         id: 'story',
-        label: 'Story Mode',
+        label: 'Relaxed',
         description: 'Most starting cash and reputation, a bigger starting fanbase and 1.5x recurring income.',
         startingBudget: 500000,
         startingReputation: 50,

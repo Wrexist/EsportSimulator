@@ -8,6 +8,7 @@ import { Panel } from "@/src/components/ui/Panel"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { COMMUNITY_CREDITS } from "@/data/community-credits"
 import { t } from "@/lib/i18n"
+import { goBackOr } from "@/lib/navigation-back"
 
 type CreditSection = { category: string; entries: { role: string; name: string }[] }
 
@@ -73,10 +74,10 @@ export default function CreditsPage() {
     return (
         <div className="mx-auto max-w-[880px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow={`Esports Manager · v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`}
+                eyebrow={`Esports Manager: FPS · v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`}
                 title={t("cr.title")}
                 aside={
-                    <Button variant="ghost" onClick={() => router.back()} className="gap-2">
+                    <Button variant="ghost" onClick={() => goBackOr(router, "/main-menu")} className="gap-2">
                         <ArrowLeft size={16} /> {t("cr.back")}
                     </Button>
                 }
