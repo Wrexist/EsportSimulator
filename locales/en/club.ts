@@ -234,4 +234,6 @@ export const CLUB: Record<string, string> = {
     "md.fewRounds.other": "Only {{count}} rounds: too few to read much into.",
     "md.fewMaps.one": "Only {{count}} map: too few to read much into.",
     "md.fewMaps.other": "Only {{count}} maps: too few to read much into.",
+    "sp.lastEnded": "Your deal with {{name}} ended in week {{week}}. Sign a new one from this week's offers below.",
+    "sp.lastEndedCooldown": "Your deal with {{name}} ended in week {{week}}. They can sign again from week {{from}}. Sign a new deal from this week's offers below.",
 }

@@ -84,6 +84,12 @@ export default function SponsorshipsPage() {
   const floor = EconomyEngine.sponsorFloor(team.reputation)
   const openBonuses = activeSponsors.flatMap(s => s.goals ?? []).filter(g => !g.isCompleted).reduce((sum, g) => sum + g.bonusPayout, 0)
   const season = Math.ceil(currentWeek / 52)
+  // MARKET-29: the most recent deal that ran out (its re-sign cooldown is set when it ends).
+  const lastEnded = Object.entries(team.sponsorCooldowns ?? {}).sort((a, b) => b[1] - a[1])[0]
+  const noDealsText = !lastEnded ? t("sp.noDeals")
+    : lastEnded[1] > currentWeek
+      ? t("sp.lastEndedCooldown", { name: lastEnded[0], week: lastEnded[1] - RESIGN_COOLDOWN_WEEKS, from: lastEnded[1] })
+      : t("sp.lastEnded", { name: lastEnded[0], week: lastEnded[1] - RESIGN_COOLDOWN_WEEKS })
 
   const lockReason = (offer: SponsorSaveData): string | null => {
     if (offer.tier === "PREMIUM" && !gates.premiumOpen) return t("sp.lock.premium")
@@ -139,7 +145,7 @@ export default function SponsorshipsPage() {
           <Panel title={t("sp.active")} actions={<span className="text-xs text-ink-3">{t("sp.slotsOf", { n: activeSponsors.length, max: MAX_SPONSORS })}</span>} padded={false}>
             {activeSponsors.length > 0
               ? <ActiveDealsTable sponsors={activeSponsors} currentWeek={currentWeek} repFactor={repFactor} />
-              : <p className="px-4 py-6 text-sm text-ink-3">{t("sp.noDeals")}</p>}
+              : <p className="px-4 py-6 text-sm text-ink-3">{noDealsText}</p>}
           </Panel>
 
           <Panel title={t("sp.offers")} actions={<span className="text-xs text-ink-3">{t("sp.newWeekly")}</span>} padded={false}>

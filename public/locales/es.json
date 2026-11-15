@@ -6908,5 +6908,7 @@
  "bd.rev.FAILED.t": "La directiva de {{club}}, furiosa",
  "bd.rev.FAILED.m": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100.",
  "bd.rev.FAILED.mNotice": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100: estás bajo ultimátum y tienes que cumplir la próxima temporada.",
- "fin.cat.SCOUTING": "Ojeo"
+ "fin.cat.SCOUTING": "Ojeo",
+ "sp.lastEnded": "Tu contrato con {{name}} terminó en la semana {{week}}. Firma uno nuevo entre las ofertas de esta semana, abajo.",
+ "sp.lastEndedCooldown": "Tu contrato con {{name}} terminó en la semana {{week}}. La marca puede volver a firmar desde la semana {{from}}. Firma un nuevo contrato entre las ofertas de esta semana, abajo."
 }

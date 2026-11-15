@@ -6908,5 +6908,7 @@
  "bd.rev.FAILED.t": "La direction de {{club}} furieuse",
  "bd.rev.FAILED.m": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100.",
  "bd.rev.FAILED.mNotice": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100 : tu es sous ultimatum et dois répondre présent la saison prochaine.",
- "fin.cat.SCOUTING": "Scouting"
+ "fin.cat.SCOUTING": "Scouting",
+ "sp.lastEnded": "Ton contrat avec {{name}} a pris fin en semaine {{week}}. Signe-en un nouveau parmi les offres de la semaine ci-dessous.",
+ "sp.lastEndedCooldown": "Ton contrat avec {{name}} a pris fin en semaine {{week}}. La marque pourra re-signer à partir de la semaine {{from}}. Signe un nouveau contrat parmi les offres de la semaine ci-dessous."
 }
