@@ -1,7 +1,7 @@
 /** Player page and its panels. */
 export const PLAYER = {
     "player.personality.title": "Personality",
-    "player.personality.captain": "Captain of {{team}}: when he plays, defeats cost the lineup {{pct}}% less morale.",
+    "player.personality.captain": "Captain of {{team}}: when he plays, defeats cost the starting five {{pct}}% less morale.",
     "player.personality.mentors": "Mentors {{name}}.",
     "player.personality.aYoungster": "a youngster",
     "player.personality.mentoredBy": "Mentored by {{name}}: training gains +{{pct}}%.",
@@ -35,7 +35,7 @@ export const PLAYER = {
     "player.form": "Form",
     "player.feedsStrength": "Form, morale and energy all feed match strength.",
     "player.captain": "Captain",
-    "player.captainTitle": "Captain: when they play, defeats cost the lineup less morale.",
+    "player.captainTitle": "Captain: when they play, defeats cost the starting five less morale.",
     "player.renewClosed": "Renewal opens in the final year of the contract",
     "player.renew": "Renew contract",
     "player.roleCancelled": "Role training cancelled",
@@ -315,7 +315,7 @@ export const PLAYER = {
     "fit.below": "Rated below your five, so he starts on the bench.",
     "fit.belowAbout": "Likely rated below your five, so he starts on the bench.",
     "fit.belowFactor": "As a {{label}} he would lose morale {{factor}}× as fast once he has been a regular starter.",
-    "fit.betterCaptain": "Would make a better captain than {{name}}: spares the lineup {{new}} of a defeat's morale loss (now {{now}}).",
+    "fit.betterCaptain": "Would make a better captain than {{name}}: spares the starting five {{new}} of a defeat's morale loss (now {{now}}).",
     "fit.anyone": "anyone you have",
     "fit.mentoredBy": "{{name}} ({{label}}) can mentor him: +{{pct}} training gains.",
     "fit.canMentor": "Can mentor {{names}}: +{{pct}} training gains.",

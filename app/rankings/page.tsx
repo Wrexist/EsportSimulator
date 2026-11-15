@@ -9,7 +9,7 @@ import { useGameStore } from "@/store/game-store"
 import { PlayerLink } from "@/components/ui/EntityLink"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
-import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
+import { HelpTooltip } from "@/components/ui/stat-tooltip"
 import Image from "next/image"
 import { Award, ChevronRight, Search, X, ArrowUp, ArrowDown } from "lucide-react"
 import { trophyArtKind } from "@/components/squad/TrophyCabinet"
@@ -200,7 +200,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
                 <div>{t("rk.col.rank")}</div>
                 <div>{t("rk.col.team")}</div>
                 <div>{t("rk.col.league")}</div>
-                <div className="flex items-center justify-end gap-1">Elo <HelpTooltip content={StatExplanations.elo} size={11} /></div>
+                <div className="flex items-center justify-end gap-1">Elo <HelpTooltip content={t("rk.eloHelp")} size={11} /></div>
                 <div className="text-right">OVR</div>
                 <div className="text-center">{t("rk.col.last5")}</div>
                 <div className="text-right">{t("rk.col.division")}</div>

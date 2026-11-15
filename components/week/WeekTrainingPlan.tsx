@@ -102,7 +102,8 @@ export function WeekTrainingPlan({ roster, projections, retrainingTarget, onSetF
                                             </span>
                                             <span className="min-w-0">
                                                 <span className="block truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{p.nickname}</span>
-                                                <span className="mt-0.5 flex items-center gap-2 text-xs text-ink-3"><RoleTag role={p.role} /> {t("tr.wp.potential", { n: p.potential })}</span>
+                                                {/* The potential note drops below the role tag whole rather than breaking mid-phrase (I18N-16). */}
+                                                <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-3"><RoleTag role={p.role} /> <span className="whitespace-nowrap">{t("tr.wp.potential", { n: p.potential })}</span></span>
                                             </span>
                                         </Link>
                                     </td>
@@ -132,7 +133,7 @@ export function WeekTrainingPlan({ roster, projections, retrainingTarget, onSetF
                                     </td>
                                     <td className="px-3">{proj && <Change now={proj.fatigueNow} end={proj.fatigueEnd} lowerIsGood label={t("tr.fatigueLabel")} />}</td>
                                     <td className="px-3">{proj && <Change now={proj.moraleNow} end={proj.moraleEnd} lowerIsGood={false} label={t("tr.wp.morale")} />}</td>
-                                    <td className="pr-4 text-right text-sm tabular-nums text-ink-2">{proj ? `+${proj.xpMin}–${proj.xpMax}` : "—"}</td>
+                                    <td className="whitespace-nowrap pr-4 text-right text-sm tabular-nums text-ink-2">{proj ? `+${proj.xpMin}–${proj.xpMax}` : "—"}</td>
                                 </tr>
                             )
                         })}

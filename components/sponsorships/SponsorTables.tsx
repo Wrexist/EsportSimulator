@@ -6,7 +6,7 @@ import { Meter } from "@/src/components/ui/Meter"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import type { SponsorSaveData } from "@/engine/save-types"
-import { intlLocale, t } from "@/lib/i18n"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 const money = (v: number) => formatCurrency(v, "$", false)
 
@@ -40,10 +40,10 @@ export function BrandEffects({ fx }: { fx: SponsorSaveData["brandEffect"] }) {
 /** Goal wording with its target (the engine keys progress off the description). */
 export function goalText(description: string, target: number): string {
     const n = target.toLocaleString(intlLocale())
-    if (description.includes("Maintain Morale > 80")) return t("sp.goal.morale", { n })
+    if (description.includes("Maintain Morale > 80")) return tn("sp.goal.morale", target, { n })
     if (description.includes("Gain Followers")) return t("sp.goal.followers", { n })
-    if (description.includes("Win Tournament maps")) return t("sp.goal.maps", { n })
-    if (description.includes("Win Matches")) return t("sp.goal.matches", { n })
+    if (description.includes("Win Tournament maps")) return tn("sp.goal.maps", target, { n })
+    if (description.includes("Win Matches")) return tn("sp.goal.matches", target, { n })
     return `${description} · ${n}`
 }
 

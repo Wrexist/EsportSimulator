@@ -28,7 +28,7 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
-import { t } from "@/lib/i18n"
+import { formatDecimal, t } from "@/lib/i18n"
 import { stageName } from "@/lib/display-names"
 
 // Map Wallpaper Paths
@@ -583,11 +583,13 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     <dl className="space-y-0.5 text-[11px] text-ink-3">
                                         <div className="flex justify-between gap-2" title={t("veto.readEdgeTitle")}>
                                             <dt>{t("veto.readEdge")}</dt>
-                                            <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{Math.abs(edge).toFixed(1)}%</dd>
+                                            <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{formatDecimal(Math.abs(edge))}%</dd>
                                         </div>
-                                        <div className="flex justify-between gap-2" title={t("veto.comfortTitle")}>
+                                        {/* Label above the value and one line only: a long translated value ("Schwächste Map / Schwächste Map")
+                                            wrapped on some cards and pushed their map names out of line (I18N-16). */}
+                                        <div className="flex flex-col" title={t("veto.comfortTitle")}>
                                             <dt>{t("veto.comfort")}</dt>
-                                            <dd className="text-ink-2">
+                                            <dd className="truncate text-ink-2" title={`${mapComfortLabel(mapComfort(homeTeam.id, mapId))} / ${mapComfortLabel(mapComfort(awayTeam.id, mapId))}`}>
                                                 {mapComfortLabel(mapComfort(homeTeam.id, mapId))} <span className="text-ink-3">/</span> {mapComfortLabel(mapComfort(awayTeam.id, mapId))}
                                                 <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
                                             </dd>

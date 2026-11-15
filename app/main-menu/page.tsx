@@ -9,7 +9,7 @@ import type { SaveSlotMetadata } from "@/engine"
 import { Briefcase, Loader2, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TeamLogoImage } from "@/components/ui/asset-images"
-import { SettingsModal } from "@/components/settings/SettingsModal"
+import { pendingSettingsReopen, SettingsModal } from "@/components/settings/SettingsModal"
 import { Logotype } from "@/components/brand/Logotype"
 import { TitleHero } from "@/components/brand/TitleHero"
 import { t, tn } from "@/lib/i18n"
@@ -63,7 +63,9 @@ export default function MainMenuPage() {
     const [saves, setSaves] = useState<SaveSlotMetadata[]>([])
     const [savesLoaded, setSavesLoaded] = useState(false)
     const [isContinuing, setIsContinuing] = useState(false)
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+    // A language change remounts this page; reopen Settings if it was open (I18N-12).
+    const [reopenTab] = useState(pendingSettingsReopen)
+    const [isSettingsOpen, setIsSettingsOpen] = useState(reopenTab !== null)
     // Electron exposes a bridge; the browser build has no window to close.
     const [canQuit, setCanQuit] = useState(false)
 
@@ -177,7 +179,7 @@ export default function MainMenuPage() {
                 </footer>
             </div>
 
-            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} initialTab={reopenTab ?? undefined} />
         </div>
     )
 }

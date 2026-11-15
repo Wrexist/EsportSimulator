@@ -1,4 +1,5 @@
 import { SeededRNG } from "./rng"
+import { eventText } from "@/lib/news-ref"
 import { debug } from "@/lib/debug-logger"
 import {
     GameSave,
@@ -108,8 +109,7 @@ export class TournamentManager {
             type: "MEDIA",
             week: save.currentWeek,
             data: {
-                title: "Tournament Elimination",
-                message: `Your team has been eliminated from ${tournament.name}`,
+                ...eventText({ key: "evn.elim.t" }, { key: "evn.elim.m", params: { event: tournament.name } }),
                 tournamentId: tournament.id
             },
             acknowledged: false

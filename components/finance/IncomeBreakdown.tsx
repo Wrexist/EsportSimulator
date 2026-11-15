@@ -19,7 +19,8 @@ export function MoneyBreakdown({ rows, total, tone }: { rows: BreakdownRow[]; to
                 return (
                     <div key={label} className="grid grid-cols-[minmax(0,1fr)_64px_92px] items-center gap-3 py-2">
                         <dt className="min-w-0">
-                            <span className="block truncate text-sm text-ink-1">{label}</span>
+                            {/* I18N-16: the label wraps too; translated labels ("Mantenimiento del equipo técnico") were cut. */}
+                            <span className="block text-sm leading-snug text-ink-1">{label}</span>
                             {/* MARKET-18: the note wraps; the reputation factor sat past the cut. */}
                             {note && <span className="block text-xs leading-snug text-ink-3 [overflow-wrap:anywhere]">{note}</span>}
                         </dt>

@@ -1,7 +1,7 @@
 "use client"
 import { Trans } from "@/lib/trans"
 import { countryName } from "@/lib/country"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, t, tn } from "@/lib/i18n"
 
 import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"

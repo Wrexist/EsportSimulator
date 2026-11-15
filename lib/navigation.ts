@@ -131,7 +131,7 @@ export const navHubs: NavHub[] = [
         label: "Squad",
         icon: Users,
         items: [
-            { icon: Users, key: "nav.roster", label: "Roster", href: "/squad", keywords: "lineup players" },
+            { icon: Users, key: "nav.roster", label: "Squad", href: "/squad", keywords: "roster lineup players" },
             { icon: ClipboardList, key: "nav.staff", label: "Staff", href: "/staff", keywords: "coach analyst psychologist scout" },
             { icon: GraduationCap, key: "nav.academy", label: "Academy", href: "/academy", keywords: "prospects youth" },
             { icon: BarChart3, key: "nav.statistics", label: "Statistics", href: "/stats" },

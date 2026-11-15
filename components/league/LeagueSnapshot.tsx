@@ -75,7 +75,8 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
         <Panel eyebrow={t("common.league")} title={divisionName(own.name)} actions=<TableLink /> className={className}>
             <div className="flex items-center gap-5">
                 <p className="shrink-0 font-display text-[40px] font-bold leading-none tabular-nums text-ink-1">
-                    {me && started ? ordinalLabel(me.position) : "—"}<span className="text-lg text-ink-3">/{rows.length}</span>
+                    {/* Cardinal before "/10": an ordinal reads "7./10" in German (I18N-26). */}
+                    {me && started ? me.position : "—"}<span className="text-lg text-ink-3">/{rows.length}</span>
                 </p>
                 <dl className="grid min-w-0 flex-1 grid-cols-3 gap-3">
                     <div>

@@ -5,6 +5,7 @@ import { AlertTriangle, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { useFocusTrap } from "@/lib/accessibility"
+import { t } from "@/lib/i18n"
 
 export type ExitDialogVariant = "saving" | "saveFailed" | "simulationRunning" | "unsaved"
 
@@ -17,37 +18,38 @@ interface ExitConfirmDialogProps {
     onSaveAndExit?: () => void
 }
 
+/** Title and description are translation keys, read when the dialog renders. */
 const VARIANT_CONFIG = {
     saving: {
         icon: Save,
         iconColor: "text-gold",
         iconBg: "bg-gold/10",
-        title: "Saving Your Game",
-        description: "Please wait while your progress is being saved...",
+        title: "exit.saving.t",
+        description: "exit.saving.m",
         showButtons: false,
     },
     saveFailed: {
         icon: AlertTriangle,
         iconColor: "text-caution",
         iconBg: "bg-caution/10",
-        title: "Auto-Save Failed",
-        description: "Your latest progress could not be saved. Are you sure you want to exit without saving?",
+        title: "exit.saveFailed.t",
+        description: "exit.saveFailed.m",
         showButtons: true,
     },
     unsaved: {
         icon: Save,
         iconColor: "text-gold",
         iconBg: "bg-gold/10",
-        title: "Unsaved Progress",
-        description: "Auto-save is off and this career has progress that is not saved yet.",
+        title: "exit.unsaved.t",
+        description: "exit.unsaved.m",
         showButtons: true,
     },
     simulationRunning: {
         icon: AlertTriangle,
         iconColor: "text-negative",
         iconBg: "bg-negative/10",
-        title: "Process Still Running",
-        description: "A simulation or save operation is still in progress. Exiting now may result in data loss.",
+        title: "exit.running.t",
+        description: "exit.running.m",
         showButtons: true,
     },
 } as const
@@ -92,18 +94,18 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel, onSaveAn
 
                         {/* Title */}
                         <h2 id="modal-title-exit-confirm" className="font-display text-2xl font-bold text-ink-1 mb-2 uppercase relative">
-                            {config.title}
+                            {t(config.title)}
                         </h2>
 
                         {/* Description */}
                         <p className="text-ink-2 mb-8 relative">
-                            {config.description}
+                            {t(config.description)}
                         </p>
 
                         {/* Buttons */}
                         {variant === "unsaved" && onSaveAndExit && (
                             <Button onClick={onSaveAndExit} size="lg" className="w-full h-12 mb-3 relative">
-                                Save and exit
+                                {t("exit.saveAndExit")}
                             </Button>
                         )}
                         {config.showButtons && (
@@ -113,7 +115,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel, onSaveAn
                                     size="lg"
                                     className="flex-1 h-12"
                                 >
-                                    Stay
+                                    {t("exit.stay")}
                                 </Button>
                                 <Button
                                     onClick={onConfirm}
@@ -121,7 +123,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel, onSaveAn
                                     size="lg"
                                     className="flex-1 h-12 border-negative/40 text-negative hover:bg-negative/10"
                                 >
-                                    {variant === "unsaved" ? "Exit without saving" : "Exit"}
+                                    {variant === "unsaved" ? t("exit.withoutSaving") : t("exit.exit")}
                                 </Button>
                             </div>
                         )}

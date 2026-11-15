@@ -1,5 +1,5 @@
 "use client"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, t, tn } from "@/lib/i18n"
 import { countryName } from "@/lib/country"
 
 import { LoadChip } from "@/components/squad/LoadChip"
@@ -296,7 +296,7 @@ function SquadPageInner() {
   const benchRoster = roster.slice(5)
   const captain = captainId(teamData, id => playerById.get(id))
   const teamOvr = startingFiveOvr(activeRoster.map(p => p.evaluation.overallRating)) ?? 0
-  const avgAge = activeRoster.length > 0 ? (activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length).toFixed(1) : "—"
+  const avgAge = activeRoster.length > 0 ? formatDecimal(activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length) : "—"
   const wageBill = roster.reduce((sum, p) => sum + (contractByPlayerId.get(p.id)?.salaryPerWeek ?? 0), 0)
   const season = Math.ceil(currentWeek / 52)
   // SQUAD-15: the promotion wage is the market's for this player at this club.

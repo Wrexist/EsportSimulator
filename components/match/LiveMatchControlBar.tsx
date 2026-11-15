@@ -69,7 +69,9 @@ function LiveMatchControlBarComponent({
     const pausedMidRound = inProgress && !isPlaying && !betweenRounds
     const momentSpeed = speed * PACING.MOMENT_SPEED
     return (
-        <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-line bg-panel px-2 py-1.5" role="toolbar" aria-label={t("dock.aria")}>
+        // @container/dock: below 80rem (a 1280 px window) the skip buttons drop their text, which kept the
+        // translated dock from wrapping to a second row (I18N-16).
+        <div className="@container/dock flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-line bg-panel px-2 py-1.5" role="toolbar" aria-label={t("dock.aria")}>
             {/* Left: leave, status, auto tactics */}
             <div className="flex items-center gap-3">
                 {onLeave && (
@@ -195,7 +197,7 @@ function LiveMatchControlBarComponent({
                 {/* What the clock is doing right now */}
                 <span
                     className={cn(
-                        "inline-flex w-[118px] items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
+                        "inline-flex min-w-[118px] items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
                         pacingMode === "moments" && fastForward && isPlaying && !betweenRounds ? "text-ink-2" : "text-ink-3",
                     )}
                     aria-live="off"
@@ -216,9 +218,10 @@ function LiveMatchControlBarComponent({
                     onClick={onSimulateRound}
                     disabled={!inProgress}
                     title={t("dock.skipRoundTitle")}
+                    aria-label={t("dock.skipRound")}
                 >
                     <SkipForwardIcon size={13} aria-hidden="true" />
-                    {t("dock.skipRound")}
+                    <span className="hidden @min-[80rem]/dock:inline">{t("dock.skipRound")}</span>
                 </Button>
 
                 {/* Finishes the series at once, so confirm first. */}
@@ -234,9 +237,11 @@ function LiveMatchControlBarComponent({
                         variant="ghost"
                         disabled={!inProgress}
                         className="h-8 min-h-8 gap-1.5 rounded px-2.5 text-xs font-semibold tracking-[0.04em] text-ink-2 hover:text-ink-1"
+                        title={t("dock.skipMatchTitle")}
+                        aria-label={t("dock.skipMatch")}
                     >
                         <FastForwardIcon size={13} aria-hidden="true" />
-                        {t("dock.skipMatch")}
+                        <span className="hidden @min-[80rem]/dock:inline">{t("dock.skipMatch")}</span>
                     </Button>
                 </ConfirmDialog>
             </div>

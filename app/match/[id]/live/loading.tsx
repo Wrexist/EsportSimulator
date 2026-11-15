@@ -1,3 +1,5 @@
+"use client"
+
 import { t } from "@/lib/i18n"
 import { LoadingSplash } from "@/components/brand/LoadingSplash"
 

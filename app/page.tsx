@@ -15,7 +15,7 @@ import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { StorylinesPanel } from "@/components/storylines/StorylinesPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { BoardConfidenceChip } from "@/components/career/BoardConfidence"
-import { graceWeeksLeft, liveObjectives } from "@/components/career/board-view"
+import { graceWeeksLeft, liveObjectives, objectiveLabel } from "@/components/career/board-view"
 import { LeagueSnapshot } from "@/components/league/LeagueSnapshot"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { Button } from "@/components/ui/button"
@@ -498,7 +498,7 @@ export default function Page() {
               <dl className="divide-y divide-line text-sm">
                 {objectives.length > 0 ? objectives.map(o => (
                   <div key={o.id} className="flex items-center justify-between gap-3 py-2">
-                    <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT.has(o.id) ? t(`home.objective.${o.id}`) : o.label}</dt>
+                    <dt className="min-w-0 truncate text-ink-3" title={objectiveLabel(o)}>{OBJECTIVE_SHORT.has(o.id) ? t(`home.objective.${o.id}`) : objectiveLabel(o)}</dt>
                     <dd className="shrink-0 text-xs tabular-nums">
                       <span className="text-ink-3">{t("home.target", { value: objectiveTarget(o) })}</span>
                       <span className={cn("ml-2", o.current === undefined ? "text-ink-3" : o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>

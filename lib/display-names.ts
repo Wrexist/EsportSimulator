@@ -62,6 +62,12 @@ const FIXED_STAGES: Record<string, string> = {
     "Practice": "stage.practice",
     "Preseason Friendly": "stage.preseasonFriendly",
     "League Match": "stage.leagueMatch",
+    "League Play": "stage.leaguePlay",
+    "Bracket": "stage.bracket",
+    "Swiss Stage": "stage.swissStage",
+    "Playoffs": "stage.playoffs",
+    "Registration": "stage.registration",
+    "Qualifiers": "stage.qualifiers",
 }
 
 const EVENT_REGIONS = ["INTERNATIONAL", "EU", "NA", "SA", "ASIA", "CIS", "OCEANIA", "MENA"]

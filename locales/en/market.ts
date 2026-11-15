@@ -252,7 +252,7 @@ export const MARKET = {
     "paper.none": "None.",
     "paper.confidential": "Confidential",
     "paper.putDown": "Put the contract down",
-    "paper.title": "Player Contract",
+    "paper.title": "Player contract",
     "paper.number": "No. {{no}}",
     "paper.iconTerms": "Icon terms",
     "paper.starTerms": "Star terms",

@@ -2227,7 +2227,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               ])
               const milestones = checkMilestones(msState as unknown as GameSave, firedIds)
               milestones.forEach(ms => {
-                if (claimMilestoneToast(ms.id)) get().addToast({ message: ms.message, type: "achievement" })
+                if (claimMilestoneToast(ms.id)) get().addToast({ message: liveText(ms.ref), type: "achievement" })
                 set((s) => {
                   // The assistant coach's win-streak decision this week already
                   // tells the run: no second line in the round-up (HOME-13).
@@ -2236,7 +2236,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                     id: ms.id,
                     week: s.currentWeek,
                     type: "MILESTONE",
-                    data: { description: ms.message, importance: "MEDIUM" },
+                    data: { description: ms.message, messageRef: ms.ref, importance: "MEDIUM" },
                     acknowledged: true,
                   })
                   if (!s.acknowledgedEventIds.includes(ms.id)) s.acknowledgedEventIds.push(ms.id)

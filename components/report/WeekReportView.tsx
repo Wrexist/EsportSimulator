@@ -25,6 +25,7 @@ function useReportMode(): "club" | "pro" | "cup" {
     return useGameStore(s => s.draftCup ? "cup" : s.proCareer && s.proCareer.retiredWeek == null ? "pro" : "club")
 }
 const KPI_COLUMNS: Record<number, string> = { 2: "sm:grid-cols-2", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4", 5: "sm:grid-cols-5" }
+import { stageName } from "@/lib/display-names"
 
 const TONE_TEXT: Record<Tone, string> = { up: "text-positive", down: "text-negative", neutral: "text-ink-2" }
 
@@ -121,7 +122,7 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                                     <Link href={`/match/${m.id}/result`} className="flex h-10 items-center gap-3 px-4 hover:bg-raised">
                                         <FormGuide results={[m.won ? "W" : "L"]} />
                                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{m.opponentName}</span>
-                                        <span className="hidden truncate text-xs text-ink-3 sm:inline">{m.forfeit ? t("wr.forfeit") : m.competition === "Scrim" ? t("wr.scrim") : m.competition === "Match" ? t("wr.match") : m.competition}</span>
+                                        <span className="hidden truncate text-xs text-ink-3 sm:inline">{m.forfeit ? t("wr.forfeit") : m.competition === "Scrim" ? t("wr.scrim") : m.competition === "Match" ? t("wr.match") : stageName(m.competition)}</span>
                                         <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{m.score}</span>
                                     </Link>
                                 </li>

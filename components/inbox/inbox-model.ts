@@ -293,10 +293,11 @@ export function getEventBody(event: GameEventSaveData, ctx: InboxContext): strin
     return typeof note === "string" && event.selectedChoiceId === undefined && !dataOf(event).isWithdrawn ? `${body}\n\n${note}` : body
 }
 
-/** One line per folded notice. */
+/** One line per folded notice: the saved translation key first, else the stored English in the active language. */
 export function digestLine(item: DigestItem, ctx: InboxContext): string {
     const d = item.data as AnyData
-    const text = (v: unknown) => (typeof v === "string" ? stripEmoji(v).trim() : "")
+    const text = (v: unknown) => (typeof v === "string" ? stripEmoji(storedText(v)).trim() : "")
+    const ref = (v: unknown) => (isTextRef(v) ? stripEmoji(tRef(v)).trim() : "")
     const asEvent = (): GameEventSaveData => ({ id: item.id, type: item.type, week: item.week, data: d, acknowledged: true })
     switch (item.type) {
         case "PLAYER_LEVEL_UP": {
@@ -305,10 +306,10 @@ export function digestLine(item: DigestItem, ctx: InboxContext): string {
         }
         case "STAFF_LEVEL_UP": return t("ib.digest.level", { name: d.staffName || t("ib.aStaffMember"), level: d.newLevel ?? "?" })
         case "MANAGER_LEVEL_UP": return t("evn.mgrLevel.m", { level: managerLevelOf(item.id, d) })
-        case "FAN": return text(d.title) || text(d.message) || t("ib.digest.fan")
+        case "FAN": return ref(d.titleRef) || text(d.title) || ref(d.messageRef) || text(d.message) || t("ib.digest.fan")
         case "INJURY": return getEventSubject(asEvent(), ctx)
         default: {
-            const line = text(d.description) || text(d.message) || text(d.title) || getEventSubject(asEvent(), ctx)
+            const line = ref(d.messageRef) || ref(d.titleRef) || text(d.description) || text(d.message) || text(d.title) || getEventSubject(asEvent(), ctx)
             return line.length > 160 ? `${line.slice(0, 157)}...` : line
         }
     }

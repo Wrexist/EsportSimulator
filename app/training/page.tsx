@@ -177,7 +177,8 @@ export default function TrainingPage() {
                                 )}
                             >
                                 <span className="flex items-baseline justify-between gap-2">
-                                    <span className="truncate text-sm font-semibold text-ink-1">{t(`tr.drill.${d.id}`)}</span>
+                                    {/* Wraps rather than truncates: long translated drill names were cut at 1280 (I18N-16). */}
+                                    <span className="min-w-0 text-sm font-semibold leading-snug text-ink-1">{t(`tr.drill.${d.id}`)}</span>
                                     <span className={cn("shrink-0 text-xs tabular-nums", d.fatigueCost < 0 ? "text-positive" : "text-ink-3")}>
                                         {t("tr.fatigue", { n: d.fatigueCost > 0 ? `+${d.fatigueCost}` : d.fatigueCost === 0 ? "±0" : `−${Math.abs(d.fatigueCost)}` })}
                                     </span>

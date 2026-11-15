@@ -21,7 +21,7 @@ import {
     type EquipmentType,
 } from "@/engine/equipment-manager"
 import type { EquipmentItem, TeamSaveData } from "@/engine/save-types"
-import { t } from "@/lib/i18n"
+import { formatDecimal, t } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 const ICON: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
@@ -56,7 +56,7 @@ function GearTile({ item, equipped, budget, onBuy }: {
                         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 lg:hidden">{tierName(item.tier)}</p>
                         <p className="line-clamp-2 text-sm font-semibold leading-snug text-ink-1" title={itemName(item)}>{itemName(item)}</p>
                     </div>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums text-ink-1" title={t("gear.shareTitle")}>+{gearStrengthPct(item).toFixed(1)}%</span>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums text-ink-1" title={t("gear.shareTitle")}>+{formatDecimal(gearStrengthPct(item))}%</span>
                 </div>
                 <p className="mt-0.5 text-xs tabular-nums text-ink-3">{t("gear.costLine", { cost: money(item.purchaseCost), upkeep: money(item.weeklyCost) })}</p>
                 <div className="mt-auto pt-2">
@@ -67,7 +67,7 @@ function GearTile({ item, equipped, budget, onBuy }: {
                     ) : (
                         <div className="flex items-center justify-between gap-2">
                             <span className={cn("text-xs tabular-nums", !equipped ? "text-ink-3" : delta > 0 ? "text-positive" : delta < 0 ? "text-caution" : "text-ink-3")}>
-                                {equipped ? `${delta >= 0 ? "+" : "−"}${Math.abs(delta).toFixed(1)}% · ${upkeepDelta >= 0 ? "+" : "−"}${money(Math.abs(upkeepDelta))}/wk` : t("gear.emptySlot")}
+                                {equipped ? `${delta >= 0 ? "+" : "−"}${formatDecimal(Math.abs(delta))}% · ${t("ac.perWeek", { amount: `${upkeepDelta >= 0 ? "+" : "−"}${money(Math.abs(upkeepDelta))}` })}` : t("gear.emptySlot")}
                             </span>
                             {/* SQUAD-12: gear is not refunded, so confirm the spend. */}
                             <ConfirmDialog
@@ -134,7 +134,7 @@ export function GearCatalog({ team }: { team: TeamSaveData }) {
                                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-raised text-ink-2"><Icon size={18} /></span>
                                     <div className="min-w-0">
                                         <p className="text-sm font-semibold text-ink-1">{slotName(type)}</p>
-                                        <p className="truncate text-xs text-ink-3">{equipped ? t("gear.now", { pct: gearStrengthPct(equipped).toFixed(1) }) : t("gear.empty")}</p>
+                                        <p className="truncate text-xs text-ink-3">{equipped ? t("gear.now", { pct: formatDecimal(gearStrengthPct(equipped)) }) : t("gear.empty")}</p>
                                     </div>
                                 </div>
                                 {items.map(item => <GearTile key={item.id} item={item} equipped={equipped} budget={team.budget} onBuy={handleBuy} />)}
@@ -147,7 +147,7 @@ export function GearCatalog({ team }: { team: TeamSaveData }) {
             <aside className="min-w-0 space-y-4">
                 <Panel title={t("gear.strengthTitle")}>
                     <div className="flex items-baseline justify-between">
-                        <span className="font-display text-4xl font-bold tabular-nums text-ink-1">+{strength.toFixed(1)}%</span>
+                        <span className="font-display text-4xl font-bold tabular-nums text-ink-1">+{formatDecimal(strength)}%</span>
                         <span className="text-xs text-ink-3">{t("gear.cap", { pct: cap.toFixed(0) })}</span>
                     </div>
                     <Meter value={(strength / cap) * 100} label={t("gear.meterAria")} tone="neutral" showValue={false} className="mt-2" trackClassName="w-full" />
@@ -157,7 +157,7 @@ export function GearCatalog({ team }: { team: TeamSaveData }) {
                             return (
                                 <div key={type} className="flex items-center justify-between gap-3 py-1.5 text-sm">
                                     <dt className="text-ink-3">{slotName(type)}</dt>
-                                    <dd className={cn("tabular-nums", item ? "text-ink-1" : "text-ink-3")}>{item ? `+${gearStrengthPct(item).toFixed(1)}%` : "—"}</dd>
+                                    <dd className={cn("tabular-nums", item ? "text-ink-1" : "text-ink-3")}>{item ? `+${formatDecimal(gearStrengthPct(item))}%` : "—"}</dd>
                                 </div>
                             )
                         })}
