@@ -647,7 +647,7 @@ export const MATCH = {
     // First-visit tips on the match screens
     "tip.dismiss": "Dismiss tip: {{title}}",
     "tip.tactics.title": "Match prep",
-    "tip.tactics.1": "Win chance at the top is the honest pre-match estimate. Prep that changes it is listed with its effect.",
+    "tip.tactics.1": "The win chance in the match header, under the format (BO1, BO3), is the honest pre-match estimate. Prep that changes it is listed with its effect.",
     "tip.tactics.2": "After a VOD review the rival's habits show per map: the site their Ts like on a full buy and the site their CTs stack. Pick a counter to play into them.",
     "tip.tactics.3": "The playbook fixes your own calls per map, side and buy. A call you repeat gets read, so mixing beats spamming one call.",
     "tip.veto.title": "Map veto",

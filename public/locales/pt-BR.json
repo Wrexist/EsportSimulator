@@ -1120,7 +1120,7 @@
  "block.otherRoster": "{{team}} não consegue escalar {{need}} jogadores. Avance a semana para resolver esta partida por W.O.",
  "tip.dismiss": "Fechar dica: {{title}}",
  "tip.tactics.title": "Preparação da partida",
- "tip.tactics.1": "A chance de vitória no topo é a estimativa honesta antes da partida. A preparação que muda esse número aparece com o efeito dela.",
+ "tip.tactics.1": "A chance de vitória no cabeçalho da partida, abaixo do formato (BO1, BO3), é a estimativa honesta antes da partida. A preparação que muda esse número aparece com o efeito dela.",
  "tip.tactics.2": "Depois de uma análise de VOD, os hábitos do rival aparecem por mapa: o bomb que os TRs deles preferem no full buy e onde os CTs fazem stack. Escolha uma resposta para explorar isso.",
  "tip.tactics.3": "O playbook fixa suas próprias calls por mapa, lado e compra. Uma call repetida acaba sendo lida, então variar é melhor do que repetir sempre a mesma.",
  "tip.veto.title": "Veto de mapas",

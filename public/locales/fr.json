@@ -1120,7 +1120,7 @@
  "block.otherRoster": "{{team}} ne peut pas aligner {{need}} joueurs. Avance la semaine pour régler ce match par forfait.",
  "tip.dismiss": "Fermer le conseil : {{title}}",
  "tip.tactics.title": "Préparation du match",
- "tip.tactics.1": "La chance de victoire en haut est l'estimation honnête avant le match. La préparation qui la modifie est listée avec son effet.",
+ "tip.tactics.1": "La chance de victoire dans l'en-tête du match, sous le format (BO1, BO3), est l'estimation honnête avant le match. La préparation qui la modifie est listée avec son effet.",
  "tip.tactics.2": "Après une analyse VOD, les habitudes de l'adversaire s'affichent par map : le site que leurs T préfèrent en full buy et celui où leurs CT font un stack. Choisis un contre pour en profiter.",
  "tip.tactics.3": "Le playbook fixe tes propres appels par map, camp et achat. Un appel que tu répètes finit par être lu, donc varier vaut mieux que répéter le même.",
  "tip.veto.title": "Veto des maps",

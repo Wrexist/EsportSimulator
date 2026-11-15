@@ -1145,7 +1145,7 @@
  "block.otherRoster": "{{team}} nie może wystawić {{need}} zawodników. Przejdź do kolejnego tygodnia, żeby rozstrzygnąć mecz walkowerem.",
  "tip.dismiss": "Zamknij wskazówkę: {{title}}",
  "tip.tactics.title": "Przygotowanie do meczu",
- "tip.tactics.1": "Szansa na wygraną u góry to uczciwa ocena przed meczem. Przygotowanie, które ją zmienia, jest wymienione razem ze swoim efektem.",
+ "tip.tactics.1": "Szansa na wygraną w nagłówku meczu, pod formatem (BO1, BO3), to uczciwa ocena przed meczem. Przygotowanie, które ją zmienia, jest wymienione razem ze swoim efektem.",
  "tip.tactics.2": "Po analizie VOD widać nawyki rywala na każdej mapie: bombsite, który ich T wolą przy full buyu, i ten, na którym stackują ich CT. Wybierz kontrę, która to wykorzysta.",
  "tip.tactics.3": "Playbook ustala twoje calle dla każdej mapy, strony i zakupu. Powtarzany call zostaje odczytany, więc różnorodność jest lepsza niż ciągle ten sam call.",
  "tip.veto.title": "Veto map",

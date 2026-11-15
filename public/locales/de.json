@@ -1095,7 +1095,7 @@
  "block.otherRoster": "{{team}} kann keine {{need}} Spieler aufstellen. Spule die Woche vor, dann wird das Match per Forfeit gewertet.",
  "tip.dismiss": "Tipp schließen: {{title}}",
  "tip.tactics.title": "Matchvorbereitung",
- "tip.tactics.1": "Die Siegchance oben ist die ehrliche Einschätzung vor dem Match. Vorbereitung, die sie ändert, steht mit ihrer Wirkung dabei.",
+ "tip.tactics.1": "Die Siegchance im Match-Kopf, unter dem Format (BO1, BO3), ist die ehrliche Einschätzung vor dem Match. Vorbereitung, die sie ändert, steht mit ihrer Wirkung dabei.",
  "tip.tactics.2": "Nach einer VOD-Analyse siehst du die Gewohnheiten des Gegners pro Map: welche Seite ihre Ts bei Full Buys mögen und wo ihre CTs stacken. Wähle einen Konter, der genau darauf spielt.",
  "tip.tactics.3": "Das Playbook legt deine eigenen Calls pro Map, Seite und Kauf fest. Ein Call, den du wiederholst, wird gelesen, also schlägt Abwechslung das Spammen eines Calls.",
  "tip.veto.title": "Map-Veto",
