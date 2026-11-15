@@ -6604,6 +6604,8 @@
  "nw.league.c": "O {{team}} terminou em {{pos}} de {{n}} ({{w}}–{{l}}).{{fate}}",
  "nw.league.up": " Sobe para a Divisão {{level}} no próximo split.",
  "nw.league.down": " Cai para a Divisão {{level}} no próximo split.",
+ "nw.milestone.t": "Marco: {{name}} chega a {{kills}} abates oficiais",
+ "nw.milestone.c": "{{name}} chegou a {{kills}} abates em partidas oficiais. Prova de regularidade e talento.",
  "ev.workload.t": "Carga alta para {{name}}",
  "ev.workload.m": "{{name}} está com uma carga pesada (fadiga {{fatigue}}). O risco de lesão dele nesta semana é de {{risk}} e continua subindo enquanto a carga ficar tão alta. Dê descanso a ele nesta semana (fadiga para {{rested}}, fora do quinteto titular se houver um reserva em condições) ou deixe-o jogar com esse risco.",
  "ev.workload.rest": "Descansar nesta semana",

@@ -6797,6 +6797,8 @@
  "nw.league.c": "{{team}} kończy na {{pos}} miejscu z {{n}} ({{w}}–{{l}}).{{fate}}",
  "nw.league.up": " Awans do Dywizji {{level}} na następny split.",
  "nw.league.down": " Spadek do Dywizji {{level}} na następny split.",
+ "nw.milestone.t": "Kamień milowy: {{name}} z liczbą {{kills}} oficjalnych zabójstw",
+ "nw.milestone.c": "{{name}} ma już {{kills}} zabójstw w oficjalnych meczach. To dowód regularności i umiejętności.",
  "ev.workload.t": "Duże obciążenie: {{name}}",
  "ev.workload.m": "{{name}} jest mocno obciążony (zmęczenie {{fatigue}}). Jego ryzyko kontuzji w tym tygodniu to {{risk}} i rośnie, dopóki obciążenie pozostaje tak wysokie. Daj mu odpocząć w tym tygodniu (zmęczenie spadnie do {{rested}}, wypadnie z pierwszej piątki, jeśli jest wolny zdrowy zmiennik) albo wystaw go z tym ryzykiem.",
  "ev.workload.rest": "Odpoczynek w tym tygodniu",

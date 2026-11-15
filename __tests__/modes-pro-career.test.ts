@@ -6,6 +6,7 @@
  *  - MODES-08: a pro who outgrows his deal gets a raise.
  *  - MODES-09: a club offer to the pro holds Continue and comes from that club.
  *  - MODES-10: the coach fields a role-balanced five.
+ *  - MODES-11: a kill milestone headline is written once.
  *  - MODES-14 / MODES-28: the Draft Cup and between-clubs menus.
  * Manager careers keep their behaviour (each block checks that side too).
  */
@@ -20,6 +21,7 @@ import { proStaffRunRefusal } from "@/store/utils/pro-guard"
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
 import { coachLineup, handClubDecisionsToStaff, ovrOf, processProWeek, proWage, PRO_TUNING } from "@/engine/pro-career"
 import { boardPressure } from "@/engine/storylines/arcs/board-pressure"
+import { generateNarrativeNews } from "@/engine/processors/narrative-news"
 import { getDecisionKind, getEventSender, type InboxContext } from "@/components/inbox/inbox-model"
 import { BETWEEN_CLUBS_HREFS, PRO_HIDDEN_HREFS, isProHiddenPath, menuGroupsFor, navHubs, navHubsFor } from "@/lib/navigation"
 import { nextStop, type StopSource } from "@/lib/advance-stops"
@@ -264,5 +266,27 @@ describe("MODES-07 / MODES-09: the pro's inbox", () => {
         expect(nextStop({ ...state, eventsLog: [other] }, new Set([`event:${other.id}`]))).toBeNull()
         // Answered: no stop.
         expect(nextStop({ ...state, eventsLog: [{ ...offer, selectedChoiceId: "stay" }] }, new Set())).toBeNull()
+    })
+})
+
+describe("MODES-11: a kill milestone is announced once", () => {
+    test("the headline does not come back the next week, and an older save's random-suffixed one counts", () => {
+        const rng = { next: () => 0.05 } as never
+        const p = makePlayer("k", { totalKills: 520 } as never)
+        const save = {
+            currentWeek: 3, playerTeamId: "player", teams: [makeTeam("player", { rosterIds: ["k"] })], players: [p],
+            newsFeed: [], scheduledMatches: [], completedMatches: [], contracts: [], tournaments: [],
+        } as unknown as GameSave
+        generateNarrativeNews(save, rng)
+        expect(save.newsFeed.map(n => n.id)).toEqual(["milestone_k_500"])
+        expect(save.newsFeed[0].title).toBe("Milestone: k reaches 500 official kills")
+        expect(save.newsFeed[0].titleRef).toEqual({ key: "nw.milestone.t", params: { name: "k", kills: 500 } })
+        save.currentWeek = 4
+        generateNarrativeNews(save, rng)
+        expect(save.newsFeed).toHaveLength(1)
+
+        const old = { ...save, newsFeed: [{ id: "milestone_k_500_abc12", title: "x", content: "x", week: 2 }] } as unknown as GameSave
+        generateNarrativeNews(old, rng)
+        expect(old.newsFeed).toHaveLength(1)
     })
 })

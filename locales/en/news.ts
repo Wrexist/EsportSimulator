@@ -58,6 +58,8 @@ export const NEWS = {
     "nw.league.c": "{{team}} finished {{pos}} of {{n}} ({{w}}–{{l}}).{{fate}}",
     "nw.league.up": " Promoted to Division {{level}} for the next split.",
     "nw.league.down": " Relegated to Division {{level}} for the next split.",
+    "nw.milestone.t": "Milestone: {{name}} reaches {{kills}} official kills",
+    "nw.milestone.c": "{{name}} has reached {{kills}} kills in official matches. A testament to consistency and skill.",
 
     // Inbox messages from the medical team and retirements (engine/processors/event-processor.ts)
     "ev.workload.t": "{{name}}'s workload is high",

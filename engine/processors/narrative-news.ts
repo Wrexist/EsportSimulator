@@ -7,7 +7,7 @@
  *   3. Post-match headlines for completed matches from last week (max 2)
  *   4. Transfer rumors (15% per week, week > 4, expiring contracts)
  *   5. Rivalry storylines for Top-10 vs Top-10 matchups (50% chance)
- *   6. Player milestone celebrations (10% chance per week, 500/1000/2500 kill marks)
+ *   6. Player milestone celebrations (10% chance per week, 500/1000/2500 official kill marks, once each)
  *
  * The season recap is the season review moment, queued when the week tick
  * closes the season (atomic-week-processor, Phase 5.4b).
@@ -23,6 +23,7 @@ import type { SeededRNG } from "../rng"
 import type { SaveIndexes } from "@/store/indexes"
 import { getMatchTone } from "@/lib/match-stakes"
 import { finalPreview } from "../storylines/narrative"
+import { newsText } from "@/lib/news-ref"
 
 export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
     // 1. Monthly Power Rankings
@@ -272,25 +273,26 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 6. Player Milestones (10% per week)
+    // 6. Player Milestones (10% per week). MODES-11: once per player and
+    //    mark. The id is stable (older saves carry a random suffix after it),
+    //    and the official-kill window alone let it repeat every week the roll
+    //    passed.
     if (playerTeam && rng.next() < 0.1) {
         const roster = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
+        const announced = (id: string) => save.newsFeed.some(n => n.id === id || n.id.startsWith(`${id}_`))
         for (const player of roster) {
             const totalKills = player.totalKills || 0
-            const milestones = [
-                { threshold: 500, name: "500 Tournament Kills" },
-                { threshold: 1000, name: "1,000 Tournament Kills" },
-                { threshold: 2500, name: "2,500 Tournament Kills" },
-            ]
-
-            for (const milestone of milestones) {
-                // Window is 100 kills wide so the headline only fires once per
-                // milestone reach (regardless of how many kills land that week).
-                if (totalKills >= milestone.threshold && totalKills < milestone.threshold + 100) {
+            for (const threshold of [500, 1000, 2500]) {
+                // Window is 100 kills wide: an old mark is not announced late.
+                if (totalKills >= threshold && totalKills < threshold + 100) {
+                    const id = `milestone_${player.id}_${threshold}`
+                    if (announced(id)) break
                     save.newsFeed.unshift({
-                        id: `milestone_${player.id}_${milestone.threshold}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                        title: `Milestone: ${player.nickname} hits ${milestone.name}!`,
-                        content: `${player.nickname} has reached an incredible ${milestone.name} in their professional career. A testament to consistency and skill.`,
+                        id,
+                        ...newsText(
+                            { key: "nw.milestone.t", params: { name: player.nickname, kills: threshold } },
+                            { key: "nw.milestone.c", params: { name: player.nickname, kills: threshold } },
+                        ),
                         category: "ACHIEVEMENT",
                         playerId: player.id,
                         teamId: playerTeam.id,

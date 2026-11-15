@@ -6604,6 +6604,8 @@
  "nw.league.c": "{{team}} termine {{pos}} sur {{n}} ({{w}}–{{l}}).{{fate}}",
  "nw.league.up": " Promu en Division {{level}} pour le prochain split.",
  "nw.league.down": " Relégué en Division {{level}} pour le prochain split.",
+ "nw.milestone.t": "Cap franchi : {{name}} atteint {{kills}} kills officiels",
+ "nw.milestone.c": "{{name}} a atteint {{kills}} kills en matchs officiels. La preuve d’une grande régularité et de beaucoup de talent.",
  "ev.workload.t": "Charge élevée pour {{name}}",
  "ev.workload.m": "{{name}} supporte une lourde charge (fatigue {{fatigue}}). Son risque de blessure cette semaine est de {{risk}}, et il continue d'augmenter tant que la charge reste aussi élevée. Mets-le au repos cette semaine (fatigue à {{rested}}, hors du cinq de départ si un remplaçant apte est disponible) ou fais-le jouer avec ce risque.",
  "ev.workload.rest": "Le reposer cette semaine",

@@ -6411,6 +6411,8 @@
  "nw.league.c": "{{team}} beendet den Split als {{pos}} von {{n}} ({{w}}–{{l}}).{{fate}}",
  "nw.league.up": " Aufstieg in Division {{level}} zum nächsten Split.",
  "nw.league.down": " Abstieg in Division {{level}} zum nächsten Split.",
+ "nw.milestone.t": "Meilenstein: {{name}} erreicht {{kills}} offizielle Kills",
+ "nw.milestone.c": "{{name}} hat {{kills}} Kills in offiziellen Matches erreicht. Ein Beweis für Beständigkeit und Können.",
  "ev.workload.t": "Hohe Belastung bei {{name}}",
  "ev.workload.m": "{{name}} trägt eine hohe Belastung (Ermüdung {{fatigue}}). Sein Verletzungsrisiko liegt diese Woche bei {{risk}} und steigt weiter, solange die Belastung so hoch bleibt. Schone ihn diese Woche (Ermüdung auf {{rested}}, raus aus der Startformation, wenn ein fitter Ersatz frei ist) oder lass ihn mit diesem Risiko spielen.",
  "ev.workload.rest": "Diese Woche schonen",
