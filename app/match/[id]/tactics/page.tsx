@@ -43,6 +43,7 @@ import { COUNTER_EFFECT, counterSite, sanitizeHabitState, teamHabits } from "@/e
 import { formatDecimal, intlLocale, t } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { stageName } from "@/lib/display-names"
+import { matchEventName } from "@/lib/tournament-instances"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { autoVetoMaps } from "@/lib/auto-veto"
 import { liveMatchInProgress } from "@/app/match/match-centre"
@@ -243,6 +244,7 @@ export default function TacticalHQPage() {
         getDateForWeek: state.getDateForWeek,
     })))
     const league = useGameStore(state => state.league)
+    const gameStartDate = useGameStore(state => state.gameStartDate)
     // A live match that was started and left: its prep is locked, so the hub
     // offers only "Resume match" (with where it stands), not a new veto.
     const liveProgress = useGameStore(useShallow(state => {
@@ -481,7 +483,7 @@ export default function TacticalHQPage() {
     const tournamentDef = isTournament
         ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId)
         : undefined
-    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || t("prep.tournament")) : match.tournamentId === "SCRIM" ? t("common.scrim") : t("prep.friendly"))
+    const competitionName = leagueStage ?? (isTournament ? (matchEventName(liveTournament?.name, tournamentDef?.name, match.tournamentId, match.week, gameStartDate) || t("prep.tournament")) : match.tournamentId === "SCRIM" ? t("common.scrim") : t("prep.friendly"))
     const tableContext = leagueStage ? leagueMatchContext(league, match, myTeam.id) : null
     const competitionDetail = leagueStage
         ? (tableContext ? t("prep.tableContext", { context: tableContext }) : t("common.regionalLeague"))

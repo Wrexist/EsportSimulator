@@ -13,7 +13,7 @@ import { ChevronRight, ChevronLeft, Plus, Trophy, Plane, Megaphone } from "lucid
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
-import { recordEventName, seasonStartWeek } from "@/lib/tournament-instances"
+import { matchEventName, recordEventName, seasonStartWeek } from "@/lib/tournament-instances"
 import { getSeasonFromWeek } from "@/engine/circuit-engine"
 import { Panel } from "@/src/components/ui/Panel"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
@@ -577,11 +577,14 @@ export default function SchedulePage() {
         const opponentRoster = opponent
           ? (opponent.rosterIds || []).map(id => players.find(p => p.id === id)).filter((p): p is typeof players[number] => !!p)
           : []
-        const tournamentDef = selectedMatchForPopup.tournamentId
-          ? FULL_TOURNAMENT_CALENDAR.find(t =>
-            selectedMatchForPopup.tournamentId === t.id || selectedMatchForPopup.tournamentId?.startsWith(`${t.id}_`)
-          )
+        const popupTournamentId = selectedMatchForPopup.tournamentId
+        const tournamentDef = popupTournamentId
+          ? getTournamentById(popupTournamentId) ?? FULL_TOURNAMENT_CALENDAR.find(t => popupTournamentId.startsWith(`${t.id}_`))
           : null
+        // The saved event's name, else the calendar's dated to the match (never the data's year).
+        const popupTournamentName = tournamentDef
+          ? matchEventName(tournaments.find(x => x.id === popupTournamentId)?.name, tournamentDef.name, popupTournamentId, selectedMatchForPopup.week, gameStartDate)
+          : undefined
 
         return (
           <TeamMatchPopup
@@ -591,7 +594,7 @@ export default function SchedulePage() {
             opponent={opponent as any}
             opponentRoster={opponentRoster as any}
             playerTeam={playerTeam as any}
-            tournamentName={tournamentDef?.name}
+            tournamentName={popupTournamentName}
             stage={selectedMatchForPopup.stage || undefined}
             currentWeek={currentWeek}
             completedMatches={completedMatches}
