@@ -1,6 +1,7 @@
 import { PlayerSaveData, TeamSaveData, CompletedMatchSaveData, StaffSaveData, MatchSaveData } from "@/engine"
 import { SeededRNG } from "@/engine/rng"
 import type { SocialPost } from "@/engine/save-types"
+import { sideScore } from "@/lib/week-changes"
 
 export type { SocialPost } from "@/engine/save-types"
 
@@ -142,15 +143,16 @@ export function generateSocialPosts(input: SocialFeedInput): SocialPost[] {
     const teamById = new Map(teams.map(t => [t.id, t]))
 
     // ---- 1. The user's last match: official post + player post + fan takes ----
-    const lastMatch = completedMatches.find(m => m.homeTeamId === playerTeam.id || m.awayTeamId === playerTeam.id)
-    if (lastMatch) {
+    // completedMatches is oldest first: the newest official match, and only
+    // while it is recent, so the feed never posts about week 1's scrim again (HOME-12).
+    const lastMatch = [...completedMatches].reverse().find(m => !m.isScrim && (m.homeTeamId === playerTeam.id || m.awayTeamId === playerTeam.id))
+    if (lastMatch && lastMatch.week >= currentWeek - 1) {
         const isHome = lastMatch.homeTeamId === playerTeam.id
         const oppTeam = teamById.get(isHome ? lastMatch.awayTeamId : lastMatch.homeTeamId)
         const playerWon = (isHome && lastMatch.result.homeScore > lastMatch.result.awayScore) ||
             (!isHome && lastMatch.result.awayScore > lastMatch.result.homeScore)
-        const scoreString = isHome
-            ? `${lastMatch.result.homeScore}-${lastMatch.result.awayScore}`
-            : `${lastMatch.result.awayScore}-${lastMatch.result.homeScore}`
+        // Rounds for a single map (13–8), maps for a series.
+        const scoreString = sideScore(lastMatch.result, isHome)
         const mvp = playerById.get(lastMatch.result.mvpPlayerId || "")
         const oppName = oppTeam?.name || "the opponents"
 
@@ -233,16 +235,15 @@ export function generateSocialPosts(input: SocialFeedInput): SocialPost[] {
     }
 
     // ---- 2. A rival org posts its own recent result ----
-    const rivalMatch = completedMatches.find(m =>
+    const rivalMatch = [...completedMatches].reverse().find(m =>
+        !m.isScrim && m.week >= currentWeek - 1 &&
         m.homeTeamId !== playerTeam.id && m.awayTeamId !== playerTeam.id &&
         teamById.has(m.homeTeamId) && teamById.has(m.awayTeamId))
     if (rivalMatch) {
         const homeWon = rivalMatch.result.homeScore > rivalMatch.result.awayScore
         const winner = teamById.get(homeWon ? rivalMatch.homeTeamId : rivalMatch.awayTeamId)!
         const loser = teamById.get(homeWon ? rivalMatch.awayTeamId : rivalMatch.homeTeamId)!
-        const score = homeWon
-            ? `${rivalMatch.result.homeScore}-${rivalMatch.result.awayScore}`
-            : `${rivalMatch.result.awayScore}-${rivalMatch.result.homeScore}`
+        const score = sideScore(rivalMatch.result, homeWon)
         posts.push({
             id: `sp_rival_${rivalMatch.id}`,
             teamId: winner.id,
