@@ -1,6 +1,6 @@
 /** Squad screen, its panels, and roster rules shown to the player. */
 export const SQUAD = {
-    "squad.eyebrow": "Season {{season}} · Roster",
+    "squad.eyebrow": "Season {{season}} · Squad",
     "squad.subtitle": "Your starting five plays every match. Click a player for their profile; swap the bench in from the right.",
     "squad.notFound": "Team data not found",
     "squad.lineupUpdated": "Lineup updated",

@@ -93,7 +93,7 @@ export const HOME = {
     "home.wages": "Wages",
     "home.upkeep": "Upkeep",
     "home.recentResults": "Recent results",
-    "home.schedule": "Schedule",
+    "home.schedule": "Calendar",
     "home.noMatchesPlayed": "No matches played yet.",
     "home.news": "News",
 

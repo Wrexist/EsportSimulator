@@ -36,7 +36,7 @@ export const LEGACY: Record<string, string> = {
     "cr.name.music": "Generated in the game",
     "cr.thanks.community": "Tactical FPS community",
     "cr.thanks.communityFor": "For decades of competitive play",
-    "cr.thanks.orgs": "Esports organizations",
+    "cr.thanks.orgs": "Esports organisations",
     "cr.thanks.orgsFor": "For inspiring the management side",
     "cr.thanks.oss": "Open-source contributors",
     "cr.thanks.ossFor": "For the tools this is built on",

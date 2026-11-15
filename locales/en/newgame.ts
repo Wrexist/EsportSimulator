@@ -123,7 +123,7 @@ export const NEWGAME = {
     "ct.enters.EU": "Enters the Europe regional qualifier first",
     "ct.enters.NA": "Enters the North America regional qualifier first",
     "ct.enters.ASIA": "Enters the Asia regional qualifier first",
-    "ct.diff.story": "Story Mode",
+    "ct.diff.story": "Story mode",
     "ct.diff.story.desc": "Most starting cash and reputation, a bigger starting fanbase and 1.5x recurring income.",
     "ct.diff.normal": "Normal",
     "ct.diff.normal.desc": "Standard starting cash, reputation and income.",

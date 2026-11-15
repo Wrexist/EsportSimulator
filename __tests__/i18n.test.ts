@@ -31,7 +31,7 @@ test("a complete translation is offered and used, plural forms by that language'
     registerLocale("pl", { ...dict, "menu.saves.one": "{{count}} zapis", "menu.saves.few": "{{count}} zapisy", "menu.saves.many": "{{count}} zapisów", "menu.saves.other": "{{count}} zapisu" })
     expect(getAvailableLocales()).toContain("pl")
     setLocale("pl")
-    expect(t("nav.roster")).toBe("PL Roster")
+    expect(t("nav.roster")).toBe("PL Squad")
     expect(tn("menu.saves", 3)).toBe("3 zapisy")
     expect(tn("menu.saves", 5)).toBe("5 zapisów")
     expect(navLabel(navHubs[0])).toBe("PL Home")
