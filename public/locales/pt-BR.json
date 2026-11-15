@@ -7035,5 +7035,18 @@
  "bd.rev.MISSED.mNotice": "A temporada ficou abaixo das metas da diretoria. A confiança caiu para {{c}}/100: você está no último aviso.",
  "bd.rev.FAILED.t": "Diretoria do {{club}} furiosa",
  "bd.rev.FAILED.m": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100: você está no último aviso e precisa entregar na próxima temporada."
+ "bd.rev.FAILED.mNotice": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100: você está no último aviso e precisa entregar na próxima temporada.",
+ "evn.tr.start": "{{name}} começou o treino de {{role}} ({{weeks}} semanas, {{cost}}/sem.).",
+ "evn.tr.cancel": "Treino de {{name}} cancelado. Progresso: {{done}}/{{total}} semanas.",
+ "evn.tr.cancelRefund": "Treino de {{name}} cancelado. Progresso: {{done}}/{{total}} semanas. Reembolso: {{amount}}.",
+ "evn.tr.resume": "{{name}} se recuperou da lesão e retomou o treino de {{role}} ({{done}}/{{total}} semanas concluídas).",
+ "evn.tr.paused": "Treino de {{name}} pausado: fundos insuficientes ({{have}} disponíveis, {{need}} necessários).",
+ "evn.tr.complete": "{{name}} concluiu o treino de {{role}}! {{old}} agora é a função secundária.",
+ "evn.contractExpired": "O contrato de {{name}} expirou, e o jogador deixou a equipe.",
+ "evn.promo.t": "Acesso!",
+ "evn.promo.m": "Parabéns! {{team}} terminou a temporada em #{{rank}} no mundo ({{tier}}: posições {{band}}) e subiu para o {{tier}}!",
+ "evn.releg.t": "Rebaixamento",
+ "evn.releg.m": "{{team}} terminou a temporada em #{{rank}} no mundo ({{tier}}: posições {{band}}) e caiu para o {{tier}}. Hora de reconstruir!",
+ "evn.season.t": "Temporada {{season}} encerrada",
+ "evn.season.m": "A temporada {{season}} terminou. Equipes que subiram: {{promoted}}. Equipes rebaixadas: {{relegated}}."
 }

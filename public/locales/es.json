@@ -7035,5 +7035,18 @@
  "bd.rev.MISSED.mNotice": "La temporada se quedó por debajo de los objetivos de la directiva. La confianza ha bajado a {{c}}/100: estás bajo ultimátum.",
  "bd.rev.FAILED.t": "La directiva de {{club}}, furiosa",
  "bd.rev.FAILED.m": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100: estás bajo ultimátum y tienes que cumplir la próxima temporada."
+ "bd.rev.FAILED.mNotice": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100: estás bajo ultimátum y tienes que cumplir la próxima temporada.",
+ "evn.tr.start": "{{name}} ha empezado el entrenamiento de {{role}} ({{weeks}} semanas, {{cost}}/sem.).",
+ "evn.tr.cancel": "Entrenamiento de {{name}} cancelado. Progreso: {{done}}/{{total}} semanas.",
+ "evn.tr.cancelRefund": "Entrenamiento de {{name}} cancelado. Progreso: {{done}}/{{total}} semanas. Reembolso: {{amount}}.",
+ "evn.tr.resume": "{{name}} se ha recuperado de la lesión y retoma el entrenamiento de {{role}} ({{done}}/{{total}} semanas completadas).",
+ "evn.tr.paused": "Entrenamiento de {{name}} en pausa: no hay fondos suficientes ({{have}} disponibles, {{need}} necesarios).",
+ "evn.tr.complete": "¡{{name}} ha completado el entrenamiento de {{role}}! {{old}} pasa a ser su rol secundario.",
+ "evn.contractExpired": "El contrato de {{name}} ha vencido y deja el equipo.",
+ "evn.promo.t": "¡Ascenso!",
+ "evn.promo.m": "¡Enhorabuena! {{team}} termina la temporada n.º {{rank}} del mundo ({{tier}}: puestos {{band}}) y asciende a {{tier}}.",
+ "evn.releg.t": "Descenso",
+ "evn.releg.m": "{{team}} termina la temporada n.º {{rank}} del mundo ({{tier}}: puestos {{band}}) y desciende a {{tier}}. ¡Toca reconstruir!",
+ "evn.season.t": "Temporada {{season}} terminada",
+ "evn.season.m": "La temporada {{season}} ha terminado. Equipos que ascienden: {{promoted}}. Equipos que descienden: {{relegated}}."
 }

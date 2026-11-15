@@ -6811,5 +6811,18 @@
  "bd.rev.MISSED.mNotice": "Die Saison blieb hinter den Zielen des Vorstands zurück. Das Vertrauen ist auf {{c}}/100 gesunken: Du hast die letzte Warnung.",
  "bd.rev.FAILED.t": "Vorstand von {{club}} verärgert",
  "bd.rev.FAILED.m": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen.",
- "bd.rev.FAILED.mNotice": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen: Du hast die letzte Warnung und musst nächste Saison liefern."
+ "bd.rev.FAILED.mNotice": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen: Du hast die letzte Warnung und musst nächste Saison liefern.",
+ "evn.tr.start": "{{name}} hat das Training zur Rolle {{role}} begonnen ({{weeks}} Wochen, {{cost}}/Woche).",
+ "evn.tr.cancel": "Training von {{name}} abgebrochen. Fortschritt: {{done}}/{{total}} Wochen.",
+ "evn.tr.cancelRefund": "Training von {{name}} abgebrochen. Fortschritt: {{done}}/{{total}} Wochen. Erstattet: {{amount}}.",
+ "evn.tr.resume": "{{name}} ist wieder fit und setzt das Training zur Rolle {{role}} fort ({{done}}/{{total}} Wochen absolviert).",
+ "evn.tr.paused": "Training von {{name}} pausiert: nicht genug Geld ({{have}} verfügbar, {{need}} nötig).",
+ "evn.tr.complete": "{{name}} hat das Training zur Rolle {{role}} abgeschlossen! {{old}} ist jetzt die Zweitrolle.",
+ "evn.contractExpired": "Der Vertrag von {{name}} ist ausgelaufen; der Spieler hat das Team verlassen.",
+ "evn.promo.t": "Aufstieg!",
+ "evn.promo.m": "Glückwunsch! {{team}} beendet die Saison auf Platz {{rank}} der Welt ({{tier}}: Plätze {{band}}) und steigt in {{tier}} auf!",
+ "evn.releg.t": "Abstieg",
+ "evn.releg.m": "{{team}} beendet die Saison auf Platz {{rank}} der Welt ({{tier}}: Plätze {{band}}) und steigt in {{tier}} ab. Zeit für den Neuaufbau!",
+ "evn.season.t": "Saison {{season}} beendet",
+ "evn.season.m": "Saison {{season}} ist vorbei. Aufsteiger: {{promoted}}. Absteiger: {{relegated}}."
 }

@@ -1,4 +1,4 @@
-import { liveText } from "@/lib/i18n"
+import { liveText, tRefEn, type TextRef } from "@/lib/i18n"
 import { GameSave, TeamSaveData, PlayerSaveData, RoleTrainingSession } from "./save-types"
 import { Role } from "@/types"
 import { PlayerRole } from "@/types/enums"
@@ -12,6 +12,12 @@ const ROLE_TO_PLAYER_ROLE: Record<Role, PlayerRole> = {
   support: PlayerRole.SUPPORT,
   entry: PlayerRole.ENTRY_FRAGGER,
 }
+
+/** A role's display name as a translation key (a training role "awper" or a player role "AWPER"). */
+const roleRef = (role: string): TextRef => ({ key: `market.role.${ROLE_TO_PLAYER_ROLE[role as Role] ?? role}` })
+const money = (n: number) => `$${n.toLocaleString("en-US")}`
+/** Inbox text saved with its translation key: English in `description`, the key in `messageRef` (I18N-27 check). */
+const eventMessage = (ref: TextRef) => ({ description: tRefEn(ref), messageRef: ref })
 
 /**
  * Weekly training slots of the managed club: 10 baseline + 1 per 3 manager
@@ -93,7 +99,7 @@ export class TrainingManager {
         week: game.currentWeek,
         type: "TRAINING_START",
         data: {
-          description: `${player.nickname} has begun ${targetRole} training (8 weeks, $5,000/wk)`,
+          ...eventMessage({ key: "evn.tr.start", params: { name: player.nickname, role: roleRef(targetRole), weeks: this.ROLE_TRAINING_DURATION, cost: money(this.ROLE_TRAINING_COST) } }),
           importance: "MEDIUM",
           entityId: player.id
         },
@@ -155,7 +161,9 @@ export class TrainingManager {
         week: game.currentWeek,
         type: "TRAINING_CANCEL",
         data: {
-          description: `Training cancelled for ${player?.nickname || 'Player'}. Progress: ${cancelled.weeksCompleted}/${cancelled.totalWeeks} weeks.${refund > 0 ? ` Refunded $${refund.toLocaleString()}.` : ''}`,
+          ...eventMessage(refund > 0
+            ? { key: "evn.tr.cancelRefund", params: { name: player?.nickname || "?", done: cancelled.weeksCompleted, total: cancelled.totalWeeks, amount: money(refund) } }
+            : { key: "evn.tr.cancel", params: { name: player?.nickname || "?", done: cancelled.weeksCompleted, total: cancelled.totalWeeks } }),
           importance: "LOW",
           entityId: playerId
         },
@@ -193,7 +201,7 @@ export class TrainingManager {
               week: game.currentWeek,
               type: "TRAINING_START",
               data: {
-                description: `${player.nickname} has recovered from injury and resumed ${session.targetRole} training (${session.weeksCompleted}/${session.totalWeeks} weeks completed).`,
+                ...eventMessage({ key: "evn.tr.resume", params: { name: player.nickname, role: roleRef(session.targetRole), done: session.weeksCompleted, total: session.totalWeeks } }),
                 importance: "MEDIUM",
                 entityId: player.id
               },
@@ -250,7 +258,7 @@ export class TrainingManager {
                 week: game.currentWeek,
                 type: "TRAINING_CANCEL",
                 data: {
-                  description: `Training paused for ${player?.nickname || 'Player'} — insufficient funds ($${team.budget.toLocaleString()} available, $${session.weeklyCost.toLocaleString()} needed).`,
+                  ...eventMessage({ key: "evn.tr.paused", params: { name: player?.nickname || "?", have: money(team.budget), need: money(session.weeklyCost) } }),
                   importance: "MEDIUM",
                   entityId: session.playerId
                 },
@@ -306,7 +314,7 @@ export class TrainingManager {
         week: game.currentWeek,
         type: "TRAINING_COMPLETE",
         data: {
-          description: `${player.nickname} has completed ${session.targetRole} training! ${oldPrimary} is now their secondary role.`,
+          ...eventMessage({ key: "evn.tr.complete", params: { name: player.nickname, role: roleRef(session.targetRole), old: roleRef(oldPrimary) } }),
           importance: "HIGH",
           entityId: player.id
         },

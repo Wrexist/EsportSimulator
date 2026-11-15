@@ -7259,5 +7259,18 @@
  "bd.rev.MISSED.mNotice": "Sezon nie spełnił celów zarządu. Zaufanie spadło do {{c}}/100: masz ostatnie ostrzeżenie.",
  "bd.rev.FAILED.t": "Zarząd {{club}} wściekły",
  "bd.rev.FAILED.m": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100: masz ostatnie ostrzeżenie i w przyszłym sezonie musisz dowieźć wynik."
+ "bd.rev.FAILED.mNotice": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100: masz ostatnie ostrzeżenie i w przyszłym sezonie musisz dowieźć wynik.",
+ "evn.tr.start": "{{name}}: rozpoczęto trening roli {{role}} ({{weeks}} tyg., {{cost}}/tydz.).",
+ "evn.tr.cancel": "Trening gracza {{name}} anulowany. Postęp: {{done}}/{{total}} tyg.",
+ "evn.tr.cancelRefund": "Trening gracza {{name}} anulowany. Postęp: {{done}}/{{total}} tyg. Zwrot: {{amount}}.",
+ "evn.tr.resume": "{{name}}: koniec kontuzji, trening roli {{role}} wznowiony ({{done}}/{{total}} tyg. za nami).",
+ "evn.tr.paused": "Trening gracza {{name}} wstrzymany: za mało środków (dostępne {{have}}, potrzeba {{need}}).",
+ "evn.tr.complete": "{{name}}: trening roli {{role}} ukończony! {{old}} to teraz rola dodatkowa.",
+ "evn.contractExpired": "Kontrakt gracza {{name}} wygasł. Odejście z drużyny.",
+ "evn.promo.t": "Awans!",
+ "evn.promo.m": "Gratulacje! {{team}} kończy sezon na {{rank}}. miejscu na świecie ({{tier}}: miejsca {{band}}) i awansuje do {{tier}}!",
+ "evn.releg.t": "Spadek",
+ "evn.releg.m": "{{team}} kończy sezon na {{rank}}. miejscu na świecie ({{tier}}: miejsca {{band}}) i spada do {{tier}}. Czas na przebudowę!",
+ "evn.season.t": "Sezon {{season}} zakończony",
+ "evn.season.m": "Sezon {{season}} dobiegł końca. Awanse: {{promoted}}. Spadki: {{relegated}}."
 }
