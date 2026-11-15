@@ -160,3 +160,49 @@ describe("setTimeMode — HYBRID_DAILY ↔ WEEKLY transitions", () => {
         expect(h.state().currentDay).toBe(6)
     })
 })
+
+describe("setTimeMode — HOME-19 / HOME-20: a mode round trip never rewinds the week", () => {
+    const own = (day: number) => ({ id: `m${day}`, week: 14, day, homeTeamId: "me", awayTeamId: "opp" })
+
+    test("Daily → Weekly → Daily returns to the same day", () => {
+        const h = makeHarness(makeBaseState({ saveId: "s1", playerTeamId: "me", currentWeek: 14, timeMode: "HYBRID_DAILY", currentDay: 3, completedMatches: [own(1)] } as Partial<StoreState>))
+        const slice = createSettingsSlice(h.set, h.get)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.setTimeMode("WEEKLY" as any)
+        expect(h.state().currentDay).toBe(6)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.setTimeMode("HYBRID_DAILY" as any)
+        expect(h.state().currentDay).toBe(3)
+    })
+
+    test("weekly mode played this week's match: daily resumes on that match day, not day 0", () => {
+        const h = makeHarness(makeBaseState({ saveId: "s2", playerTeamId: "me", currentWeek: 14, timeMode: "WEEKLY", currentDay: 6, completedMatches: [own(1), { id: "x", week: 14, day: 5, homeTeamId: "a", awayTeamId: "b" }] } as Partial<StoreState>))
+        const slice = createSettingsSlice(h.set, h.get)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.setTimeMode("HYBRID_DAILY" as any)
+        expect(h.state().currentDay).toBe(1)
+    })
+
+    test("a remembered day from another week or save is ignored", () => {
+        const h = makeHarness(makeBaseState({ saveId: "s3", playerTeamId: "me", currentWeek: 20, timeMode: "HYBRID_DAILY", currentDay: 4, completedMatches: [] } as Partial<StoreState>))
+        const slice = createSettingsSlice(h.set, h.get)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.setTimeMode("WEEKLY" as any)
+        h.set(d => { d.currentWeek = 21 })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.setTimeMode("HYBRID_DAILY" as any)
+        expect(h.state().currentDay).toBe(0)
+    })
+
+    test("a match-day notice is cleared on a mode switch; other notices stay", () => {
+        const h = makeHarness(makeBaseState({ saveId: "s4", playerTeamId: "me", currentWeek: 14, timeMode: "WEEKLY", currentDay: 6, completedMatches: [], advanceStop: { key: "match:x", kind: "match", reason: "Play", week: 14, day: 6 } } as unknown as Partial<StoreState>))
+        const slice = createSettingsSlice(h.set, h.get)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.setTimeMode("HYBRID_DAILY" as any)
+        expect((h.state() as unknown as { advanceStop: unknown }).advanceStop).toBeNull()
+        h.set(d => { (d as unknown as { advanceStop: unknown }).advanceStop = { key: "event:e", kind: "decision", reason: "x", week: 14, day: 0 } })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slice.setTimeMode("WEEKLY" as any)
+        expect((h.state() as unknown as { advanceStop: { kind: string } }).advanceStop.kind).toBe("decision")
+    })
+})

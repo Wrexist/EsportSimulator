@@ -173,7 +173,8 @@ export function AdvanceControl() {
     return (
         <div className="relative shrink-0">
             {control}
-            {advanceStop && !running && <StopNotice />}
+            {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20). */}
+            {advanceStop && !running && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
         </div>
     )
 }
@@ -276,6 +277,9 @@ function MatchStopActions({ href, onDone }: { href: string; onDone: () => void }
             if (await prepAndSim(matchId)) {
                 onDone()
                 router.push(`/match/${matchId}/result`)
+            } else {
+                // The store toasts why it could not play; the notice no longer fits (HOME-20).
+                onDone()
             }
         } finally {
             setBusy(false)
