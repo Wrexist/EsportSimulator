@@ -545,6 +545,16 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             if (!draft.acknowledgedEventIds.includes(eventId)) {
                 draft.acknowledgedEventIds.push(eventId)
             }
+            // MARKET-09: the other open bids for him close with the sale.
+            for (const other of draft.eventsLog) {
+                if (other.id === eventId || other.type !== "TRANSFER_OFFER" || other.selectedChoiceId) continue
+                const data = other.data as { playerId?: string; soldToTeamName?: string } | undefined
+                if (!data || data.playerId !== playerId) continue
+                other.selectedChoiceId = "sold"
+                other.acknowledged = true
+                data.soldToTeamName = buyingTeam.name
+                if (!draft.acknowledgedEventIds.includes(other.id)) draft.acknowledgedEventIds.push(other.id)
+            }
         })
 
         // Audio cue lands after the state commit so the visual roster +

@@ -255,4 +255,5 @@ export const INBOX = {
     "jo.welcome": "Welcome to {{club}}!",
     "jo.turnedDown": "You turned down {{club}}.",
     "jo.declined": "You declined the offer from {{club}}. Your team appreciates your loyalty.",
+    "ib.res.soldElsewhere": "Closed: the player was sold to {{club}}",
 } as const

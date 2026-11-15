@@ -72,6 +72,7 @@ function ResolvedNote({ event }: { event: GameEventSaveData }) {
     const unanswered = data.unanswered as { week?: number } | undefined
     const text = unanswered ? (choice ? t("ib.res.defaulted", { choice: choiceLabel(choice), week: unanswered.week ?? "" }) : t("ib.res.lapsed", { week: unanswered.week ?? "" }))
         : event.selectedChoiceId === "expired" ? t("ib.res.expired")
+        : event.selectedChoiceId === "sold" ? t("ib.res.soldElsewhere", { club: data.soldToTeamName || t("ib.aClub") })
         : choice ? t("ib.res.chose", { choice: choiceLabel(choice) })
             : event.selectedChoiceId === "reject" ? t("ib.res.rejected")
                 : event.selectedChoiceId === "ACCEPT" || event.selectedChoiceId === "accept" ? t("ib.res.accepted")

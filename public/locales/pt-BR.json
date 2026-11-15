@@ -6910,5 +6910,6 @@
  "bd.rev.FAILED.mNotice": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100: você está no último aviso e precisa entregar na próxima temporada.",
  "fin.cat.SCOUTING": "Observação",
  "sp.lastEnded": "Seu contrato com {{name}} terminou na semana {{week}}. Assine um novo entre as propostas desta semana abaixo.",
- "sp.lastEndedCooldown": "Seu contrato com {{name}} terminou na semana {{week}}. A marca pode assinar de novo a partir da semana {{from}}. Assine um novo contrato entre as propostas desta semana abaixo."
+ "sp.lastEndedCooldown": "Seu contrato com {{name}} terminou na semana {{week}}. A marca pode assinar de novo a partir da semana {{from}}. Assine um novo contrato entre as propostas desta semana abaixo.",
+ "ib.res.soldElsewhere": "Encerrada: o jogador foi vendido para {{club}}"
 }
