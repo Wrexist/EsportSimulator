@@ -12,6 +12,7 @@ import { generateCareerDecision } from "@/engine/career-decisions"
 import type { GameSave, TeamSaveData } from "@/engine/save-types"
 import { nextStop, type StopSource } from "@/lib/advance-stops"
 import { buildWeekReport, type ReportStateSource } from "@/lib/week-report"
+import { eventToItem, digestLine, type InboxContext } from "@/components/inbox/inbox-model"
 import { makeWorld, playLeagueWeek } from "./league-fixtures"
 
 describe("HOME-01: league draw links open the league table", () => {
@@ -149,5 +150,24 @@ describe("HOME-14 / MODES-23: an unchanged storyline beat leads one weekly repor
         const stories = [arc([{ week: 5, text: "goes public" }, { week: 6, text: "talks open" }])]
         const w4 = report(4, [arc([{ week: 5, text: "goes public" }])])
         expect(report(5, stories, [w4]).story?.text).toBe("talks open")
+    })
+})
+
+describe("HOME-21: mid-week level-ups read as real messages in the inbox", () => {
+    const ctx: InboxContext = { currentWeek: 5, playerTeamId: "t", rosterIds: new Set(["p"]), playerName: () => undefined }
+
+    it("a player level-up names the player and the level", () => {
+        const item = eventToItem({ id: "evt_lvl_1", type: "PLAYER_LEVEL_UP", week: 5, acknowledged: false, data: { playerName: "hfx", newLevel: 4 } } as never, ctx)
+        expect(item.subject).toBe("hfx reached level 4")
+        expect(item.preview).toBe("hfx reached level 4")
+        expect(item.subject).not.toBe("Notification")
+    })
+
+    it("a manager level-up says which level, in the active language", () => {
+        const event = { id: "mgr_levelup_5_3", type: "MANAGER_LEVEL_UP", week: 5, acknowledged: false, data: { description: "Manager leveled up to Level 3!", importance: "HIGH" } }
+        const item = eventToItem(event as never, ctx)
+        expect(item.subject).toBe("Manager level up!")
+        expect(item.preview).toBe("You have reached manager level 3.")
+        expect(digestLine({ id: event.id, type: event.type, week: 5, data: event.data } as never, ctx)).toBe("You have reached manager level 3.")
     })
 })

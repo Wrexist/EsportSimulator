@@ -149,6 +149,21 @@ function trophyBody(data: AnyData, ctx: InboxContext): string {
     return t("ib.body.clubWon", { club: data.teamName || t("ib.aClub"), event: data.tournamentName })
 }
 
+/**
+ * Level-up notices raised mid-week (a match's XP) carry no title or message
+ * until the week tick folds them; they read from their data (HOME-21).
+ */
+function playerLevelLine(d: AnyData, ctx: InboxContext): string {
+    const name = d.playerName || playerLabel(d, ctx)
+    return num(d.breakthroughPotential) != null
+        ? t("ib.digest.levelPotential", { name, level: d.newLevel ?? "?", potential: d.breakthroughPotential })
+        : t("ib.digest.level", { name, level: d.newLevel ?? "?" })
+}
+function managerLevelOf(id: string, d: AnyData): number | string {
+    const level = num(d.newLevel) ?? Number(String(d.description ?? "").match(/Level (\d+)/)?.[1] ?? id.match(/_(\d+)$/)?.[1])
+    return Number.isFinite(level) ? level : "?"
+}
+
 /** Folded into a weekly round-up: listed inside the digest, not on its own. */
 export function isFolded(event: GameEventSaveData): boolean {
     return !!dataOf(event).digestId
@@ -230,6 +245,8 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
             return num(data.weeksOut) != null ? tn("ib.subj.out", data.weeksOut, { name: who }) : t("ib.subj.injured", { name: who })
         case "win_streak": return t("ib.subj.winStreak", { n: data.streak ?? 3 })
         case "loss_streak": return t("ib.subj.lossStreak", { n: data.streak ?? 3 })
+        case "PLAYER_LEVEL_UP": return title || playerLevelLine(data, ctx)
+        case "MANAGER_LEVEL_UP": return title || t("evn.mgrLevel.t")
         case "TRANSFER_OFFER":
             return num(data.offerAmount) != null ? t("ib.subj.bidAmount", { name: who, amount: formatCurrency(data.offerAmount, "$", false) }) : t("ib.subj.bid", { name: who })
         case "JOB_OFFER": return t("ib.subj.jobOffer", { club: data.offeringTeamName || t("ib.aClub") })
@@ -274,12 +291,10 @@ export function digestLine(item: DigestItem, ctx: InboxContext): string {
     switch (item.type) {
         case "PLAYER_LEVEL_UP": {
             if (text(d.message)) return text(d.message)
-            const name = d.playerName || playerLabel(d, ctx)
-            return num(d.breakthroughPotential) != null
-                ? t("ib.digest.levelPotential", { name, level: d.newLevel ?? "?", potential: d.breakthroughPotential })
-                : t("ib.digest.level", { name, level: d.newLevel ?? "?" })
+            return playerLevelLine(d, ctx)
         }
         case "STAFF_LEVEL_UP": return t("ib.digest.level", { name: d.staffName || t("ib.aStaffMember"), level: d.newLevel ?? "?" })
+        case "MANAGER_LEVEL_UP": return t("evn.mgrLevel.m", { level: managerLevelOf(item.id, d) })
         case "FAN": return text(d.title) || text(d.message) || t("ib.digest.fan")
         case "INJURY": return getEventSubject(asEvent(), ctx)
         default: {
@@ -313,6 +328,8 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
         }
         case "win_streak": return t("ib.body.winStreak", { n: data.streak ?? 3 })
         case "loss_streak": return t("ib.body.lossStreak", { n: data.streak ?? 3 })
+        case "PLAYER_LEVEL_UP": return data.message || playerLevelLine(data, ctx)
+        case "MANAGER_LEVEL_UP": return t("evn.mgrLevel.m", { level: managerLevelOf(event.id, data) })
         case "TRANSFER_OFFER": {
             const club = data.teamName || t("ib.aClub")
             return num(data.offerAmount) != null
