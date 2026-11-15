@@ -41,3 +41,20 @@ describe("MATCHDAY-03: the veto page never re-runs a finished veto or a live mat
         expect(veto).toMatch(/if \(vetoSequence\.length === 0\) \{[\s\S]*?foundMatch\.vetoComplete \|\| liveMatchInProgress\(s, id\) \|\| fixtureNotDueYet\(s, foundMatch\)[\s\S]*?router\.replace\(`\/match\/\$\{id\}\/tactics`\)/)
     })
 })
+
+describe("match prep page (MATCHDAY-02, CROSSCUT-11, CROSSCUT-17)", () => {
+    const prep = src("app/match/[id]/tactics/page.tsx")
+    test("MATCHDAY-02: 'Match day' only when the fixture is due; a later day of the week is named", () => {
+        expect(prep).toMatch(/isMatchWeek \? \(fixtureNotDueYet\(\{ currentWeek, currentDay, timeMode \}, match\) \? formatGameCalendarDate\(matchDate, \{ weekday: "long" \}\) : t\("home\.matchDay"\)\)/)
+    })
+    test("CROSSCUT-17: a played match's panel says Played with the final score, not 'ready to play'", () => {
+        expect(prep).toMatch(/isCompleted \? t\("prep\.played"\) : mapsLocked \? t\("prep\.ready"\)/)
+        expect(prep).toMatch(/: finalLine !== null \? finalLine/)
+    })
+    test("CROSSCUT-11: the club name wraps (two lines at most) instead of being cut, labels stay on one line", () => {
+        const block = prep.slice(prep.indexOf("function TeamBlock"), prep.indexOf("export default function"))
+        expect(block).not.toMatch(/\btruncate\b/)
+        expect(block).toMatch(/line-clamp-2/)
+        expect(block.match(/whitespace-nowrap/g)?.length).toBeGreaterThanOrEqual(2)
+    })
+})
