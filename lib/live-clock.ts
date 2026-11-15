@@ -239,3 +239,69 @@ export function nextWakeAfter(wakes: readonly number[] | undefined, t: number): 
     }
     return lo < wakes.length ? wakes[lo] : Infinity
 }
+
+// ─── Playback loop ──────────────────────────────────────────────────────────
+
+/** What the live hook's playback loop reads and drives. */
+export interface PlaybackLoopHost {
+    clock: Pick<LiveClock, "now" | "wallAt">
+    /** Wake times of the round on screen (read on every step: a new round swaps them). */
+    wakes(): readonly number[] | undefined
+    /** Round time the screen shows. */
+    shown(): number
+    /** Moves the screen to round time `t`. */
+    advance(t: number): void
+}
+
+export interface PlaybackLoopTimers {
+    now?: () => number
+    setTimer?: (fn: () => void, ms: number) => unknown
+    clearTimer?: (id: unknown) => void
+    /** Longest single wait (wall ms) before the loop re-checks the clock. */
+    maxWaitMs?: number
+}
+
+/**
+ * Reveals the round on screen as the clock reaches each wake. Runs until the
+ * returned stop function is called. With nothing due (the round has ended,
+ * the clock is paused, or no round is on screen yet) it keeps checking every
+ * `maxWaitMs` instead of stopping: a round can start under a loop that is
+ * already running (a break whose next round starts on its own), and that
+ * round must play.
+ */
+export function startPlaybackLoop(host: PlaybackLoopHost, timers: PlaybackLoopTimers = {}): () => void {
+    const now = timers.now ?? wallNow
+    const setTimer = timers.setTimer ?? ((fn: () => void, ms: number) => setTimeout(fn, ms))
+    const clearTimer = timers.clearTimer ?? ((id: unknown) => clearTimeout(id as ReturnType<typeof setTimeout>))
+    const maxWait = timers.maxWaitMs ?? 1000
+    let timer: unknown = null
+    let stopped = false
+    const schedule = () => {
+        if (stopped) return
+        const wake = nextWakeAfter(host.wakes(), host.shown())
+        const at = now()
+        const due = host.clock.wallAt(wake, at)
+        if (!Number.isFinite(due)) { timer = setTimer(idle, maxWait); return }
+        // A long timer re-checks now and then (the clock may have been re-anchored).
+        timer = setTimer(() => fire(wake), Math.min(maxWait, Math.max(0, due - at + 1)))
+    }
+    const idle = () => { timer = null; schedule() }
+    const fire = (wake: number) => {
+        timer = null
+        if (stopped) return
+        // Another round (or a seek) since this wait began: start over from what is on screen now.
+        if (nextWakeAfter(host.wakes(), host.shown()) !== wake) { schedule(); return }
+        const at = now()
+        const due = host.clock.wallAt(wake, at)
+        // Timer jitter: a wake that is due is reached.
+        const t = at >= due - 2 ? Math.max(wake, host.clock.now(at)) : host.clock.now(at)
+        if (t >= wake) host.advance(t)
+        schedule()
+    }
+    schedule()
+    return () => {
+        stopped = true
+        if (timer !== null) clearTimer(timer)
+        timer = null
+    }
+}

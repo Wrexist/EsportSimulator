@@ -145,8 +145,10 @@ function LiveMatchControlBarComponent({
                     aria-label={isPlaying ? t("dock.pauseAria") : t("dock.resumeAria")}
                     title={isWaitingForStrategy ? (isPlaying ? t("dock.holdTitle") : t("dock.resumeTitle")) : isPlaying ? t("dock.pauseTitle") : t("dock.resumeTitle")}
                     // Waiting for a buy call without auto tactics: nothing to resume
-                    // or hold, the decision card is the next step (MATCHDAY-09).
-                    disabled={!inProgress || (isWaitingForStrategy && betweenRounds && !isAutoTactics)}
+                    // or hold, the decision card is the next step (MATCHDAY-09). A
+                    // half-time or map break has no round to play either: its card
+                    // starts the next one.
+                    disabled={!inProgress || (betweenRounds && !(isWaitingForStrategy && isAutoTactics))}
                     className={cn(
                         "h-8 w-8 min-h-8 rounded",
                         pausedMidRound ? "bg-gold text-gold-on hover:bg-gold-hover hover:text-gold-on" : "bg-raised text-ink-1 hover:bg-hover",
