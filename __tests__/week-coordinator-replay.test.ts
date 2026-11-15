@@ -20,8 +20,10 @@ test.each([0, 3402])('full application coordinator replays seed %s after a JSON 
     const run = async () => {
         // setState merges: clear what the previous run created that the
         // fixture doesn't carry (board state, weekly reports, league), or run 2 would
-        // start from a different career than run 1.
-        useGameStore.setState({ ...initial, boardState: undefined, weekReports: null, league: undefined, ...JSON.parse(JSON.stringify(fixture)), isInitialized: true, isLoading: false, _completedMatchIds: new Set() })
+        // start from a different career than run 1. The record book too: the
+        // tick plays the Winter Open Katova open qualifier (week 2), and run 1's
+        // win streaks would otherwise count again in run 2.
+        useGameStore.setState({ ...initial, boardState: undefined, weekReports: null, league: undefined, recordBook: undefined, ...JSON.parse(JSON.stringify(fixture)), isInitialized: true, isLoading: false, _completedMatchIds: new Set() })
         await useGameStore.getState().advanceWeek()
         expect(useGameStore.getState().currentWeek).toBe(fixture.currentWeek + 1)
         expect(useGameStore.getState().isLoading).toBe(false)
