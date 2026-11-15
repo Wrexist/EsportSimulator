@@ -72,6 +72,10 @@ import { closeSeason } from "./season-honours"
 import { queueMoment, seasonReviewMoment } from "./moments"
 import { closeStint } from "./manager-timeline"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
+import { buildEventField } from "./tournament/event-field"
+import { hasRankedInvites, inviteLeadWeeks, withdrawFromQualifiers } from "./tournament/qualification-path"
+import { instanceName, seasonStartWeek } from "@/lib/tournament-instances"
+import { getDynamicTournamentName } from "@/lib/utils-extended"
 import { ManagerProgression } from "./manager-progression"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
 import { processWeeklyBoard } from "./board-expectations"
@@ -1014,47 +1018,53 @@ export class AtomicWeekProcessor {
         // Find tournaments starting this week
         const startingTournaments = FULL_TOURNAMENT_CALENDAR.filter(t => t.startWeek === weekOfSeason)
 
-        // Phase 61: Proactive Invitations (4 weeks ahead)
-        // This ensures teams (including player) get "Invited" status before the event starts
-        const invitationWindow = 4
+        // Phase 61: Proactive Invitations: 4 weeks ahead, or when the event's
+        // qualifier path starts if that is earlier (COMP-02/08/16), so invited
+        // clubs never play the qualifiers. Majors hand out their direct
+        // invites the same way; the rest of their field comes from the RMRs.
         const futureTournaments = FULL_TOURNAMENT_CALENDAR.filter(t => {
-            if (t.entryType !== "INVITE") return false
+            if (!hasRankedInvites(t)) return false
             // Handle wrap-around for end of season
             let weeksUntil = t.startWeek - weekOfSeason
             if (weeksUntil < 0) weeksUntil += 52
-            return weeksUntil > 0 && weeksUntil <= invitationWindow
+            return weeksUntil > 0 && weeksUntil <= inviteLeadWeeks(t)
         })
 
         futureTournaments.forEach(def => {
             const rankedTeams = [...save.teams].sort((a, b) => (a.worldRanking || 999) - (b.worldRanking || 999))
+            const inviteSeason = def.startWeek > weekOfSeason ? season : season + 1
+            const instanceId = `${def.id}_s${inviteSeason}`
+            const invitedBefore = new Set((save.tournamentQualifications || [])
+                .filter(q => q.qualifiedVia === "Direct Invite" && q.status === "QUALIFIED" && isQualificationForTournament(q, instanceId))
+                .map(q => q.teamId))
 
-            const beforeCount = (save.tournamentQualifications || []).length
             save.tournamentQualifications = QualificationEngine.generateAutoInvites(
                 save.tournamentQualifications || [],
                 def,
                 rankedTeams.map(t => ({ id: t.id, worldRanking: t.worldRanking || 999 })),
-                currentWeek
+                currentWeek,
+                inviteSeason,
             )
+            const newlyInvited = save.tournamentQualifications
+                .filter(q => q.qualifiedVia === "Direct Invite" && q.status === "QUALIFIED" && isQualificationForTournament(q, instanceId) && !invitedBefore.has(q.teamId))
+                .map(q => q.teamId)
+            // An invited club leaves the event's qualifiers it signed up for.
+            withdrawFromQualifiers(save, def, inviteSeason, newlyInvited)
 
             // Notify player if they were just invited
-            if ((save.tournamentQualifications || []).length > beforeCount) {
-                const isInvited = save.tournamentQualifications.some(q =>
-                    isQualificationForTournament(q, def.id, currentWeek) &&
-                    q.teamId === playerTeamId &&
-                    q.status === "QUALIFIED"
-                )
+            if (newlyInvited.includes(playerTeamId)) {
+                const inviteEventId = `invite_notif_${def.id}_s${inviteSeason}`
+                const alreadyNotified = eventIdSet?.has(inviteEventId) ?? save.eventsLog.some(e => e.id === inviteEventId)
 
-                const alreadyNotified = eventIdSet?.has(`invite_notif_${def.id}_s${season}`) ?? save.eventsLog.some(e => e.id === `invite_notif_${def.id}_s${season}`)
-
-                if (isInvited && !alreadyNotified) {
-                    const inviteEventId = `invite_notif_${def.id}_s${season}`
+                if (!alreadyNotified) {
+                    const eventName = getDynamicTournamentName(def.name, seasonStartWeek(def, inviteSeason), save.gameStartDate, def.duration)
                     save.eventsLog.push({
                         id: inviteEventId,
                         type: "TOURNAMENT",
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
-                            ...eventText({ key: "evn.invite.t" }, { key: "evn.invite.m", params: { event: def.name, weeks: { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek } } }),
+                            ...eventText({ key: "evn.invite.t" }, { key: "evn.invite.m", params: { event: eventName, weeks: { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek } } }),
                             severity: "success",
                             tournamentId: def.id,
                             tier: def.tier
@@ -1078,7 +1088,7 @@ export class AtomicWeekProcessor {
                     seriesId: definition.id,
                     instanceId: seasonalId,
                     seasonNumber: season,
-                    name: season > 1 ? `${definition.name} S${season}` : definition.name,
+                    name: instanceName(definition, season, save.gameStartDate),
                     shortName: definition.shortName || definition.name,
                     region: definition.region || "INTERNATIONAL",
                     tier: definition.tier,
@@ -1093,132 +1103,22 @@ export class AtomicWeekProcessor {
                 }
                 save.tournaments.push(tournament as TournamentSaveData)
             }
+            // Instances signed up for under an older save carry the data year ("… 2025").
+            tournament.name = instanceName(definition, season, save.gameStartDate)
 
-            // Get ranked teams for participants - Prioritize World Ranking
-            const rankedTeams = [...save.teams]
-                .sort((a, b) => (a.worldRanking || 999) - (b.worldRanking || 999))
-
-            // 1. Get teams that explicitly registered or have a "QUALIFIED" status
-            // FIX: Check BOTH Base ID and Seasonal ID since registrations store Base ID
-            const qualifiedRegistrations = (save.tournamentQualifications || [])
-                .filter(q =>
-                    isQualificationForTournament(q, seasonalId, currentWeek)
-                    && (q.status === "QUALIFIED" || q.status === "REGISTERED" || q.status === "INVITED")
-                )
-
-            // CRITICAL: Deduplicate to prevent same team appearing multiple times
-            let participants = [...new Set(qualifiedRegistrations.map(q => q.teamId))]
-
-            // 3. Fill remaining slots with AI teams based on rank and league tier restrictions
-            const remainingSlots = definition.slots - participants.length
-            debugLog(`[Tournament] ${definition.name}: Need ${remainingSlots} more teams (have ${participants.length}/${definition.slots})`)
-
-            if (remainingSlots > 0) {
-                let availableAI = rankedTeams
-                    .filter(t => t.id !== playerTeamId && !participants.includes(t.id))
-
-                // If this is a qualifier, exclude teams already invited/qualified for the main tournament
-                if (definition.qualifierFor) {
-                    const mainSeasonalId = `${definition.qualifierFor}_s${season}`
-                    const mainQualifiedTeamIds = new Set(
-                        (save.tournamentQualifications || [])
-                            .filter(q =>
-                                isQualificationForTournament(q, mainSeasonalId, currentWeek) &&
-                                (q.status === "QUALIFIED" || q.status === "REGISTERED" || q.status === "INVITED")
-                            )
-                            .map(q => q.teamId)
-                    )
-                    if (mainQualifiedTeamIds.size > 0) {
-                        availableAI = availableAI.filter(t => !mainQualifiedTeamIds.has(t.id))
-                        debugLog(`[Tournament] ${definition.name}: Excluded ${mainQualifiedTeamIds.size} teams already in main event`)
-                    }
-                }
-
-                debugLog(`[Tournament] ${definition.name}: Found ${availableAI.length} available AI teams`)
-
-                // If tournament has a requiredLeagueTier, prioritize matches but fallback if needed
-                if (definition.requiredLeagueTier) {
-                    const requiredTier = definition.requiredLeagueTier
-                    const strictMatches = availableAI.filter(t => t.leagueTier === requiredTier)
-
-                    if (strictMatches.length >= remainingSlots) {
-                        availableAI = strictMatches
-                    } else {
-                        debugLog(`[Tournament] ${definition.name}: Not enough ${requiredTier} teams (${strictMatches.length}), using fallback.`)
-                        // Prioritize strict matches, then fill with others
-                        const others = availableAI.filter(t => t.leagueTier !== requiredTier)
-                        availableAI = [...strictMatches, ...others]
-                    }
-                    debugLog(`[Tournament] ${definition.name}: After tier priority: ${availableAI.length} candidates`)
-                }
-
-                // Prevent negative slice which adds all teams
-                const safeRemaining = Math.max(0, remainingSlots)
-                const fillTeams = availableAI.slice(0, safeRemaining).map(t => t.id)
-                participants = [...participants, ...fillTeams]
-                debugLog(`[Tournament] ${definition.name}: Filled ${fillTeams.length} AI teams`)
-            }
-
-            // Final deduplication and re-sort by ranking to ensure seeding logic works
-            participants = [...new Set(participants)]
-            const teamLookup = new Map(save.teams.map(t => [t.id, t]))
-            participants.sort((a, b) => {
-                const teamA = teamLookup.get(a)
-                const teamB = teamLookup.get(b)
-                const rankDiff = (teamA?.worldRanking || 999) - (teamB?.worldRanking || 999)
-                if (rankDiff !== 0) return rankDiff
-                return a.localeCompare(b)
-            })
-
-            // 4. AI teams are filled automatically. 
-            // Player must be in participants list via QUALIFIED or REGISTERED status 
-            // set up in previous weeks (via auto-invites or manual registration).
-
-            // **FIX: Cap participants to slots, but PRIORITIZE player team**
-            if (participants.length > definition.slots) {
-                debugLog(`[Tournament] Over-capacity for ${definition.name}: ${participants.length}/${definition.slots}. Truncating list.`)
-
-                const wasPlayerIn = participants.includes(playerTeamId)
-                participants = participants.slice(0, definition.slots)
-
-                // If the player was in the list but got truncated because of low ranking, 
-                // swap them back in for the lowest ranked AI team.
-                if (wasPlayerIn && !participants.includes(playerTeamId)) {
-                    participants[participants.length - 1] = playerTeamId
-                    debugLog(`[Tournament] Forced player team ${playerTeamId} into over-capacity tournament ${definition.name}`)
-                }
-            }
-
-            // Bracket generation requires a stable power-of-two participant count.
-            // Trim deterministically to prevent fallback simple brackets that can stall progression.
-            if (definition.format === "bracket") {
-                const isPowerOfTwo = (n: number) => n > 1 && (n & (n - 1)) === 0
-                if (!isPowerOfTwo(participants.length)) {
-                    let targetSize = 1
-                    while ((targetSize * 2) <= participants.length) targetSize *= 2
-                    targetSize = Math.max(2, targetSize)
-
-                    const playerWasIncluded = participants.includes(playerTeamId)
-                    const trimmed = participants.slice(0, targetSize)
-                    if (playerWasIncluded && !trimmed.includes(playerTeamId)) {
-                        trimmed[trimmed.length - 1] = playerTeamId
-                    }
-
-                    participants = [...new Set(trimmed)]
-                    debugLog(`[Tournament] ${definition.name}: normalized bracket field from ${participants.length} teams to power-of-two size ${targetSize}.`)
-                }
-            }
+            // The field: qualifier winners' places are kept, then invited /
+            // registered clubs by ranking (the managed club keeps a registered
+            // place), then the best-ranked clubs that may enter fill the rest
+            // (engine/tournament/event-field.ts). A bracket of 12 gets byes
+            // for its top seeds, so the field is never trimmed below its slots.
+            const participants = buildEventField(save, definition, seasonalId, season, playerTeamId)
 
             if (participants.length < 2) {
                 debugLog(`[Tournament] Skipping ${definition.name}: insufficient participants (${participants.length})`)
                 continue
             }
 
-            // DEBUG: Log participant count before initialization
             debugLog(`[Tournament] Initializing ${definition.name} with ${participants.length} participants (required: ${definition.slots})`)
-            if (participants.length === 0) {
-                debugLog(`[Tournament] WARNING: No participants for ${definition.name}! Qualifications:`, qualifiedRegistrations.length, `AI fill attempted:`, remainingSlots)
-            }
 
             // Initialize the tournament structure
             // **FIX: Use seasonalId to match the actual tournament object created above**
@@ -1232,7 +1132,7 @@ export class AtomicWeekProcessor {
                     week: save.currentWeek,
                     acknowledged: false,
                     data: {
-                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: definition.name } }),
+                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: tournament.name } }),
                         severity: "info",
                         tournamentId: definition.id
                     }

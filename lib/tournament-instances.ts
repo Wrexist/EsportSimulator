@@ -34,6 +34,17 @@ export function seasonStartWeek(definition: Pick<TournamentDefinition, "startWee
 }
 
 /**
+ * Stored name of a season instance: the year the event is played in when the
+ * data name carries one ("Winter Open Katova 2027"), else a season suffix from
+ * season 2 on ("PlayOn Academy League S2"). Inbox messages, trophies and the
+ * prize ledger copy this name, so it must already be right when stored.
+ */
+export function instanceName(definition: Pick<TournamentDefinition, "name" | "startWeek" | "duration">, season: number, gameStartDate?: string | null): string {
+    if (/\b20\d{2}\b/.test(definition.name)) return getDynamicTournamentName(definition.name, seasonStartWeek(definition, season), gameStartDate, definition.duration)
+    return season > 1 ? `${definition.name} S${season}` : definition.name
+}
+
+/**
  * This season's instance of a calendar event, if it has been created yet.
  * Never falls back to last season's instance: that one's status and teams
  * belong to a different event.

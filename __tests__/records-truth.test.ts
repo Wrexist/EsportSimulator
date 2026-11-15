@@ -127,10 +127,14 @@ describe('per-match accumulation', () => {
         const lineup = [...done.result.lineups![ai1.id], ...done.result.lineups![ai2.id]]
         for (const id of lineup) {
             const p = save.players.find(x => x.id === id)!
-            expect(p.mapsPlayed).toBe(done.result.maps.length)
+            // Every official match the player played this week counts (the
+            // calendar's week-2 open qualifier takes these clubs too).
+            const played = save.completedMatches.filter(m => Object.values(m.result.lineups ?? {}).some(l => l.includes(id)))
+            expect(played).toContain(done)
+            expect(p.mapsPlayed).toBe(played.reduce((n, m) => n + m.result.maps.length, 0))
             expect(p.roundsPlayed).toBeGreaterThan(0)
             expect(p.avgRating).toBeGreaterThan(0)
-            expect(p.totalKills).toBe(done.result.playerStats[id].kills)
+            expect(p.totalKills).toBe(played.reduce((n, m) => n + m.result.playerStats[id].kills, 0))
         }
         // Managed players did not play and carry nothing.
         expect(save.teams[0].rosterIds.every(id => !save.players.find(p => p.id === id)!.mapsPlayed)).toBe(true)

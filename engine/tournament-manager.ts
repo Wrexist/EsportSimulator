@@ -42,6 +42,9 @@ import {
     generateSwissPlayoffs as generateSwissPlayoffsFn,
 } from "./tournament/swiss-handlers"
 import { setupLeagueSchedule as setupLeagueScheduleFn } from "./tournament/league-schedule"
+import { feederSlots, hasRankedInvites, qualifierEntryBlock, rankedInvitees, regionAllows } from "./tournament/qualification-path"
+import { isQualificationForTournament } from "./circuit-engine"
+import { instanceName } from "@/lib/tournament-instances"
 
 // Lazy-cached require to avoid circular import at module load time
 import type { MatchEngine } from "./match-engine"
@@ -1263,7 +1266,12 @@ export class TournamentManager {
         }
         const shuffled = applySeeding(sorted)
         const totalRounds = Math.log2(numTeams)
-        const duration = Math.max(1, tournament.endWeek - tournament.startWeek) // Minimum 1 week
+        // A playoff stage after a Swiss stage (startWeekOverride) plays one
+        // round a week from the override; spreading it over the whole event's
+        // length pushed the final past the week the event is due to end.
+        const duration = startWeekOverride !== undefined
+            ? Math.max(1, totalRounds - 1)
+            : Math.max(1, tournament.endWeek - tournament.startWeek) // Minimum 1 week
         const startWeek = startWeekOverride ?? tournament.startWeek
 
         const matches: BracketMatchSaveData[] = []
@@ -1296,7 +1304,7 @@ export class TournamentManager {
                 roundWeekOffset = Math.floor(((round - 1) / (totalRounds - 1)) * (duration))
             }
             // Cap at endWeek (though duration calculation should handle it)
-            if (startWeek + roundWeekOffset >= tournament.endWeek) {
+            if (startWeekOverride === undefined && startWeek + roundWeekOffset >= tournament.endWeek) {
                 roundWeekOffset = Math.max(0, tournament.endWeek - startWeek - 1)
             }
 
@@ -1463,8 +1471,8 @@ export class TournamentManager {
                     seriesId: def.id,
                     instanceId: seasonalId,
                     seasonNumber: targetSeason,
-                    name: targetSeason > 1 ? `${def.name} S${targetSeason}` : def.name,
-                    shortName: def.name,
+                    name: instanceName(def, targetSeason, save.gameStartDate),
+                    shortName: def.shortName || def.name,
                     tier: def.tier,
                     region: def.region || "INTERNATIONAL",
                     startWeek: absStartWeek,
@@ -1481,8 +1489,26 @@ export class TournamentManager {
                 save.tournaments.push(tournament)
             }
 
+            // Closed qualifiers, qualifier-entry events and league events are
+            // never signed up for: their field is the clubs that qualified
+            // (qualifier results, ranked invites) plus the ranked fill when the
+            // event starts (COMP-08/16).
+            if (def.entryType === "QUALIFIER" || def.entryType === "LEAGUE") return
+
+            // Places open to sign-ups: not the ranked invites, not the places
+            // the event's qualifiers hand out.
+            const capacity = def.slots - (hasRankedInvites(def) ? def.inviteSlots ?? 0 : 0) - feederSlots(def.id)
+
+            // Sign-ups are the registration rows (the instance's team list is
+            // cleared every week until the event starts).
+            const signedUp = new Set((save.tournamentQualifications || [])
+                .filter(q => isQualificationForTournament(q, seasonalId))
+                .map(q => q.teamId))
+            const registeredCount = (save.tournamentQualifications || [])
+                .filter(q => q.status === "REGISTERED" && q.teamId !== save.playerTeamId && isQualificationForTournament(q, seasonalId)).length
+
             // Skip if full
-            if (tournament.teamIds.length >= def.slots) return
+            if (registeredCount >= capacity) return
 
             // Registration chance increases as we get closer to start
             const weeksUntilStart = absStartWeek - currentWeek
@@ -1490,27 +1516,35 @@ export class TournamentManager {
 
             // Find eligible teams not yet registered
             const currentTournament = tournament
+            const invitees = new Set(rankedInvitees(def, save.teams))
             const potentialTeams = save.teams.filter(team => {
                 if (team.id === save.playerTeamId) return false
-                if (currentTournament.teamIds.includes(team.id)) return false
+                if (currentTournament.teamIds.includes(team.id) || signedUp.has(team.id)) return false
 
                 const ranking = team.worldRanking || 100
 
                 if (def.tier === "S_TIER" && ranking > 30) return false
                 if (def.tier === "A_TIER" && ranking > 60) return false
+                // Invite events: within the required ranking, and not the
+                // clubs that get the ranked invites anyway.
+                if (def.entryType === "INVITE" && def.requiredRanking && ranking > def.requiredRanking) return false
+                if (invitees.has(team.id)) return false
+                // Qualifiers: one per target, never while in (or invited to)
+                // the event it leads to, regional ones for their region only.
+                if (def.qualifierFor && (!regionAllows(def, team) || qualifierEntryBlock(save, team.id, def, targetSeason))) return false
 
                 return true
             })
 
-            const availableSlots = def.slots - currentTournament.teamIds.length
+            const availableSlots = capacity - registeredCount
             const slotsToFillNow = Math.ceil(availableSlots * urgency * rng.next())
 
             const candidates = rng.shuffle(potentialTeams).slice(0, slotsToFillNow)
 
             candidates.forEach(team => {
                 tournament!.teamIds.push(team.id)
-                // Add to qualifications tracking
-                this.addRegistrationQualification(save, seasonalId, team.id, "Direct Invite")
+                // Add to qualifications tracking (a sign-up, not an invite)
+                this.addRegistrationQualification(save, seasonalId, team.id, "Registered")
             })
         })
     }
