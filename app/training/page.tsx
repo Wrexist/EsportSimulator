@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, t, tn } from "@/lib/i18n"
 
 import { LoadChip } from "@/components/squad/LoadChip"
 import React, { useCallback, useMemo, useState } from "react"
@@ -104,7 +104,7 @@ export default function TrainingPage() {
         const before = drillPlayers.map(p => ({ name: p.nickname, gains: gainsOf(p, drill.rewards) }))
         const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
         if (result.success) {
-            const lines = before.filter(b => b.gains.length).map(b => `${b.name} ${b.gains.map(g => `+${g.amount.toFixed(1)} ${statLabel(g.stat)}`).join(", ")}`)
+            const lines = before.filter(b => b.gains.length).map(b => `${b.name} ${b.gains.map(g => `+${formatDecimal(g.amount, 1)} ${statLabel(g.stat)}`).join(", ")}`)
             const capped = before.filter(b => !b.gains.length).map(b => b.name)
             const description = [tn("tr.trained", drillPlayers.length), ...lines, ...(capped.length ? [t("tr.noGain", { names: capped.join(", ") })] : [])].join(" · ")
             toast.success(t(`tr.drill.${drill.id}`), { description })
