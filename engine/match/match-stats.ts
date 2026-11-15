@@ -204,11 +204,17 @@ export function generateMatchStats(
  * APR ≈ 0.13, ADR ≈ 76, KAST ≈ 71%) rate 1.00.
  */
 export const SCRIPT_RATING_INTERCEPT = 0.095
+/**
+ * Lowest rating shown (MATCHENGINE-08). The regression goes negative for
+ * the worst lines (2-14, ADR 23); a hard 0.00 next to two kills read as a
+ * bug on scoreboards and in career worsts.
+ */
+export const SCRIPT_RATING_FLOOR = 0.05
 
 export function scriptRating(s: { kpr: number; dpr: number; apr: number; adr: number; kast: number }): number {
     const impact = 2.13 * s.kpr + 0.42 * s.apr - 0.41
     const r = 0.0073 * s.kast + 0.3591 * s.kpr - 0.5329 * s.dpr + 0.2372 * impact + 0.0032 * s.adr + SCRIPT_RATING_INTERCEPT
-    return Math.max(0, Math.min(3, Math.round(r * 100) / 100))
+    return Math.max(SCRIPT_RATING_FLOOR, Math.min(3, Math.round(r * 100) / 100))
 }
 
 /** A death is traded when the killer dies to the victim's team within this many seconds. */
