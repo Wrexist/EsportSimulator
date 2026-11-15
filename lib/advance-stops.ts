@@ -15,6 +15,9 @@
  * the stop marks the event (`data.continueStopped`), and a refreshed repeat
  * keeps that mark. A request past its deadline never stops; the week tick
  * settles it with its stated default (engine/decision-deadlines.ts).
+ *
+ * MODES-09: a club's offer to the pro in a pro career blocks Continue like a
+ * moment until it is answered (Skip week still lets it lapse to "stay").
  */
 
 import { isPendingDecisionEvent, isTransferRumor, getEventTitle } from "@/lib/event-format"
@@ -37,6 +40,9 @@ export interface AdvanceStop {
     href?: string
     actionLabel?: string
 }
+
+/** A club's offer to the pro (engine/pro-career.ts processProWeek). */
+const PRO_OFFER_PREFIX = "pro_offer_"
 
 /** Stop after this many completed weeks with nothing needing the manager. */
 export const CONTINUE_WEEK_CAP = 4
@@ -153,7 +159,8 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     for (const e of state.eventsLog) {
         if (e.week < state.currentWeek - 2) continue
         const data = (e.data ?? {}) as Record<string, unknown>
-        if (data.isWithdrawn || data.continueStopped) continue
+        const proOffer = e.id.startsWith(PRO_OFFER_PREFIX)
+        if (data.isWithdrawn || (data.continueStopped && !proOffer)) continue
         const type = String(e.type)
         if (isPendingDecisionEvent(e)) {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
@@ -232,6 +239,7 @@ export function nextStop(state: StopSource, seen: ReadonlySet<string>): (Advance
     const signals = collectStopSignals(state)
     for (const s of signals) {
         if (s.kind === "moment" || s.kind === "game-over") return s
+        if (s.key.startsWith(`event:${PRO_OFFER_PREFIX}`)) return s
         // Phase 5.3: a press conference stops Continue once, before its match.
         if (s.kind === "match") {
             const press = signals.find(x => x.key.startsWith("event:press_") && !seen.has(x.key))

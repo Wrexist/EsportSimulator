@@ -44,6 +44,7 @@ import {
 import { formatCurrency } from "@/lib/utils-extended"
 import { liveText, type TextRef, tRefEn } from "@/lib/i18n"
 import { staffRefreshCost, staffSeverance } from "@/engine/staff-economy"
+import { proRunsNoClub, proStaffRunRefusal } from "@/store/utils/pro-guard"
 const MAX_STAFF_PER_TEAM = 5
 const MAX_PER_ROLE = 1
 const DEFAULT_CONTRACT_WEEKS = 52
@@ -98,6 +99,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
 
     requestStaffMarketRefresh: () => {
         const state = get()
+        if (proRunsNoClub(state)) return { ...proStaffRunRefusal(), cost: 0 }
         const team = state.teams.find(t => t.id === state.playerTeamId)
         if (!team) return { success: false, message: liveText({ key: "lv.staffRefreshNoClub" }), cost: 0 }
         const { free, cost } = staffRefreshCost(state.marketStaff ?? [], state.currentWeek, state.staffMarketRefreshWeek)
@@ -130,6 +132,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
     },
 
     hireStaff: (staffId, terms) => {
+        if (proRunsNoClub(get())) return failed("lv.proStaffRun")
         let result: StaffResult = { success: false, message: "" }
         set((state) => {
             const staffIndex = state.marketStaff.findIndex(s => s.id === staffId)
@@ -239,6 +242,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
     },
 
     renewStaffContract: (staffId, salary, duration) => {
+        if (proRunsNoClub(get())) return failed("lv.proStaffRun")
         let result: StaffResult = { success: false, message: "" }
         set((state) => {
             const staff = state.staff.find(s => s.id === staffId && s.teamId === state.playerTeamId)
@@ -286,6 +290,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
         // ConfirmDialog) can surface a real error message instead of
         // silently no-op'ing a confirmed action.
         const current = get()
+        if (proRunsNoClub(current)) throw new Error(proStaffRunRefusal().message)
         const exists = current.staff.some(s => s.id === staffId)
         if (!exists) {
             throw new Error(`Cannot fire staff member: not found (id=${staffId})`)

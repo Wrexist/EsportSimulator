@@ -7,7 +7,8 @@ import { formatCurrency } from "@/lib/utils-extended"
  * First-session objective chain (L22).
  *
  * Five steps, completed by what the player actually does:
- *  - squad / budget: an explicit "done" on the squad / finances page (opening a link never counts)
+ *  - squad / budget: an explicit "done" on the squad / finances page (opening a link never counts),
+ *    or, once a match has been played and a week has passed, done by playing (MODES-21)
  *  - decision: choosing a weekly focus, setting a player's training focus, or signing a player
  *  - match: a new own-team result that was actually played (forfeits do not count)
  *  - week: the career week advances past the week the guide started in
@@ -33,6 +34,8 @@ export interface FirstSessionContext {
     completed: CompletedMatchSaveData[]
     currentWeek: number
     activeMatchId?: string | null
+    /** The own fixture "Play match" offers right now (selectPlayableMatchId), if any. */
+    dueMatchId?: string | null
 }
 
 const STATUSES = ['active', 'dismissed', 'complete'] as const
@@ -105,6 +108,9 @@ export function derivedFirstSessionSteps(state: FirstSessionState, ctx: FirstSes
     const last = lastOwnPlayedResult(ctx.team.id, ctx.completed)
     if (last && last.id !== b.lastResultId) done.push('match')
     if (ctx.currentWeek > b.week) done.push('week')
+    // A player who has played a match and seen a week pass has looked at the squad and
+    // the money: the guide stops asking for the on-page confirmation (MODES-21).
+    if (done.includes('match') && done.includes('week')) done.unshift('squad', 'budget')
     return done
 }
 
@@ -190,6 +196,14 @@ export function firstSessionGuidance(state: FirstSessionState, ctx: FirstSession
         const help = t('firstSession.match.help')
         if (activeMatchId) return { ...base, detail: t('firstSession.match.inProgress'), action: { href: `/match/${activeMatchId}/live`, label: t('firstSession.resumeMatch') }, help }
         if (missing > 0) return { ...base, detail: t('firstSession.match.missing', { missing }), action: { href: '/transfers', label: t('firstSession.findPlayers') }, help }
+        // Match day: take the player to the match, not to the calendar (MODES-25).
+        if (ctx.dueMatchId) return {
+            ...base,
+            detail: t('firstSession.match.today'),
+            action: { href: `/match/${ctx.dueMatchId}/tactics`, label: t('firstSession.prepareMatch') },
+            alternatives: [{ href: '/schedule', label: t('firstSession.openSchedule') }],
+            help,
+        }
         const upcoming = matches.filter(ownsMatch(team.id)).sort((a, b) => a.week - b.week || (a.day ?? 6) - (b.day ?? 6))[0]
         return {
             ...base,

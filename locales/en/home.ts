@@ -24,6 +24,9 @@ export const HOME = {
     "advance.simMatch": "Sim match",
     "advance.simulating": "Simulating…",
     "advance.simTitle": "Plays it now: the engine's veto, plus the anti-strat counters if you reviewed their demos",
+    "advance.more": "More",
+    "advance.lockedRunOver": "The run is over. Draft again or go to the main menu.",
+    "advance.lockedNoClub": "Pick a club first",
 
     "home.loading": "Loading your career…",
     "home.matchDay": "Match day",
@@ -96,6 +99,7 @@ export const HOME = {
     "home.schedule": "Schedule",
     "home.noMatchesPlayed": "No matches played yet.",
     "home.news": "News",
+    "home.openRosterBuilder": "Open the roster builder",
 
     // Decisions panel (components/dashboard/ActionCenter.tsx)
     "decisions.title": "Decisions",
@@ -155,10 +159,12 @@ export const HOME = {
     "firstSession.match.next": "Next fixture: week {{week}}, day {{day}}. Advance time from the top bar. When the match is due, the top bar shows Play match.",
     "firstSession.match.none": "No fixture is scheduled. Use the schedule to arrange a friendly once your squad is ready.",
     "firstSession.openSchedule": "Open schedule",
-    "firstSession.week.detail": "Advance to next week from the top bar (Skip week in daily mode, Continue in weekly mode). Your weekly focus and wages are settled then.",
+    "firstSession.week.detail": "Press Continue in the top bar to play on to the next week. It stops whenever something needs you, such as a match. Your weekly focus and wages are settled when the week ends.",
     "firstSession.backHome": "Back to Home",
     "firstSession.reviewResult": "Review your result",
     "firstSession.week.help": "Processing the week applies training, wages and income, then saves the career. Check Home and Finances afterwards to see what changed.",
+    "firstSession.match.today": "Your match is today. Set up your tactics first, or use Play match in the top bar to play or simulate it now.",
+    "firstSession.prepareMatch": "Prepare the match",
 
     // News feed
     "news.empty": "No headlines yet. Results, signings and upgrades make the news.",

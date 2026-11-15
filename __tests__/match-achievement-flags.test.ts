@@ -169,7 +169,8 @@ describe("detectAchievementFlags (composition)", () => {
         const flags = detectAchievementFlags(
             result,
             { id: "home", worldRanking: 30 },
-            { worldRanking: 5 },
+            { id: "away", worldRanking: 5 },
+            "home",
         )
         expect(flags.comebackWin).toBe(true)
         expect(flags.underdogWin).toBe(true)
@@ -183,9 +184,51 @@ describe("detectAchievementFlags (composition)", () => {
         const flags = detectAchievementFlags(
             result,
             { id: "home", worldRanking: 1 },
-            { worldRanking: 30 },
+            { id: "away", worldRanking: 30 },
+            "home",
         )
         expect(flags.comebackWin).toBe(false)
         expect(flags.underdogWin).toBe(false)
+    })
+})
+
+describe("detectAchievementFlags: only the managed club's own wins (MODES-04)", () => {
+    // Away comes back from 3-12 and wins the map 13-12 and the BO1; away is ranked 30, home 5.
+    const awayComeback = () => {
+        const rounds: string[] = []
+        for (let i = 0; i < 12; i++) rounds.push("home")
+        for (let i = 0; i < 3; i++) rounds.push("away")
+        for (let i = 0; i < 10; i++) rounds.push("away")
+        return { maps: [buildMap(rounds, { team1: 12, team2: 13 })], homeScore: 0, awayScore: 1 } as any
+    }
+
+    test("the other side's comeback and upset never flag the managed club's defeat", () => {
+        const flags = detectAchievementFlags(awayComeback(), { id: "home", worldRanking: 5 }, { id: "away", worldRanking: 30 }, "home")
+        expect(flags).toEqual({ comebackWin: false, underdogWin: false })
+    })
+
+    test("the managed club's own comeback and upset are flagged", () => {
+        const flags = detectAchievementFlags(awayComeback(), { id: "home", worldRanking: 5 }, { id: "away", worldRanking: 30 }, "away")
+        expect(flags).toEqual({ comebackWin: true, underdogWin: true })
+    })
+
+    test("a comeback map inside a lost series does not count", () => {
+        const comebackMap = (() => {
+            const rounds: string[] = []
+            for (let i = 0; i < 3; i++) rounds.push("home")
+            for (let i = 0; i < 12; i++) rounds.push("away")
+            for (let i = 0; i < 10; i++) rounds.push("home")
+            return buildMap(rounds, { team1: 13, team2: 12 })
+        })()
+        // The same map alone is a comeback.
+        expect(detectComebackWin({ maps: [comebackMap], homeScore: 1, awayScore: 0 }, "home")).toBe(true)
+        const lostMap = buildMap(["away"], { team1: 0, team2: 13 })
+        const result = { maps: [comebackMap, lostMap, lostMap], homeScore: 1, awayScore: 2 } as any
+        expect(detectAchievementFlags(result, { id: "home", worldRanking: 50 }, { id: "away", worldRanking: 1 }, "home").comebackWin).toBe(false)
+    })
+
+    test("a match without the managed club flags nothing", () => {
+        expect(detectAchievementFlags(awayComeback(), { id: "home", worldRanking: 5 }, { id: "away", worldRanking: 30 }, "other"))
+            .toEqual({ comebackWin: false, underdogWin: false })
     })
 })

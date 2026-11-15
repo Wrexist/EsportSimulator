@@ -16,6 +16,8 @@
 import type { GameSave, TeamSaveData } from "../save-types"
 import { checkAchievements, steamService } from "../steam-service"
 import { isMajorTournament } from "../official-stats"
+import { isOfficialMatch } from "../personality"
+import { evaluatePlayer } from "../player-evaluation"
 
 const WEEKS_PER_SEASON = 52
 
@@ -24,8 +26,11 @@ export function evaluatePostTickAchievements(save: GameSave): void {
     if (!playerTeam) return
 
     // === Aggregates ===
-    const totalWins = countTotalWins(save)
-    const tournamentsWon = playerTeam.trophies?.map(t => {
+    const totalWins = officialCareerWins(save)
+    // Titles won with the manager in charge: a club joined mid-career brings
+    // its earlier trophies along, and those are not the manager's.
+    const tenureStart = save.managerDetails?.tenureStartWeek ?? 1
+    const tournamentsWon = playerTeam.trophies?.filter(t => (t.week ?? tenureStart) >= tenureStart).map(t => {
         const tournament = save.tournaments.find(tour => tour.id === t.tournamentId)
         return {
             tier: t.tier || tournament?.tier || "",
@@ -58,8 +63,14 @@ export function evaluatePostTickAchievements(save: GameSave): void {
         m.week === save.currentWeek &&
         (m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId)
     )
-    const hasComebackWin = thisWeekMatches.some(m => m._comebackWin)
-    const hasUnderdogWin = thisWeekMatches.some(m => m._underdogWin)
+    // Comeback / upset flags: the week tick has already moved on when it
+    // evaluates, so last week's matches count too. Only the managed club's
+    // series wins (older saves flagged the other side's comebacks too).
+    const recentWins = save.completedMatches.filter(m =>
+        m.week >= save.currentWeek - 1 && m.week <= save.currentWeek && wonByManagedClub(save, m)
+    )
+    const hasComebackWin = recentWins.some(m => m._comebackWin)
+    const hasUnderdogWin = recentWins.some(m => m._underdogWin)
 
     // Roster kill/headshot tallies + total matches.
     const playerTeamPlayers = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
@@ -121,11 +132,12 @@ export function evaluatePostTickAchievements(save: GameSave): void {
         startingLeagueTier: playerTeam.startingLeagueTier,
         budget: playerTeam.budget,
         tournamentsWon,
-        hallOfFamePlayers: save.legendaryPlayers?.length || 0,
-        firstTournamentParticipation: save.completedMatches.some(
-            match => !!match.tournamentId && match.tournamentId !== "SCRIM"
+        hallOfFamePlayers: managedClubLegends(save),
+        // The managed club's own official matches (every club's results are in completedMatches).
+        firstTournamentParticipation: save.completedMatches.some(match =>
+            (match.homeTeamId === save.playerTeamId || match.awayTeamId === save.playerTeamId) && isOfficialMatch(match)
         ),
-        developedStar: save.players.some(player => !!player.isAcademyGraduate && player.skill >= 90),
+        developedStar: save.players.some(player => !!player.isAcademyGraduate && evaluatePlayer(player, undefined, undefined, save.currentWeek).overallRating >= 90),
         majorWinsInSeason,
         totalMajorWins,
         seasonComplete: save.currentWeek > 0 && save.currentWeek % WEEKS_PER_SEASON === 0,
@@ -137,6 +149,8 @@ export function evaluatePostTickAchievements(save: GameSave): void {
         loyalTeamYears,
         redemptionArc,
         lostGrandFinal1614,
+        // MODES-03: "Champion" — any title won with the manager in charge.
+        wonTournament: tournamentsWon.length > 0,
         titlesWon: (playerTeam.trophies || []).length,
         matchesLost: countTotalLosses(save),
         prizeMoney: save.financeLedger
@@ -171,14 +185,43 @@ function countTotalLosses(save: GameSave): number {
     }).length
 }
 
-/** Only the player's matches count; every other club's results are in completedMatches too. */
-function countTotalWins(save: GameSave): number {
-    return save.completedMatches.filter(m => {
-        if (!m.result) return false
-        if (m.homeTeamId === save.playerTeamId) return m.result.homeScore > m.result.awayScore
-        if (m.awayTeamId === save.playerTeamId) return m.result.awayScore > m.result.homeScore
-        return false
-    }).length
+type MatchLike = GameSave["completedMatches"][number]
+
+function wonByManagedClub(save: Pick<GameSave, "playerTeamId">, m: MatchLike): boolean {
+    if (!m.result) return false
+    if (m.homeTeamId === save.playerTeamId) return m.result.homeScore > m.result.awayScore
+    if (m.awayTeamId === save.playerTeamId) return m.result.awayScore > m.result.homeScore
+    return false
+}
+
+/**
+ * MODES-06: the manager's official wins this career (friendlies and scrims
+ * left out, as on the Manager page), at every club managed. The club spells
+ * count official results; the completed matches at the current club since
+ * the manager took over cover saves from before spells were recorded.
+ */
+export function officialCareerWins(save: Pick<GameSave, "managerDetails" | "completedMatches" | "playerTeamId">): number {
+    const fromStints = (save.managerDetails?.stints ?? []).reduce((n, s) => n + (s.wins || 0), 0)
+    const since = save.managerDetails?.tenureStartWeek ?? 1
+    const atClub = save.completedMatches.filter(m => m.week >= since && isOfficialMatch(m) && wonByManagedClub(save, m)).length
+    return Math.max(fromStints, atClub)
+}
+
+/**
+ * MODES-05: legends of the Hall of Fame who played official matches for a
+ * club this manager ran, while the manager was there (any legend of the
+ * wider world does not count).
+ */
+function managedClubLegends(save: GameSave): number {
+    const seasonOf = (week: number) => Math.floor((Math.max(1, week) - 1) / WEEKS_PER_SEASON) + 1
+    const stints = save.managerDetails?.stints ?? []
+    const spells = stints.length
+        ? stints.map(s => ({ teamId: s.teamId, from: seasonOf(s.fromWeek), to: s.toWeek != null ? seasonOf(s.toWeek) : Infinity }))
+        : [{ teamId: save.playerTeamId, from: 1, to: Infinity }]
+    return (save.legendaryPlayers ?? []).filter(lp =>
+        [lp.seasonTally, ...(lp.seasonLines ?? [])].some(line =>
+            !!line && line.maps > 0 && spells.some(sp => sp.teamId === line.clubId && line.season >= sp.from && line.season <= sp.to))
+    ).length
 }
 
 function pushLeaderboardSnapshot(save: GameSave, playerTeam: TeamSaveData, totalMajorWins: number): void {

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { FIRST_SESSION_STEPS, firstSessionGuidance, firstSessionLabel, restoreFirstSession } from '@/lib/first-session'
 import { t } from '@/lib/i18n'
 import { toast } from '@/lib/toast'
+import { selectPlayableMatchId } from '@/lib/playable-match'
 
 /**
  * First-session objective chain (L22). A small, nonmodal "next step" card driven by career state.
@@ -25,6 +26,7 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
         week: s.currentWeek, active: s.activeMatchId, ended: s.gameOverReason,
         review: s.reviewGuideStep, sync: s.syncFirstSession, dismiss: s.completeTutorial,
     })))
+    const dueMatchId = useGameStore(selectPlayableMatchId)
     const guide = restoreFirstSession(state.guide)
     const team = state.teams.find(t => t.id === state.teamId)
     const rosterKey = team?.rosterIds.join(',') ?? ''
@@ -43,7 +45,7 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     }
 
     if (!state.initialized || state.loading || state.ended || !team || guide.status !== 'active' || state.active) return null
-    const next = firstSessionGuidance(guide, { team, players: state.players, matches: state.matches, completed: state.completed, currentWeek: state.week, activeMatchId: state.active })
+    const next = firstSessionGuidance(guide, { team, players: state.players, matches: state.matches, completed: state.completed, currentWeek: state.week, activeMatchId: state.active, dueMatchId })
     if (!next) return null
     const canReview = next.reviewPath !== '' && pathname === next.reviewPath
     const done = guide.reviewed.length

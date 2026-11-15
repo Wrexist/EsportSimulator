@@ -38,6 +38,7 @@ import { FACILITY_TYPES } from "@/engine/organization-effects"
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { newsText } from "@/lib/news-ref"
+import { proRunsNoClub, proStaffRunRefusal } from "@/store/utils/pro-guard"
 const MAX_FACILITY_LEVEL = 5
 const FACILITY_BUILD_COST = 10_000
 const FACILITY_UPGRADE_BASE_COST = 25_000
@@ -116,6 +117,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     upgradeFacility: (teamId, facilityType) => {
         let result = { success: false, message: "Upgrade failed." }
         set((state) => {
+            if (proRunsNoClub(state)) { result = proStaffRunRefusal(); return }
             // Always look up via state.teams inside producers. The Map
             // index can't share a draft with the array slot under Immer,
             // so mutations through _teamIndex.get() silently fail to
@@ -234,6 +236,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     signSponsor: (teamId, sponsor) => {
         let result = { success: false, message: "Sponsor signing failed." }
         set((state) => {
+            if (proRunsNoClub(state)) { result = proStaffRunRefusal(); return }
             const team = state.teams.find(t => t.id === teamId)
             if (!team || team.id !== state.playerTeamId) {
                 result = { success: false, message: "Team not found." }
@@ -338,6 +341,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     purchaseEquipment: (catalogId) => {
         let result: { success: boolean; error?: string } = { success: false, error: "" }
         set((state) => {
+            if (proRunsNoClub(state)) { result = { success: false, error: proStaffRunRefusal().message }; return }
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team || team.id !== state.playerTeamId) {
                 result = { success: false, error: "Team not found" }
@@ -369,6 +373,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
     upgradeMerchStore: (teamId) => {
         let result = { success: false, message: "" }
         set((state) => {
+            if (proRunsNoClub(state)) { result = proStaffRunRefusal(); return }
             const team = state.teams.find(t => t.id === teamId)
             if (!team || team.id !== state.playerTeamId) {
                 result = { success: false, message: "Team not found" }
@@ -417,6 +422,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
         // the correct outcome.
         let result = { success: false, message: "Team not found" }
         set((state) => {
+            if (proRunsNoClub(state)) { result = proStaffRunRefusal(); return }
             const team = state.teams.find(t => t.id === teamId)
             if (!team || team.id !== state.playerTeamId) return
 

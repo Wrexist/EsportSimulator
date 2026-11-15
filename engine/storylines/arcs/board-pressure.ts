@@ -58,6 +58,8 @@ export const boardPressure: ArcDefinition = {
     detect(ctx) {
         const team = ctx.managed
         const board = ctx.save.boardState
+        // MODES-07: a pro career's board judges the staff, not the player.
+        if (ctx.save.proCareer && ctx.save.proCareer.retiredWeek == null) return []
         if (!team || !board || board.teamId !== team.id || board.confidence >= S.BOARD_PRESSURE_BELOW) return []
         const tenure = ctx.week - (ctx.save.managerDetails?.tenureStartWeek ?? 1) + 1
         if (tenure <= B.TENURE_GRACE_WEEKS) return []

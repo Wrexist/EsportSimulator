@@ -1,7 +1,8 @@
 /**
  * Contract standoff: one of the club's STANDOFF_TOP_N highest-rated players
  * (the starting-five calibre), Ambitious or Mercenary, in the final year of
- * his deal (STANDOFF_MIN_WEEKS-STANDOFF_MAX_WEEKS left) with no new one.
+ * his deal (STANDOFF_MIN_WEEKS-STANDOFF_MAX_WEEKS left) with no new one, and
+ * not one the club signed in the last STANDOFF_MIN_TENURE_WEEKS.
  * At most MAX_PER_SEASON a season (engine/storylines/index.ts).
  *
  *   0. His agent goes public (news).
@@ -26,6 +27,11 @@ import {
 
 const num = (arc: StoryArc, key: string) => Number(arc.facts[key] ?? 0)
 
+/** MODES-20: the club signed him (a transfer or a free agent) within STANDOFF_MIN_TENURE_WEEKS. */
+function signedRecently(ctx: StoryContext, playerId: string, teamId: string): boolean {
+    return (ctx.save.transferHistory ?? []).some(r => r.type === "TRANSFER" && r.playerId === playerId && r.toTeamId === teamId && ctx.week - r.week < S.STANDOFF_MIN_TENURE_WEEKS)
+}
+
 function left(ctx: StoryContext, arc: StoryArc, playerId: string): void {
     const n = nameOf(ctx.player(playerId))
     const text = departedLine(ctx, arc, playerId, n, { free: true }).line
@@ -49,6 +55,7 @@ export const contractStandoff: ArcDefinition = {
             if (!c) return
             const weeksLeft = c.endWeek - ctx.week
             if (weeksLeft < S.STANDOFF_MIN_WEEKS || weeksLeft > S.STANDOFF_MAX_WEEKS) return
+            if (signedRecently(ctx, p.id, team.id)) return
             out.push({
                 kind: "CONTRACT_STANDOFF", teamId: team.id, managed: true, playerIds: [p.id], clubIds: [], subject: p.id,
                 score: 100 - weeksLeft,

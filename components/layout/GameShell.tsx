@@ -38,6 +38,7 @@ import { useLocale, useUiLanguageSync } from "@/lib/use-locale"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 import { t } from "@/lib/i18n"
 import { escapeGoesBack, requiresCareer } from "@/lib/career-routes"
+import { isProHiddenPath } from "@/lib/navigation"
 import { windowModeForFullscreen } from "@/lib/window-mode"
 import { applyUiScale, effectiveUiScale, stableBaseViewportSize } from "@/lib/ui-scale"
 
@@ -76,6 +77,17 @@ const DRAFT_CUP_OVER_ROUTES = ["/match/", "/settings", "/credits", "/load-game",
 const DEMO_OVER_ROUTES = ["/settings", "/credits", "/load-game", "/main-menu", "/new-game"]
 const routeIn = (pathname: string | null, routes: string[]) =>
     !!pathname && routes.some(r => r.endsWith("/") ? pathname.startsWith(r) : pathname === r || pathname.startsWith(`${r}/`))
+
+/** MODES-01: a club-running screen opened by URL or link in a pro career. */
+function ProBlocked() {
+    return (
+        <div className="mx-auto mt-10 max-w-md rounded-lg border border-line bg-panel p-6 text-center">
+            <h1 className="font-display text-2xl font-bold uppercase text-ink-1">{t("shell.proBlocked")}</h1>
+            <p className="mt-2 text-sm text-ink-2">{t("shell.proBlockedBody")}</p>
+            <Link href="/" className="mt-4 inline-block text-sm font-semibold text-gold hover:underline">{t("shell.backHome")}</Link>
+        </div>
+    )
+}
 
 function DraftCupBlocked() {
     return (
@@ -263,6 +275,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const betweenClubs = useGameStore(state => inCareer && !!state.gameOverReason)
     const draftCupStage = useGameStore(state => !inCareer || !state.draftCup ? null : draftCupOutcome(state as never) ? "over" : "running")
     const demoOver = useGameStore(state => inCareer && demoWeekCapReached(state))
+    const proActive = useGameStore(state => inCareer && !!state.proCareer && state.proCareer.retiredWeek == null)
     const demoWeeks = useGameStore(state => IS_DEMO && inCareer && !state.draftCup ? demoWeeksLeft(state.currentWeek) : 0)
     const markDemoTourVisited = useSettingsStore(state => state.markDemoTourVisited)
     useEffect(() => {
@@ -487,6 +500,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                                 : betweenClubs && !isBetweenClubsRoute(pathname) ? <DismissalJobMarket blockedRoute />
                                 : draftCupStage === "over" && !routeIn(pathname, DRAFT_CUP_OVER_ROUTES) ? <DraftCupResult />
                                 : draftCupStage === "running" && routeIn(pathname, DRAFT_CUP_BLOCKED) ? <DraftCupBlocked />
+                                : proActive && isProHiddenPath(pathname) ? <ProBlocked />
                                 : children}
                         </ErrorBoundary>
                     </div>

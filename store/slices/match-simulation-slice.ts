@@ -56,6 +56,8 @@ import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legac
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
 import { checkAchievements } from "@/engine/steam-service"
+import { detectAchievementFlags } from "@/engine/processors/match-achievement-flags"
+import { officialCareerWins } from "@/engine/processors/post-tick-achievements"
 import {
     ensureDeterministicSeed,
     nextDeterministicId,
@@ -272,6 +274,15 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
             const oldHomeRank = homeTeam.worldRanking || 999
             const oldAwayRank = awayTeam.worldRanking || 999
+            // MODES-04: the managed club's comeback / upset, judged on the pre-match ranks.
+            const achievementFlags = detectAchievementFlags(
+                result,
+                { id: homeTeam.id, worldRanking: homeTeam.worldRanking },
+                { id: awayTeam.id, worldRanking: awayTeam.worldRanking },
+                state.playerTeamId,
+            )
+            if (achievementFlags.comebackWin) completedMatch._comebackWin = true
+            if (achievementFlags.underdogWin) completedMatch._underdogWin = true
 
             // ELO update (shared path with weekly auto-sim).
             if (!isDraw) {
@@ -536,10 +547,13 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 if (pWon) state.managerDetails.careerWins = (state.managerDetails.careerWins || 0) + 1
                 else state.managerDetails.careerLosses = (state.managerDetails.careerLosses || 0) + 1
 
+                // Achievements count official matches only (MODES-06), as the Manager page does.
                 checkAchievements({
-                    totalWins: state.managerDetails.careerWins,
+                    totalWins: officialCareerWins(state as unknown as GameSave),
                     matchesPlayed: state.managerDetails.careerMatches,
-                    firstTournamentParticipation: !!match.tournamentId && match.tournamentId !== "SCRIM",
+                    firstTournamentParticipation: isOfficialMatch(match),
+                    comebackWin: achievementFlags.comebackWin,
+                    underdogWin: achievementFlags.underdogWin,
                 })
 
                 // Same base and analyst talent bonus as a match the week auto-plays.
@@ -740,8 +754,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
         // Achievement re-check after the manager stats bump.
         checkAchievements({
-            totalWins: get().managerDetails.careerWins,
-            firstTournamentParticipation: !!match.tournamentId && match.tournamentId !== "SCRIM",
+            totalWins: officialCareerWins(get() as unknown as GameSave),
+            firstTournamentParticipation: isOfficialMatch(match),
         })
 
         // If we just simulated the match the user was actively viewing,

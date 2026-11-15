@@ -14,7 +14,6 @@ import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Search, UserPlus, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { PlayerSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { potentialOvr } from "@/lib/potential-ovr"
 import { toast } from "@/lib/toast"
@@ -23,6 +22,7 @@ import { PlayerRole } from "@/types/enums"
 import { useFocusTrap } from "@/lib/accessibility"
 import { formatCurrency } from "@/lib/utils-extended"
 import { t, tn } from "@/lib/i18n"
+import { autoContract, type PlayerWithTeamInfo } from "./roster-builder-contract"
 
 // Weekly wage limit for the starting roster, by difficulty.
 const WEEKLY_SALARY_CAPS: Record<GameDifficulty, number> = {
@@ -42,17 +42,6 @@ interface RosterBuilderModalProps {
     }
 }
 
-// Helper type for players with team info
-interface PlayerWithTeamInfo extends PlayerSaveData {
-    currentTeamId: string | null
-    currentTeamName: string | null
-    existingContract: { salaryPerWeek: number; buyout: number } | null
-    isFreeAgent: boolean
-    ovr: number
-    /** Potential on the OVR scale (never below `ovr`), START-24. */
-    potOvr: number
-}
-
 type RoleFilter = "ALL" | PlayerRole
 const ROLE_FILTERS: { value: RoleFilter; label: string }[] = [
     { value: "ALL", label: "" },
@@ -65,32 +54,6 @@ const ROLE_FILTERS: { value: RoleFilter; label: string }[] = [
 
 type SortKey = "rating" | "potential" | "salary" | "age"
 const SORTS: SortKey[] = ["rating", "potential", "salary", "age"]
-
-/** Realistic weekly wage for a free agent: skill bands, a potential premium, an age modifier. */
-function autoContract(player: PlayerWithTeamInfo, currentWeek: number) {
-    const skill = player.skill || 50
-    const potential = player.potential || 60
-    let baseSalary: number
-    if (skill >= 95) baseSalary = 18000 + (skill - 95) * 2000
-    else if (skill >= 90) baseSalary = 10000 + (skill - 90) * 1600
-    else if (skill >= 80) baseSalary = 4000 + (skill - 80) * 600
-    else if (skill >= 70) baseSalary = 1500 + (skill - 70) * 250
-    else if (skill >= 60) baseSalary = 700 + (skill - 60) * 80
-    else baseSalary = 300 + skill * 8
-    const potentialBonus = potential > 80 ? (potential - 80) * 100 : 0
-    const age = player.age || 25
-    const ageModifier = age < 22 ? 1.15 : age > 28 ? 0.85 : 1.0
-    const salaryPerWeek = Math.round((baseSalary + potentialBonus) * ageModifier)
-    // Buyout: existing contract's buyout, otherwise derived from the wage.
-    const buyout = player.existingContract?.buyout || (player.isFreeAgent ? 0 : salaryPerWeek * 52 * 1.5)
-    return {
-        salaryPerWeek,
-        startWeek: currentWeek,
-        endWeek: currentWeek + 52, // 1 year contract
-        buyout,
-        transferFee: player.isFreeAgent ? 0 : buyout,
-    }
-}
 
 // Role coverage exactly as the match engine scores it (engine/match/team-strength.ts):
 // each primary role missing from the five costs 4% team strength; two riflers count once.
@@ -114,7 +77,9 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
     })))
 
     const playerTeam = getPlayerTeam()
-    const [signedPlayers, setSignedPlayers] = useState<string[]>([])
+    // Opened again from Home (MODES-19), the builder starts from the players
+    // already signed. Callers mount it only once the club exists.
+    const [signedPlayers, setSignedPlayers] = useState<string[]>(() => [...(playerTeam?.rosterIds ?? [])])
     // Actual buyout fees paid per signing. transferPlayer deducts the budget
     // live, so "spent" must be recorded at sign time — re-deriving it from the
     // signed players' contracts is wrong: after signing, their contract is the
@@ -165,7 +130,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                 p.nationality?.toLowerCase().includes(term)
             )
         }
-        const wage = (p: PlayerWithTeamInfo) => autoContract(p, currentWeek).salaryPerWeek
+        const wage = (p: PlayerWithTeamInfo) => autoContract(p, currentWeek, playerTeam).salaryPerWeek
         pool = [...pool].sort((a, b) => {
             switch (sortBy) {
                 case "potential": return b.potOvr - a.potOvr
@@ -175,7 +140,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
             }
         })
         return pool.slice(0, 50)
-    }, [freeAgents, signedPlayers, roleFilter, sortBy, searchTerm, currentWeek])
+    }, [freeAgents, signedPlayers, roleFilter, sortBy, searchTerm, currentWeek, playerTeam])
 
     const signedCount = signedPlayers.length
     const targetCount = 5
@@ -192,8 +157,10 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
     }, [signedPlayers, freeAgents, playersWithTeamInfo])
 
     const weeklyCommitment = useMemo(
-        () => signedPlayerDetails.reduce((total, p) => total + autoContract(p, currentWeek).salaryPerWeek, 0),
-        [signedPlayerDetails, currentWeek],
+        () => signedPlayerDetails.reduce((total, p) => total + (playerTeam && p.currentTeamId === playerTeam.id && p.existingContract
+            ? p.existingContract.salaryPerWeek
+            : autoContract(p, currentWeek, playerTeam).salaryPerWeek), 0),
+        [signedPlayerDetails, currentWeek, playerTeam],
     )
 
     // Total buyout fees actually paid (recorded at sign time, see feesPaid).
@@ -204,7 +171,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
 
     // playerTeam.budget is LIVE — transferPlayer already deducted earlier fees.
     const affordability = (player: PlayerWithTeamInfo): "ok" | "wage" | "funds" => {
-        const contract = autoContract(player, currentWeek)
+        const contract = autoContract(player, currentWeek, playerTeam)
         if (weeklyCommitment + contract.salaryPerWeek > salaryCap) return "wage"
         if (playerTeam && contract.transferFee > playerTeam.budget) return "funds"
         return "ok"
@@ -212,7 +179,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
 
     const handleSign = (player: PlayerWithTeamInfo) => {
         if (!playerTeam) return
-        const contract = autoContract(player, currentWeek)
+        const contract = autoContract(player, currentWeek, playerTeam)
         if (weeklyCommitment + contract.salaryPerWeek > salaryCap) {
             toast.error(t("rb.toast.overWage"), { description: t("rb.toast.overWageBody") })
             return
@@ -404,7 +371,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                             </thead>
                             <tbody>
                                 {availablePlayers.map(player => {
-                                    const contract = autoContract(player, currentWeek)
+                                    const contract = autoContract(player, currentWeek, playerTeam)
                                     const afford = affordability(player)
                                     return (
                                         <tr key={player.id} data-slot="table-row" className="h-14 border-b border-line">

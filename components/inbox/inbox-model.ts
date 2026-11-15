@@ -41,6 +41,12 @@ export interface InboxContext {
     /** Roster of the managed club — a player decision is only answerable for these. */
     rosterIds: ReadonlySet<string>
     playerName: (id: string) => string | undefined
+    /**
+     * MODES-07: the pro in an active pro career. The club's own decisions
+     * (press, fans, sponsors, squad talks) are the staff's then; only the
+     * pro's own (offers, retirement, his workload) ask for an answer.
+     */
+    proPlayerId?: string
 }
 
 export interface NewsFeedLike {
@@ -103,10 +109,13 @@ export function getDecisionKind(event: GameEventSaveData, ctx: InboxContext): De
     if (event.type === "TRANSFER_OFFER") {
         // A rumour carries no bid: nothing to accept.
         if (isTransferRumor(event)) return null
+        // MODES-01: in a pro career the staff answer bids (they lapse).
+        if (ctx.proPlayerId) return null
         if (data.playerId && !ctx.rosterIds.has(String(data.playerId))) return null
         return "transfer_offer"
     }
     if (!isPendingDecisionEvent(event)) return null
+    if (ctx.proPlayerId && !event.id.startsWith("pro_") && data.playerId !== ctx.proPlayerId) return null
     if (data.playerId && !ctx.rosterIds.has(String(data.playerId))) return null
     if (data.teamId && data.teamId !== ctx.playerTeamId) return null
     return "choice"
@@ -175,7 +184,8 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
         case "loss_streak": return t("ib.from.assistantCoach")
         case "TRANSFER_OFFER": return data.teamName || t("ib.from.transferOffice")
         case "JOB_OFFER": return data.offeringTeamName || t("ib.from.board")
-        case "CAREER_UPDATE": return t("ib.from.board")
+        // MODES-09: a club offer to the pro comes from that club, not the board.
+        case "CAREER_UPDATE": return event.id.startsWith("pro_offer_") ? data.offeringTeamName || t("ib.from.transferOffice") : t("ib.from.board")
         case "TOURNAMENT":
         case "TOURNAMENT_UPDATE": return data.tournamentName || t("ib.from.tournamentOffice")
         case "MEDIA": return data.outlet || (data.proAwards ? t("ib.from.proAwards") : t("ib.from.press"))

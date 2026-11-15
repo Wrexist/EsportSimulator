@@ -390,6 +390,8 @@ export const LEGACY: Record<string, string> = {
     "job.askMoreTitle": "Ask for a higher wage. Push too hard and they may walk away.",
     "job.noMoreTitle": "They will not negotiate further.",
     "job.decline": "Decline",
+    "job.blockedFirst": "That screen opens once you have a club.",
+    "job.boardLeague": "League: {{goal}}.",
     // Facilities (buildings)
     "fac.loading": "Loading facilities…",
     "fac.title": "Facilities",

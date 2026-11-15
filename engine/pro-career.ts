@@ -2,7 +2,7 @@
  * C10: pro career. Instead of running a club you play as one young pro.
  *
  * The club's staff run everything else: chores are delegated, the coach picks
- * the starting five on form (overall rating) every week, and every club
+ * the best role-balanced five on form (overall rating) every week, and every club
  * decision is answered with its stated default. What stays yours: your
  * player's week (training focus, rest-or-play), the matches, offers from
  * bigger clubs and, late on, when to retire. Retiring ends the pro career and
@@ -20,6 +20,7 @@ import { closeStint, openStint } from "./manager-timeline"
 import { fillAIRosterToFive } from "./ai/club-budget"
 import { DELEGATION_AREAS } from "./delegation"
 import { isOpenDecision } from "./decision-deadlines"
+import { bestAILineup } from "./ai/lineup"
 
 export interface ProCareerState {
     playerId: string
@@ -59,6 +60,8 @@ export const PRO_TUNING = {
     /** The club renews the pro's contract with this many weeks left, for RENEW_WEEKS. */
     RENEW_WITHIN: 12,
     RENEW_WEEKS: 104,
+    /** The club raises the pro's wage to his rating's wage once that is this much above what he is paid. */
+    RAISE_WHEN_BEHIND: 1.25,
     /** Personal match goal: the rating a starter is asked for, by squad rank (best player first, then everyone else). */
     GOAL_RATING_BY_RANK: [1.1, 1.05] as const,
     GOAL_RATING_BASE: 1.0,
@@ -118,15 +121,22 @@ function tuneToOverall(base: PlayerSaveData, target: number, week: number): Play
     return at(hi)
 }
 
-/** Starting five by overall rating, best first; the rest keep their order on the bench. */
+/**
+ * The coach's starting five: the best five by overall rating once each role
+ * missing from the five is counted against it (MODES-10: the same pick the
+ * computer clubs make, engine/ai/lineup.ts), so the club's only IGL is not
+ * left on the bench. Starters first, then the bench, each best first.
+ */
 export function coachLineup(save: GameSave, team: TeamSaveData): void {
     const rating = new Map(team.rosterIds.map(id => {
         const p = save.players.find(x => x.id === id)
         const unavailable = !p || p.isRetired || (p.injury && p.injury.weeksRemaining > 0)
         return [id, unavailable ? -1 : ovrOf(p!, save.currentWeek)]
     }))
+    const available = team.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p && rating.get(p.id)! >= 0)
+    const five = new Set(bestAILineup(available, save.currentWeek).five.map(p => p.id))
     const order = team.rosterIds.map((id, i) => ({ id, i }))
-    order.sort((a, b) => (rating.get(b.id)! - rating.get(a.id)!) || a.i - b.i)
+    order.sort((a, b) => Number(five.has(b.id)) - Number(five.has(a.id)) || (rating.get(b.id)! - rating.get(a.id)!) || a.i - b.i)
     team.rosterIds = order.map(o => o.id)
 }
 
@@ -333,6 +343,10 @@ export function processProWeek(save: GameSave): void {
     } else if (contract.endWeek - save.currentWeek <= PRO_TUNING.RENEW_WITHIN) {
         contract.endWeek = save.currentWeek + PRO_TUNING.RENEW_WEEKS
         contract.salaryPerWeek = Math.max(contract.salaryPerWeek, proWage(ovrOf(player, save.currentWeek)))
+    } else if (proWage(ovrOf(player, save.currentWeek)) >= contract.salaryPerWeek * PRO_TUNING.RAISE_WHEN_BEHIND) {
+        // MODES-08: a pro who has outgrown his deal gets a raise, not a
+        // two-year wait for the renewal.
+        contract.salaryPerWeek = proWage(ovrOf(player, save.currentWeek))
     }
     if (team.rosterIds.length < 5) fillAIRosterToFive(save, team)
     coachLineup(save, team)
@@ -346,12 +360,12 @@ export function processProWeek(save: GameSave): void {
             save.eventsLog.unshift({
                 id, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
                 data: {
-                    playerId: player.id, teamId: team.id, offeringTeamId: club.id,
+                    playerId: player.id, teamId: team.id, offeringTeamId: club.id, offeringTeamName: club.name,
                     ...eventText({ key: "pcr.offer.t", params: { club: club.name, name: player.nickname } },
                         { key: "pcr.offer.m", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name } }),
                 },
                 choices: [
-                    { id: "accept", ...choiceText({ key: "pcr.offer.join", params: { club: club.name } }), effects: { follows: { key: "pcr.offer.follows" } } },
+                    { id: "accept", ...choiceText({ key: "pcr.offer.join", params: { club: club.name } }), effects: { follows: { key: "pcr.offer.followsTo", params: { club: club.name } } } },
                     { id: "stay", ...choiceText({ key: "pcr.offer.stay", params: { club: team.name } }), effects: {} },
                 ],
             })
@@ -389,7 +403,9 @@ export function handClubDecisionsToStaff(save: GameSave): number {
     if (!isProActive(save)) return 0
     let n = 0
     for (const e of save.eventsLog) {
-        if (!isOpenDecision(e) || isProDecision(save, e)) continue
+        // A bid for the pro is the club's to answer too: the staff let it lapse
+        // (his moves come as club offers, pro_offer_).
+        if (!isOpenDecision(e) || (isProDecision(save, e) && String(e.type) !== "TRANSFER_OFFER")) continue
         if (String(e.type) === "JOB_OFFER") { e.data = { ...e.data, isWithdrawn: true }; e.choices = []; continue }
         if (String(e.type) === "TRANSFER_OFFER") e.data = { ...e.data, expiresWeek: save.currentWeek }
         else e.data = { ...e.data, deadlineWeek: save.currentWeek - 1 }

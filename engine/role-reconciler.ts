@@ -30,6 +30,9 @@ const SPECIALTIES = [
     }
 ]
 
+/** The pro of a pro career (engine/pro-career.ts startProCareer gives him this id). */
+const isProPlayer = (p: PlayerSaveData) => p.id.startsWith("pro_")
+
 /**
  * Reconcile roles for a single team — with hysteresis.
  *
@@ -57,9 +60,13 @@ export function reconcileTeamRoles(players: PlayerSaveData[]): void {
 
     // C10: a locked role (the pro's own choice, a role the manager signed a
     // player for, or a completed retraining) is kept and its slot taken.
+    // MODES-02: the pro keeps his chosen role too, but takes its slot only
+    // when no team-mate already holds it (a 17-year-old on the bench must not
+    // demote the club's own AWPer).
     const lockedRoles = new Set<string>()
+    const proRoles = new Set<string>()
     for (const p of players) {
-        if (p.roleLocked && p.role) { assignedPlayerIds.add(p.id); lockedRoles.add(p.role) }
+        if (p.roleLocked && p.role) { assignedPlayerIds.add(p.id); (isProPlayer(p) ? proRoles : lockedRoles).add(p.role) }
     }
 
     // 2. Hysteresis pass: keep an incumbent if they still qualify for their
@@ -73,7 +80,7 @@ export function reconcileTeamRoles(players: PlayerSaveData[]): void {
         )
         if (incumbent) {
             assignedPlayerIds.add(incumbent.id)
-        } else {
+        } else if (!proRoles.has(spec.id)) {
             remainingSpecialties.push(spec)
         }
     }

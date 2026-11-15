@@ -25,6 +25,11 @@ export const createProCareerSlice: SliceCreator<ProCareerActions> = (set, get) =
             if (ok) {
                 state.firstSession = { ...newFirstSession(), status: "dismissed" }
                 state.tutorialCompleted = true
+                // START-27 / MODES-07: no manager's board brief (budget, board
+                // objectives) for a pro. His signing note in the inbox and the
+                // Home pro card say where he stands and how to earn a place.
+                const save = state as unknown as GameSave
+                save.momentQueue = (save.momentQueue ?? []).filter(m => m.kind !== "welcome")
             }
         })
         if (ok) void get().saveGame()

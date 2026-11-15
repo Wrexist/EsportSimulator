@@ -75,6 +75,8 @@ export function TopBar() {
         managerName,
         betweenClubs,
         pro,
+        proName,
+        draftCup,
     } = useGameStore(
         useShallow(s => ({
             currentWeek: s.currentWeek,
@@ -87,12 +89,16 @@ export function TopBar() {
             managerName: s.managerDetails?.name,
             betweenClubs: !!s.gameOverReason,
             pro: !!s.proCareer && s.proCareer.retiredWeek == null,
+            // MODES-07: a pro career's avatar is the pro, not the manager.
+            proName: s.proCareer && s.proCareer.retiredWeek == null ? s.players.find(p => p.id === s.proCareer!.playerId)?.nickname : undefined,
+            // MODES-14: a Draft Cup run hides the club-running screens it blocks.
+            draftCup: !!s.draftCup,
         }))
     )
 
     const pathname = usePathname()
     // C10: a pro career hides the club-running screens (the staff run the club).
-    const hubs = navHubsFor(pro)
+    const hubs = navHubsFor(pro, draftCup, betweenClubs)
     const pathHub = hubForPath(pathname)
     const activeHub = pathHub ? hubs.find(h => h.id === pathHub.id) ?? null : null
 
@@ -109,10 +115,10 @@ export function TopBar() {
     const managerInitials = useMemo(() => {
         // Trim + collapse whitespace so a trailing space ("Neo ") doesn't
         // yield an empty second part.
-        const parts = (managerName || "Manager").trim().split(/\s+/).filter(Boolean)
+        const parts = (proName || managerName || "Manager").trim().split(/\s+/).filter(Boolean)
         if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
         return (parts[0] || "M").slice(0, 2).toUpperCase()
-    }, [managerName])
+    }, [managerName, proName])
 
     // No career loaded (fresh launch, deleted save): advancing would build a
     // phantom save for team "unknown", so there is nothing to advance.
@@ -199,7 +205,7 @@ export function TopBar() {
 
                 <div className="ml-auto flex shrink-0 items-center gap-2 @min-[80rem]/topbar:gap-3">
                     {/* START-43: "Go to…" lists career screens, so it needs a career. */}
-                    {!hideCareerControls && <NavigationSearch compact disabled={false} pro={pro} />}
+                    {!hideCareerControls && <NavigationSearch compact disabled={false} pro={pro} draftCup={draftCup} betweenClubs={betweenClubs} />}
 
                     {!hideCareerControls && !betweenClubs && !pro && (
                         <div className="hidden flex-col items-end leading-none @min-[80rem]/topbar:flex" title={t("topbar.funds")}>
@@ -252,7 +258,7 @@ export function TopBar() {
                         <Link
                             href="/career"
                             aria-label={t("topbar.managerProfile")}
-                            title={managerName ? `${managerName} · ${t("topbar.managerProfile")}` : t("topbar.managerProfile")}
+                            title={(proName || managerName) ? `${proName || managerName} · ${t("topbar.managerProfile")}` : t("topbar.managerProfile")}
                             className="flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-raised text-[11px] font-bold text-ink-1 hover:border-gold"
                         >
                             {isMounted ? managerInitials : ""}
