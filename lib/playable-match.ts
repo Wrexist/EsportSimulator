@@ -61,6 +61,19 @@ export function fixtureBlockReason(state: PlayableMatchState, match: FixtureLike
     return null
 }
 
+/**
+ * A fixture whose date has not come: a later week, or in daily mode a later
+ * day of this week. Its veto and live match wait until then (CROSSCUT-01);
+ * the prep screen says when it unlocks.
+ */
+export function fixtureNotDueYet(
+    state: { currentWeek: number; currentDay?: number; timeMode?: string },
+    match: { week: number; day?: number },
+): boolean {
+    if (match.week > state.currentWeek) return true
+    return state.timeMode === "HYBRID_DAILY" && match.week === state.currentWeek && (match.day ?? 6) > (state.currentDay ?? 6)
+}
+
 let lastInputs: unknown[] = []
 let lastId: string | null = null
 

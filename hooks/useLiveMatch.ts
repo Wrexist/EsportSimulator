@@ -35,6 +35,7 @@ import { MAP_NAMES } from "@/data/map-pool"
 import { t, tn } from "@/lib/i18n"
 import { strategyLabel } from "@/lib/live-match-decision"
 import { liveCheckpointStore, persistCommittedMatch } from "@/lib/live-checkpoint-store"
+import { fixtureNotDueYet } from "@/lib/playable-match"
 import { commitLiveMatch } from "@/lib/live-match-commit"
 import {
     ROUND_SECONDS,
@@ -353,8 +354,12 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         const aTeam = teams.find(t => t.id === foundMatch.awayTeamId)
         if (!hTeam || !aTeam) return
 
-        // HYBRID_DAILY day pacing: never start a current-week match before its day.
-        if (timeMode === "HYBRID_DAILY" && foundMatch.week === currentWeek && (foundMatch.day ?? 6) > currentDay) {
+        // Never start a match before its date: a later week, or (daily mode) a
+        // later day of this week. A direct link used to start a future fixture
+        // and lock the game until it was played (CROSSCUT-01). A match already
+        // started (its checkpoint) still resumes, so no save is left locked.
+        if (useGameStore.getState().activeMatchState?.matchId !== id && fixtureNotDueYet({ currentWeek, currentDay, timeMode }, foundMatch)) {
+            if (useGameStore.getState().activeMatchId === id) setActiveMatch(null)
             if (isMountedRef.current) router.replace(`/match/${id}/tactics`)
             return
         }

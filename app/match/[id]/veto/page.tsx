@@ -30,6 +30,9 @@ import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { t } from "@/lib/i18n"
 import { stageName } from "@/lib/display-names"
+import { LoadingState } from "@/components/ui/loading"
+import { fixtureNotDueYet } from "@/lib/playable-match"
+import { liveMatchInProgress } from "@/app/match/match-centre"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -116,6 +119,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const [vetoSequence, setVetoSequence] = useState<VetoTurn[]>([]) // Dynamic sequence
     const [mapStartingSides, setMapStartingSides] = useState<Record<string, string>>({}) // MapId -> TeamId of CT team
     const [showSideSelection, setShowSideSelection] = useState<MapId | null>(null)
+    // Sent on to the prep page (veto done, match live, or not due yet).
+    const [leaving, setLeaving] = useState(false)
     // Side choice is required to continue: focus is trapped, Escape does not dismiss.
     const sideDialogRef = useFocusTrap(!!showSideSelection)
 
@@ -183,6 +188,19 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             // Check completed?
             setStatus(t("veto.notFound"))
             return
+        }
+
+        // On the way in only (not when this page saves its own veto): a veto
+        // that is done, a match already being played, or a fixture whose date
+        // has not come has no veto to run here; its prep page shows the maps,
+        // Resume, or when it unlocks (MATCHDAY-03, CROSSCUT-01).
+        if (vetoSequence.length === 0) {
+            const s = useGameStore.getState()
+            if (foundMatch.vetoComplete || liveMatchInProgress(s, id) || fixtureNotDueYet(s, foundMatch)) {
+                setLeaving(true)
+                router.replace(`/match/${id}/tactics`)
+                return
+            }
         }
 
         const hTeam = teams.find(t => t.id === foundMatch.homeTeamId)
@@ -388,6 +406,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         () => (awayTeam?.rosterIds || []).map(id => playersById.get(id)).filter(Boolean) as unknown as Player[],
         [awayTeam?.rosterIds, playersById],
     )
+
+    if (leaving) return <LoadingState message={t("veto.initializing")} size="lg" />
 
     if (!match || !homeTeam || !awayTeam) {
         return (
