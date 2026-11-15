@@ -6907,5 +6907,6 @@
  "bd.rev.MISSED.mNotice": "La saison est restée en deçà des objectifs de la direction. La confiance a baissé à {{c}}/100 : tu es sous ultimatum.",
  "bd.rev.FAILED.t": "La direction de {{club}} furieuse",
  "bd.rev.FAILED.m": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100 : tu es sous ultimatum et dois répondre présent la saison prochaine."
+ "bd.rev.FAILED.mNotice": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100 : tu es sous ultimatum et dois répondre présent la saison prochaine.",
+ "fin.cat.SCOUTING": "Scouting"
 }

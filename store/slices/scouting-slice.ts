@@ -75,7 +75,7 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
                 week: state.currentWeek,
                 teamId: team.id,
                 type: "EXPENSE",
-                category: "OTHER",
+                category: "SCOUTING",
                 amount: SCOUTING_COST_BASIC,
                 description: "Scouting Mission",
                 balance: team.budget,

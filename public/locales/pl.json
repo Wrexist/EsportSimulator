@@ -7111,5 +7111,6 @@
  "bd.rev.MISSED.mNotice": "Sezon nie spełnił celów zarządu. Zaufanie spadło do {{c}}/100: masz ostatnie ostrzeżenie.",
  "bd.rev.FAILED.t": "Zarząd {{club}} wściekły",
  "bd.rev.FAILED.m": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100: masz ostatnie ostrzeżenie i w przyszłym sezonie musisz dowieźć wynik."
+ "bd.rev.FAILED.mNotice": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100: masz ostatnie ostrzeżenie i w przyszłym sezonie musisz dowieźć wynik.",
+ "fin.cat.SCOUTING": "Skauting"
 }

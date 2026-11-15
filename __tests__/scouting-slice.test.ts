@@ -102,6 +102,8 @@ describe("startScoutingMission", () => {
         expect(ledger[0].amount).toBe(3000)
         expect(ledger[0].type).toBe("EXPENSE")
         expect(ledger[0].description).toBe("Scouting Mission")
+        // MARKET-05: its own ledger category, not "Other".
+        expect(ledger[0].category).toBe("SCOUTING")
     })
 
     test("a high scoutingSpeed scout finishes faster (stat wired)", () => {

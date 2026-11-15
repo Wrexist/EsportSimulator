@@ -6703,5 +6703,6 @@
  "bd.rev.MISSED.mNotice": "Die Saison blieb hinter den Zielen des Vorstands zurück. Das Vertrauen ist auf {{c}}/100 gesunken: Du hast die letzte Warnung.",
  "bd.rev.FAILED.t": "Vorstand von {{club}} verärgert",
  "bd.rev.FAILED.m": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen.",
- "bd.rev.FAILED.mNotice": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen: Du hast die letzte Warnung und musst nächste Saison liefern."
+ "bd.rev.FAILED.mNotice": "Eine Saison weit unter den Erwartungen. Das Vertrauen des Vorstands ist auf {{c}}/100 eingebrochen: Du hast die letzte Warnung und musst nächste Saison liefern.",
+ "fin.cat.SCOUTING": "Scouting"
 }
