@@ -577,9 +577,9 @@ export default function Page() {
             </Panel>
           </div>
 
-          {/* Two columns below 2xl: the rail is far taller than this column,
-              so News sits here instead of leaving the bottom half empty (HOME-19). */}
-          <Panel title={t("home.news")} padded={false} className="hidden xl:block 2xl:hidden">
+          {/* Two columns (xl and up): the rail is far taller than this column,
+              so News sits here instead of leaving the bottom half empty (HOME-19, HOME-09). */}
+          <Panel title={t("home.news")} padded={false} className="hidden xl:block">
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>
@@ -592,7 +592,7 @@ export default function Page() {
           <ActionCenter />
           <StorylinesPanel />
           <LastWeekPanel />
-          <Panel title={t("home.news")} padded={false} className="xl:hidden 2xl:block">
+          <Panel title={t("home.news")} padded={false} className="xl:hidden">
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>
