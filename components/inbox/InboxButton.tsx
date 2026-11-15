@@ -52,7 +52,8 @@ export function InboxButton() {
                     aria-hidden="true"
                     className={cn(
                         "absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[11px] font-bold tabular-nums leading-none",
-                        decisions > 0 ? "bg-caution text-ink" : "bg-side-ct text-ink",
+                        // One accent (CROSSCUT-13): unread is a neutral chip; amber stays for decisions.
+                        decisions > 0 ? "bg-caution text-ink" : "bg-ink-1 text-ink",
                     )}
                 >
                     {badge > 99 ? "99+" : badge}
