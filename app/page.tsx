@@ -586,8 +586,9 @@ export default function Page() {
                         <Link href={`/match/${m.id}/result`} className="flex h-11 items-center gap-3 px-4 transition-colors hover:bg-raised">
                           <FormGuide results={[won ? "W" : "L"]} />
                           <TeamLogoDisplay team={opp} size={22} />
-                          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
-                          <span className="hidden truncate text-xs text-ink-3 sm:inline">{comp} · {t("common.weekShort", { n: m.week })}</span>
+                          {/* The opponent's name wins the space; a long league label truncates (HOME-15). */}
+                          <span className="min-w-[6rem] flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
+                          <span className="hidden min-w-0 max-w-[45%] truncate text-xs text-ink-3 sm:inline" title={`${comp} · ${t("common.weekShort", { n: m.week })}`}>{comp} · {t("common.weekShort", { n: m.week })}</span>
                           <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{scoreFor(m as MatchLike, playerTeamId || "")}</span>
                         </Link>
                       </li>
