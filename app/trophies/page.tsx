@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { WEEKS_PER_YEAR } from "@/lib/constants"
+import { gameCalendarDate } from "@/lib/game-calendar"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
@@ -47,14 +48,20 @@ export default function TrophyRoomPage() {
     })))
 
     const team = teams.find(t => t.id === playerTeamId)
-    const parsedYear = gameStartDate ? new Date(gameStartDate).getFullYear() : 2025
-    const startYear = Number.isNaN(parsedYear) ? 2025 : parsedYear
+    const startDate = gameStartDate && !Number.isNaN(new Date(gameStartDate).getTime()) ? gameStartDate : null
 
     const titles = useMemo(() => {
+        // The calendar year of the title's week, counted from the career start
+        // date (a February title is that February's year, COMP-13).
+        const yearOfWeek = (week: number) => startDate
+            ? gameCalendarDate(startDate, Math.max(1, week)).getUTCFullYear()
+            : 2025 + Math.floor(Math.max(0, week - 1) / WEEKS_PER_YEAR)
         const byId = new Map(players.map(p => [p.id, p]))
         // Tournament MVP: recorded on the trophy (Phase 5.1), else on the event while it is kept.
         const eventMvp = new Map(tournaments.filter(t => t.mvpPlayerId).map(t => [t.id, t.mvpPlayerId!]))
         return ((team?.trophies || []) as { tournamentId?: string; tournamentName?: string; week?: number; tier?: string; mvpId?: string }[])
+            // A qualifier won in an older save is a place, not a title (COMP-12).
+            .filter(t => t.tier !== "QUALIFIER")
             .map((t, i) => {
                 const cal = FULL_TOURNAMENT_CALENDAR.find(c => c.id === t.tournamentId || c.id === baseId(t.tournamentId || ""))
                 const mvpId = t.mvpId ?? (t.tournamentId ? eventMvp.get(t.tournamentId) : undefined)
@@ -68,12 +75,12 @@ export default function TrophyRoomPage() {
                     art: trophyArtFor(trophyArtKind({ tournamentId: t.tournamentId ?? "", tier })),
                     major: isMajorTournament(t.tournamentId),
                     week: t.week || 0,
-                    year: Math.floor(startYear + (t.week || 0) / WEEKS_PER_YEAR),
+                    year: yearOfWeek(t.week || 0),
                     mvp: mvpId ? byId.get(mvpId) : undefined,
                 }
             })
             .sort((a, b) => b.week - a.week)
-    }, [team?.trophies, players, startYear, tournaments])
+    }, [team?.trophies, players, startDate, tournaments])
 
     // The cabinet: every title on the calendar, gold only where you've won it.
     const cabinet = useMemo(() => {

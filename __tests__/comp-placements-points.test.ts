@@ -87,8 +87,16 @@ describe("COMP-09 prize ledger ordinals", () => {
         updateStandings(save)
         const descriptions = save.financeLedger.filter(e => e.category === "PRIZE").map(e => e.description)
         expect(descriptions).toEqual(expect.arrayContaining([
-            "Elite Cup 2025 - 1st Place", "Elite Cup 2025 - 2nd Place", "Elite Cup 2025 - 3rd Place", "Elite Cup 2025 - 4th Place", "Elite Cup 2025 - 5th Place",
+            "Elite Cup 2025 - 1st Place", "Elite Cup 2025 - 2nd Place", "Elite Cup 2025 - 3rd Place", "Elite Cup 2025 - 4th Place",
         ]))
         expect(descriptions.join(" ")).not.toMatch(/\b3th\b/)
+    })
+
+    test("COMP-15: quarter-final losers share 5th–8th in the ledger", () => {
+        const save = eightTeamBracket("A_TIER")
+        updateStandings(save)
+        const descriptions = save.financeLedger.filter(e => e.category === "PRIZE").map(e => e.description)
+        expect(descriptions.filter(d => d === "Elite Cup 2025 - 5th–8th Place")).toHaveLength(4)
+        expect(descriptions.join(" ")).not.toMatch(/- [678]th Place/)
     })
 })

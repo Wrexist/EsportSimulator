@@ -30,7 +30,7 @@ import { TournamentManager, circuitPointsForPlacement } from "../tournament-mana
 import { ordinal } from "../season/regional-league"
 import { LEGENDARY_PLAYERS } from "../legendary-players-data"
 import { CIRCUIT_POINTS, getTournamentById } from "@/data/tournament-calendar"
-import { recordTitle } from "../official-stats"
+import { isMajorTournament, recordTitle } from "../official-stats"
 import {
     isTerminalBracketStage,
     terminalTournamentWinner,
@@ -50,6 +50,13 @@ const PRIZE_DISTRIBUTION_16: Record<number, number> = {
     5: 0.04, 6: 0.04, 7: 0.04, 8: 0.04,
     9: 0.02, 10: 0.02, 11: 0.02, 12: 0.02,
     13: 0.01, 14: 0.01, 15: 0.01, 16: 0.01,
+}
+
+/** "1st", or "5th–8th" for clubs that went out in the same round. */
+function placeLabel(p: { position: number; tiedFrom?: number; tiedThrough?: number }): string {
+    return p.tiedFrom !== undefined && p.tiedThrough !== undefined && p.tiedThrough > p.tiedFrom
+        ? `${ordinal(p.tiedFrom)}–${ordinal(p.tiedThrough)}`
+        : ordinal(p.position)
 }
 
 const TIER_FAN_MULTIPLIER: Record<string, number> = {
@@ -119,7 +126,7 @@ function buildTitleMoment(
         tournamentId: tournament.id,
         tournamentName: tournament.name,
         tier: tournament.tier,
-        major: tournament.tier === "S_TIER",
+        major: isMajorTournament(tournament.id),
         prize: rewards.prize,
         prizeBooked: rewards.prizeBooked,
         repGain: rewards.repGain,
@@ -141,7 +148,7 @@ function buildTitleMoment(
 export function queueDecidedTitle(save: GameSave, tournamentId: string | null | undefined): boolean {
     if (!tournamentId || !save.playerTeamId) return false
     const tournament = save.tournaments.find(t => t.id === tournamentId)
-    if (!tournament || tournament.rewardsGranted || tournament.format === "league") return false
+    if (!tournament || tournament.rewardsGranted || tournament.format === "league" || tournament.tier === "QUALIFIER") return false
     if (hasMomentKey(save, `title:${tournament.id}`)) return false
     if (terminalTournamentWinner(save, tournament) !== save.playerTeamId) return false
     const team = save.teams.find(t => t.id === save.playerTeamId)
@@ -281,10 +288,13 @@ export function updateStandings(
             ?? save.teams.find(t => t.id === winnerTeamId)
         if (!winningTeam) return
         if (!winningTeam.trophies) winningTeam.trophies = []
+        // A qualifier hands out places, not a title (COMP-12): no trophy,
+        // title count, reputation, title moment or legend pick for winning one.
+        const isTitle = tournament.tier !== "QUALIFIER"
 
         // Season-aware trophy dedup: same series in the same season can't
         // award twice even if completion logic re-enters.
-        const seasonAwareTrophyExists = winningTeam.trophies.some(
+        const seasonAwareTrophyExists = !isTitle || winningTeam.trophies.some(
             trophy =>
                 trophy.tournamentId === tournament.id ||
                 (toBaseTournamentId(trophy.tournamentId) === toBaseTournamentId(tournament.id) &&
@@ -341,7 +351,8 @@ export function updateStandings(
                     type: "INCOME",
                     category: "PRIZE",
                     amount: prizeAmount,
-                    description: `${tournament.name} - ${ordinal(p.position)} Place`,
+                    // Clubs out in the same round share the place ("5th–8th").
+                    description: `${tournament.name} - ${placeLabel(placements.find(x => x.teamId === p.teamId) ?? p)} Place`,
                     balance: team.budget,
                 })
                 ledgerIdSet?.add(prizeLedgerId)
@@ -385,7 +396,7 @@ export function updateStandings(
         }
 
         // G13: title bonuses for the champion's players who have one.
-        for (const contract of save.contracts) {
+        for (const contract of isTitle ? save.contracts : []) {
             const bonus = contract.tournamentWinBonus
             if (contract.teamId !== winningTeam.id || !winningTeam.rosterIds.includes(contract.playerId) || !(typeof bonus === "number" && bonus > 0)
                 || contract.startWeek > save.currentWeek || contract.endWeek <= save.currentWeek) continue
@@ -405,7 +416,7 @@ export function updateStandings(
 
         // MEDIA event for the win (idempotent via eventIdSet).
         const trophyEventId = `trophy_${tournament.id}_${winnerTeamId}`
-        if (!(eventIdSet?.has(trophyEventId) ?? save.eventsLog.some(event => event.id === trophyEventId))) {
+        if (isTitle && !(eventIdSet?.has(trophyEventId) ?? save.eventsLog.some(event => event.id === trophyEventId))) {
             save.eventsLog.push({
                 id: trophyEventId,
                 type: EventType.MEDIA,
@@ -418,7 +429,7 @@ export function updateStandings(
 
         // Title moment + legend-pick offer on player-team wins (each once:
         // a grand final won on the result screen queued both already).
-        if (winningTeam.id === save.playerTeamId) {
+        if (isTitle && winningTeam.id === save.playerTeamId) {
             const prize = awards.find(a => a.teamId === winningTeam.id)?.amount ?? 0
             queueMoment(save, buildTitleMoment(save, tournament, winningTeam.id, {
                 prize,

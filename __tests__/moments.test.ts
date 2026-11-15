@@ -197,7 +197,8 @@ describe("titles", () => {
         const { save } = bracketSave()
         expect(queueDecidedTitle(save, "cup")).toBe(true)
         const queued = save.momentQueue![0] as TitleMoment
-        expect(queued).toMatchObject({ key: "title:cup", kind: "title", major: true, prizeBooked: false, repGain: 5, finalOpponentName: "Team c", finalScore: "2-1", matchId: "gf" })
+        // An S-tier title that is not a Major (COMP-11): no "Major" moment.
+        expect(queued).toMatchObject({ key: "title:cup", kind: "title", major: false, prizeBooked: false, repGain: 5, finalOpponentName: "Team c", finalScore: "2-1", matchId: "gf" })
         // Legend pick offered once with the title (S-tier).
         expect(hasMomentKey(save, "legend:cup")).toBe(true)
         const pick = save.pendingLegendPick
