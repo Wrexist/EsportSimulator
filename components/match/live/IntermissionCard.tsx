@@ -41,7 +41,7 @@ export function IntermissionCard({ intermission, homeName, awayName, homeIsCT, m
             role="status"
             data-intermission={intermission.kind}
         >
-            <div className="w-full max-w-[560px] overflow-hidden rounded-[10px] border border-line-strong bg-panel/[0.97] shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
+            <div className="w-full max-w-[560px] overflow-hidden rounded-[10px] border border-line-strong bg-panel shadow-[0_16px_40px_rgba(0,0,0,0.55)]">
                 <div className="h-0.5 w-full bg-hover" aria-hidden="true">
                     <motion.div className="h-full origin-left bg-gold" initial={{ scaleX: 1 }} animate={{ scaleX: 0 }} transition={{ duration: intermission.durationMs / 1000, ease: "linear" }} />
                 </div>
