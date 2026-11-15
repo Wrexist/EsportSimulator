@@ -110,6 +110,7 @@ export default function LeaguePage() {
     const pool = level ? pools[Math.min(pools.length, level) - 1] : undefined
     const shares = LEAGUE_TUNING.SPLIT_PRIZE_SHARES
     const prizeNow = pool && me && started ? Math.round(pool * (shares[me.position - 1] ?? 0)) : 0
+    const outcomePrize = outcome ? Math.round(pools[Math.min(pools.length, outcome.level) - 1] * (shares[outcome.position - 1] ?? 0)) : 0
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
@@ -191,6 +192,8 @@ export default function LeaguePage() {
                                         </span>
                                     )}
                                     {outcome.champion && <span className="rounded-sm border border-gold/50 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("lgp.champions")}</span>}
+                                    {/* The split prize the engine paid for that place (regional-league payout). */}
+                                    {outcomePrize > 0 && <span className="tabular-nums">{t("tm.prize")} <span className="font-semibold text-ink-1">{formatCurrency(outcomePrize, "$", false)}</span></span>}
                                 </p>
                             </div>
                         ) : (

@@ -6617,7 +6617,7 @@
  "ev.sellOn.t": "Porcentaje de reventa cobrado: {{name}}",
  "ev.sellOn.m": "{{club}} ha vendido a {{name}} por {{fee}}. Tu {{pct}}% de reventa aporta {{amount}}.",
  "ev.draw.t": "Sorteo de liga: {{division}}",
- "ev.draw.m": "Temporada {{season}}, split {{split}}: {{clubs}} clubes, {{format}}, semanas {{from}}–{{to}}.{{moved}}{{first}} Los {{up}} primeros suben y los {{down}} últimos bajan.",
+ "ev.draw.m": "Temporada {{season}}, split {{split}}: {{clubs}} clubes, {{format}}, semanas {{from}}–{{to}}.{{moved}}{{first}} {{top}}{{sep}}{{bottom}}.",
  "ev.draw.double": "ida y vuelta",
  "ev.draw.single": "liga a una vuelta",
  "ev.draw.promoted": " Ascenso desde la División {{level}}.",

@@ -6424,7 +6424,7 @@
  "ev.sellOn.t": "Weiterverkaufsbeteiligung gezahlt: {{name}}",
  "ev.sellOn.m": "{{club}} hat {{name}} für {{fee}} verkauft. Deine Beteiligung von {{pct}}% bringt {{amount}} ein.",
  "ev.draw.t": "Ligaauslosung: {{division}}",
- "ev.draw.m": "Saison {{season}}, Split {{split}}: {{clubs}} Vereine, {{format}}, Wochen {{from}}–{{to}}.{{moved}}{{first}} Die besten {{up}} steigen auf, die letzten {{down}} steigen ab.",
+ "ev.draw.m": "Saison {{season}}, Split {{split}}: {{clubs}} Vereine, {{format}}, Wochen {{from}}–{{to}}.{{moved}}{{first}} {{top}}{{sep}}{{bottom}}.",
  "ev.draw.double": "Hin- und Rückspiel",
  "ev.draw.single": "einfache Runde",
  "ev.draw.promoted": " Aufgestiegen aus Division {{level}}.",

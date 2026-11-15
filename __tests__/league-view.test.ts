@@ -190,7 +190,7 @@ describe("previous split outcome", () => {
         expect(outcome).toMatchObject({ splitId: split.id, season: 1, split: 1, divisionName: own.name, level: own.level, position: 1, size: 10, champion: true, fate: "promoted", movedTo: "Division 2" })
         const games = (own.format === "DOUBLE" ? 2 : 1) * (own.teamIds.length - 1)
         expect(outcome.wins).toBe(games)
-        expect(splitOutcomeText(outcome)).toBe(`Champions of 10 in ${own.name} (${games}W–0L, ${3 * games} pts). Promoted to Division 2.`)
+        expect(splitOutcomeText(outcome)).toBe(`Champions of ${own.name} (1st of 10, ${games}W–0L, ${3 * games} pts). Promoted to Division 2.`)
         // A club that went down.
         const last = own.standings.at(-1)!.teamId
         const down = previousSplitOutcome(save.league, last)!

@@ -6810,7 +6810,7 @@
  "ev.sellOn.t": "Wypłacono udział w dalszej sprzedaży: {{name}}",
  "ev.sellOn.m": "{{club}} sprzedał zawodnika {{name}} za {{fee}}. Twój udział {{pct}}% daje {{amount}}.",
  "ev.draw.t": "Losowanie ligi: {{division}}",
- "ev.draw.m": "Sezon {{season}}, split {{split}}: kluby: {{clubs}}, {{format}}, tygodnie {{from}}–{{to}}.{{moved}}{{first}} Awans: {{up}} najlepszych; spadek: {{down}} ostatnich.",
+ "ev.draw.m": "Sezon {{season}}, split {{split}}: kluby: {{clubs}}, {{format}}, tygodnie {{from}}–{{to}}.{{moved}}{{first}} {{top}}{{sep}}{{bottom}}.",
  "ev.draw.double": "mecz i rewanż",
  "ev.draw.single": "jedna runda każdy z każdym",
  "ev.draw.promoted": " Awans z Dywizji {{level}}.",

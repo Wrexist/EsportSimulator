@@ -6617,7 +6617,7 @@
  "ev.sellOn.t": "Intéressement à la revente versé : {{name}}",
  "ev.sellOn.m": "{{club}} a vendu {{name}} pour {{fee}}. Ton intéressement de {{pct}} % rapporte {{amount}}.",
  "ev.draw.t": "Tirage de la ligue : {{division}}",
- "ev.draw.m": "Saison {{season}}, split {{split}} : {{clubs}} clubs, {{format}}, semaines {{from}} à {{to}}.{{moved}}{{first}} Les {{up}} premiers montent, les {{down}} derniers descendent.",
+ "ev.draw.m": "Saison {{season}}, split {{split}} : {{clubs}} clubs, {{format}}, semaines {{from}} à {{to}}.{{moved}}{{first}} {{top}}{{sep}}{{bottom}}.",
  "ev.draw.double": "matchs aller-retour",
  "ev.draw.single": "poule unique en matchs simples",
  "ev.draw.promoted": " Promu depuis la Division {{level}}.",
