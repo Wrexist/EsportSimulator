@@ -1540,7 +1540,13 @@ export class TournamentManager {
             const availableSlots = capacity - registeredCount
             const slotsToFillNow = Math.ceil(availableSlots * urgency * rng.next())
 
-            const candidates = rng.shuffle(potentialTeams).slice(0, slotsToFillNow)
+            // A qualifier is the way in for clubs without an invite: the best
+            // of them sign up first, so a top club is never left out of the
+            // whole path by a random draw (the shuffle keeps ties and the RNG
+            // stream as they were).
+            const shuffled = rng.shuffle(potentialTeams)
+            if (def.qualifierFor) shuffled.sort((a, b) => (a.worldRanking || 999) - (b.worldRanking || 999))
+            const candidates = shuffled.slice(0, slotsToFillNow)
 
             candidates.forEach(team => {
                 tournament!.teamIds.push(team.id)
