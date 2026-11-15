@@ -815,6 +815,13 @@
     outline-offset: 2px;
   }
 
+  /* One ring colour everywhere (CROSSCUT-05): a component's own outline
+     utilities may change the ring's width or offset, never its colour (links
+     and rows used to get their grey or green text colour as the ring). */
+  :focus-visible {
+    outline-color: var(--gold, #f2b53a) !important;
+  }
+
   /* Heavier focus ring inside dialogs/modals/popovers: the Steam Deck's small
      bright screen washed out a thin ring over the dialog backdrop, making
      gamepad navigation hard to follow. A 1px dark separation ring keeps the
