@@ -721,4 +721,6 @@ export const MATCH = {
     "playbook.paste": "Paste a code",
     "playbook.codeAria": "Playbook share code",
     "playbook.import": "Import",
+    "scoreboard.series": "Map {{n}} of {{of}} · Series {{home}}–{{away}}",
+    "dock.paused": "Paused",
 } as const
