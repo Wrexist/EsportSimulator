@@ -39,7 +39,7 @@ import { recruitmentSalary } from "./recruitment"
 import { ensurePersonality } from "./personality"
 import { aiCanCommit, aiClubBudget } from "./ai/club-budget"
 import { freeAgentsBySkill, renewExpiringContracts, upgradeFromFreeAgency } from "./ai/squad-maintenance"
-import { applyTierBands, refreshWorldRankings as refreshWorldRankingsFn, tiersAreBanded } from "./world-ranking"
+import { applyTierBands, isUnrankedTeamId, refreshWorldRankings as refreshWorldRankingsFn, tiersAreBanded } from "./world-ranking"
 
 /**
  * AI Manager
@@ -511,14 +511,21 @@ export class AIManager {
         this.refreshWorldRankings(save)
     }
 
-    static initializeTeamData(save: GameSave) {
+    /**
+     * `keepRanking` (loading a save): keep the stored world ranking, which the
+     * week tick set, instead of re-ranking on every load (ENGINE-05: a reload
+     * moved clubs that a continuous session would not move until the next
+     * tick). A save with an unranked club is still ranked.
+     */
+    static initializeTeamData(save: GameSave, options: { keepRanking?: boolean } = {}) {
         save.teams.forEach(team => {
             // Initialize Elo (Phase 19)
             if (team.elo === undefined) team.elo = 1000
         })
 
         // Initial Rank Refresh to establish world rankings
-        this.refreshWorldRankings(save)
+        const unranked = save.teams.some(t => !isUnrankedTeamId(t.id) && (t.worldRanking === undefined || t.rankedElo === undefined))
+        if (!options.keepRanking || unranked) this.refreshWorldRankings(save)
 
         // League tiers are world-rank bands (Phase 4.8): a new career (and an
         // older save whose tiers came from Elo thresholds) is banded by the

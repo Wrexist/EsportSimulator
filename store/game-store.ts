@@ -1726,7 +1726,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (s.unlockedTalentIds === undefined) s.unlockedTalentIds = []
           })
 
-          AIManager.initializeTeamData(hydratedSave)
+          AIManager.initializeTeamData(hydratedSave, { keepRanking: true })
           // SQUAD-10: older careers still carry the snapshot's placeholder attributes.
           spreadPlaceholderAttributes(hydratedSave.players)
           reconcileAllRoles(hydratedSave.teams, hydratedSave.players)
