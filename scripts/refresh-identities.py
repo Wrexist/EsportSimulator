@@ -30,6 +30,8 @@ PLAYER_NAMES = {
  "xantares":"Xanteres", "woxic":"woxik", "elige":"Eliige", "naf":"NAFF", "jks":"jKz", "siuhy":"siuhi",
  "torzsi":"torzi", "xertion":"xertian", "brollan":"Brollen", "jimpphat":"Jimphat", "senzu":"Senzuu",
  "techno":"Technu", "blitz":"blitzz", "910":"911", "nertz":"Nertzz", "sunpayus":"SunPayos", "snax":"Snaxx",
+ # MODES-12: the vowel swap made this one read as a slur.
+ "controlez":"kantrolez",
 }
 TEAM_NAMES = {
  "vitality":"Vitalis", "furia":"Furiax", "falcons":"Falcone", "mouz":"Mouze", "spirit":"Spiryt",

@@ -7185,9 +7185,10 @@
     },
     "player_67_tha_kontrolez": {
       "before": [
-        "ph1phr"
+        "ph1phr",
+        "cuntrolez"
       ],
-      "name": "cuntrolez"
+      "name": "kantrolez"
     },
     "player_67_tha_nin3": {
       "before": [
