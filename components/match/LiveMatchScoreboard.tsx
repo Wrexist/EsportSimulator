@@ -106,7 +106,7 @@ function LossBonus({ level, align }: { level?: number; align: "left" | "right" }
         <div className={cn("flex items-center gap-1.5 text-[11px] leading-none text-ink-3", align === "right" && "flex-row-reverse")}
             title={t("scoreboard.lossBonusTitle", { level: level + 1, money: `$${bonus.toLocaleString("en-US")}` })}
             data-loss-level={level}>
-            <span className="uppercase tracking-[0.06em]">{t("scoreboard.lossBonus")}</span>
+            <span className="whitespace-nowrap uppercase tracking-[0.06em]">{t("scoreboard.lossBonus")}</span>
             <span className={cn("flex gap-0.5", align === "right" && "flex-row-reverse")} aria-hidden="true">
                 {Array.from({ length: 5 }, (_, i) => <span key={i} className={cn("h-2 w-1 rounded-[1px]", i <= level ? "bg-ink-2" : "bg-hover")} />)}
             </span>
@@ -125,7 +125,7 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
     const slots = Math.max(24, rounds.length)
     const byRound = new Map(rounds.map(r => [r.round, r]))
     return (
-        <div className="flex items-center gap-[3px]" aria-label={t("scoreboard.history")}>
+        <div className="flex items-center gap-[3px] max-[1279px]:gap-[2px]" aria-label={t("scoreboard.history")}>
             {Array.from({ length: slots }, (_, i) => {
                 const n = i + 1
                 const r = byRound.get(n)
@@ -134,12 +134,12 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
                 const winId = r ? WIN_TYPE_ID[r.winType ?? ""] : undefined
                 const how = r ? (winId ? t(`live.win.${winId}`) : t("scoreboard.won")) : ""
                 const cell = (mine: boolean) => (
-                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
+                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none max-[1279px]:h-3 max-[1279px]:w-3 max-[1279px]:text-[10px]", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
                 )
                 return (
                     <div
                         key={n}
-                        className={cn("group relative flex flex-col gap-[3px]", (n === 13 || (n > 24 && (n - 25) % 6 === 0)) && "ml-2")}
+                        className={cn("group relative flex flex-col gap-[3px] max-[1279px]:gap-[2px]", (n === 13 || (n > 24 && (n - 25) % 6 === 0)) && "ml-2")}
                         aria-label={r ? `${t("live.roundN", { n })}: ${r.winner === "home" ? homeName : awayName} (${r.side.toUpperCase()}), ${how}` : t("live.roundN", { n })}
                         data-round-dot={r ? r.winner : undefined}
                     >
@@ -233,13 +233,13 @@ function LiveMatchScoreboardImpl({
     const phase = phaseId ? t(`scoreboard.phase.${phaseId}`) : null
 
     const score = (value: number, leading: boolean) => (
-        <div className="relative flex h-[52px] w-[68px] items-center justify-center overflow-hidden">
+        <div className="relative flex h-[52px] w-[68px] items-center justify-center overflow-hidden max-[1279px]:w-14">
             <motion.span
                 key={value}
                 initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className={cn("font-display text-[56px] font-bold leading-none tabular-nums", leading ? "text-ink-1" : "text-ink-2")}
+                className={cn("font-display text-[56px] font-bold leading-none tabular-nums max-[1279px]:text-[46px]", leading ? "text-ink-1" : "text-ink-2")}
             >
                 {value}
             </motion.span>
@@ -255,9 +255,9 @@ function LiveMatchScoreboardImpl({
             {/* Screen readers hear the score change, not every second of the timer. */}
             <span className="sr-only" aria-live="polite">{`${homeTeam.name} ${homeScore}, ${awayTeam.name} ${awayScore}`}</span>
             {/* HOME */}
-            <div className="flex min-w-0 items-center gap-4 py-2.5 pl-0 pr-6">
+            <div className="flex min-w-0 items-center gap-4 py-2.5 pl-0 pr-6 max-[1279px]:gap-2.5 max-[1279px]:pr-3">
                 <span className={cn("h-full w-1 self-stretch rounded-l-lg", homeIsCT ? "bg-side-ct" : "bg-side-t")} aria-hidden="true" />
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-line bg-raised max-[1279px]:h-10 max-[1279px]:w-10">
                     <TeamLogoDisplay team={homeTeam} size={36} />
                 </div>
                 <div className="min-w-0 space-y-1.5">
@@ -274,7 +274,7 @@ function LiveMatchScoreboardImpl({
             </div>
 
             {/* CENTRE */}
-            <div className="flex min-w-[400px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-4 py-2 min-[1440px]:min-w-[460px] min-[1440px]:px-6">
+            <div className="flex min-w-[400px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-4 py-2 max-[1279px]:min-w-0 max-[1279px]:px-3 min-[1440px]:min-w-[460px] min-[1440px]:px-6">
                 <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                     {/* A series says which map this is and the map score, in words (MATCHDAY-19). */}
                     {toWin > 1 && (
@@ -296,9 +296,9 @@ function LiveMatchScoreboardImpl({
             </div>
 
             {/* AWAY */}
-            <div className="flex min-w-0 flex-row-reverse items-center gap-4 py-2.5 pl-6 pr-0 text-right">
+            <div className="flex min-w-0 flex-row-reverse items-center gap-4 py-2.5 pl-6 pr-0 text-right max-[1279px]:gap-2.5 max-[1279px]:pl-3">
                 <span className={cn("h-full w-1 self-stretch rounded-r-lg", homeIsCT ? "bg-side-t" : "bg-side-ct")} aria-hidden="true" />
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-line bg-raised max-[1279px]:h-10 max-[1279px]:w-10">
                     <TeamLogoDisplay team={awayTeam} size={36} />
                 </div>
                 <div className="min-w-0 space-y-1.5">

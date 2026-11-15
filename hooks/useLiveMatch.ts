@@ -29,7 +29,7 @@ import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRound
 import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
 import { keyRoundReason } from "@/lib/live-key-rounds"
 import { buildRoundTimeline, summarizeRound, type RoundSummary, type RoundTimeline } from "@/lib/live-match-roster"
-import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime } from "@/lib/live-clock"
+import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime, startPlaybackLoop } from "@/lib/live-clock"
 import type { LegacyTransition } from "@/engine/match/legacy-series"
 import { MAP_NAMES } from "@/data/map-pool"
 import { t, tn } from "@/lib/i18n"
@@ -890,8 +890,14 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 const transition = last.transition
                 const isHomeWinner = last.winner === "HOME"
 
-                setRoundHomeIsCT(roundState.homeStartsCT)
-                setShownLossLevels({ home: roundState.homeLossLevel, away: roundState.awayLossLevel })
+                // A finished map stays on screen through the map break (MATCHDAY-18):
+                // its sides, loss bonus and end-of-round roster, not the next map's
+                // pistol-round reset, until the next map's first round starts.
+                const mapBreak = transition === "MAP_END"
+                if (!mapBreak) {
+                    setRoundHomeIsCT(roundState.homeStartsCT)
+                    setShownLossLevels({ home: roundState.homeLossLevel, away: roundState.awayLossLevel })
+                }
                 setGameState(prev => ({
                     ...prev,
                     homeScore: last.homeRounds,
@@ -908,8 +914,10 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     hasKit: econ[player.id]?.hasKit ?? false,
                     isDead: false
                 }))
-                setHomeRoster(resetRoster(roundState.homeEconomy, roundState.homeStartsCT))
-                setAwayRoster(resetRoster(roundState.awayEconomy, !roundState.homeStartsCT))
+                if (!mapBreak) {
+                    setHomeRoster(resetRoster(roundState.homeEconomy, roundState.homeStartsCT))
+                    setAwayRoster(resetRoster(roundState.awayEconomy, !roundState.homeStartsCT))
+                }
 
                 const winnerName = isHomeWinner ? runtime.homeTeam.name : runtime.awayTeam.name
                 const lastMap = runtime.result.maps[last.mapIndex]
@@ -1045,29 +1053,20 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     useEffect(() => { liveClock.configure(speed, pacingMode) }, [liveClock, speed, pacingMode])
     useEffect(() => { liveClock.setRunning(running) }, [liveClock, running])
 
+    // A new round restarts the loop even when `running` stayed true across the
+    // break before it (the loop also keeps checking while nothing is due).
+    const shownRoundKey = roundView?.key ?? null
     useEffect(() => {
         if (!running) return
-        let timer = 0
         // Without a round view (a restore that could not rebuild it) the events alone.
         const fallback = roundViewRef.current ? null : [...new Set(currentRoundEvents.current.map(e => e.time))].sort((a, b) => a - b)
-        const schedule = () => {
-            const wake = nextWakeAfter(roundViewRef.current?.wakes ?? fallback ?? undefined, uiTimeRef.current)
-            const now = performance.now()
-            const due = liveClock.wallAt(wake, now)
-            if (!Number.isFinite(due)) return
-            // A long timer re-checks now and then (the clock may have been re-anchored).
-            timer = window.setTimeout(() => fire(wake, due), Math.min(MAX_WAKE_WAIT_MS, Math.max(0, due - now + 1)))
-        }
-        const fire = (wake: number, due: number) => {
-            const now = performance.now()
-            // Timer jitter: a wake that is due is reached.
-            const t = now >= due - 2 ? Math.max(wake, liveClock.now(now)) : liveClock.now(now)
-            if (t >= wake) advanceRef.current(t)
-            schedule()
-        }
-        schedule()
-        return () => window.clearTimeout(timer)
-    }, [running, liveClock, speed, pacingMode])
+        return startPlaybackLoop({
+            clock: liveClock,
+            wakes: () => roundViewRef.current?.wakes ?? fallback ?? undefined,
+            shown: () => uiTimeRef.current,
+            advance: t => advanceRef.current(t),
+        }, { maxWaitMs: MAX_WAKE_WAIT_MS })
+    }, [running, liveClock, speed, pacingMode, shownRoundKey])
 
     // --- AUTO ACTIONS ---
     // Auto/skip makes no manager call: the managed team buys by its economy
@@ -1130,6 +1129,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         if (latestGameStateRef.current.status !== "IN_PROGRESS") return
         // Without auto tactics there is no countdown to hold: the card waits for a call.
         if (waitingRef.current && !roundInFlightRef.current) { if (autoRef.current) setDecisionHold(hold => !hold); return }
+        // A break (half time, between maps): no round to play or pause; the next one starts on its own.
+        if (!roundInFlightRef.current) return
         setIsPlaying(playing => !playing)
     }, [])
 
