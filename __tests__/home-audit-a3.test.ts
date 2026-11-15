@@ -11,6 +11,7 @@ import { SeededRNG } from "@/engine/rng"
 import { generateCareerDecision } from "@/engine/career-decisions"
 import type { GameSave, TeamSaveData } from "@/engine/save-types"
 import { nextStop, type StopSource } from "@/lib/advance-stops"
+import { buildWeekReport, type ReportStateSource } from "@/lib/week-report"
 import { makeWorld, playLeagueWeek } from "./league-fixtures"
 
 describe("HOME-01: league draw links open the league table", () => {
@@ -116,5 +117,37 @@ describe("HOME-03: the Continue stop names a decision like the inbox does", () =
         const stop = nextStop(src, new Set())
         expect(stop?.kind).toBe("event")
         expect(stop?.reason).toBe("Decision waiting: 3-match win streak")
+    })
+})
+
+describe("HOME-14 / MODES-23: an unchanged storyline beat leads one weekly report, not two", () => {
+    const arc = (log: Array<{ week: number; text: string }>) => ({
+        id: "arc1", kind: "CONTRACT_STANDOFF", teamId: "t", managed: true, state: "ACTIVE", playerIds: ["p"], clubIds: [],
+        startedWeek: 5, updatedWeek: 5, beat: 1, facts: {}, log,
+    })
+    function report(week: number, storylines: unknown[], history: unknown[] = []) {
+        const state = {
+            currentWeek: week + 1, teams: [{ id: "t", name: "Ligion", rosterIds: [] }], players: [], contracts: [],
+            completedMatches: [{ id: `m${week}`, week, homeTeamId: "t", awayTeamId: "o", result: { winnerId: "t", homeScore: 1, awayScore: 0, maps: [{ homeScore: 13, awayScore: 4 }] } }],
+            storylines, weekReports: { history },
+        } as unknown as ReportStateSource
+        return buildWeekReport({ week, teamId: "t", tracker: null, preAdvance: null, tickChanges: [], final: null, state })
+    }
+
+    it("leads week 4, then week 5 leads with the result", () => {
+        const beat = "Bluody's agent goes public"
+        const stories = [arc([{ week: 5, text: beat }])]
+        const w4 = report(4, stories)
+        expect(w4.story?.text).toBe(beat)
+        const w5 = report(5, stories, [w4])
+        expect(w5.story).toBeUndefined()
+        expect(w5.headline).not.toContain("agent")
+        expect(w5.headline).toContain("13–4")
+    })
+
+    it("a new beat of the same arc still leads", () => {
+        const stories = [arc([{ week: 5, text: "goes public" }, { week: 6, text: "talks open" }])]
+        const w4 = report(4, [arc([{ week: 5, text: "goes public" }])])
+        expect(report(5, stories, [w4]).story?.text).toBe("talks open")
     })
 })

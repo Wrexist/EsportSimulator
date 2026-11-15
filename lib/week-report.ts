@@ -142,6 +142,8 @@ export interface ReportStateSource {
     eventsLog?: Array<{ id: string; data?: unknown }>
     /** Phase 5.3: storyline arcs (the headline leads with the week's most important beat). */
     storylines?: StoryArc[]
+    /** Earlier reports: the beat that led the previous one does not lead again (HOME-14). */
+    weekReports?: { history?: Array<Pick<WeekReport, "week" | "teamId" | "story">> } | null
 }
 
 export interface BuildReportInput {
@@ -262,7 +264,8 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
 
     // 7. Phase 5.3: the most important storyline beat of the played week or
     // the tick that closed it.
-    const beat = leadingBeat(state.storylines, teamId, week, state.currentWeek)
+    const previous = state.weekReports?.history?.find(r => r.teamId === teamId && r.week === week - 1)
+    const beat = leadingBeat(state.storylines, teamId, week, state.currentWeek, previous?.story?.text)
     const story = beat ? { kind: beat.arc.kind, label: STORY_KIND_LABEL[beat.arc.kind], text: beat.text, ...(beat.ref ? { ref: beat.ref } : {}) } : undefined
 
     const report: WeekReport = {
