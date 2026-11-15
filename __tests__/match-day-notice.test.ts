@@ -17,10 +17,15 @@ describe("matchDayPhrase", () => {
         expect(ui.getUTCDate()).toBe(4)
     })
 
-    test("a match on the first day of the week, or weekly mode, is 'today'", () => {
+    test("a match on the first day of the week is 'today'", () => {
         expect(matchDayPhrase({ timeMode: "HYBRID_DAILY", gameStartDate: start }, { week: 10, day: 0 })).toBe("today")
-        expect(matchDayPhrase({ timeMode: "WEEKLY", gameStartDate: start }, { week: 10, day: 5 })).toBe("today")
+        expect(matchDayPhrase({ timeMode: "WEEKLY", gameStartDate: start }, { week: 10, day: 0 })).toBe("today")
         expect(matchDayPhrase({ timeMode: "HYBRID_DAILY", gameStartDate: start }, { week: 10 })).toBe("today")
+    })
+
+    test("HOME-23: weekly mode names the match day too, as Home and the Calendar do", () => {
+        expect(matchDayPhrase({ timeMode: "WEEKLY", gameStartDate: start }, { week: 10, day: 5 })).toBe("on Sun, Jan 4")
+        expect(matchDayPhrase({ timeMode: "WEEKLY", gameStartDate: start }, { week: 10 })).toBe("this week")
     })
 
     test("no start date: 'this week' instead of a wrong 'today'", () => {
