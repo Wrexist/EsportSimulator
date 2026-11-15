@@ -15,6 +15,7 @@ import { buildWeekReport, type ReportStateSource } from "@/lib/week-report"
 import { eventToItem, digestLine, type InboxContext } from "@/components/inbox/inbox-model"
 import { makeWorld, playLeagueWeek } from "./league-fixtures"
 import { formatGameCalendarRange, gameCalendarDate } from "@/lib/game-calendar"
+import { screenSearchFilter } from "@/lib/search-filter"
 
 describe("HOME-01: league draw links open the league table", () => {
     it("routes league division ids to /league", () => {
@@ -180,5 +181,24 @@ describe("HOME-18: weekly mode shows the whole week in the top bar", () => {
         const label = formatGameCalendarRange(start, end, { day: "numeric", month: "short", year: "numeric" })
         expect(label).toMatch(/Jan 31/)
         expect(label).toMatch(/Feb 6, 2027/)
+    })
+})
+
+describe("HOME-10: screen search matches word prefixes", () => {
+    it("does not match a club name against unrelated screens", () => {
+        expect(screenSearchFilter("Roster · Squad", "Diep", ["lineup", "players"])).toBe(0)
+        expect(screenSearchFilter("League · Competition", "Diep")).toBe(0)
+    })
+    it("finds Finances by a prefix and ranks the label over keywords", () => {
+        expect(screenSearchFilter("Finances · Club", "fina")).toBe(1)
+        expect(screenSearchFilter("Week plan · Week", "fina", ["schedule"])).toBe(0)
+        expect(screenSearchFilter("Inbox · Office", "news", ["mail", "messages", "news"])).toBe(0.5)
+    })
+    it("finds the weekly report by 'week report'", () => {
+        expect(screenSearchFilter("Week 13 report · Last week", "week report", ["weekly", "report"])).toBe(1)
+        expect(screenSearchFilter("Week plan · Week", "week report")).toBe(0)
+    })
+    it("shows everything for an empty query", () => {
+        expect(screenSearchFilter("Roster · Squad", "  ")).toBe(1)
     })
 })
