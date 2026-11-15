@@ -55,6 +55,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { CLAUSE_TUNING, sanitizeClauseFields, settleSellOn, type NewContractTerms } from "@/engine/contract-clauses"
 import { releaseSettlement, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN, squadFullMessage } from "@/engine/roster-rules"
 import { newsText } from "@/lib/news-ref"
+import { proRunsNoClub, proStaffRunRefusal } from "@/store/utils/pro-guard"
 const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
 const RENEWAL_RUNWAY_WEEKS = 26
@@ -133,6 +134,9 @@ function releaseToFreeAgency(state: StoreState, team: TeamSaveData, playerId: st
 
 export const createTransferContractSlice: SliceCreator<TransferContractActions> = (set, get) => ({
     transferPlayer: (playerId, fromTeamId, toTeamId, fee, newContract) => {
+        const before = get()
+        if (proRunsNoClub(before) && (toTeamId === before.playerTeamId || fromTeamId === before.playerTeamId
+            || !!before.teams.find(t => t.id === before.playerTeamId)?.rosterIds.includes(playerId))) return proStaffRunRefusal()
         let result: { success: boolean; message?: string } = { success: false, message: "Unknown error" }
         set((state) => {
             // === Release-to-Free-Agency path ===
@@ -432,6 +436,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
     },
 
     listPlayerForTransfer: (playerId, price) => {
+        if (proRunsNoClub(get())) return
         let listed = false
         set((state) => {
             const player = state.players.find(p => p.id === playerId)
@@ -446,6 +451,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
     },
 
     unlistPlayerForTransfer: (playerId) => {
+        if (proRunsNoClub(get())) return
         set((state) => {
             const player = state.players.find(p => p.id === playerId)
             if (!player) return
@@ -455,6 +461,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
     },
 
     acceptTransferOffer: (eventId, options) => {
+        if (proRunsNoClub(get())) return
         const currentState = get()
         const event = currentState.eventsLog.find(e => e.id === eventId)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -626,6 +633,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
     },
 
     releasePlayer: (playerId) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result: { success: boolean; message: string } = { success: false, message: "Player not found." }
         set((state) => {
             const team = state.teams.find(t => t.id === state.playerTeamId)
@@ -702,6 +710,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
     },
 
     promotePlayer: (playerId) => {
+        if (proRunsNoClub(get())) return
         set((state) => {
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return

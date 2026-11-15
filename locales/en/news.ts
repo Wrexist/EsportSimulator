@@ -307,6 +307,7 @@ export const NEWS = {
     "lv.valNumber": "{{label}} must be a valid number",
     "lv.valRange": "{{label}} must be between {{min}} and {{max}}",
     "lv.legendFunds": "Can't afford this legend: {{wage}} a week would leave cash for {{weeks}} (at least {{need}} needed).",
+    "lv.proStaffRun": "In a pro career the staff run the club.",
 
     // Draft Cup welcome (engine/draft-cup-setup.ts)
     "dcw.t": "{{club}} are in the Draft Cup",
@@ -349,12 +350,13 @@ export const NEWS = {
     "pcr.offer.m": "{{club}} (world #{{rank}}) offer a two-year deal and a starting place. Their weakest starter is below your level. Join them, or stay at {{current}}.",
     "pcr.offer.join": "Join {{club}}",
     "pcr.offer.stay": "Stay at {{club}}",
-    "pcr.offer.follows": "Moves you to the new club next match",
+    "pcr.offer.follows": "Moves you to the new club now",
     "pcr.retireAsk.t": "{{name}} at {{age}}: one more season?",
     "pcr.retireAsk.m": "The season is over. Retire now and take the manager's office at {{club}}, or play another season. At {{at}} the decision is made for you.",
     "pcr.retireAsk.play": "Play another season",
     "pcr.retireAsk.retire": "Retire and manage the club",
     "pcr.retireAsk.follows": "Ends the pro career; the save continues as a manager career",
+    "pcr.offer.followsTo": "Moves you to {{club}} now",
 
     // The board's warnings, reviews and dismissal (engine/board-expectations.ts)
     "bd.reasons": " ({{list}})",

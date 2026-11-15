@@ -208,6 +208,8 @@ export const SCREENS = {
     "shell.dcBlocked": "Not part of the Draft Cup",
     "shell.dcBlockedBody": "This run is about the five you drafted. Train them, set the playbook and prepare for the next opponent.",
     "shell.backHome": "Back to Home",
+    "shell.proBlocked": "The staff run this",
+    "shell.proBlockedBody": "In a pro career you play for the club; the staff run it. Transfers, money, facilities and the board are theirs. Your part is training, form and earning your place.",
     // Sandbox editor (app/settings/sandbox/page.tsx)
     "sb.title": "Sandbox editor",
     "sb.eyebrow": "Settings · Sandbox",

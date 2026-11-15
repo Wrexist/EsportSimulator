@@ -8,7 +8,7 @@
 import type { GameStoreState } from "@/store/game-store"
 import { countInbox, type InboxContext, type InboxCounts } from "./inbox-model"
 
-type ContextSlice = Pick<GameStoreState, "currentWeek" | "playerTeamId" | "teams" | "players">
+type ContextSlice = Pick<GameStoreState, "currentWeek" | "playerTeamId" | "teams" | "players"> & Partial<Pick<GameStoreState, "proCareer">>
 
 const nameMaps = new WeakMap<object, Map<string, string>>()
 function nameMap(players: GameStoreState["players"]): Map<string, string> {
@@ -25,7 +25,8 @@ let lastCtx: InboxContext | null = null
 
 /** Stable InboxContext for the current week / club / roster. */
 export function selectInboxContext(state: ContextSlice): InboxContext {
-    const key = [state.currentWeek, state.playerTeamId, state.teams, state.players]
+    const proPlayerId = state.proCareer && state.proCareer.retiredWeek == null ? state.proCareer.playerId : undefined
+    const key = [state.currentWeek, state.playerTeamId, state.teams, state.players, proPlayerId]
     if (lastCtx && key.every((v, i) => v === lastCtxKey[i])) return lastCtx
     const team = state.playerTeamId ? state.teams.find(t => t.id === state.playerTeamId) : undefined
     const names = nameMap(state.players)
@@ -35,6 +36,7 @@ export function selectInboxContext(state: ContextSlice): InboxContext {
         playerTeamId: state.playerTeamId,
         rosterIds: new Set(team?.rosterIds ?? []),
         playerName: (id: string) => names.get(id),
+        ...(proPlayerId ? { proPlayerId } : {}),
     }
     return lastCtx
 }

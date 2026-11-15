@@ -76,6 +76,7 @@ import {
 import { formatCurrency } from "@/lib/utils-extended"
 import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
 import { newsText } from "@/lib/news-ref"
+import { proRunsNoClub, proStaffRunRefusal } from "@/store/utils/pro-guard"
 const MAX_ACADEMY_LEVEL = 5
 const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const ACADEMY_RNG_SALT = 0xACADE
@@ -112,6 +113,7 @@ export interface AcademyActions {
 
 export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     buildAcademy: (teamId) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result = { success: false, message: "" }
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
@@ -165,6 +167,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     upgradeAcademy: (teamId) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result = { success: false, message: "" }
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
@@ -222,6 +225,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     scoutProspect: (tier) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result: { success: boolean; player?: PlayerSaveData; message: string } =
             { success: false, message: "" }
         set((state) => {
@@ -302,6 +306,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     enrollProspect: (playerId) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result = { success: false, message: "" }
         set((state) => {
             const team = state.teams.find(t => t.id === state.playerTeamId)
@@ -371,6 +376,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     releaseProspect: (prospectId, releaseCost = 1000) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result = { success: false, message: "" }
         set((state) => {
             const releaseCostValidation = parseBoundedInt(releaseCost, "Release fee", 0, MAX_TRANSFER_FEE)
@@ -438,6 +444,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     promoteProspect: (prospectId, contract) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result = { success: false, message: "" }
         set((state) => {
             const team = state.teams.find(t => t.id === state.playerTeamId)
@@ -539,6 +546,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     scheduleDevMatch: () => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         let result = { success: false, message: "" }
         set((state) => {
             const team = state.teams.find(t => t.id === state.playerTeamId)
@@ -865,6 +873,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
     },
 
     enrollPendingProspect: (playerId) => {
+        if (proRunsNoClub(get())) return proStaffRunRefusal()
         // Delegate to enrollProspect (sibling action in the same slice).
         const result = get().enrollProspect(playerId)
         if (result.success) {

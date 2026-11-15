@@ -9,7 +9,7 @@ import { menuGroupsFor, navLabel, settingsItem } from "@/lib/navigation"
 import { t } from "@/lib/i18n"
 import { useLocale } from "@/lib/use-locale"
 
-export function NavigationSearch({ compact = false, disabled, pro = false }: { compact?: boolean; disabled: boolean; pro?: boolean }) {
+export function NavigationSearch({ compact = false, disabled, pro = false, draftCup = false, betweenClubs = false }: { compact?: boolean; disabled: boolean; pro?: boolean; draftCup?: boolean; betweenClubs?: boolean }) {
     useLocale() // re-render on a language change
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
@@ -53,7 +53,7 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
                     <CommandInput aria-label={t("search.inputLabel")} placeholder={t("search.placeholder")} className="h-14 focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
                     <CommandList className="max-h-[min(55vh,420px)] p-2" aria-busy={isPending}>
                         <CommandEmpty>{t("search.empty")}</CommandEmpty>
-                        {[...menuGroupsFor(pro), { key: "search.preferences", label: "Preferences", items: [settingsItem] }].map(group =>
+                        {[...menuGroupsFor(pro, draftCup, betweenClubs), { key: "search.preferences", label: "Preferences", items: [settingsItem] }].map(group =>
                             <CommandGroup key={group.key} heading={navLabel(group)}>
                                 {group.items.map(item => <CommandItem
                                     key={item.href}

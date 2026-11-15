@@ -129,6 +129,8 @@ export default function Page() {
   const boardState = useGameStore(s => s.boardState)
   const league = useGameStore(s => s.league)
   const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
+  // MODES-01/07: in a pro career the staff run the club: no board or finance cards.
+  const proActive = useGameStore(s => !!s.proCareer && s.proCareer.retiredWeek == null)
 
   // The season recap and the awards ceremony are the season review moment
   // now (components/moments/SeasonReviewMomentView); past reviews replay
@@ -498,7 +500,7 @@ export default function Page() {
             )}
 
             {/* Board objectives; the chip opens Club → Board */}
-            <Panel eyebrow={t("home.board")} title={t(`board.expectation.${expectationTier}`)} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
+            {!proActive && <Panel eyebrow={t("home.board")} title={t(`board.expectation.${expectationTier}`)} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
               <dl className="divide-y divide-line text-sm">
                 {objectives.length > 0 ? objectives.map(o => (
                   <div key={o.id} className="flex items-center justify-between gap-3 py-2">
@@ -531,14 +533,14 @@ export default function Page() {
                   {t("home.feeCap", { pct: Math.round(sanctioned.fraction * 100), max: formatCurrency(sanctioned.maxFee) })}
                 </p>
               )}
-            </Panel>
+            </Panel>}
             </>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Finances strip */}
-            {!draftCup && <Panel
+            {!draftCup && !proActive && <Panel
               title={t("home.finances")}
               actions={<><span className={cn("text-xs font-semibold", financeState.className)}>{t(`home.finance.${FINANCE_STATE[finance?.state ?? "STABLE"] ? finance?.state ?? "STABLE" : "STABLE"}`)}</span><PanelLink href="/finances">{t("home.ledger")}</PanelLink></>}
               padded={false}

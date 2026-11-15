@@ -67,6 +67,8 @@ export function AdvanceControl() {
     const hasCareer = !!saveId && !!playerTeamId
     const running = !!continueRun
     const locked = isLoading || !!gameOverReason || runOver || !hasCareer || running
+    // MODES-14/28: say why the control is locked when the reason is not on screen.
+    const lockedTitle = runOver ? t("advance.lockedRunOver") : gameOverReason && hasCareer ? t("advance.lockedNoClub") : undefined
     const daily = timeMode === "HYBRID_DAILY"
 
     // The stop notice is transient: after a reload the one-click "Sim match"
@@ -159,7 +161,7 @@ export function AdvanceControl() {
                     onClick={step(continueToNextDecision)}
                     disabled={locked}
                     className="h-10 px-4 @min-[110rem]/topbar:px-5"
-                    title={t("advance.continueTitle")}
+                    title={lockedTitle ?? t("advance.continueTitle")}
                 >
                     <span className="flex items-center gap-2">
                         <span className="tracking-wide uppercase">{t("advance.continue")}</span>
@@ -192,17 +194,19 @@ function SecondaryMenu({ actions, disabled }: { actions: { id: string; label: st
     }, [open])
     return (
         <div ref={ref} className="relative @min-[110rem]/topbar:hidden">
+            {/* MODES-24: a visible label, not a bare chevron. */}
             <Button
                 variant="outline"
                 onClick={() => setOpen(o => !o)}
                 disabled={disabled}
-                className="h-10 w-10 px-0"
+                className="h-10 gap-1 px-2.5 text-xs font-semibold"
                 aria-label={t("advance.moreOptions")}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 title={actions.map(a => a.label).join(" / ")}
             >
-                <ChevronDown size={15} />
+                {t("advance.more")}
+                <ChevronDown size={14} />
             </Button>
             {open && (
                 <div role="menu" className="absolute right-0 top-[calc(100%+6px)] z-50 w-56 overflow-hidden rounded-lg border border-line-strong bg-panel py-1 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]">
