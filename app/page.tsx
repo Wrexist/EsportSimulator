@@ -15,7 +15,7 @@ import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { StorylinesPanel } from "@/components/storylines/StorylinesPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { BoardConfidenceChip } from "@/components/career/BoardConfidence"
-import { graceWeeksLeft } from "@/components/career/board-view"
+import { graceWeeksLeft, liveObjectives } from "@/components/career/board-view"
 import { LeagueSnapshot } from "@/components/league/LeagueSnapshot"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { Button } from "@/components/ui/button"
@@ -128,7 +128,8 @@ export default function Page() {
 
   const boardState = useGameStore(s => s.boardState)
   const league = useGameStore(s => s.league)
-  const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
+  const managerDetails = useGameStore(s => s.managerDetails)
+  const tenureStartWeek = managerDetails?.tenureStartWeek
 
   // The season recap and the awards ceremony are the season review moment
   // now (components/moments/SeasonReviewMomentView); past reviews replay
@@ -370,8 +371,9 @@ export default function Page() {
   const trophiesThisSeason = (playerTeam?.trophies ?? []).filter(t => t.week >= seasonStartWeek).length
   const sanctioned = boardState && playerTeam ? getBoardSanctionedFee(boardState, playerTeam.budget) : null
   const rankOnTrack = worldRank > 0 && worldRank <= rankTarget
-  // Phase 4.4: the board's real objectives (league finish, ranking, budget).
-  const objectives = boardState?.objectives ?? []
+  // Phase 4.4: the board's real objectives (league finish, ranking, budget),
+  // read now so they match the league card and the header (HOME-02).
+  const objectives = liveObjectives(boardState?.objectives, { teams, playerTeamId: playerTeamId ?? "", currentWeek, managerDetails, league, completedMatches })
   const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
     : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : o.id === "trophies" ? `${o.current}` : ordinalLabel(o.current)
   const objectiveTarget = (o: (typeof objectives)[number]) =>
@@ -505,7 +507,7 @@ export default function Page() {
                     <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT.has(o.id) ? t(`home.objective.${o.id}`) : o.label}</dt>
                     <dd className="shrink-0 text-xs tabular-nums">
                       <span className="text-ink-3">{t("home.target", { value: objectiveTarget(o) })}</span>
-                      <span className={cn("ml-2", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>
+                      <span className={cn("ml-2", o.current === undefined ? "text-ink-3" : o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>
                     </dd>
                   </div>
                 )) : (
