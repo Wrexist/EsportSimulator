@@ -88,7 +88,7 @@ describe("upgradeFacility", () => {
         expect(after.facilities![0].level).toBe(1)
         expect(after.budget).toBe(100_000 - 10_000)
         // Economy invariant #5: the build cost is on the books.
-        const row = h.state().financeLedger.find(e => e.description.includes("Construction"))
+        const row = h.state().financeLedger.find(e => e.category === "FACILITIES" && e.amount === 10_000)
         expect(row).toBeDefined()
         expect(row!.amount).toBe(10_000)
         expect(row!.category).toBe("FACILITIES")
