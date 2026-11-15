@@ -631,7 +631,7 @@ export default function MatchResultPage() {
                                 <ul className="space-y-1.5 text-sm text-ink-2">
                                     {insights.keyRounds.map(k => (
                                         <li key={`${k.map}-${k.round}-${k.label}`} className="flex gap-2">
-                                            <span className={cn("w-9 shrink-0 font-semibold", k.won ? "text-positive" : "text-negative")}>{k.won ? t("result.won") : t("result.lost")}</span>
+                                            <span className={cn("min-w-9 shrink-0 whitespace-nowrap font-semibold", k.won ? "text-positive" : "text-negative")}>{k.won ? t("result.won") : t("result.lost")}</span>
                                             <span><span className="tabular-nums text-ink-3">{MAP_NAMES[k.map] ?? k.map} R{k.round}</span> · {k.label}</span>
                                         </li>
                                     ))}
