@@ -114,7 +114,7 @@ export function ProspectsTable({ rows, team, academyLevel, currentWeek, academyR
                                 <td className="px-3">
                                     <div className="w-[170px]">
                                         <Meter value={prospect.developmentProgress} label={t("ac.devProgress")} tone={prospect.readyForPromotion ? "positive" : "neutral"} showValue={false} trackClassName="w-full" />
-                                        <p title={readiness(prospect, player)} className={cn("mt-1 truncate text-xs", prospect.readyForPromotion ? "font-semibold text-positive" : "text-ink-3")}>{readiness(prospect, player)}</p>
+                                        <p title={readiness(prospect, player)} className={cn("mt-1 line-clamp-2 text-xs", prospect.readyForPromotion ? "font-semibold text-positive" : "text-ink-3")}>{readiness(prospect, player)}</p>
                                         {tired && <p className="text-xs text-caution">{t("ac.tired")}</p>}
                                     </div>
                                 </td>
@@ -130,8 +130,9 @@ export function ProspectsTable({ rows, team, academyLevel, currentWeek, academyR
                                 </td>
                                 <td className="px-3">
                                     <Select value={lineupRole ?? "BENCH"} onValueChange={val => onSetLineup(prospect.id, val === "BENCH" ? null : val)}>
-                                        <SelectTrigger className="h-9 w-[110px] text-sm" aria-label={t("ac.lineupAria", { name: player.nickname })}>
-                                            <SelectValue>{lineupRole ?? t("ac.bench")}</SelectValue>
+                                        <SelectTrigger className="h-9 w-[150px] text-sm" aria-label={t("ac.lineupAria", { name: player.nickname })}>
+                                            {/* SQUAD-30: the bench's XP share is visible without opening the list. */}
+                                            <SelectValue>{lineupRole ?? t("ac.benchXp", { pct: Math.round(BENCH_XP_SHARE * 100) })}</SelectValue>
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="BENCH">{t("ac.benchXp", { pct: Math.round(BENCH_XP_SHARE * 100) })}</SelectItem>

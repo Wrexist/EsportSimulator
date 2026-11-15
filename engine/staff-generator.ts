@@ -7,6 +7,40 @@ import { STAFF_SALARY_RANGES } from "../lib/constants"
 /** Weeks a staff member released by a club stays on the market through refreshes. */
 export const RELEASED_STAFF_MARKET_WEEKS = 8
 
+/**
+ * Level range and wage band per rarity: the table generated staff are rolled
+ * from (generateFakeStaff), also applied to the legacy pool (SQUAD-08).
+ * Common's "Medium" tier is not in STAFF_SALARY_RANGES and falls back to
+ * Standard, as it always has.
+ */
+const RARITY_TERMS: Record<NonNullable<StaffSaveData["rarity"]>, { salaryTier: string; levelMin: number; levelMax: number }> = {
+    Legendary: { salaryTier: "Legendary", levelMin: 5, levelMax: 5 },
+    Epic: { salaryTier: "Epic", levelMin: 4, levelMax: 5 },
+    Rare: { salaryTier: "High", levelMin: 3, levelMax: 4 },
+    Common: { salaryTier: "Medium", levelMin: 1, levelMax: 3 },
+}
+
+const salaryRangeOf = (salaryTier: string) =>
+    STAFF_SALARY_RANGES[salaryTier as keyof typeof STAFF_SALARY_RANGES] ?? STAFF_SALARY_RANGES.Standard
+
+/**
+ * A legacy-pool entry's level and wage, held inside its rarity's band
+ * (SQUAD-08: "Legendary" entries were level 4 at $1,000, below Common
+ * generated staff). No RNG, so the market's random sequence is unchanged.
+ */
+export function legacyStaffTerms(real: Partial<StaffSaveData>): { level: number; salaryPerWeek: number; salaryTier?: string } {
+    const level = real.level || 3
+    const salary = real.salaryPerWeek || 2000
+    const terms = real.rarity ? RARITY_TERMS[real.rarity] : undefined
+    if (!terms) return { level, salaryPerWeek: salary, salaryTier: real.salaryTier }
+    const range = salaryRangeOf(terms.salaryTier)
+    return {
+        level: Math.max(terms.levelMin, Math.min(terms.levelMax, level)),
+        salaryPerWeek: Math.max(range.min, Math.min(range.max, salary)),
+        salaryTier: terms.salaryTier,
+    }
+}
+
 const isRecentlyReleased = (s: StaffSaveData, week: number) =>
     s.releasedWeek !== undefined && week - s.releasedWeek < RELEASED_STAFF_MARKET_WEEKS
 
@@ -84,8 +118,7 @@ export class StaffGenerator {
                 id: `${real.id}_${week}`,
                 teamId: "",
                 yearsRemaining: 1,
-                level: real.level || 3,
-                salaryPerWeek: real.salaryPerWeek || 2000,
+                ...legacyStaffTerms(real),
             } as StaffSaveData)
         }
 
@@ -118,14 +151,8 @@ export class StaffGenerator {
 
         // Rarity Roll
         const roll = localRng.next()
-        let rarity: StaffSaveData["rarity"] = "Common"
-        let salaryTier = "Low"
-        let levelMin = 1, levelMax = 2
-
-        if (roll > 0.95) { rarity = "Legendary"; salaryTier = "Legendary"; levelMin = 5; levelMax = 5 }
-        else if (roll > 0.85) { rarity = "Epic"; salaryTier = "Epic"; levelMin = 4; levelMax = 5 }
-        else if (roll > 0.60) { rarity = "Rare"; salaryTier = "High"; levelMin = 3; levelMax = 4 }
-        else { rarity = "Common"; salaryTier = "Medium"; levelMin = 1; levelMax = 3 }
+        const rarity: NonNullable<StaffSaveData["rarity"]> = roll > 0.95 ? "Legendary" : roll > 0.85 ? "Epic" : roll > 0.60 ? "Rare" : "Common"
+        const { salaryTier, levelMin, levelMax } = RARITY_TERMS[rarity]
 
         const stats: Record<string, number> = {}
         let specialization = "General"
@@ -155,8 +182,7 @@ export class StaffGenerator {
         }
 
         // Salary Calculation
-        const salaryRange = STAFF_SALARY_RANGES[salaryTier as keyof typeof STAFF_SALARY_RANGES]
-            ?? STAFF_SALARY_RANGES.Standard
+        const salaryRange = salaryRangeOf(salaryTier)
         const salary = rnd(salaryRange.min, salaryRange.max)
 
         const level = rnd(levelMin, levelMax)

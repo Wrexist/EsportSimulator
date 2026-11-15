@@ -110,6 +110,16 @@ export default function BasecampPage() {
   const gearCap = EquipmentManager.STRENGTH_CAP * 100
   const season = Math.max(1, Math.ceil(currentWeek / 52))
 
+  // SQUAD-23: building upkeep after this build/upgrade, from the same
+  // settlement as the KPI (the first building replaces the base campus charge).
+  const upkeepWith = (type: FacilityType, level: number) => {
+    const others = (team.facilities ?? []).filter(f => f.type !== type)
+    const current = team.facilities?.find(f => f.type === type)
+    const facilities = [...others, { ...(current ?? { id: `preview_${type}`, type, description: "", monthlyCost: 0 }), level }]
+    return EconomyEngine.processWeeklyFinances({ ...team, facilities } as typeof team, players, contracts, staff, currentWeek + 1, academyCount).expenses.facilities
+  }
+  const signedMoney = (v: number) => `${v < 0 ? "−" : "+"}${money(Math.abs(v))}`
+
   const handleUpgrade = (type: FacilityType) => {
     const label = facilityName(type)
     const result = upgradeFacility(team.id, type)
@@ -182,6 +192,7 @@ export default function BasecampPage() {
                       const maxed = level >= MAX_LEVEL
                       const cost = level === 0 ? BUILD_COST : level * UPGRADE_COST_PER_LEVEL
                       const affordable = team.budget >= cost
+                      const upkeepAfter = maxed ? upkeep : upkeepWith(f.type, level + 1)
                       return (
                         <tr
                           key={f.type}
@@ -224,7 +235,7 @@ export default function BasecampPage() {
                                   {/* SQUAD-12: a building can't be sold or refunded, so confirm the spend. */}
                                   <ConfirmDialog
                                     title={level === 0 ? t("fac.confirm.buildTitle", { name: facilityName(f.type) }) : t("fac.confirm.upgradeTitle", { name: facilityName(f.type), level: level + 1 })}
-                                    description={t("fac.confirm.body", { cost: money(cost), from: money(Math.floor(facilityWeeklyCost(level))), to: money(Math.floor(facilityWeeklyCost(level + 1))), after: money(team.budget - cost) })}
+                                    description={t("fac.confirm.body", { cost: money(cost), from: money(upkeep), to: money(upkeepAfter), after: money(team.budget - cost) })}
                                     confirmText={t(level === 0 ? "fac.confirm.build" : "fac.confirm.upgrade", { cost: money(cost) })}
                                     icon="warning"
                                     onConfirm={() => handleUpgrade(f.type)}
@@ -234,7 +245,7 @@ export default function BasecampPage() {
                                     </Button>
                                   </ConfirmDialog>
                                   {/* C8: the one-time cost and what it adds every week. */}
-                                  <span className="text-[11px] tabular-nums text-ink-3">{t("fac.thenUpkeep", { amount: money(Math.floor(facilityWeeklyCost(level + 1) - facilityWeeklyCost(level))) })}</span>
+                                  <span className="text-[11px] tabular-nums text-ink-3">{t("fac.thenUpkeep", { amount: signedMoney(upkeepAfter - upkeep) })}</span>
                                 </div>
                               ) : (
                                 <span className="text-xs text-ink-3">{t("fac.short", { cost: money(cost), short: money(cost - team.budget) })}</span>

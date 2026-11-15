@@ -10,7 +10,7 @@ import Image from "next/image"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { SeededRNG } from "@/engine/rng"
+import { STAFF_ACCEPT_SHARE, staffAcceptsOffer, staffAskingWage, staffMinAcceptable } from "@/components/staff/staff-asking"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { CountryFlag } from "@/components/ui/CountryFlag"
@@ -33,21 +33,6 @@ const MAX_STAFF_SIGNING_BONUS = 10_000_000
 const MIN_CONTRACT_WEEKS = 12
 const MAX_CONTRACT_WEEKS = 156
 
-const deterministicSeed = (...parts: Array<string | number | undefined | null>): number => {
-    const payload = parts
-        .filter((part): part is string | number => part !== undefined && part !== null)
-        .map(String)
-        .join("|")
-
-    let hash = 2166136261
-    for (let i = 0; i < payload.length; i++) {
-        hash ^= payload.charCodeAt(i)
-        hash = Math.imul(hash, 16777619)
-    }
-
-    return (hash >>> 0) || 1
-}
-
 export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = false }: StaffNegotiationModalProps) {
     const { marketStaff, staff: activeStaff, hireStaff, renewStaffContract, currentWeek, saveId } = useGameStore(useShallow(state => ({
         marketStaff: state.marketStaff,
@@ -69,6 +54,9 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
     const staffMember = liveMember ?? lastMember.current
 
     const myTeam = useCurrentTeam()
+    // SQUAD-07: one figure for "Asking", the prefill and what is accepted.
+    const askContext = { isRenewal, saveId, currentWeek, teamId: myTeam?.id }
+    const askingWage = staffMember ? staffAskingWage(staffMember, askContext) : 0
 
     // Local State
     const [stage, setStage] = useState<NegotiationStage>("OFFER")
@@ -83,8 +71,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
     useEffect(() => {
         if (isOpen && staffMember) {
             setStage("OFFER")
-            const baseSalary = staffMember.salaryPerWeek
-            setSalaryOffer(isRenewal ? Math.round(baseSalary * 1.1) : baseSalary)
+            setSalaryOffer(askingWage)
             setDurationOffer(52)
             setNegotiationLog([])
         }
@@ -100,31 +87,11 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
 
         const sanitizedSalaryOffer = Math.max(0, Math.min(MAX_STAFF_SALARY, Math.floor(salaryOffer)))
         const sanitizedDuration = Math.max(MIN_CONTRACT_WEEKS, Math.min(MAX_CONTRACT_WEEKS, Math.floor(durationOffer)))
-        let targetSalary = staffMember.salaryPerWeek
-        if (isRenewal) targetSalary *= 1.15 // Expect a raise for renewal
-
-        // Rarity Tax
-        if (staffMember.rarity === "Legendary") targetSalary *= 1.1
-        if (staffMember.rarity === "Epic") targetSalary *= 1.05
-
-        // Duration Factor: Prefer longer contracts (job security)
-        // If duration > 1 year (52 weeks), willing to accept slightly less
-        if (sanitizedDuration >= 104) targetSalary *= 0.95
-
-        // Deterministic variance blocks re-roll abuse via reload/reopen.
-        const variance = new SeededRNG(
-            deterministicSeed(
-                saveId || "local",
-                currentWeek,
-                staffId,
-                myTeam?.id || "NO_TEAM",
-                isRenewal ? "renewal" : "hire"
-            )
-        ).range(0.95, 1.05)
-        const minAcceptable = Math.round(targetSalary * variance)
+        // Rarity, renewal raise, contract length and a seeded ±5% (staff-asking.ts).
+        const minAcceptable = staffMinAcceptable(staffMember, { ...askContext, duration: sanitizedDuration })
 
         // Accept if within 3% of target (avoids absurd $1 rejections)
-        if (sanitizedSalaryOffer >= minAcceptable * 0.97) {
+        if (staffAcceptsOffer(sanitizedSalaryOffer, minAcceptable)) {
             // Execute Transaction
             if (isRenewal) {
                 const result = renewStaffContract(staffId, sanitizedSalaryOffer, sanitizedDuration)
@@ -147,7 +114,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
             }
 
         } else {
-            setNegotiationLog(prev => [...prev, t("st.neg.rejected", { name: staffMember.name, amount: formatCurrency(Math.round(minAcceptable), "$", false) })])
+            setNegotiationLog(prev => [...prev, t("st.neg.rejected", { name: staffMember.name, amount: formatCurrency(Math.ceil(minAcceptable * STAFF_ACCEPT_SHARE), "$", false) })])
         }
     }
 
@@ -177,7 +144,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                     <dl className="mt-5 divide-y divide-line rounded-lg border border-line bg-panel text-sm">
                         <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.level")}</dt><dd className="font-semibold text-ink-1">{staffMember.level}</dd></div>
                         <div className="flex justify-between gap-3 px-3 py-2"><dt className="text-ink-3">{t("st.neg.specialty")}</dt><dd className="truncate font-semibold text-ink-1">{specializationLabel(staffMember.specialization)}</dd></div>
-                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{isRenewal ? t("st.neg.currentWage") : t("st.neg.asking")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.perWeek", { amount: formatCurrency(staffMember.salaryPerWeek, "$", false) })}</dd></div>
+                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{isRenewal ? t("st.neg.currentWage") : t("st.neg.asking")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.perWeek", { amount: formatCurrency(isRenewal ? staffMember.salaryPerWeek : askingWage, "$", false) })}</dd></div>
                     </dl>
                 </div>
 
@@ -185,8 +152,9 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                 <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                     <div className="flex items-start justify-between border-b border-line px-6 py-4">
                         <div>
-                            <h3 className="text-base font-semibold text-ink-1">{isRenewal ? t("st.neg.renewal") : t("st.neg.offer")}</h3>
-                            <p className="text-sm text-ink-3">{isRenewal ? t("st.neg.renewalHint") : t("st.neg.offerHint")}</p>
+                            {/* SQUAD-09: the same title style as the other dialogs in this area. */}
+                            <h3 data-slot="dialog-title" className="text-ink-1">{isRenewal ? t("st.neg.renewal") : t("st.neg.offer")}</h3>
+                            <p className="mt-1 text-sm text-ink-3">{isRenewal ? t("st.neg.renewalHint") : t("st.neg.offerHint")}</p>
                         </div>
                         <button onClick={onClose} className="rounded p-1.5 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label={t("st.neg.close")}>
                             <X size={18} />
@@ -249,20 +217,6 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                         {formatCurrency(myTeam?.budget ?? 0, "$", false)}
                                     </span>
                                 </div>
-
-                                <Button
-                                    onClick={handleOfferSubmit}
-                                    disabled={!isRenewal && (myTeam?.budget || 0) < signingBonus}
-                                    className="h-11 w-full"
-                                >
-                                    {isRenewal ? t("st.neg.offerRenewal") : t("st.neg.send")}
-                                </Button>
-
-                                {negotiationLog.length > 0 && (
-                                    <ul className="space-y-1 rounded-lg border border-line bg-raised px-3 py-2.5 text-sm text-ink-2">
-                                        {negotiationLog.map((log, i) => <li key={i}>{log}</li>)}
-                                    </ul>
-                                )}
                             </div>
                         )}
 
@@ -281,6 +235,23 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                             </div>
                         )}
                     </div>
+                    {/* SQUAD-09: the offer button sits in a footer, never cut off by the scroll area. */}
+                    {stage === "OFFER" && (
+                        <div className="space-y-3 border-t border-line px-6 py-4">
+                            {negotiationLog.length > 0 && (
+                                <ul aria-live="polite" className="space-y-1 rounded-lg border border-line bg-raised px-3 py-2.5 text-sm text-ink-2">
+                                    {negotiationLog.map((log, i) => <li key={i}>{log}</li>)}
+                                </ul>
+                            )}
+                            <Button
+                                onClick={handleOfferSubmit}
+                                disabled={!isRenewal && (myTeam?.budget || 0) < signingBonus}
+                                className="h-11 w-full"
+                            >
+                                {isRenewal ? t("st.neg.offerRenewal") : t("st.neg.send")}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>,

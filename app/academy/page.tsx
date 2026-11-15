@@ -115,7 +115,15 @@ export default function AcademyPage() {
             : exhaustedStarters.length ? t("ac.block.exhausted")
                 : team.budget < DEV_MATCH_CONFIG.matchCost ? t("ac.block.budget") : null
     const lastMatch = s.academyMatchHistory[0]
+    // SQUAD-31: the report is written after the week advances, so it holds
+    // the week before its stamp; only shown once a prospect has trained.
     const report = s.academyWeeklyReports?.[0]
+    const reportShown = !!report && report.prospectReports.length > 0
+    const seasonWeek = (week: number) => ((Math.max(1, week) - 1) % 52) + 1
+    // SQUAD-14: why Build / Upgrade are off, visible without a hover.
+    const fundsBlock = (cost: number) => team.budget < cost
+        ? `${t("ac.block.budget")} · ${t("player.releaseBlock.funds", { cost: formatCurrency(cost, "$", false), funds: formatCurrency(Math.max(0, team.budget), "$", false) })}`
+        : null
 
     // SQUAD-23: `detail: false` when the store's message only repeats the title.
     const run = (result: { success: boolean; message: string }, ok: string, detail = true) => {
@@ -149,6 +157,7 @@ export default function AcademyPage() {
                         >
                             <Button disabled={team.budget < build.buildCost}>{t("ac.build")}</Button>
                         </ConfirmDialog>
+                        {fundsBlock(build.buildCost) && <p className="basis-full text-right text-xs text-ink-3">{fundsBlock(build.buildCost)}</p>}
                     </div>
                 </Panel>
             </div>
@@ -182,7 +191,7 @@ export default function AcademyPage() {
                                 academyLevel={level}
                                 currentWeek={s.currentWeek}
                                 academyRoster={s.academyRoster}
-                                lastWeek={report}
+                                lastWeek={reportShown ? report : undefined}
                                 onSetFocus={(id, focus: AcademyTrainingFocus) => s.setProspectTraining(id, focus)}
                                 onSetLineup={setLineup}
                                 onPromote={id => {
@@ -228,7 +237,7 @@ export default function AcademyPage() {
                         </div>
                         <p className="mt-3 text-xs text-ink-3">
                             {t("ac.drillsNote", { starter: ENERGY_CONFIG.starterRecovery, bench: ENERGY_CONFIG.benchRecovery })}
-                            {report ? t("ac.lastWeekNote", { week: ((report.week - 1) % 52) + 1 }) : ""}
+                            {reportShown ? t("ac.lastWeekNote", { week: seasonWeek(report.week - 1) }) : ""}
                         </p>
                     </Panel>
                 </div>
@@ -245,7 +254,7 @@ export default function AcademyPage() {
                                 icon="warning"
                                 onConfirm={() => run(s.upgradeAcademy(team.id), t("ac.upgraded"), false)}
                             >
-                                <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={team.budget < next.buildCost}>
+                                <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={team.budget < next.buildCost} title={fundsBlock(next.buildCost) ?? undefined}>
                                     {t("ac.upgrade", { cost: formatCurrency(next.buildCost) })}
                                 </Button>
                             </ConfirmDialog>
@@ -260,6 +269,7 @@ export default function AcademyPage() {
                             <Fact label={t("ac.fact.drills")} value={t("ac.nOfM", { n: ACADEMY_DRILLS.filter(d => d.minLevel <= level).length, m: ACADEMY_DRILLS.length })} />
                             <Fact label={t("ac.fact.devMatches")} value={level >= DEV_MATCH_CONFIG.minAcademyLevel ? t("ac.open") : t("ac.levelN", { n: DEV_MATCH_CONFIG.minAcademyLevel })} />
                         </dl>
+                        {next && fundsBlock(next.buildCost) && <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{t("ac.upgrade", { cost: formatCurrency(next.buildCost) })}: {fundsBlock(next.buildCost)}</p>}
                         <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{t("ac.stipend")}</p>
                     </Panel>
 
@@ -314,6 +324,8 @@ export default function AcademyPage() {
                                 </ul>
                             </>
                         )}
+                        {/* SQUAD-32: the tiers change quality, not where prospects come from. */}
+                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{t("ac.scoutNote")}</p>
                     </Panel>
 
                     <Panel
@@ -330,7 +342,7 @@ export default function AcademyPage() {
                             <p className="mt-2 text-sm">
                                 <span className={cn("font-semibold", lastMatch.won ? "text-positive" : "text-negative")}>{lastMatch.won ? t("common.win.short") : t("common.loss.short")}</span>
                                 <span className="text-ink-2"> {t("ac.lastMatch", { home: lastMatch.scoreHome, away: lastMatch.scoreAway, opponent: lastMatch.opponentName })}</span>
-                                <span className="text-ink-3">{t("ac.weekN", { n: lastMatch.week })}</span>
+                                <span className="text-ink-3">{t("ac.weekN", { n: seasonWeek(lastMatch.week) })}</span>
                             </p>
                         )}
                     </Panel>
