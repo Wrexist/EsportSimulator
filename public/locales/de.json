@@ -1268,6 +1268,7 @@
  "insight.reason.prepare": "Spielstil, Wirtschaftsplan und Vorbereitung festlegen",
  "insight.headline.won": "Match gewonnen: {{own}} von {{total}} Runden geholt; Pistolenrunden {{pw}}/{{pt}}; {{under}} Runden mit dem schwächeren Kauf gewonnen, {{fav}} mit dem stärkeren verloren.",
  "insight.headline.lost": "Match verloren: {{own}} von {{total}} Runden geholt; Pistolenrunden {{pw}}/{{pt}}; {{under}} Runden mit dem schwächeren Kauf gewonnen, {{fav}} mit dem stärkeren verloren.",
+ "insight.reason.fullBuys": "Full Buys: {{won}} von {{played}} gewonnen",
  "why.counter.ctLabel": "Stack auf {{site}}",
  "why.counter.tLabel": "Angriff auf {{site}}",
  "why.counter.ct": "{{rounds}} Full-Buy-Runden als CT: Ihre Ts kamen in {{met}} davon zu deinem Stack, du hast {{won}} gewonnen.",
