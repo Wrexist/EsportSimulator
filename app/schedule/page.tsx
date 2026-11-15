@@ -393,8 +393,8 @@ export default function SchedulePage() {
               return (
                 <tr key={weekNum} className={cn("border-b border-line align-top last:border-b-0", isPast && "bg-shell/60")}>
                   <th scope="row" className={cn("px-3 py-3 text-left font-normal min-[90rem]:px-4", isCurrent && "bg-hover/40")}>
-                    <div className="flex items-baseline gap-2">
-                      <span className={cn("font-display text-xl font-bold uppercase leading-none", isCurrent ? "text-gold" : isPast ? "text-ink-3" : "text-ink-1")}>{t("common.week", { n: displayWeek })}</span>
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <span className={cn("whitespace-nowrap font-display text-xl font-bold uppercase leading-none", isCurrent ? "text-gold" : isPast ? "text-ink-3" : "text-ink-1")}>{t("common.week", { n: displayWeek })}</span>
                       <span className="text-xs text-ink-3">{isCurrent ? t("sch.thisWeek") : t("sch.seasonShort", { n: displayYear })}</span>
                     </div>
                     <div className="mt-2 space-y-1">
