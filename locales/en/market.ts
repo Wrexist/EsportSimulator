@@ -390,4 +390,5 @@ export const MARKET = {
     "fin.tipNetProjected": "Week {{week}} (projected): net {{amount}}",
     "fin.axisWeek": "W{{n}}",
     "fin.cat.SCOUTING": "Scouting",
+    "terms.belowCashTarget": "Below the board's {{amount}} season-end cash target",
 } as const

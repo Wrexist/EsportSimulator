@@ -194,6 +194,9 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
 
     // CONTRACT
     const preview = n.costPreview
+    // MARKET-15: a fee that takes the club under the board's season-end cash target.
+    const feeDue = n.currentTeam ? n.buyoutOffer : 0
+    const belowCashTarget = feeDue > 0 && n.cashTarget !== null && n.budget - feeDue < n.cashTarget
     return (
         <div className="space-y-3">
             <Overline>{n.currentTeam ? t("terms.step2") : t("terms.freeContract")}</Overline>
@@ -236,7 +239,11 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
             )}
             <dl className="divide-y divide-line">
                 {n.currentTeam && <Row label={t("terms.feeDue")} value={money(n.buyoutOffer)} />}
-                <Row label={t("terms.fundsAfter")} value={money(n.budget - n.buyoutOffer)} tone={n.budget < n.buyoutOffer ? "text-negative" : undefined} />
+                <Row
+                    label={<>{t("terms.fundsAfter")}{belowCashTarget && <span className="mt-0.5 block text-caution">{t("terms.belowCashTarget", { amount: formatCurrency(n.cashTarget ?? 0, "$", true) })}</span>}</>}
+                    value={money(n.budget - n.buyoutOffer)}
+                    tone={n.budget < n.buyoutOffer ? "text-negative" : belowCashTarget ? "text-caution" : undefined}
+                />
                 <Row label={t("terms.wagesTerm")} value={money(n.salaryOffer * settlementsLeft(n.durationOffer, 0))} />
                 <Row label={n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0 ? t("terms.totalBeforeBonuses", { weeks: n.durationOffer }) : t("terms.total", { weeks: n.durationOffer })} value={money((n.currentTeam ? n.buyoutOffer : 0) + n.salaryOffer * settlementsLeft(n.durationOffer, 0))} />
                 {preview && <Row label={t("terms.weeklyNet")} value={formatCurrency(preview.weeklyNet, "$", false)} tone={preview.weeklyNet < 0 ? "text-negative" : "text-positive"} />}

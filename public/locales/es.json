@@ -6911,5 +6911,6 @@
  "fin.cat.SCOUTING": "Ojeo",
  "sp.lastEnded": "Tu contrato con {{name}} terminó en la semana {{week}}. Firma uno nuevo entre las ofertas de esta semana, abajo.",
  "sp.lastEndedCooldown": "Tu contrato con {{name}} terminó en la semana {{week}}. La marca puede volver a firmar desde la semana {{from}}. Firma un nuevo contrato entre las ofertas de esta semana, abajo.",
- "ib.res.soldElsewhere": "Cerrada: el jugador fue vendido a {{club}}"
+ "ib.res.soldElsewhere": "Cerrada: el jugador fue vendido a {{club}}",
+ "terms.belowCashTarget": "Por debajo del objetivo de la directiva: {{amount}} a final de temporada"
 }

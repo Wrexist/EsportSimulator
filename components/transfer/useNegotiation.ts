@@ -98,6 +98,8 @@ export function useNegotiation(playerId: string | null, active = true) {
     const myTeam = teams.find(t => t.id === playerTeamId)
     const budget = myTeam?.budget ?? 0
     const boardSanction = getBoardSanctionedFee(boardState, budget)
+    /** MARKET-15: the board's "cash at season end" objective, if it set one. */
+    const cashTarget = boardState?.objectives?.find(o => o.id === "finance")?.target ?? null
 
     const [stage, setStage] = useState<NegotiationStage>("BUYOUT")
     const [buyoutOffer, setBuyoutOfferRaw] = useState<number>(0)
@@ -377,6 +379,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         myTeam,
         budget,
         boardSanction,
+        cashTarget,
         evaluation,
         rivals,
         feePremium,
