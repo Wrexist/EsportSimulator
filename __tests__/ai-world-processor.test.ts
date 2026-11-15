@@ -62,6 +62,9 @@ function makeTeam(id: string, overrides: Partial<TeamSaveData> = {}): TeamSaveDa
     } as unknown as TeamSaveData
 }
 
+/** The managed club's intake joins its academy, so the youth tests give it one (ENGINE-01). */
+const ACADEMY_L1 = { level: 1, builtWeek: 1 } as TeamSaveData["academyFacility"]
+
 function makeSave(currentWeek: number, teams: TeamSaveData[]): GameSave {
     return {
         currentWeek,
@@ -89,6 +92,7 @@ describe("processAIWorldLogic — youth intake gating", () => {
     test("off-season week (51) does NOT trigger youth intake even with level-5 facility", () => {
         const save = makeSave(51, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 5, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -102,6 +106,7 @@ describe("processAIWorldLogic — youth intake gating", () => {
     test("week 52 + facility < 3 → no intake", () => {
         const save = makeSave(52, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 2, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -113,6 +118,7 @@ describe("processAIWorldLogic — youth intake gating", () => {
     test("week 52 + facility level 3 → exactly 1 prospect", () => {
         const save = makeSave(52, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 3, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -124,6 +130,7 @@ describe("processAIWorldLogic — youth intake gating", () => {
     test("week 52 + facility level 5 → exactly 2 prospects", () => {
         const save = makeSave(52, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 5, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -133,12 +140,56 @@ describe("processAIWorldLogic — youth intake gating", () => {
     })
 })
 
+describe("processAIWorldLogic — the managed club's intake needs academy places (ENGINE-01)", () => {
+    const training5 = [{ id: "f1", type: "TRAINING", level: 5, description: "", monthlyCost: 0 } as never]
+    const enrolled = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `academy_${i}`, playerId: `old_${i}` })) as never
+
+    test("no academy built: no prospects, no intake message", () => {
+        const save = makeSave(52, [makeTeam("player", { facilities: training5 })])
+        processAIWorldLogic(save, "player", new SeededRNG(1))
+        expect(save.players).toHaveLength(0)
+        expect(save.academyPlayers).toHaveLength(0)
+        expect(save.eventsLog.some(e => e.id.startsWith("youth_intake_"))).toBe(false)
+    })
+
+    test("academy level 0 (closed) counts as no academy", () => {
+        const save = makeSave(52, [makeTeam("player", { facilities: training5, academyFacility: { level: 0, builtWeek: 1 } as never })])
+        processAIWorldLogic(save, "player", new SeededRNG(1))
+        expect(save.academyPlayers).toHaveLength(0)
+    })
+
+    test("a full academy gets no intake; one free place gets one prospect, and the message counts one", () => {
+        const full = makeSave(52, [makeTeam("player", { facilities: training5, academyFacility: ACADEMY_L1 })])
+        full.academyPlayers = enrolled(3)
+        processAIWorldLogic(full, "player", new SeededRNG(1))
+        expect(full.academyPlayers).toHaveLength(3)
+        expect(full.players).toHaveLength(0)
+
+        const onePlace = makeSave(52, [makeTeam("player", { facilities: training5, academyFacility: ACADEMY_L1 })])
+        onePlace.academyPlayers = enrolled(2)
+        processAIWorldLogic(onePlace, "player", new SeededRNG(1))
+        expect(onePlace.academyPlayers).toHaveLength(3)
+        const msg = onePlace.eventsLog.find(e => e.id.startsWith("youth_intake_"))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((msg as any).data.messageRef.count).toBe(1)
+    })
+
+    test("the free-agent pool throttle does not skip the manager's intake", () => {
+        const save = makeSave(52, [makeTeam("player", { facilities: training5, academyFacility: ACADEMY_L1 })])
+        // A pool far over target drives the AI clubs' intake factor to its minimum.
+        save.players = Array.from({ length: 2000 }, (_, i) => ({ id: `fa_${i}`, age: 25, skill: 50 })) as never
+        processAIWorldLogic(save, "player", new SeededRNG(1))
+        expect(save.academyPlayers).toHaveLength(2)
+    })
+})
+
 describe("processAIWorldLogic — youth prospect shape (Phase S regression)", () => {
     test("every numeric field on a youth prospect is finite", () => {
         // Pre-fix this would have shown energy=undefined and the
         // 500-week fuzz would have caught it. Lock the contract.
         const save = makeSave(52, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 3, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -155,9 +206,10 @@ describe("processAIWorldLogic — youth prospect shape (Phase S regression)", ()
         expect(prospect.isYouthPlayer).toBe(true)
     })
 
-    test("prospect age lands in the youth range [16, 18]", () => {
+    test("prospect age is 15-17 at generation, so the same tick's season-end birthday makes it 16-18 (ENGINE-07)", () => {
         const save = makeSave(52, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 5, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -165,14 +217,15 @@ describe("processAIWorldLogic — youth prospect shape (Phase S regression)", ()
         for (const prospect of save.players) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const age = (prospect as any).age
-            expect(age).toBeGreaterThanOrEqual(16)
-            expect(age).toBeLessThanOrEqual(18)
+            expect(age).toBeGreaterThanOrEqual(15)
+            expect(age).toBeLessThanOrEqual(17)
         }
     })
 
     test("prospect potential lands in [60, 89]", () => {
         const save = makeSave(52, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 5, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -190,6 +243,7 @@ describe("processAIWorldLogic — intake event surfacing", () => {
     test("player team's intake surfaces a TRAINING_COMPLETE event", () => {
         const save = makeSave(52, [
             makeTeam("player", {
+                academyFacility: ACADEMY_L1,
                 facilities: [{ id: "f1", type: "TRAINING", level: 3, description: "", monthlyCost: 0 } as never],
             }),
         ])
@@ -225,9 +279,11 @@ describe("processAIWorldLogic — intake event surfacing", () => {
 describe("processAIWorldLogic — determinism", () => {
     test("same seed produces same prospect roster shape across runs", () => {
         const teams1 = [makeTeam("player", {
+            academyFacility: ACADEMY_L1,
             facilities: [{ id: "f1", type: "TRAINING", level: 5, description: "", monthlyCost: 0 } as never],
         })]
         const teams2 = [makeTeam("player", {
+            academyFacility: ACADEMY_L1,
             facilities: [{ id: "f1", type: "TRAINING", level: 5, description: "", monthlyCost: 0 } as never],
         })]
         const save1 = makeSave(52, teams1)

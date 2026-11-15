@@ -11,9 +11,9 @@
  */
 
 import type { GameSave, PlayerSaveData, TeamSaveData } from "@/engine/save-types"
-import { AI_ECONOMY_TUNING, AI_SQUAD_TUNING } from "@/lib/balance-tuning"
+import { AI_ECONOMY_TUNING, AI_SQUAD_TUNING, CLUB_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import {
-    aiCanCommit, aiClubBudget, aiCostControl, ensureAIRosterViability, fillAIRosterToFive, swapOverpaidStarter,
+    aiCanCommit, aiClubBudget, aiCostControl, ensureAIRosterViability, fillAIRosterToFive, signableFreeAgents, swapOverpaidStarter,
 } from "@/engine/ai/club-budget"
 import { renewExpiringContracts, upgradeFromFreeAgency } from "@/engine/ai/squad-maintenance"
 import { manageSponsors } from "@/engine/ai/infrastructure"
@@ -198,6 +198,42 @@ describe("AI cost control", () => {
         const cheap = save.teams[40]
         for (const c of save.contracts.filter(c => c.teamId === cheap.id)) c.salaryPerWeek = 300
         expect(swapOverpaidStarter(save, cheap)).toBe(false)
+    })
+})
+
+describe("staff and youth leaving an AI club (ENGINE-08)", () => {
+    test("cost control: the released staff member joins the staff market instead of vanishing", () => {
+        const save = world()
+        const team = save.teams[15]
+        team.budget = -1
+        save.staff.push({ id: "st1", teamId: team.id, name: "Coach", role: "coach", level: 3, salaryPerWeek: 5_000, contractEndWeek: 90, yearsRemaining: 2 } as never)
+        team.staffIds = ["st1"]
+        expect(aiCostControl(save, team)).toBe("staff")
+        expect(team.staffIds).toEqual([])
+        expect(save.staff.some(s => s.id === "st1")).toBe(false)
+        expect(save.marketStaff.find(s => s.id === "st1")).toMatchObject({ teamId: "", level: 3, contractEndWeek: undefined, yearsRemaining: 0, releasedWeek: save.currentWeek })
+    })
+
+    test("administration: staff join the market, the academy closes and its prospects become free agents", () => {
+        const save = world()
+        const team = save.teams[30]
+        team.consecutiveInsolventWeeks = CLUB_ECONOMY_TUNING.ADMINISTRATION_WEEKS
+        team.budget = -500_000
+        save.staff.push({ id: "st_a", teamId: team.id, name: "A", role: "coach", salaryPerWeek: 2_000 } as never,
+            { id: "st_b", teamId: team.id, name: "B", role: "analyst", salaryPerWeek: 1_000 } as never)
+        team.staffIds = ["st_a", "st_b"]
+        team.academyFacility = { level: 2, builtWeek: 1 } as never
+        save.players.push(player("yth_1", 45, 17), player("yth_2", 44, 16))
+        team.youthAcademyIds = ["yth_1", "yth_2"]
+        processAIAdministration(save, save.playerTeamId)
+        expect(team.administrations).toBe(1)
+        expect(team.staffIds).toEqual([])
+        expect(save.marketStaff.filter(s => s.id === "st_a" || s.id === "st_b").map(s => s.releasedWeek)).toEqual([save.currentWeek, save.currentWeek])
+        expect(team.academyFacility?.level).toBe(0)
+        expect(team.youthAcademyIds).toEqual([])
+        const signable = new Set(signableFreeAgents(save).map(p => p.id))
+        // Free agents now (another club may already have signed one to field five).
+        for (const id of ["yth_1", "yth_2"]) expect(signable.has(id) || save.teams.some(t => t.rosterIds.includes(id))).toBe(true)
     })
 })
 

@@ -1,8 +1,7 @@
 /**
  * Tests for MatchAnalyzer.analyze — the post-match insight pipeline
- * that the result page reads. Outputs a MatchAnalysis with
- * summary text, primary-factor classification, and three ratings
- * (economy / aim / utility) on a 0-99 scale.
+ * that /stats reads. Outputs a MatchAnalysis with summary text, the
+ * primary-factor classification and the winning / losing lines.
  *
  * Pinning the public contract: returns sane shapes for plausible
  * match results, factor classification routes to the right branch
@@ -70,7 +69,7 @@ function makeMatchResult(opts: {
 }
 
 describe("MatchAnalyzer.analyze — return shape", () => {
-    test("produces a non-empty summary + a known keyFactor + ratings in [0, 99]", () => {
+    test("produces a non-empty summary + a known keyFactor, and no teamPerformance ratings (MATCHENGINE-09)", () => {
         const result = makeMatchResult({
             homeScore: 16, awayScore: 10,
             homePlayerStats: {
@@ -91,11 +90,7 @@ describe("MatchAnalyzer.analyze — return shape", () => {
         )
         expect(analysis.summary.length).toBeGreaterThan(0)
         expect(["CLUTCH", "ECONOMY", "FIREPOWER", "TRADING"]).toContain(analysis.keyFactor)
-        for (const rating of [analysis.teamPerformance.economyRating, analysis.teamPerformance.aimRating, analysis.teamPerformance.utilityRating]) {
-            expect(rating).toBeGreaterThanOrEqual(0)
-            expect(rating).toBeLessThanOrEqual(99)
-            expect(Number.isFinite(rating)).toBe(true)
-        }
+        expect(analysis).not.toHaveProperty("teamPerformance")
     })
 })
 
@@ -152,7 +147,7 @@ describe("MatchAnalyzer — keyFactor classification", () => {
 })
 
 describe("MatchAnalyzer — edge cases", () => {
-    test("zero deaths on winner side doesn't divide-by-zero (K/D defaults sanely)", () => {
+    test("zero deaths on winner side doesn't break the analysis", () => {
         const result = makeMatchResult({
             homeScore: 16, awayScore: 0,
             homePlayerStats: {
@@ -176,8 +171,8 @@ describe("MatchAnalyzer — edge cases", () => {
             [{ id: "h1" }, { id: "h2" }, { id: "h3" }, { id: "h4" }, { id: "h5" }],
             [{ id: "a1" }, { id: "a2" }, { id: "a3" }, { id: "a4" }, { id: "a5" }],
         )
-        expect(Number.isFinite(analysis.teamPerformance.aimRating)).toBe(true)
-        expect(analysis.teamPerformance.aimRating).toBeLessThanOrEqual(99)
+        expect(analysis.keyFactor).toBe("FIREPOWER")
+        expect(analysis.summary.length).toBeGreaterThan(0)
     })
 
     test("empty player-stats object doesn't crash (returns reasonable defaults)", () => {
@@ -191,9 +186,7 @@ describe("MatchAnalyzer — edge cases", () => {
             result, "Home", "Away", [], [],
         )
         expect(analysis.summary.length).toBeGreaterThan(0)
-        expect(Number.isFinite(analysis.teamPerformance.economyRating)).toBe(true)
-        expect(Number.isFinite(analysis.teamPerformance.aimRating)).toBe(true)
-        expect(Number.isFinite(analysis.teamPerformance.utilityRating)).toBe(true)
+        expect(analysis.winningFactor.length).toBeGreaterThan(0)
     })
 
     test("zero rounds on a map doesn't break the rounds-scanning loop", () => {
@@ -268,5 +261,57 @@ describe("MatchAnalyzer — summary reads rounds, not the series score", () => {
         expect(away.keyFactor).toBe("ECONOMY")
         expect(away.summary).toContain("The match was defined by pistol-round snowballs.")
         expect(analyze(1, 0, [map(13, 10, "home")]).keyFactor).toBe("ECONOMY")
+    })
+})
+
+// MATCHENGINE-03: "better trading" only when the winner made more trade kills.
+describe("MatchAnalyzer — the trading verdict reads the trade kills", () => {
+    const roster = (prefix: string) => Object.fromEntries([1, 2, 3, 4, 5].map(i => [`${prefix}${i}`, makePlayerStats()]))
+    const ids = (prefix: string) => [1, 2, 3, 4, 5].map(i => ({ id: `${prefix}${i}` }))
+    const kill = (killer: string, isTrade: boolean) => ({ type: "KILL", time: 30, playerId: killer, isTrade })
+    /** A 13-11 home win, no pistol edge, even ratings; `trades` = [home, away] trade kills. */
+    function analyze(trades: [number, number]) {
+        const rounds = Array.from({ length: 24 }, (_, i) => ({
+            roundNumber: i + 1,
+            // Rounds 1 and 13 split, so no pistol factor.
+            winner: i === 0 ? "ct" : i === 12 ? "t" : (i % 2 === 0 ? "ct" : "t"),
+            ctTeam: "home", tTeam: "away",
+            events: [] as ReturnType<typeof kill>[],
+        }))
+        for (let k = 0; k < trades[0]; k++) rounds[k % 24].events.push(kill("h1", true))
+        for (let k = 0; k < trades[1]; k++) rounds[k % 24].events.push(kill("a1", true))
+        rounds[2].events.push(kill("h2", false), kill("a2", false))
+        return MatchAnalyzer.analyze(
+            { id: "m1", homeTeamId: "home", awayTeamId: "away" },
+            { homeScore: 1, awayScore: 0, playerStats: { ...roster("h"), ...roster("a") }, maps: [{ name: "Mirage", homeScore: 13, awayScore: 11, rounds }] } as unknown as MatchResult,
+            "Home", "Away", ids("h"), ids("a"),
+        )
+    }
+
+    test("the winner traded more: TRADING, with a meaningful losing line", () => {
+        const a = analyze([20, 12])
+        expect(a.keyFactor).toBe("TRADING")
+        expect(a.winningFactor).toBe("Better trade fragging and spacing")
+        expect(a.losingFactor).toBe("Lost the trade battle")
+    })
+
+    test("the winner traded less (20 against 24): no trading claim", () => {
+        const a = analyze([20, 24])
+        expect(a.keyFactor).not.toBe("TRADING")
+        expect(a.summary).not.toMatch(/trading/)
+        expect(a.winningFactor).toBe("Won more of the key duels")
+        expect(a.losingFactor).toBe("Came up short in the key duels")
+    })
+
+    test("the firepower loser line no longer claims every player was outclassed", () => {
+        const result = makeMatchResult({
+            homeScore: 16, awayScore: 8,
+            homePlayerStats: Object.fromEntries([1, 2, 3, 4, 5].map(i => [`h${i}`, makePlayerStats({ rating: 1.3 })])),
+            // The loser has the best player on the server.
+            awayPlayerStats: { a1: makePlayerStats({ rating: 1.6 }), ...Object.fromEntries([2, 3, 4, 5].map(i => [`a${i}`, makePlayerStats({ rating: 0.7 })])) },
+        })
+        const a = MatchAnalyzer.analyze({ id: "m1", homeTeamId: "home", awayTeamId: "away" }, result, "Home", "Away", ids("h"), ids("a"))
+        expect(a.keyFactor).toBe("FIREPOWER")
+        expect(a.losingFactor).toBe("Outgunned in the aim duels")
     })
 })

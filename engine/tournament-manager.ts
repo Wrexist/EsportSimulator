@@ -14,6 +14,7 @@ import { STAFF_EFFECTS } from "@/types"
 import { QualificationEngine } from "./tournament-qualification"
 import { getTournamentMVP } from "./tournament-stats"
 import { recordOfficialMatch } from "./official-stats"
+import { resultForSave } from "./processors/match-detail"
 import { resolveTournamentIdentity } from "./circuit-engine"
 import { buildSaveIndexes, buildBracketIndex } from "@/store/indexes"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
@@ -561,7 +562,7 @@ export class TournamentManager {
                 // Add to completed matches
                 const completedMatch: CompletedMatchSaveData = {
                     ...matchForSim,
-                    result,
+                    result: resultForSave(result, matchForSim, save.playerTeamId), // ENGINE-09
                     analysis: MatchAnalyzer.analyze(matchForSim, result, homeTeam.name, awayTeam.name, homePlayers, awayPlayers)
                 }
                 save.completedMatches.push(completedMatch)
@@ -651,7 +652,7 @@ export class TournamentManager {
 
             const completedMatch: CompletedMatchSaveData = {
                 ...match,
-                result,
+                result: resultForSave(result, match, save.playerTeamId), // ENGINE-09
                 analysis: getMatchAnalyzer().analyze(match, result, homeTeam.name, awayTeam.name, homePlayers, awayPlayers)
             }
 
@@ -821,7 +822,7 @@ export class TournamentManager {
         // Create completed match record
         const completedMatch: CompletedMatchSaveData = {
             ...matchForSim,
-            result,
+            result: resultForSave(result, matchForSim, save.playerTeamId), // ENGINE-09
             analysis: MatchAnalyzer.analyze(matchForSim, result, homeTeam.name, awayTeam.name, homePlayers, awayPlayers)
         }
         save.completedMatches.push(completedMatch)

@@ -42,6 +42,15 @@ interface PreTickContext {
     ) => string
 }
 
+/**
+ * The week these notices belong to: the tick this XP is applied for ends with
+ * currentWeek + 1, the week the store's toasts and weekly report look at.
+ * Stamped with currentWeek, weekly level-ups never got the toast that
+ * level-ups from matches get (ENGINE-06). Staff level-ups have no toast by
+ * design: they go to the weekly round-up.
+ */
+const reportWeek = (ctx: PreTickContext) => ctx.currentWeek + 1
+
 export function applyPreTickMutations(draft: PreTickDraft, ctx: PreTickContext): void {
     processScoutingMissions(draft)
     applyStaffXP(draft, ctx)
@@ -69,7 +78,7 @@ function applyStaffXP(draft: PreTickDraft, ctx: PreTickContext): void {
         draft.eventsLog.unshift({
             id: ctx.nextId(draft, "evt_staff_levelup", s.id),
             type: "STAFF_LEVEL_UP",
-            week: ctx.currentWeek,
+            week: reportWeek(ctx),
             data: { staffName: s.name, newLevel: s.level },
             acknowledged: false,
         })
@@ -114,7 +123,7 @@ function applyPlayerXP(draft: PreTickDraft, ctx: PreTickContext): void {
         draft.eventsLog.unshift({
             id: ctx.nextId(draft, "evt_player_levelup", p.id),
             type: "PLAYER_LEVEL_UP",
-            week: ctx.currentWeek,
+            week: reportWeek(ctx),
             data: {
                 playerName: p.nickname,
                 newLevel: p.level,

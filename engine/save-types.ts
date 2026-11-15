@@ -1143,12 +1143,8 @@ export interface MatchAnalysis {
     keyFactor: "ECONOMY" | "FIREPOWER" | "TRADING" | "CLUTCH" | "ENTRY" | "UTILITY"
     winningFactor: string // "Better economy management"
     losingFactor: string // "Lost too many opening duels"
-    teamPerformance: {
-        economyRating: number // 0-100
-        aimRating: number
-        utilityRating: number
-        tradingRating: number
-    }
+    // MATCHENGINE-09: `teamPerformance` (four 0-100 ratings) was dropped: never
+    // shown and wrong. Older saves still carry it on their matches; nothing reads it.
 }
 
 /**

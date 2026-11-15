@@ -116,6 +116,7 @@ export const FEED = {
     "insight.reason.prepare": "Set playstyle, economy plan and preparation",
     "insight.headline.won": "Match won: you took {{own}} of {{total}} rounds; pistol rounds {{pw}}/{{pt}}; {{under}} rounds won with the weaker buy, {{fav}} lost with the stronger one.",
     "insight.headline.lost": "Match lost: you took {{own}} of {{total}} rounds; pistol rounds {{pw}}/{{pt}}; {{under}} rounds won with the weaker buy, {{fav}} lost with the stronger one.",
+    "insight.reason.fullBuys": "Won {{won}} of {{played}} full buys",
     "why.counter.ctLabel": "Stack {{site}}",
     "why.counter.tLabel": "Hit {{site}}",
     "why.counter.ct": "{{rounds}} CT full-buy rounds: their Ts came to your stack in {{met}}, you won {{won}}.",

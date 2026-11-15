@@ -1299,6 +1299,7 @@
  "insight.reason.prepare": "Defina estilo de jogo, plano de economia e preparação",
  "insight.headline.won": "Partida vencida: você levou {{own}} de {{total}} rounds; rounds de pistola {{pw}}/{{pt}}; {{under}} rounds vencidos com a compra mais fraca, {{fav}} perdidos com a mais forte.",
  "insight.headline.lost": "Partida perdida: você levou {{own}} de {{total}} rounds; rounds de pistola {{pw}}/{{pt}}; {{under}} rounds vencidos com a compra mais fraca, {{fav}} perdidos com a mais forte.",
+ "insight.reason.fullBuys": "Full buys: {{won}} de {{played}} vencidos",
  "why.counter.ctLabel": "Stack no {{site}}",
  "why.counter.tLabel": "Atacar o {{site}}",
  "why.counter.ct": "{{rounds}} rounds de full buy no CT: os TRs deles vieram no seu stack em {{met}}, você venceu {{won}}.",

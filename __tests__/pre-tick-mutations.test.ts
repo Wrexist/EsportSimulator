@@ -252,3 +252,19 @@ describe("applyPreTickMutations — player XP + potential breakthrough", () => {
         expect(draft.players[0].potential).toBe(80)
     })
 })
+
+describe("applyPreTickMutations — level-up notices belong to the week the tick ends in (ENGINE-06)", () => {
+    test("player and staff level-ups are stamped currentWeek + 1, the week the store toasts and reports", () => {
+        const draft = makeDraft({
+            players: [makePlayer("p1", { xp: 990, xpToNextLevel: 1000, level: 5 })],
+            staff: [makeStaff("s_player", { teamId: "player", xp: 990, xpToNextLevel: 1000, level: 3, talentPoints: 0 })],
+        })
+        applyPreTickMutations(draft, {
+            playerTeamId: "player", currentWeek: 10, rng: new SeededRNG(1), nextId,
+        })
+        const player = draft.eventsLog.find(e => e.type === "PLAYER_LEVEL_UP")
+        const staff = draft.eventsLog.find(e => e.type === "STAFF_LEVEL_UP")
+        expect(player?.week).toBe(11)
+        expect(staff?.week).toBe(11)
+    })
+})

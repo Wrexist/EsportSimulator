@@ -1299,6 +1299,7 @@
  "insight.reason.prepare": "Choisis style de jeu, plan économique et préparation",
  "insight.headline.won": "Match gagné : tu as pris {{own}} rounds sur {{total}} ; rounds pistolet {{pw}}/{{pt}} ; {{under}} rounds gagnés avec l'achat le plus faible, {{fav}} perdus avec le plus fort.",
  "insight.headline.lost": "Match perdu : tu as pris {{own}} rounds sur {{total}} ; rounds pistolet {{pw}}/{{pt}} ; {{under}} rounds gagnés avec l'achat le plus faible, {{fav}} perdus avec le plus fort.",
+ "insight.reason.fullBuys": "Full buys : {{won}} gagnés sur {{played}}",
  "why.counter.ctLabel": "Stack sur {{site}}",
  "why.counter.tLabel": "Attaque sur {{site}}",
  "why.counter.ct": "{{rounds}} rounds de full buy en CT : leurs T sont venus sur ton stack dans {{met}}, tu en as gagné {{won}}.",

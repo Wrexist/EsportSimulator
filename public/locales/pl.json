@@ -1330,6 +1330,7 @@
  "insight.reason.prepare": "Ustaw styl gry, plan ekonomii i przygotowanie",
  "insight.headline.won": "Mecz wygrany: wzięte rundy {{own}} z {{total}}; rundy pistoletowe {{pw}}/{{pt}}; {{under}} rund wygranych słabszym zakupem, {{fav}} przegranych mocniejszym.",
  "insight.headline.lost": "Mecz przegrany: wzięte rundy {{own}} z {{total}}; rundy pistoletowe {{pw}}/{{pt}}; {{under}} rund wygranych słabszym zakupem, {{fav}} przegranych mocniejszym.",
+ "insight.reason.fullBuys": "Full buye: wygrane {{won}} z {{played}}",
  "why.counter.ctLabel": "Stack na {{site}}",
  "why.counter.tLabel": "Atak na {{site}}",
  "why.counter.ct": "Rundy full buy jako CT: {{rounds}}; ich TT weszli na twój stack w {{met}}, wygrane: {{won}}.",

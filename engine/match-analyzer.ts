@@ -35,8 +35,8 @@ export class MatchAnalyzer {
         const homeStats = this.aggregateStats(result, homePlayerIds)
         const awayStats = this.aggregateStats(result, awayPlayerIds)
 
-        // 3. Round Analysis (Pistols, Eco, etc)
-        const roundAnalysis = this.analyzeRounds(match, result)
+        // 3. Round Analysis (Pistols, trades)
+        const roundAnalysis = this.analyzeRounds(match, result, homePlayerIds, awayPlayerIds)
 
         // 4. Identify Key Factors
         const factors = this.determineKeyFactors(result, homeStats, awayStats, roundAnalysis)
@@ -44,37 +44,14 @@ export class MatchAnalyzer {
         // 5. Generate narrative summary
         const summary = this.generateSummary(winner, factors, result)
 
-        // 6. Calculate Ratings (0-100) — based on actual performance, not outcome
-        const winnerStats = homeWon ? homeStats : awayStats
-        const totalRounds = result.maps.reduce((sum, m) => sum + m.rounds.length, 0) || 1
-
-        // Economy: pistol wins + economy score (how well they managed buys)
-        const pistolBonus = (roundAnalysis.homePistolsWon + roundAnalysis.awayPistolsWon) > 0
-            ? ((homeWon ? roundAnalysis.homePistolsWon : roundAnalysis.awayPistolsWon) / Math.max(1, result.maps.length * 2)) * 30
-            : 0
-        const economyRating = Math.min(99, Math.round(40 + roundAnalysis.economyScore * 3 + pistolBonus))
-
-        // Aim: based on K/D and average Pro rating of the winning team's players
-        const kd = winnerStats.deaths > 0 ? winnerStats.kills / winnerStats.deaths : 1.5
-        const aimRating = Math.min(99, Math.round(winnerStats.avgRating * 50 + kd * 15))
-
-        // Utility: derive from assists and KAST (teams with high KAST use utility well)
-        const allStats = Object.values(result.playerStats)
-        const avgKast = allStats.length > 0 ? allStats.reduce((s, p) => s + (p.kast || 70), 0) / allStats.length : 70
-        const avgAssists = allStats.length > 0 ? allStats.reduce((s, p) => s + (p.assists || 0), 0) / allStats.length : 2
-        const utilityRating = Math.min(99, Math.round(avgKast * 0.7 + avgAssists * 5))
-
-        // Trading: trade count relative to total rounds played
-        const tradingRating = Math.min(99, Math.round(50 + (winnerStats.tradeCount / totalRounds) * 100))
-
-        const teamPerformance = { economyRating, aimRating, utilityRating, tradingRating }
-
+        // MATCHENGINE-09: no per-team 0-100 ratings any more. They were never
+        // shown, and wrong (trading always capped at 99, the economy rating
+        // read from the home side's view for either winner).
         return {
             summary,
             keyFactor: factors.primaryFactor,
             winningFactor: factors.winningReason,
             losingFactor: factors.losingReason,
-            teamPerformance
         }
     }
 
@@ -85,7 +62,6 @@ export class MatchAnalyzer {
         let totalDeaths = 0
         let totalRating = 0
         let totalClutches = 0
-        let tradeCount = 0 // Approximate
         let playerCount = 0
 
         Object.entries(result.playerStats).forEach(([playerId, stats]) => {
@@ -94,11 +70,6 @@ export class MatchAnalyzer {
                 totalDeaths += stats.deaths
                 totalRating += stats.rating
                 totalClutches += stats.clutches
-
-                // Approximate trades: KAST - Survival
-                // This is rough but works for a prototype
-                tradeCount += Math.max(0, (stats.kast - 50) / 5)
-
                 playerCount++
             }
         })
@@ -108,20 +79,30 @@ export class MatchAnalyzer {
             deaths: totalDeaths,
             avgRating: playerCount > 0 ? totalRating / playerCount : 0.5,
             clutches: totalClutches,
-            tradeCount: tradeCount
         }
     }
 
-    private static analyzeRounds(match: { homeTeamId: string }, result: MatchResult) {
+    private static analyzeRounds(match: { homeTeamId: string }, result: MatchResult, homePlayerIds: Set<string>, awayPlayerIds: Set<string>) {
         let homePistolsWon = 0
         let awayPistolsWon = 0
-        let economyScore = 5 // Base score
+        // Trade kills from the recorded KILL events (MATCHENGINE-03).
+        let homeTrades = 0
+        let awayTrades = 0
 
         result.maps.forEach(map => {
             // Map round 1
             if (map.rounds.length > 0) processPistol(map.rounds[0])
             // Map round 13 (second half pistol in MR12)
             if (map.rounds.length > 12) processPistol(map.rounds[12])
+            for (const round of map.rounds) {
+                for (const e of round.events ?? []) {
+                    if (e.type !== "KILL" || !e.isTrade) continue
+                    const killer = e.playerId ?? e.killerId
+                    if (!killer) continue
+                    if (homePlayerIds.has(killer)) homeTrades++
+                    else if (awayPlayerIds.has(killer)) awayTrades++
+                }
+            }
         })
 
         function processPistol(round: RoundResult) {
@@ -134,18 +115,11 @@ export class MatchAnalyzer {
             else awayPistolsWon++
         }
 
-        // Derive economy score from pistol performance (0-10 scale)
-        const totalPistols = homePistolsWon + awayPistolsWon
-        if (totalPistols > 0) {
-            // Winning pistols is crucial for economy; score from perspective of home team
-            economyScore = 5 + (homePistolsWon - awayPistolsWon) * 2
-            economyScore = Math.max(1, Math.min(10, economyScore))
-        }
-
         return {
             homePistolsWon,
             awayPistolsWon,
-            economyScore
+            homeTrades,
+            awayTrades,
         }
     }
 
@@ -185,19 +159,27 @@ export class MatchAnalyzer {
             losingReason = "Never recovered from pistol losses"
             theme = "pistol-round snowballs"
         }
-        // 3. Check Rating Diff (Firepower)
+        // 3. Check Rating Diff (Firepower). A team rating gap, not every
+        // player: the loser can still have the best player on the server.
         else if (winnerStats.avgRating > loserStats.avgRating + 0.15) {
             primaryFactor = "FIREPOWER"
             winningReason = "Complete domination in aim duels"
-            losingReason = "Outclassed individually across the board"
+            losingReason = "Outgunned in the aim duels"
             theme = "dominance in aim duels"
         }
-        // 4. Default to Trading/Teamwork
-        else {
+        // 4. Trading, only when the winner really traded more (MATCHENGINE-03)
+        else if ((homeWon ? roundAnalysis.homeTrades - roundAnalysis.awayTrades : roundAnalysis.awayTrades - roundAnalysis.homeTrades) > 0) {
             primaryFactor = "TRADING"
             winningReason = "Better trade fragging and spacing"
-            losingReason = "Detailed isolation plays failed"
+            losingReason = "Lost the trade battle"
             theme = "better trading and spacing"
+        }
+        // 5. Nothing stood out: a close fight decided in the duels
+        else {
+            primaryFactor = "FIREPOWER"
+            winningReason = "Won more of the key duels"
+            losingReason = "Came up short in the key duels"
+            theme = "a handful of key duels"
         }
 
         return { primaryFactor, winningReason, losingReason, theme }

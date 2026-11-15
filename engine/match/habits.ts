@@ -47,13 +47,19 @@ export interface RoundCounter {
 }
 
 /**
- * Measured value of a counter (scripts/audit-anti-strat.ts, 960 paired maps of
- * even teams): rounds won per 100 of your full buys on that side, and map-win
- * points, against a club keeping to its habits.
+ * Measured value of a counter: rounds won per 100 of your full buys on that
+ * side, and map-win points. Shown on the prep screen and added to its win
+ * chance (win-odds counterShift), so it is the value in real matches, where
+ * a club runs its habit only on part of its full buys. MATCHENGINE-05 (paired
+ * rounds, the game's own clubs, counter on and off from the same state):
+ * CT +3.9 ±0.9 (n=12,160), T +3.7 ±0.8 (n=11,151) and +3.0 ±1.1 in the audit
+ * (n=5,521); T was shown as 5 rounds and 8 map points. Map points follow the
+ * CT counter's ratio (4 rounds, 5 points). Against a club forced to keep its
+ * habits (scripts/audit-anti-strat.ts) the counters are worth more.
  */
 export const COUNTER_EFFECT = {
     ct: { rounds: 4, maps: 5 },
-    t: { rounds: 5, maps: 8 },
+    t: { rounds: 3, maps: 4 },
 } as const
 
 /** Map id → which of a club's habits it changed since the season's draw. */
