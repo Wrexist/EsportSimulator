@@ -88,8 +88,9 @@ function AttributeRow({ def, value, offRole }: { def: AttrDef; value: number; of
             className="grid grid-cols-[minmax(0,1fr)_56px_28px] items-center gap-3 py-1.5"
             title={offRole ? t("attr.offRole", { label: t(`attr.${def.key}`) }) : def.use ? t(`attr.use.${def.key}`) : undefined}
         >
-            <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-ink-2">
-                <span className="truncate">{t(`attr.${def.key}`)}</span>
+            {/* The whole name stays readable: when a translation is long the tag moves under it instead of the name being cut (I18N-16). */}
+            <span className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[13px] text-ink-2">
+                <span className="min-w-0 break-words">{t(`attr.${def.key}`)}</span>
                 {def.use && (
                     <span className="shrink-0 rounded-sm border border-line-strong px-1 text-[11px] leading-4 text-ink-3">{t(`attr.tag.${def.use.tag}`)}</span>
                 )}

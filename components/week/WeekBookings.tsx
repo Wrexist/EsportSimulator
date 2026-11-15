@@ -77,7 +77,8 @@ export function WeekBookings({ week, bookings, effects, dayLabel, onBook }: Week
                         <o.icon size={16} className="shrink-0 text-ink-3" />
                         <span className="min-w-0">
                             <span className="block text-sm font-semibold text-ink-1">{t(`wk.book.${o.kind}`)}</span>
-                            <span className="block truncate text-xs font-normal text-ink-3">{t(`wk.book.${o.kind}.detail`)}</span>
+                            {/* Wraps instead of truncating: most translations are longer than the English (I18N-16). */}
+                            <span className="block whitespace-normal text-xs font-normal text-ink-3">{t(`wk.book.${o.kind}.detail`)}</span>
                         </span>
                     </Button>
                 ))}

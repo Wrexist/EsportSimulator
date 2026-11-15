@@ -56,7 +56,8 @@ export function SettingSelect<T extends string | number>({ id, value, onChange, 
                 const match = options.find(o => String(o.value) === raw)
                 if (match) onChange(match.value)
             }}
-            className="h-9 w-52 rounded-md border border-line bg-shell px-3 text-sm! text-ink-1 outline-none transition-colors hover:border-line-strong focus-visible:border-gold disabled:opacity-40"
+            // Grows to its longest option (up to 18rem) so a translation such as "Программная (по умолчанию)" is not cut (I18N-16).
+            className="h-9 w-auto min-w-52 max-w-72 rounded-md border border-line bg-shell px-3 text-sm! text-ink-1 outline-none transition-colors hover:border-line-strong focus-visible:border-gold disabled:opacity-40"
         >
             {options.map(o => <option key={String(o.value)} value={o.value} className="bg-panel">{o.label}</option>)}
         </select>
