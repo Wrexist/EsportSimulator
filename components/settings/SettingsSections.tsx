@@ -328,10 +328,15 @@ export function ControlsSettings() {
                             <li key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4 py-1.5">
                                 <span className="text-sm text-ink-2">{t(shortcut.description)}</span>
                                 <span className="flex shrink-0 items-center gap-1">
-                                    {shortcut.keys.map((key, i) => (
-                                        <span key={i} className="flex items-center gap-1">
-                                            <Kbd>{keyLabel(key)}</Kbd>
-                                            {i < shortcut.keys.length - 1 && <span className="text-xs text-ink-3">+</span>}
+                                    {[shortcut.keys, ...(shortcut.alt ? [shortcut.alt] : [])].map((keys, set) => (
+                                        <span key={set} className="flex items-center gap-1">
+                                            {set > 0 && <span className="text-xs text-ink-3">/</span>}
+                                            {keys.map((key, i) => (
+                                                <span key={i} className="flex items-center gap-1">
+                                                    <Kbd>{keyLabel(key)}</Kbd>
+                                                    {i < keys.length - 1 && <span className="text-xs text-ink-3">+</span>}
+                                                </span>
+                                            ))}
                                         </span>
                                     ))}
                                 </span>

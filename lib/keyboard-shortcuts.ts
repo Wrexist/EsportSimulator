@@ -4,6 +4,8 @@
 
 export interface Shortcut {
     keys: string[]
+    /** Another key set that does the same, shown as "keys / alt" (HOME-11). */
+    alt?: string[]
     /** Translation key (locales/en/settings.ts); show it with t(). */
     description: string
 }
@@ -19,18 +21,17 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
         label: "shortcuts.group.general",
         shortcuts: [
             { keys: ["Ctrl", "S"], description: "shortcuts.saveGame" },
-            { keys: ["Ctrl", "L"], description: "shortcuts.openLoad" },
+            { keys: ["Ctrl", "L"], alt: ["F3"], description: "shortcuts.openLoad" },
             { keys: ["F2"], description: "shortcuts.quickSave" },
-            { keys: ["F3"], description: "shortcuts.openLoad" },
             { keys: ["F10"], description: "shortcuts.openSettings" },
             { keys: ["F11"], description: "shortcuts.fullscreen" },
-            { keys: ["F1"], description: "shortcuts.showShortcuts" },
-            { keys: ["?"], description: "shortcuts.showShortcuts" },
+            { keys: ["F1"], alt: ["?"], description: "shortcuts.showShortcuts" },
         ],
     },
     {
         label: "shortcuts.group.navigation",
         shortcuts: [
+            { keys: ["Ctrl", "K"], description: "search.title" },
             { keys: ["1"], description: "shortcuts.home" },
             { keys: ["2"], description: "shortcuts.openInbox" },
             { keys: ["I"], description: "shortcuts.toggleInbox" },
