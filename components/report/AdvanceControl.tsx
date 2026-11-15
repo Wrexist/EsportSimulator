@@ -17,7 +17,7 @@ import { useShallow } from "zustand/react/shallow"
 import { ArrowRight, ChevronDown, Loader2, Play, Swords, X } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { selectPlayableMatchId } from "@/lib/playable-match"
-import { forfeitStops, type StopSource } from "@/lib/advance-stops"
+import { advanceStopStillOpen, forfeitStops, type StopSource } from "@/lib/advance-stops"
 import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -64,9 +64,14 @@ export function AdvanceControl() {
     const pendingMatchId = useGameStore(selectPlayableMatchId)
     // A live match that was left mid-way resumes on the live screen, not its prep.
     const pendingIsLive = useGameStore(s => !!pendingMatchId && liveMatchInProgress(s, pendingMatchId))
+    // A "Decision waiting" notice ends when that decision is answered (in the inbox or on Home).
+    const stopAnswered = useGameStore(s => !!s.advanceStop && !advanceStopStillOpen(s.advanceStop, s.eventsLog))
+    useEffect(() => { if (stopAnswered) dismissAdvanceStop() }, [stopAnswered, dismissAdvanceStop])
     const hasCareer = !!saveId && !!playerTeamId
     const running = !!continueRun
     const locked = isLoading || !!gameOverReason || runOver || !hasCareer || running
+    // MODES-14/28: say why the control is locked when the reason is not on screen.
+    const lockedTitle = runOver ? t("advance.lockedRunOver") : gameOverReason && hasCareer ? t("advance.lockedNoClub") : undefined
     const daily = timeMode === "HYBRID_DAILY"
 
     // The stop notice is transient: after a reload the one-click "Sim match"
@@ -159,7 +164,7 @@ export function AdvanceControl() {
                     onClick={step(continueToNextDecision)}
                     disabled={locked}
                     className="h-10 px-4 @min-[110rem]/topbar:px-5"
-                    title={t("advance.continueTitle")}
+                    title={lockedTitle ?? t("advance.continueTitle")}
                 >
                     <span className="flex items-center gap-2">
                         <span className="tracking-wide uppercase">{t("advance.continue")}</span>
@@ -170,10 +175,17 @@ export function AdvanceControl() {
         )
     }
 
+    // On the match's own prep / veto / live screens the match-day notice only
+    // repeats the page (its "Prepare" points here) and covered the page header
+    // (MATCHDAY-06); it shows again elsewhere while the match is due.
+    const stopMatchPath = advanceStop?.kind === "match" ? advanceStop.href?.match(/^\/match\/[^/]+\//)?.[0] : undefined
+    const onStopMatch = !!stopMatchPath && !!pathname?.startsWith(stopMatchPath)
+
     return (
         <div className="relative shrink-0">
             {control}
-            {advanceStop && !running && <StopNotice />}
+            {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20). */}
+            {advanceStop && !running && !onStopMatch && !stopAnswered && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
         </div>
     )
 }
@@ -192,17 +204,19 @@ function SecondaryMenu({ actions, disabled }: { actions: { id: string; label: st
     }, [open])
     return (
         <div ref={ref} className="relative @min-[110rem]/topbar:hidden">
+            {/* MODES-24: a visible label, not a bare chevron. */}
             <Button
                 variant="outline"
                 onClick={() => setOpen(o => !o)}
                 disabled={disabled}
-                className="h-10 w-10 px-0"
+                className="h-10 gap-1 px-2.5 text-xs font-semibold"
                 aria-label={t("advance.moreOptions")}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 title={actions.map(a => a.label).join(" / ")}
             >
-                <ChevronDown size={15} />
+                {t("advance.more")}
+                <ChevronDown size={14} />
             </Button>
             {open && (
                 <div role="menu" className="absolute right-0 top-[calc(100%+6px)] z-50 w-56 overflow-hidden rounded-lg border border-line-strong bg-panel py-1 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]">
@@ -276,6 +290,9 @@ function MatchStopActions({ href, onDone }: { href: string; onDone: () => void }
             if (await prepAndSim(matchId)) {
                 onDone()
                 router.push(`/match/${matchId}/result`)
+            } else {
+                // The store toasts why it could not play; the notice no longer fits (HOME-20).
+                onDone()
             }
         } finally {
             setBusy(false)

@@ -131,7 +131,7 @@ export const navHubs: NavHub[] = [
         label: "Squad",
         icon: Users,
         items: [
-            { icon: Users, key: "nav.roster", label: "Roster", href: "/squad", keywords: "lineup players" },
+            { icon: Users, key: "nav.roster", label: "Squad", href: "/squad", keywords: "roster lineup players" },
             { icon: ClipboardList, key: "nav.staff", label: "Staff", href: "/staff", keywords: "coach analyst psychologist scout" },
             { icon: GraduationCap, key: "nav.academy", label: "Academy", href: "/academy", keywords: "prospects youth" },
             { icon: BarChart3, key: "nav.statistics", label: "Statistics", href: "/stats" },
@@ -213,20 +213,45 @@ export const navHubs: NavHub[] = [
 /** C10: club-running screens a pro career leaves to the staff. */
 export const PRO_HIDDEN_HREFS: ReadonlySet<string> = new Set(["/staff", "/academy", "/transfers", "/scouting", "/finances", "/sponsorships", "/basecamp", "/career/board"])
 
-/** The hubs to show: all of them, or without the club-running screens in a pro career. */
-export function navHubsFor(pro: boolean): NavHub[] {
-    if (!pro) return navHubs
+/** G7: club-running screens a Draft Cup side has no use for (no market, staff, money or facilities). */
+export const DRAFT_CUP_HIDDEN_HREFS: ReadonlySet<string> = new Set(["/transfers", "/academy", "/sponsorships", "/finances", "/scouting", "/staff", "/basecamp"])
+
+const pathMatches = (pathname: string, route: string) => pathname === route || pathname.startsWith(`${route}/`)
+
+/**
+ * MODES-01: a screen a pro career leaves to the staff, by URL as well as in
+ * the menus (`/equipment` redirects into Facilities).
+ */
+export function isProHiddenPath(pathname: string | null | undefined): boolean {
+    if (!pathname) return false
+    return pathMatches(pathname, "/equipment") || [...PRO_HIDDEN_HREFS].some(route => pathMatches(pathname, route))
+}
+
+/**
+ * MODES-28: the screens that still open between clubs (the rest show the job
+ * market). Kept in step with GameShell's BETWEEN_CLUBS_ROUTES.
+ */
+export const BETWEEN_CLUBS_HREFS: ReadonlySet<string> = new Set(["/", inboxHref(), "/league", "/rankings", "/hall-of-fame"])
+
+/**
+ * The hubs to show: all of them, or without the club-running screens in a pro
+ * career or a Draft Cup run, or only the screens that open between clubs (a
+ * hub left with no screens is dropped).
+ */
+export function navHubsFor(pro: boolean, draftCup = false, betweenClubs = false): NavHub[] {
+    if (!pro && !draftCup && !betweenClubs) return navHubs
+    const hidden = (href: string) => (pro && PRO_HIDDEN_HREFS.has(href)) || (draftCup && DRAFT_CUP_HIDDEN_HREFS.has(href)) || (betweenClubs && !BETWEEN_CLUBS_HREFS.has(href))
     return navHubs
-        .map(hub => ({ ...hub, items: hub.items.filter(item => !PRO_HIDDEN_HREFS.has(item.href)) }))
+        .map(hub => ({ ...hub, items: hub.items.filter(item => !hidden(item.href)) }))
         .filter(hub => hub.items.length > 0)
 }
 
 /** Hub-grouped destinations (search palette). */
 export const menuGroups: MenuGroup[] = navHubs.map(hub => ({ key: hub.key, label: hub.label, items: hub.items }))
 
-/** The search palette's destinations, without the club-running screens in a pro career. */
-export function menuGroupsFor(pro: boolean): MenuGroup[] {
-    return pro ? navHubsFor(true).map(hub => ({ key: hub.key, label: hub.label, items: hub.items })) : menuGroups
+/** The search palette's destinations, without the screens a pro career, a Draft Cup or a manager between clubs cannot use. */
+export function menuGroupsFor(pro: boolean, draftCup = false, betweenClubs = false): MenuGroup[] {
+    return pro || draftCup || betweenClubs ? navHubsFor(pro, draftCup, betweenClubs).map(hub => ({ key: hub.key, label: hub.label, items: hub.items })) : menuGroups
 }
 
 export const settingsItem: MenuItem = { icon: Settings, key: "nav.settings", label: "Settings & Tools", href: "/settings" }

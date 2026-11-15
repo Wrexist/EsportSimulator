@@ -17,8 +17,10 @@ export interface MomentCalloutData {
 const SHOW_MS = 2200
 
 /**
- * Multi-kill callout over the top of the radar ("NAME · TRIPLE KILL"),
+ * Multi-kill callout at the top of the radar ("NAME · TRIPLE KILL"),
  * shown for ~2 s of wall time when a player gets a 3rd, 4th or 5th kill.
+ * The radar stacks it under its clutch tag so the two never overlap
+ * (MATCHDAY-05).
  */
 export function MomentCallout({ callout }: { callout: MomentCalloutData | null }) {
     const reduceMotion = useAppReducedMotion()
@@ -35,7 +37,7 @@ export function MomentCallout({ callout }: { callout: MomentCalloutData | null }
     }, [callout])
     useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
     return (
-        <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center" aria-live="polite">
+        <div className="pointer-events-none flex justify-center" aria-live="polite">
             <AnimatePresence>
                 {shown && (
                     <motion.div

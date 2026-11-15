@@ -559,4 +559,44 @@ describe("main menu save list", () => {
         await sm.deleteSave(save.saveId)
         expect([...storage.store.keys()].some(k => k.startsWith("esports_slotmeta_"))).toBe(false)
     })
+
+    test("START-36: a corrupted save keeps its club and save name from its last summary", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        await sm.saveGame(save)
+        await sm.getSaveSlots() // caches the summary
+        storage.store.set(STORAGE_KEYS.SAVE_PREFIX + save.saveId, "{not json")
+        const slot = (await sm.getSaveSlots()).find(s => s.saveId === save.saveId)!
+        expect(slot.isCorrupted).toBe(true)
+        expect(slot.teamName).toBe("Team Alpha")
+        expect(slot.saveName).toBe("Test Career")
+        // Without a summary it is still listed, unnamed.
+        storage.store.delete("esports_slotmeta_" + save.saveId)
+        const bare = (await sm.getSaveSlots()).find(s => s.saveId === save.saveId)!
+        expect(bare.isCorrupted).toBe(true)
+        expect(bare.teamName).toBeNull()
+    })
+})
+
+describe("START-30: importing a file that is not a save", () => {
+    test("returns an INVALID code the screen can show in plain words", () => {
+        const sm = new SaveManager(new MemoryStorage())
+        expect(sm.importSave('{"hello":1}')).toMatchObject({ save: null, errorCode: "INVALID" })
+        expect(sm.importSave("not json")).toMatchObject({ save: null, errorCode: "INVALID" })
+    })
+    test("a save from a newer build keeps its own code and message", () => {
+        const sm = new SaveManager(new MemoryStorage())
+        const future = { ...makeSave(), saveVersion: CURRENT_SAVE_VERSION + 5 }
+        const result = sm.importSave(JSON.stringify(future))
+        expect(result.save).toBeNull()
+        expect(result.errorCode).toBe("NEWER_VERSION")
+        expect(result.error).toBeTruthy()
+    })
+    test("a real save still imports", () => {
+        const sm = new SaveManager(new MemoryStorage())
+        const result = sm.importSave(sm.exportSave(makeSave()))
+        expect(result.save).not.toBeNull()
+        expect(result.errorCode).toBeUndefined()
+    })
 })

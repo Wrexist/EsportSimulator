@@ -4,7 +4,7 @@ import { SaveManager } from "@/engine/save-manager"
 import { SeededRNG } from "@/engine/rng"
 import { FinanceProcessor } from "@/engine/processors/finance-processor"
 import { EconomyEngine } from "@/engine/economy-engine"
-import { cashRunway, forecastFinances, quotePlayerSigning } from "@/engine/finance-forecast"
+import { cashRunway, forecastFinances, quotePlayerSigning, settlementsLeft } from "@/engine/finance-forecast"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { processWeeklySponsorGoals } from "@/engine/processors/sponsor-goals-processor"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
@@ -191,9 +191,36 @@ test("weekly match integration pays contractual bonuses once and reconciles the 
     const processor = new AtomicWeekProcessor(new SaveManager(new FixtureStorage()))
     const result = await processor.processWeek(save, { playerTeamId: save.playerTeamId, trainingFocus: new Map() }, new SeededRNG(save.lastRngSeed))
     expect(result.success).toBe(true)
-    expect(save.completedMatches).toHaveLength(1)
-    const bonuses = save.financeLedger.filter(e => e.id.startsWith("contract_bonus_"))
+    // The managed club's one match (other clubs may play the week-2 open qualifier).
+    expect(save.completedMatches.filter(m => m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId)).toHaveLength(1)
+    const bonuses = save.financeLedger.filter(e => e.id.startsWith("contract_bonus_") && e.teamId === save.playerTeamId)
     expect(bonuses.reduce((n, e) => n + e.amount, 0)).toBe(550)
     const net = save.financeLedger.filter(e => e.teamId === save.playerTeamId).reduce((n, e) => n + (e.type === "INCOME" ? e.amount : -e.amount), 0)
     expect(save.teams[0].budget).toBe(opening + net)
+})
+
+// MARKET-10: Payroll "Left to pay", the deal panel and the staff hire card all
+// count the wage settlements a contract really pays from now.
+test("settlementsLeft equals the wage payments the weekly settlement really makes", () => {
+    for (const duration of [12, 52, 104]) {
+        const save = createLaunchFixture("first-week")
+        const team = save.teams.find(t => t.id === save.playerTeamId)!
+        const signedWeek = save.currentWeek
+        team.rosterIds.push("new-signing")
+        save.contracts.push({ playerId: "new-signing", teamId: team.id, salaryPerWeek: 660, startWeek: signedWeek, endWeek: signedWeek + duration, buyout: 0 })
+        team.staffIds = [...(team.staffIds ?? []), "qa-staff"]
+        save.staff.push({ id: "qa-staff", name: "QA", teamId: team.id, salaryPerWeek: 1050, contractEndWeek: signedWeek + duration } as typeof save.staff[0])
+        const expectedPlayer = settlementsLeft(signedWeek + duration, signedWeek)
+        expect(expectedPlayer).toBe(duration - 1)
+        let playerPays = 0, staffPays = 0
+        for (let w = signedWeek + 1; w <= signedWeek + duration + 2; w++) {
+            const withHim = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff, w).expenses
+            const without = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts.filter(c => c.playerId !== "new-signing"), save.staff.filter(s => s.id !== "qa-staff"), w).expenses
+            if (withHim.playerWages - without.playerWages === 660) playerPays++
+            if (withHim.staffWages - without.staffWages === 1050) staffPays++
+        }
+        expect(playerPays).toBe(expectedPlayer)
+        expect(staffPays).toBe(settlementsLeft(signedWeek + duration, signedWeek))
+    }
+    expect(settlementsLeft(5, 10)).toBe(0)
 })

@@ -6,7 +6,7 @@ import { Meter } from "@/src/components/ui/Meter"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import type { SponsorSaveData } from "@/engine/save-types"
-import { intlLocale, t } from "@/lib/i18n"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 const money = (v: number) => formatCurrency(v, "$", false)
 
@@ -31,7 +31,8 @@ export function BrandEffects({ fx }: { fx: SponsorSaveData["brandEffect"] }) {
     if (parts.length === 0) return <span className="text-xs text-ink-3">{t("sp.none")}</span>
     return (
         <span className="flex flex-col gap-0.5 text-xs">
-            {parts.map(p => <span key={p.text} className={p.good ? "text-ink-2" : "text-caution"}>{p.text}</span>)}
+            {/* MARKET-21: one effect per line, never broken mid-phrase. */}
+            {parts.map(p => <span key={p.text} className={cn("whitespace-nowrap", p.good ? "text-ink-2" : "text-caution")}>{p.text}</span>)}
         </span>
     )
 }
@@ -39,10 +40,10 @@ export function BrandEffects({ fx }: { fx: SponsorSaveData["brandEffect"] }) {
 /** Goal wording with its target (the engine keys progress off the description). */
 export function goalText(description: string, target: number): string {
     const n = target.toLocaleString(intlLocale())
-    if (description.includes("Maintain Morale > 80")) return t("sp.goal.morale", { n })
+    if (description.includes("Maintain Morale > 80")) return tn("sp.goal.morale", target, { n })
     if (description.includes("Gain Followers")) return t("sp.goal.followers", { n })
-    if (description.includes("Win Tournament maps")) return t("sp.goal.maps", { n })
-    if (description.includes("Win Matches")) return t("sp.goal.matches", { n })
+    if (description.includes("Win Tournament maps")) return tn("sp.goal.maps", target, { n })
+    if (description.includes("Win Matches")) return tn("sp.goal.matches", target, { n })
     return `${description} · ${n}`
 }
 
@@ -146,7 +147,8 @@ export function OffersTable({ rows, slotsFull, onAccept, onDecline }: {
                                 <td className="px-3 py-3 text-right text-sm tabular-nums text-ink-1">{money(offer.weeklyPayout)}</td>
                                 <td className="px-3 py-3 text-right text-sm tabular-nums text-ink-2">{t("sp.wks", { n: offer.remainingWeeks })}</td>
                                 <td className="px-3 py-3 text-right">
-                                    <p className={cn("text-sm tabular-nums", incomeChange > 0 ? "text-positive" : "text-ink-3")}>{formatSignedCurrency(incomeChange, "$", false)}</p>
+                                    {/* MARKET-06: money that can't be signed for isn't shown as on offer. */}
+                                    <p className={cn("text-sm tabular-nums", incomeChange > 0 && !blocked ? "text-positive" : "text-ink-3")}>{formatSignedCurrency(incomeChange, "$", false)}</p>
                                     {incomeChange <= 0 && <p className="text-xs text-ink-3">{t("sp.floorMore")}</p>}
                                 </td>
                                 <td className="px-3 py-3"><BrandEffects fx={offer.brandEffect} /></td>
@@ -166,7 +168,7 @@ export function OffersTable({ rows, slotsFull, onAccept, onDecline }: {
                                 <td className="py-3 pl-3 pr-4">
                                     <div className="flex items-center justify-end gap-1.5">
                                         {blocked ? (
-                                            <span className="inline-flex max-w-[180px] items-center gap-1.5 text-right text-xs text-ink-3"><Lock size={12} className="shrink-0" />{blocked}</span>
+                                            <span className="inline-flex max-w-[180px] items-start gap-1.5 text-xs text-ink-3"><Lock size={12} className="mt-0.5 shrink-0" /><span>{blocked}</span></span>
                                         ) : (
                                             <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => onAccept(offer)}>{t("sp.sign")}</Button>
                                         )}

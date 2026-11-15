@@ -219,6 +219,8 @@ export const STORYLINES = {
     "sl.bp.standing.finance": "{{current}} in the bank against {{target}}",
     "sl.bp.standing.ranking": "ranked #{{current}} against a target of #{{target}}",
     "sl.bp.standing.trophies": "{{current}} trophies against a target of {{target}}",
+    "sl.bp.standing.trophyCount.one": "{{count}} trophy against a target of {{target}}",
+    "sl.bp.standing.trophyCount.other": "{{count}} trophies against a target of {{target}}",
     "sl.bp.standing.place": "{{current}} against a target of {{target}}",
     "sl.bp.demand.promotion": "win promotion from {{division}} (top {{n}})",
     "sl.bp.demand.avoid": "avoid relegation from {{division}} ({{position}} or better)",

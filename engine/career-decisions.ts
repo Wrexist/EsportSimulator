@@ -1,5 +1,5 @@
 import type { GameSave } from './save-types'
-import { captainId } from './personality'
+import { captainId, isOfficialMatch } from './personality'
 import { eventText } from '@/lib/news-ref'
 
 /** Small, situation-driven decisions. One open decision and at least eight weeks between them. */
@@ -14,14 +14,23 @@ export function generateCareerDecision(save: GameSave): void {
     const roster = save.players.filter(p => team.rosterIds.includes(p.id) && !p.isRetired)
     const low = [...roster].sort((a, b) => a.morale - b.morale || a.id.localeCompare(b.id))[0]
     const tired = [...roster].sort((a, b) => b.fatigue - a.fatigue || a.id.localeCompare(b.id))[0]
-    const recent = save.completedMatches.filter(m => m.week <= save.currentWeek && m.week >= save.currentWeek - 4 && (m.homeTeamId === team.id || m.awayTeamId === team.id))
+    // The assistant coach's win-streak decision (engine/processors/event-processor.ts)
+    // already asks about this run: one prompt per winning run (HOME-06).
+    const streakAsked = save.eventsLog.some(e => e.type === 'win_streak' && e.week > save.currentWeek - 8)
+    // "Three straight wins" counts competitive matches only (no scrims or
+    // friendlies), oldest first by week, day, then the order they were played.
+    const recent = save.completedMatches
+        .map((m, i) => ({ m, i }))
+        .filter(({ m }) => m.week <= save.currentWeek && m.week >= save.currentWeek - 4 && (m.homeTeamId === team.id || m.awayTeamId === team.id) && isOfficialMatch(m))
+        .sort((a, b) => a.m.week - b.m.week || (a.m.day ?? 6) - (b.m.day ?? 6) || a.i - b.i)
+        .map(({ m }) => m)
     const story = low && low.morale < 40 ? {
         key: 'confidence', player: low, ...eventText({ key: 'cdec.support.t', params: { name: low.nickname } }, { key: 'cdec.support.m', params: { name: low.nickname } }),
         choices: [{ id: 'support', text: 'Support session: $500, morale +8, loyalty +2', ref: { key: 'cdec.c.support' }, effects: { money: -500, morale: 8, loyalty: 2 } }, { id: 'talk', text: 'Private conversation: morale +3', ref: { key: 'cdec.c.private' }, effects: { morale: 3 } }],
     } : tired && tired.fatigue > 70 ? {
         key: 'recovery', player: tired, ...eventText({ key: 'cdec.tired.t', params: { name: tired.nickname } }, { key: 'cdec.tired.m', params: { name: tired.nickname } }),
         choices: [{ id: 'recovery', text: 'Recovery session: $750, fatigue -10', ref: { key: 'cdec.c.recovery' }, effects: { money: -750, fatigue: -10 } }, { id: 'talk', text: 'Check in: morale +2', ref: { key: 'cdec.c.checkIn' }, effects: { morale: 2 } }],
-    } : recent.length >= 3 && recent.slice(-3).every(m => m.result.winnerId === team.id) ? {
+    } : !streakAsked && recent.length >= 3 && recent.slice(-3).every(m => m.result.winnerId === team.id) ? {
         // Phase 5.2: the captain is the manager's pick (default: highest leader stat), not roster[0].
         key: 'momentum', player: roster.find(p => p.id === captainId(team, id => roster.find(r => r.id === id))) ?? roster[0], ...eventText({ key: 'cdec.momentum.t', params: { club: team.name } }, { key: 'cdec.momentum.m' }),
         choices: [{ id: 'team', text: 'Team session: $1,000, chemistry +3', ref: { key: 'cdec.c.team' }, effects: { money: -1000, chemistry: 3 } }, { id: 'praise', text: 'Praise the captain: morale +2', ref: { key: 'cdec.c.praise' }, effects: { morale: 2 } }],

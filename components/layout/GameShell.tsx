@@ -24,7 +24,7 @@ import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
 import { routeMusicScene } from "@/lib/route-audio"
 import { debouncedStorage } from "@/engine/storage-adapter"
-import { INBOX_OPEN_KEY, INBOX_TOGGLE_KEY, NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
+import { INBOX_OPEN_KEY, INBOX_TOGGLE_KEY, NUMBER_KEY_ROUTES, isSpaceOwnedByFocus } from "@/lib/keyboard-shortcuts"
 import { InboxUrlBridge } from "@/components/inbox/InboxUrlBridge"
 import { useInboxDrawer } from "@/components/inbox/inbox-drawer-store"
 import { logger } from "@/lib/logger"
@@ -32,12 +32,14 @@ import { MotionConfig } from "framer-motion"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { createSessionPersistence } from "@/lib/session-persistence"
 import { hasUnsavedChanges } from "@/lib/unsaved-changes"
+import { createSaveSoon } from "@/lib/save-soon"
 import { waitForPendingGameSave } from "@/store/game-store"
 import { useMomentPending } from "@/components/moments/moment-state"
 import { useLocale, useUiLanguageSync } from "@/lib/use-locale"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 import { t } from "@/lib/i18n"
 import { escapeGoesBack, requiresCareer } from "@/lib/career-routes"
+import { isProHiddenPath } from "@/lib/navigation"
 import { windowModeForFullscreen } from "@/lib/window-mode"
 import { applyUiScale, effectiveUiScale, stableBaseViewportSize } from "@/lib/ui-scale"
 
@@ -77,6 +79,17 @@ const DEMO_OVER_ROUTES = ["/settings", "/credits", "/load-game", "/main-menu", "
 const routeIn = (pathname: string | null, routes: string[]) =>
     !!pathname && routes.some(r => r.endsWith("/") ? pathname.startsWith(r) : pathname === r || pathname.startsWith(`${r}/`))
 
+/** MODES-01: a club-running screen opened by URL or link in a pro career. */
+function ProBlocked() {
+    return (
+        <div className="mx-auto mt-10 max-w-md rounded-lg border border-line bg-panel p-6 text-center">
+            <h1 className="font-display text-2xl font-bold uppercase text-ink-1">{t("shell.proBlocked")}</h1>
+            <p className="mt-2 text-sm text-ink-2">{t("shell.proBlockedBody")}</p>
+            <Link href="/" className="mt-4 inline-block text-sm font-semibold text-gold hover:underline">{t("shell.backHome")}</Link>
+        </div>
+    )
+}
+
 function DraftCupBlocked() {
     return (
         <div className="mx-auto mt-10 max-w-md rounded-lg border border-line bg-panel p-6 text-center">
@@ -100,6 +113,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // Full-screen moments (titles, tier moves, signings, welcome) come first;
     // the legend pick of a major opens after its title moment.
     const momentPending = useMomentPending()
+    // A blocking screen (title moment, legend pick) must stay on top; the
+    // inbox drawer's layer is above it, so the drawer closes and stays shut
+    // until the screen is answered (COMP-24).
+    const blockingScreen = momentPending || !!pendingLegendPick
+    useEffect(() => { if (blockingScreen) useInboxDrawer.getState().close() }, [blockingScreen])
 
     // The chosen language: its file loads, then everything below re-renders in it.
     useUiLanguageSync(useSettingsStore(state => state.language))
@@ -167,10 +185,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             if (settings.colorVisionMode !== "off") document.documentElement.classList.add(settings.colorVisionMode)
             applyUiScale(effectiveUiScale(settings, stableBaseViewportSize()))
         }
-        // The automatic UI scale follows the window size until the player picks one.
+        // The automatic UI scale follows the window size until the player picks one;
+        // a picked scale is capped to what fits the window (CROSSCUT-14), so it follows too.
         const applyScaleOnResize = () => {
-            const settings = useSettingsStore.getState()
-            if (settings.uiScaleAuto) applyUiScale(effectiveUiScale(settings, stableBaseViewportSize()))
+            applyUiScale(effectiveUiScale(useSettingsStore.getState(), stableBaseViewportSize()))
         }
         applyPreferences()
         const unsubscribe = useSettingsStore.subscribe(applyPreferences)
@@ -218,19 +236,27 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             if (allowClose) await electronBridge.confirmAppClose()
             else await electronBridge.cancelAppClose?.()
         })
+        // Browser tab: a save started on unload never finishes (the leave
+        // prompt blocks the page, then the reload tears it down), so with
+        // auto-save on each career change is written a moment after it
+        // happens. The desktop app saves through its close path above.
+        const saveSoon = electronBridge ? null : createSaveSoon({
+            subscribe: listener => useGameStore.subscribe(listener),
+            getState: useGameStore.getState,
+            enabled: () => useSettingsStore.getState().autoSave && !isLiveMatchPath(window.location.pathname),
+            hasUnsavedChanges,
+            save: () => useGameStore.getState().saveGame(),
+        })
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             if (electronBridge) return
             const state = useGameStore.getState()
-            if (useSettingsStore.getState().autoSave && state.saveId) {
-                if (!state.isLoading) void state.saveGame().catch(() => {})
-                event.preventDefault()
-                event.returnValue = ""
-            } else if (hasUnsavedChanges(state)) {
-                // Auto-save off: the browser's own leave prompt is the only
-                // warning a tab close can show.
-                event.preventDefault()
-                event.returnValue = ""
-            }
+            if (!hasUnsavedChanges(state)) return
+            // Progress not on disk yet (auto-save off, or a write still in
+            // flight): the browser's own leave prompt is the only warning a
+            // tab close can show. Staying lets a running save finish.
+            if (useSettingsStore.getState().autoSave && !state.isLoading) void state.saveGame().catch(() => {})
+            event.preventDefault()
+            event.returnValue = ""
         }
         const handleVisibilityChange = () => {
             runtimeWindow.__esimWindowFocused = !document.hidden
@@ -245,6 +271,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         return () => {
             disposed = true
             persistence.dispose()
+            saveSoon?.dispose()
             unsubscribeClose?.()
             exitResolverRef.current?.(false)
             exitResolverRef.current = null
@@ -263,6 +290,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const betweenClubs = useGameStore(state => inCareer && !!state.gameOverReason)
     const draftCupStage = useGameStore(state => !inCareer || !state.draftCup ? null : draftCupOutcome(state as never) ? "over" : "running")
     const demoOver = useGameStore(state => inCareer && demoWeekCapReached(state))
+    const proActive = useGameStore(state => inCareer && !!state.proCareer && state.proCareer.retiredWeek == null)
     const demoWeeks = useGameStore(state => IS_DEMO && inCareer && !state.draftCup ? demoWeeksLeft(state.currentWeek) : 0)
     const markDemoTourVisited = useSettingsStore(state => state.markDemoTourVisited)
     useEffect(() => {
@@ -441,6 +469,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
 
             if (e.key === " " && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                // Space on a focused control presses that control (CROSSCUT-03):
+                // it must never also skip days.
+                if (isSpaceOwnedByFocus(e.target)) return
                 // Don't advance on non-gameplay pages
                 const path = window.location.pathname
                 if (path.includes('/match/') || path.includes('/settings') || path.includes('/credits') || path.includes('/load-game')) return
@@ -487,6 +518,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                                 : betweenClubs && !isBetweenClubsRoute(pathname) ? <DismissalJobMarket blockedRoute />
                                 : draftCupStage === "over" && !routeIn(pathname, DRAFT_CUP_OVER_ROUTES) ? <DraftCupResult />
                                 : draftCupStage === "running" && routeIn(pathname, DRAFT_CUP_BLOCKED) ? <DraftCupBlocked />
+                                : proActive && isProHiddenPath(pathname) ? <ProBlocked />
                                 : children}
                         </ErrorBoundary>
                     </div>
@@ -515,7 +547,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
             {!IS_DEMO && !hideChrome && !isMatchRoute && !momentPending && !pendingLegendPick && <ReviewAsk />}
             {demoWeeks > 0 && !hideChrome && !isLiveMatch && <DemoWeeksPill weeksLeft={demoWeeks} />}
-            {!hideChrome && !isLiveMatch && (
+            {!hideChrome && !isLiveMatch && !blockingScreen && (
                 <>
                     <Suspense fallback={null}><InboxUrlBridge /></Suspense>
                     <InboxDrawer />

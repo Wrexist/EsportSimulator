@@ -88,7 +88,7 @@ describe("season-end youth intake — AI clubs do not pollute the player academy
     test("the PLAYER's own youth intake still enters save.academyPlayers", () => {
         const save = makeWorldSave(52, [
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            makeTeam("player", { facilities: [TRAINING_L5 as any] }),
+            makeTeam("player", { facilities: [TRAINING_L5 as any], academyFacility: { level: 1, builtWeek: 1 } as any }),
         ])
         processAIWorldLogic(save, "player", new SeededRNG(1))
         expect(save.players.length).toBe(2)

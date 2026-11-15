@@ -244,4 +244,6 @@ export const SCHEDULE: Record<string, string> = {
     "lgp.relegPlace": "relegation place",
     "lgp.divChampions": "Division champions",
     "lgp.tiebreak": "3 points a win · ties: head-to-head, then map and round difference",
+    "sch.rest": "Rest day",
+    "sch.rest.desc": "Recovery (+{{n}} energy)",
 }

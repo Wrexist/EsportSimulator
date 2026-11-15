@@ -14,6 +14,18 @@ import type { WeekReport } from "@/lib/week-report"
 import { FormGuide } from "@/src/components/ui/FixtureBanner"
 import { formatMoney, moneyLines, playerGroups, resultsLabel, teamRows, unansweredRows, warningText, type Tone } from "./report-model"
 import { t, tn } from "@/lib/i18n"
+import { useGameStore } from "@/store/game-store"
+
+/**
+ * MODES-07/14: which club figures the report shows. A Draft Cup run has no
+ * money, world rank or board to speak of; in a pro career the staff run the
+ * money and the board judges them, not the player.
+ */
+function useReportMode(): "club" | "pro" | "cup" {
+    return useGameStore(s => s.draftCup ? "cup" : s.proCareer && s.proCareer.retiredWeek == null ? "pro" : "club")
+}
+const KPI_COLUMNS: Record<number, string> = { 2: "sm:grid-cols-2", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4", 5: "sm:grid-cols-5" }
+import { stageName } from "@/lib/display-names"
 
 const TONE_TEXT: Record<Tone, string> = { up: "text-positive", down: "text-negative", neutral: "text-ink-2" }
 
@@ -43,12 +55,14 @@ export function WeekReportKpis({ report }: { report: WeekReport }) {
     const [m0, m1] = report.kpis.morale
     const rankMove = r0 != null && r1 != null ? r0 - r1 : 0
     const boardMove = b0 != null && b1 != null ? Math.round(b1 - b0) : 0
+    const mode = useReportMode()
+    const columns = mode === "cup" ? 2 : mode === "pro" ? 3 : 5
     return (
-        <div className="grid grid-cols-2 divide-line border-y border-line sm:grid-cols-5 sm:divide-x">
-            <KpiCell label={t("wr.kpi.money")} value={formatMoney(money.net, true)} tone={money.net > 0 ? "up" : money.net < 0 ? "down" : "neutral"} hint={t("wr.kpi.funds", { amount: formatMoney(report.kpis.budget[1]) })} />
+        <div className={cn("grid grid-cols-2 divide-line border-y border-line sm:divide-x", KPI_COLUMNS[columns])}>
+            {mode === "club" && <KpiCell label={t("wr.kpi.money")} value={formatMoney(money.net, true)} tone={money.net > 0 ? "up" : money.net < 0 ? "down" : "neutral"} hint={t("wr.kpi.funds", { amount: formatMoney(report.kpis.budget[1]) })} />}
             <KpiCell label={t("wr.kpi.results")} value={resultsLabel(report)} hint={report.matches.length ? tn("wr.kpi.matches", report.matches.length) : t("wr.kpi.trainingWeek")} />
-            <KpiCell label={t("svd.worldRank")} value={r1 != null ? `#${r1}` : "—"} tone={rankMove > 0 ? "up" : rankMove < 0 ? "down" : "neutral"} hint={rankMove ? `${rankMove > 0 ? "▲" : "▼"} ${tn("wr.kpi.places", Math.abs(rankMove))}` : t("wr.kpi.noChange")} />
-            <KpiCell label={t("svd.board")} value={b1 != null ? Math.round(b1) : "—"} tone={boardMove > 0 ? "up" : boardMove < 0 ? "down" : "neutral"} hint={boardMove ? t("wr.kpi.confidence", { n: `${boardMove > 0 ? "+" : "−"}${Math.abs(boardMove)}` }) : t("wr.kpi.confidenceSame")} />
+            {mode !== "cup" && <KpiCell label={t("svd.worldRank")} value={r1 != null ? `#${r1}` : "—"} tone={rankMove > 0 ? "up" : rankMove < 0 ? "down" : "neutral"} hint={rankMove ? `${rankMove > 0 ? "▲" : "▼"} ${tn("wr.kpi.places", Math.abs(rankMove))}` : t("wr.kpi.noChange")} />}
+            {mode === "club" && <KpiCell label={t("svd.board")} value={b1 != null ? Math.round(b1) : "—"} tone={boardMove > 0 ? "up" : boardMove < 0 ? "down" : "neutral"} hint={boardMove ? t("wr.kpi.confidence", { n: `${boardMove > 0 ? "+" : "−"}${Math.abs(boardMove)}` }) : t("wr.kpi.confidenceSame")} />}
             <KpiCell label={t("wr.kpi.morale")} value={m1 != null ? Math.round(m1) : "—"} tone={m0 != null && m1 != null && Math.round(m1) !== Math.round(m0) ? (m1 > m0 ? "up" : "down") : "neutral"} hint={m0 != null && m1 != null ? t("wr.kpi.was", { n: Math.round(m0) }) : undefined} />
         </div>
     )
@@ -59,6 +73,7 @@ export function WeekReportView({ report }: { report: WeekReport }) {
     const money = moneyLines(report)
     const team = teamRows(report)
     const unanswered = unansweredRows(report)
+    const mode = useReportMode()
     return (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
             {/* Player changes */}
@@ -107,7 +122,7 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                                     <Link href={`/match/${m.id}/result`} className="flex h-10 items-center gap-3 px-4 hover:bg-raised">
                                         <FormGuide results={[m.won ? "W" : "L"]} />
                                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{m.opponentName}</span>
-                                        <span className="hidden truncate text-xs text-ink-3 sm:inline">{m.forfeit ? t("wr.forfeit") : m.competition === "Scrim" ? t("wr.scrim") : m.competition === "Match" ? t("wr.match") : m.competition}</span>
+                                        <span className="hidden truncate text-xs text-ink-3 sm:inline">{m.forfeit ? t("wr.forfeit") : m.competition === "Scrim" ? t("wr.scrim") : m.competition === "Match" ? t("wr.match") : stageName(m.competition)}</span>
                                         <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{m.score}</span>
                                     </Link>
                                 </li>
@@ -116,8 +131,8 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                     )}
                 </section>
 
-                {/* Money by line */}
-                <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.money")}>
+                {/* Money by line (the club's; a Draft Cup run has none to manage) */}
+                {mode !== "cup" && <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.money")}>
                     <SectionTitle aside={<span className={cn("text-xs font-semibold tabular-nums", money.net < 0 ? "text-negative" : "text-positive")}>{formatMoney(money.net, true)}</span>}>{t("wr.money")}</SectionTitle>
                     {money.income.length + money.expenses.length === 0 ? (
                         <p className="px-4 py-3 text-sm text-ink-3">{t("wr.noMoney")}</p>
@@ -134,7 +149,7 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                             ))}
                         </dl>
                     )}
-                </section>
+                </section>}
 
                 {/* Team changes */}
                 <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.team")}>

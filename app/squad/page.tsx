@@ -1,5 +1,5 @@
 "use client"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, t, tn } from "@/lib/i18n"
 import { countryName } from "@/lib/country"
 
 import { LoadChip } from "@/components/squad/LoadChip"
@@ -33,7 +33,9 @@ import { useFocusTrap } from "@/lib/accessibility"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { startingFiveOvr } from "@/lib/team-ovr"
 import { potentialOvr } from "@/lib/potential-ovr"
-import { promotionTerms } from "@/app/academy/_components/academy-facts"
+import { potentialRevealText, promotionTerms } from "@/app/academy/_components/academy-facts"
+import { visibleAcademyPotential } from "@/engine/academy-engine"
+import { storedText } from "@/lib/stored-text"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
@@ -45,6 +47,8 @@ import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 /** The actions column: pinned to the right edge with the panel behind it. */
 const STICKY_ACTIONS = "sticky right-0 z-[1] w-36 bg-panel shadow-[-12px_0_12px_-12px_rgba(0,0,0,0.7)]"
+/** SQUAD-17: its header cell takes the header row's colour and casts no shadow on the header. */
+const STICKY_ACTIONS_HEAD = "sticky right-0 z-[1] w-36 bg-[var(--surface-800)]"
 
 /** Contract weeks left → tone: red inside a month, amber inside a quarter. */
 function contractTone(weeksLeft: number): string {
@@ -103,7 +107,7 @@ const RosterRow = memo(function RosterRow({
       )}
     >
       <td className="w-10 pl-4 text-xs font-semibold tabular-nums text-ink-3">{isSwapTarget ? <ArrowRightLeft size={14} className="text-gold" /> : slot}</td>
-      <td className="py-2 pr-3">
+      <td className="py-2 pr-2">
         <div className="flex min-w-0 items-center gap-3">
           <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-raised">
             <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={40} />
@@ -144,18 +148,19 @@ const RosterRow = memo(function RosterRow({
           </div>
         </div>
       </td>
-      <td className="px-3"><RoleTag role={player.role} /></td>
-      <td className="hidden px-3 2xl:table-cell"><PersonalityChips player={player} /></td>
-      <td className="px-3 text-center"><RatingChip value={player.evaluation.overallRating} /></td>
-      <td className="px-3 text-center text-sm tabular-nums text-ink-2">{player.age}</td>
-      <td className="px-3"><Meter value={player.morale} label={t("common.morale")} /></td>
-      <td className="px-3"><Meter value={player.form} label={t("squad.col.form")} /></td>
-      <td className="px-3"><Meter value={playerEnergyPercent(player)} label={t("common.energy")} /></td>
-      <td className="hidden px-3 2xl:table-cell"><LoadChip player={player} /></td>
-      <td className={cn("px-3 text-right text-sm tabular-nums", contractTone(weeksLeft))}>
-        {weeksLeft >= 52 ? t("squad.row.years", { n: (weeksLeft / 52).toFixed(1) }) : t("common.weeksShort", { count: weeksLeft })}
+      <td className="px-2"><RoleTag role={player.role} /></td>
+      <td className="hidden px-2 2xl:table-cell"><PersonalityChips player={player} /></td>
+      <td className="px-2 text-center"><RatingChip value={player.evaluation.overallRating} /></td>
+      <td className="px-2 text-center text-sm tabular-nums text-ink-2">{player.age}</td>
+      <td className="px-2"><Meter value={player.morale} label={t("common.morale")} trackClassName="w-10" /></td>
+      <td className="px-2"><Meter value={player.form} label={t("squad.col.form")} trackClassName="w-10" /></td>
+      <td className="px-2"><Meter value={playerEnergyPercent(player)} label={t("common.energy")} trackClassName="w-10" /></td>
+      <td className="hidden px-2 2xl:table-cell"><LoadChip player={player} /></td>
+      {/* SQUAD-21: one unit for every row, so 51 sits visibly below 94. */}
+      <td className={cn("px-2 text-right text-sm tabular-nums", contractTone(weeksLeft))}>
+        {t("common.weeksShort", { count: weeksLeft })}
       </td>
-      <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(salary, "$", false)}</td>
+      <td className="px-2 text-right text-sm tabular-nums text-ink-2">{formatCurrency(salary, "$", false)}</td>
       {/* SQUAD-01: the actions stay in view when the table scrolls sideways. */}
       <td className={cn(STICKY_ACTIONS, "pr-4 text-right")} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-end gap-2">
@@ -291,13 +296,14 @@ function SquadPageInner() {
   const benchRoster = roster.slice(5)
   const captain = captainId(teamData, id => playerById.get(id))
   const teamOvr = startingFiveOvr(activeRoster.map(p => p.evaluation.overallRating)) ?? 0
-  const avgAge = activeRoster.length > 0 ? (activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length).toFixed(1) : "—"
+  const avgAge = activeRoster.length > 0 ? formatDecimal(activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length) : "—"
   const wageBill = roster.reduce((sum, p) => sum + (contractByPlayerId.get(p.id)?.salaryPerWeek ?? 0), 0)
   const season = Math.ceil(currentWeek / 52)
   // SQUAD-15: the promotion wage is the market's for this player at this club.
   const promotingEntry = promotingProspectId ? academyPlayers.find((ap: { id: string }) => ap.id === promotingProspectId) : undefined
   const promotingPlayer = promotingEntry ? playerById.get(promotingEntry.playerId) : undefined
   const promoting = promotingPlayer ? { terms: promotionTerms(promotingPlayer, currentWeek, teamData) } : null
+  const squadFull = roster.length >= SENIOR_ROSTER_MAX
 
   const renderRow = (player: any, slot: number, isBench: boolean) => {
     const idx = player.originalIndex
@@ -350,7 +356,11 @@ function SquadPageInner() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      {/* SQUAD-05: the side panels sit beside the table only from 2xl; at 1280
+          they stack below so every column (wage last) fits without scrolling.
+          Cells are px-2 with short meters so the wage clears the sticky
+          actions column at 1024 and 1920 too. */}
+      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-4">
           <Panel padded={false} className="overflow-hidden">
             <div className="overflow-x-auto">
@@ -359,17 +369,17 @@ function SquadPageInner() {
                   <tr className="border-b border-line">
                     <th data-slot="table-head" className="pl-4">#</th>
                     <th data-slot="table-head">{t("squad.col.player")}</th>
-                    <th data-slot="table-head" className="px-3">{t("common.role")}</th>
-                    <th data-slot="table-head" className="hidden px-3 2xl:table-cell">{t("squad.col.personality")}</th>
-                    <th data-slot="table-head" className="px-3 text-center">{t("common.ovr")}</th>
-                    <th data-slot="table-head" className="px-3 text-center">{t("squad.col.age")}</th>
-                    <th data-slot="table-head" className="px-3">{t("common.morale")}</th>
-                    <th data-slot="table-head" className="px-3">{t("squad.col.form")}</th>
-                    <th data-slot="table-head" className="px-3" title={t("squad.col.energyTitle")}>{t("common.energy")}</th>
-                    <th data-slot="table-head" className="hidden px-3 2xl:table-cell" title={t("squad.col.loadTitle")}>{t("squad.col.load")}</th>
-                    <th data-slot="table-head" className="px-3 text-right">{t("squad.col.contract")}</th>
-                    <th data-slot="table-head" className="px-3 text-right">{t("squad.col.wage")}</th>
-                    <th data-slot="table-head" className={cn(STICKY_ACTIONS, "pr-4")}><span className="sr-only">{t("squad.col.actions")}</span></th>
+                    <th data-slot="table-head" className="px-2">{t("common.role")}</th>
+                    <th data-slot="table-head" className="hidden px-2 2xl:table-cell">{t("squad.col.personality")}</th>
+                    <th data-slot="table-head" className="px-2 text-center">{t("common.ovr")}</th>
+                    <th data-slot="table-head" className="px-2 text-center">{t("squad.col.age")}</th>
+                    <th data-slot="table-head" className="px-2">{t("common.morale")}</th>
+                    <th data-slot="table-head" className="px-2">{t("squad.col.form")}</th>
+                    <th data-slot="table-head" className="px-2" title={t("squad.col.energyTitle")}>{t("common.energy")}</th>
+                    <th data-slot="table-head" className="hidden px-2 2xl:table-cell" title={t("squad.col.loadTitle")}>{t("squad.col.load")}</th>
+                    <th data-slot="table-head" className="px-2 text-right">{t("squad.col.contract")}</th>
+                    <th data-slot="table-head" className="px-2 text-right">{t("squad.col.wage")}</th>
+                    <th data-slot="table-head" className={cn(STICKY_ACTIONS_HEAD, "pr-4")}><span className="sr-only">{t("squad.col.actions")}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -434,6 +444,8 @@ function SquadPageInner() {
                     const prospect = playerById.get(ap.playerId)
                     if (!prospect) return null
                     const rating = evaluatePlayer(prospect).overallRating
+                    // SQUAD-22: the potential stays hidden until the academy reveals it.
+                    const shownPotential = visibleAcademyPotential(ap, prospect) != null ? potentialOvr(prospect, currentWeek) : null
                     return (
                       <li key={ap.id} className="flex items-center gap-3 px-4 py-2.5">
                         <div className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
@@ -441,7 +453,9 @@ function SquadPageInner() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold text-ink-1">{prospect.nickname}</p>
-                          <p className="flex items-center gap-1 text-xs text-ink-3"><Star size={10} className="text-gold" /> {t("squad.academy.potential", { n: potentialOvr(prospect, currentWeek) })}</p>
+                          <p className="flex items-center gap-1 text-xs text-ink-3"><Star size={10} className="text-gold" /> {shownPotential != null
+                            ? t("squad.academy.potential", { n: shownPotential })
+                            : <span title={t("ac.revealTip")}>{t("player.potential")}: {potentialRevealText(ap.enrolledWeek, teamData.academyFacility?.level || 1, currentWeek)}</span>}</p>
                         </div>
                         <RatingChip value={rating} size="sm" />
                         {ap.readyForPromotion && (
@@ -508,6 +522,8 @@ function SquadPageInner() {
                 <p className="text-sm text-ink-2">
                   {t("squad.promote.body")}
                 </p>
+                {/* SQUAD-10: a full squad can't take him; say so before the click. */}
+                {squadFull && <p role="status" className="text-sm text-caution">{squadFullMessage(roster.length)}</p>}
 
                 <div className="flex gap-3">
                   <Button
@@ -515,10 +531,14 @@ function SquadPageInner() {
                       if (!promoting) return
                       const result = promoteProspect(promotingProspectId, promoting.terms)
                       if (result.success) {
-                        addToast({ message: result.message, type: "info" })
+                        addToast({ message: storedText(result.message), type: "info" })
                         setPromotingProspectId(null)
+                      } else {
+                        // SQUAD-10: a refused promotion says why (it used to do nothing).
+                        addToast({ message: storedText(result.message), type: "warning" })
                       }
                     }}
+                    disabled={!promoting || squadFull}
                     className="h-11 flex-1"
                   >
                     {t("squad.promote.confirm")}

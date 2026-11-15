@@ -20,6 +20,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { StaffPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
+import { staffAskingWage } from "@/components/staff/staff-asking"
 import { TalentTree } from "@/components/staff/TalentTree"
 import { DelegationPanel } from "@/components/staff/DelegationPanel"
 import { matchCountedIds, roleLabel, specializationLabel, staffEffects, staffMatchPct, staffStatLabel, teamStaffSummary } from "@/components/staff/staff-effects"
@@ -80,7 +81,7 @@ function LevelPips({ level }: { level: number }) {
 }
 
 export default function StaffPage() {
-    const { staff, playerTeamId, fireStaff, marketStaff, refreshStaffMarket, requestStaffMarketRefresh, staffMarketRefreshWeek, currentWeek, unlockStaffTalent, _hasHydrated } = useGameStore(useShallow(state => ({
+    const { staff, playerTeamId, fireStaff, marketStaff, refreshStaffMarket, requestStaffMarketRefresh, staffMarketRefreshWeek, currentWeek, unlockStaffTalent, _hasHydrated, saveId } = useGameStore(useShallow(state => ({
         staff: state.staff,
         playerTeamId: state.playerTeamId,
         fireStaff: state.fireStaff,
@@ -91,6 +92,7 @@ export default function StaffPage() {
         currentWeek: state.currentWeek,
         unlockStaffTalent: state.unlockStaffTalent,
         _hasHydrated: state._hasHydrated,
+        saveId: state.saveId,
     })))
     const team = useCurrentTeam()
 
@@ -130,7 +132,7 @@ export default function StaffPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={t("st.eyebrow", { n: currentWeek })}
+                eyebrow={t("st.eyebrow", { n: ((Math.max(1, currentWeek) - 1) % 52) + 1 })}
                 title={t("st.title")}
                 subtitle={t("st.subtitle")}
                 aside={
@@ -201,7 +203,11 @@ export default function StaffPage() {
                                                                 <ConfirmDialog
                                                                     title={t("st.releaseTitle", { name: s.name })}
                                                                     description={t("st.releaseBody", { amount: money(severance.amount), after: money(funds - severance.amount) })}
-                                                                    onConfirm={() => fireStaff(s.id)}
+                                                                    onConfirm={() => {
+                                                                        fireStaff(s.id)
+                                                                        // SQUAD-11: say what happened, as hiring does.
+                                                                        toast.success(severance.amount > 0 ? t("st.releasedPaid", { name: s.name, amount: money(severance.amount) }) : t("st.released", { name: s.name }))
+                                                                    }}
                                                                     destructive
                                                                     confirmText={t("st.releaseConfirm", { amount: money(severance.amount) })}
                                                                     icon="danger"
@@ -282,7 +288,7 @@ export default function StaffPage() {
                                                     <td className="px-3 py-2">
                                                         <Effects lines={staffEffects(s, !duplicate, marginal)} muted={duplicate} />
                                                     </td>
-                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-1">{formatCurrency(s.salaryPerWeek, "$", false)}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-1">{formatCurrency(staffAskingWage(s, { isRenewal: false, saveId, currentWeek, teamId: team.id }), "$", false)}</td>
                                                     <td className="pr-4 text-right">
                                                         <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={hired.length >= MAX_STAFF}
                                                             title={hired.length >= MAX_STAFF ? t("st.full", { n: MAX_STAFF }) : undefined}

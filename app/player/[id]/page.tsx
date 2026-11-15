@@ -40,7 +40,7 @@ export default function PlayerPage() {
         if (inCareer) {
             return (
                 <div className="mx-auto max-w-[1600px] py-10">
-                    <EmptyState icon={UserX} title={t("player.notFound")} description={t("player.notFoundBody")} action={{ label: t("player.backToSquad"), href: "/squad" }} />
+                    <EmptyState icon={UserX} titleAs="h1" title={t("player.notFound")} description={t("player.notFoundBody")} action={{ label: t("player.backToSquad"), href: "/squad" }} />
                 </div>
             )
         }

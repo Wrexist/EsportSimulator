@@ -147,7 +147,7 @@ describe("awardCircuitPoints", () => {
 
     test("placement-1 winner creates a circuitPoints entry + news item", () => {
         // Pick a real tournament from the calendar (any with a valid tier).
-        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS)
+        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS && t.tier !== "QUALIFIER") // qualifiers pay no points
         if (!tournament) return
         const h = makeHarness(makeBaseState())
         const slice = createTournamentSlice(h.set, h.get)
@@ -162,7 +162,7 @@ describe("awardCircuitPoints", () => {
     })
 
     test("repeated placements for one event cannot award circuit points twice", () => {
-        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS)
+        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS && t.tier !== "QUALIFIER") // qualifiers pay no points
         if (!tournament) return
         const h = makeHarness(makeBaseState())
         const slice = createTournamentSlice(h.set, h.get)
@@ -177,7 +177,7 @@ describe("awardCircuitPoints", () => {
     })
 
     test("placement payout of 0 is a silent no-op (no entry, no news)", () => {
-        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS)
+        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS && t.tier !== "QUALIFIER") // qualifiers pay no points
         if (!tournament) return
         const h = makeHarness(makeBaseState())
         const slice = createTournamentSlice(h.set, h.get)
@@ -208,7 +208,7 @@ describe("awardCircuitPoints", () => {
     })
 
     test("newsFeed stays capped at 50 entries on win-spam", () => {
-        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS)
+        const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.tier in CIRCUIT_POINTS && t.tier !== "QUALIFIER") // qualifiers pay no points
         if (!tournament) return
         // Seed newsFeed at the cap.
         const seeded = Array.from({ length: 50 }, (_, i) => ({

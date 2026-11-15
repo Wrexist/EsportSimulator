@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 import { t } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { UI_LANGUAGES } from "@/lib/ui-languages"
-import { effectiveUiScale, stableBaseViewportSize, UI_SCALE_MAX, UI_SCALE_MIN, UI_SCALE_STEP } from "@/lib/ui-scale"
+import { effectiveUiScale, maxUiScaleFor, stableBaseViewportSize, UI_SCALE_MAX, UI_SCALE_MIN, UI_SCALE_STEP } from "@/lib/ui-scale"
 
 // ── Primitives ─────────────────────────────────────────────────────────────
 
@@ -56,22 +56,27 @@ export function SettingSelect<T extends string | number>({ id, value, onChange, 
                 const match = options.find(o => String(o.value) === raw)
                 if (match) onChange(match.value)
             }}
-            className="h-9 w-52 rounded-md border border-line bg-shell px-3 text-sm! text-ink-1 outline-none transition-colors hover:border-line-strong focus-visible:border-gold disabled:opacity-40"
+            // Grows to its longest option (up to 18rem) so a translation such as "Программная (по умолчанию)" is not cut (I18N-16).
+            className="h-9 w-auto min-w-52 max-w-72 rounded-md border border-line bg-shell px-3 text-sm! text-ink-1 outline-none transition-colors hover:border-line-strong focus-visible:border-gold disabled:opacity-40"
         >
             {options.map(o => <option key={String(o.value)} value={o.value} className="bg-panel">{o.label}</option>)}
         </select>
     )
 }
 
-function SettingSlider({ label, value, onChange, min, max, step, suffix = "%", commitOnRelease = false }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; suffix?: string; commitOnRelease?: boolean }) {
+function SettingSlider({ label, value, onChange, min, max, step, suffix = "%", commitOnRelease = false, disabled = false }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; suffix?: string; commitOnRelease?: boolean; disabled?: boolean }) {
     // commitOnRelease: show the value while dragging, apply it on release (the UI scale
     // zooms the page, which would move the slider under the pointer mid-drag).
     const [pending, setPending] = useState<number | null>(null)
+    // A committed value (keyboard step, pointer release, Auto toggle, reset) ends any pending drag value.
+    // Radix calls onValueChange *after* onValueCommit for keyboard steps, so clearing in onValueCommit alone is not enough.
+    useEffect(() => { setPending(null) }, [value])
     const shown = pending ?? value
     return (
-        <div className="flex w-52 items-center gap-3">
+        <div className={cn("flex w-52 items-center gap-3", disabled && "opacity-40")}>
             <Slider
                 aria-label={label}
+                disabled={disabled}
                 aria-valuetext={`${shown}${suffix}`}
                 value={[shown]}
                 onValueChange={(vals) => commitOnRelease ? setPending(vals[0]) : onChange(vals[0])}
@@ -117,7 +122,9 @@ export function DisplaySettings() {
     })))
 
     // While the scale is automatic the slider shows the size in force, which follows the window.
-    const [viewport, setViewport] = useState(() => stableBaseViewportSize())
+    // Read after mount: the server render has no window, and a first client render that
+    // already knew it would not match it (React #418 on windows above 1920x1080, CROSSCUT-15).
+    const [viewport, setViewport] = useState<{ width: number; height: number } | null>(null)
     useEffect(() => {
         const update = () => setViewport(stableBaseViewportSize())
         update()
@@ -125,6 +132,8 @@ export function DisplaySettings() {
         return () => window.removeEventListener("resize", update)
     }, [])
     const shownScale = effectiveUiScale({ uiScale: s.uiScale, uiScaleAuto: s.uiScaleAuto }, viewport)
+    // The largest scale that still fits this window (CROSSCUT-14).
+    const maxScale = maxUiScaleFor(viewport)
 
     // Show the mode the desktop app is actually running in, not a stale stored choice.
     useEffect(() => {
@@ -145,8 +154,8 @@ export function DisplaySettings() {
             <SettingRow id="set-rendering" label={t("settings.rendering")} hint={t("settings.renderingHint")}>
                 <SettingSelect id="set-rendering" label={t("settings.rendering")} value={s.renderingMode} options={RENDERING_MODES()} onChange={s.setRenderingMode} />
             </SettingRow>
-            <SettingRow label={t("settings.uiScale")} hint={t("settings.uiScaleHint")}>
-                <SettingSlider label={t("settings.uiScale")} value={shownScale} onChange={s.setUiScale} commitOnRelease min={UI_SCALE_MIN} max={UI_SCALE_MAX} step={UI_SCALE_STEP} />
+            <SettingRow label={t("settings.uiScale")} hint={maxScale < UI_SCALE_MAX ? `${t("settings.uiScaleHint")} ${t("settings.uiScaleWindowMax", { max: maxScale })}` : t("settings.uiScaleHint")}>
+                <SettingSlider label={t("settings.uiScale")} value={shownScale} onChange={s.setUiScale} commitOnRelease min={UI_SCALE_MIN} max={maxScale} step={UI_SCALE_STEP} />
             </SettingRow>
             <SettingRow id="set-ui-scale-auto" label={t("settings.uiScaleAuto")} hint={t("settings.uiScaleAutoHint")}>
                 <Switch id="set-ui-scale-auto" checked={s.uiScaleAuto}
@@ -176,15 +185,16 @@ export function AudioSettings() {
                 <Switch id="set-sound" checked={s.soundEnabled} onCheckedChange={s.setSoundEnabled} />
             </SettingRow>
             <SettingRow label={t("settings.masterVolume")}>
-                <SettingSlider label={t("settings.masterVolume")} value={s.masterVolume} min={0} max={100} step={1}
+                {/* START-38: with sound off the volumes do nothing, like Hover sounds. */}
+                <SettingSlider label={t("settings.masterVolume")} value={s.masterVolume} min={0} max={100} step={1} disabled={!s.soundEnabled}
                     onChange={(v) => { s.setMasterVolume(v); soundManager.setMasterVolume(v) }} />
             </SettingRow>
             <SettingRow label={t("settings.musicVolume")}>
-                <SettingSlider label={t("settings.musicVolume")} value={s.musicVolume} min={0} max={100} step={1}
+                <SettingSlider label={t("settings.musicVolume")} value={s.musicVolume} min={0} max={100} step={1} disabled={!s.soundEnabled}
                     onChange={(v) => { s.setMusicVolume(v); soundManager.setMusicVolume(v) }} />
             </SettingRow>
             <SettingRow label={t("settings.effectsVolume")} hint={t("settings.effectsVolumeHint")}>
-                <SettingSlider label={t("settings.effectsVolume")} value={s.sfxVolume} min={0} max={100} step={1}
+                <SettingSlider label={t("settings.effectsVolume")} value={s.sfxVolume} min={0} max={100} step={1} disabled={!s.soundEnabled}
                     onChange={(v) => { s.setSfxVolume(v); soundManager.setSfxVolume(v) }} />
             </SettingRow>
             <SettingRow id="set-ui-sounds" label={t("settings.uiSounds")} hint={t("settings.uiSoundsHint")}>
@@ -328,10 +338,15 @@ export function ControlsSettings() {
                             <li key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4 py-1.5">
                                 <span className="text-sm text-ink-2">{t(shortcut.description)}</span>
                                 <span className="flex shrink-0 items-center gap-1">
-                                    {shortcut.keys.map((key, i) => (
-                                        <span key={i} className="flex items-center gap-1">
-                                            <Kbd>{keyLabel(key)}</Kbd>
-                                            {i < shortcut.keys.length - 1 && <span className="text-xs text-ink-3">+</span>}
+                                    {[shortcut.keys, ...(shortcut.altKeys ? [shortcut.altKeys] : [])].map((combo, c) => (
+                                        <span key={c} className="flex items-center gap-1">
+                                            {c > 0 && <span className="px-0.5 text-xs text-ink-3">{t("shortcuts.or")}</span>}
+                                            {combo.map((key, i) => (
+                                                <span key={i} className="flex items-center gap-1">
+                                                    <Kbd>{keyLabel(key)}</Kbd>
+                                                    {i < combo.length - 1 && <span className="text-xs text-ink-3">+</span>}
+                                                </span>
+                                            ))}
                                         </span>
                                     ))}
                                 </span>

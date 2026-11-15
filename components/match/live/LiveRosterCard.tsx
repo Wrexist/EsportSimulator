@@ -84,7 +84,7 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
                                 <span className={cn("absolute inset-y-0 left-0 rounded-full transition-[width] duration-300", hpTone(p.hp))} style={{ width: `${Math.max(0, Math.min(100, p.hp))}%` }} />
                             </span>
                             <span className="w-6 shrink-0 text-right text-xs font-semibold leading-none tabular-nums text-ink-1">{p.hp}</span>
-                            <span className="flex w-[74px] shrink-0 items-center gap-1 text-ink-2">
+                            <span className="flex w-[74px] shrink-0 items-center gap-1 text-ink-2 @max-[21rem]:hidden">
                                 {p.hasArmor ? <ArmorGlyph helmet={p.hasHelmet} /> : <span className="w-3" aria-hidden="true" />}
                                 {p.hasKit ? <KitGlyph className="text-side-ct" /> : <span className="w-3" aria-hidden="true" />}
                                 <span className="flex items-center gap-px" aria-label={nades.length ? tn("roster.grenades", nades.length) : t("roster.noGrenades")}>
@@ -117,7 +117,7 @@ export function LiveRosterCard({ teamName, isCT, isOwn, alive, teamCash, players
 }) {
     return (
         <section
-            className={cn("shrink-0 overflow-hidden rounded-lg border border-line bg-panel", isCT ? "shadow-[inset_3px_0_0_var(--ct)]" : "shadow-[inset_3px_0_0_var(--t)]")}
+            className={cn("@container shrink-0 overflow-hidden rounded-lg border border-line bg-panel", isCT ? "shadow-[inset_3px_0_0_var(--ct)]" : "shadow-[inset_3px_0_0_var(--t)]")}
             data-side={isCT ? "ct" : "t"}
             aria-label={t("roster.aria", { team: teamName })}
         >

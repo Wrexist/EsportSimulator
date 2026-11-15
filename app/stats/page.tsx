@@ -1,9 +1,10 @@
 "use client"
 import { stageName } from "@/lib/display-names"
-import { intlLocale, t } from "@/lib/i18n"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 import React, { Fragment, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import {
@@ -23,6 +24,8 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Sparkline } from "@/src/components/ui/Sparkline"
 import { MapDataPanel } from "@/components/stats/MapDataPanel"
+import { getTournamentById } from "@/data/tournament-calendar"
+import { isLeagueMatchId } from "@/engine/season/regional-league"
 
 /** Chart styling from the v2 tokens (app/premium-ui.css custom properties). */
 const AXIS = { stroke: "var(--border-subtle)", tick: { fill: "var(--text-muted)", fontSize: 11 }, axisLine: false, tickLine: false } as const
@@ -46,6 +49,16 @@ interface PlayerLine {
 
 function ourSide(match: CompletedMatchSaveData, teamId: string | null) {
     return match.homeTeamId === teamId
+}
+
+/** A tournament match (not a league fixture, scrim or friendly): played on a neutral stage. */
+function isEventMatch(match: CompletedMatchSaveData) {
+    return !!match.tournamentId && !match.isScrim && !isLeagueMatchId(match.tournamentId) && !isLeagueMatchId(match.id) && !!getTournamentById(match.tournamentId)
+}
+
+/** "Semi-final 1" → "Semi-final": the bracket slot number means nothing to the player. */
+function stageWithoutSlot(stage: string) {
+    return stage.replace(/^(Semi-final|Quarter-final) \d+$/, "$1").replace(/ Match \d+$/, "")
 }
 
 function won(match: CompletedMatchSaveData, teamId: string | null) {
@@ -227,7 +240,7 @@ export default function StatsPage() {
 
                         {teamMatches.length > 0 && (
                             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                                <Panel title={t("sx.teamRating")} actions={<span className="text-xs text-ink-3">{t("sx.teamRatingNote", { n: trend.length })}</span>}>
+                                <Panel title={t("sx.teamRating")} actions={<span className="text-xs text-ink-3">{tn("sx.teamRatingNote", trend.length, { n: trend.length })}</span>}>
                                     <div className="h-[240px]">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <LineChart data={trend} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
@@ -298,7 +311,17 @@ export default function StatsPage() {
                                                                     {opp && <TeamLogoDisplay team={opp} size={20} />}{opp?.name ?? t("sx.unknown")}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-3 text-sm text-ink-3">{m.isScrim ? t("sx.scrim") : m.stage ? stageName(m.stage) : t("sx.league")}</td>
+                                                            <td className="px-3 text-sm text-ink-3">
+                                                                {m.isScrim ? t("sx.scrim") : isEventMatch(m) ? (
+                                                                    // Which event, then the round: two events in one week stay apart.
+                                                                    <>
+                                                                        <Link href={`/tournaments/${m.tournamentId}`} onClick={e => e.stopPropagation()} className="font-semibold text-ink-2 hover:text-gold">
+                                                                            {getTournamentById(m.tournamentId!)?.shortName ?? m.tournamentId}
+                                                                        </Link>
+                                                                        {m.stage && <> · {stageName(stageWithoutSlot(m.stage))}</>}
+                                                                    </>
+                                                                ) : m.stage ? stageName(m.stage) : t("sx.league")}
+                                                            </td>
                                                             <td className="px-3 text-center text-sm tabular-nums">
                                                                 <span className={cn("mr-2 font-semibold", w ? "text-positive" : "text-ink-3")}>{w ? t("sx.win") : t("sx.loss")}</span>
                                                                 <span className="text-ink-1">{home ? m.result.homeScore : m.result.awayScore}–{home ? m.result.awayScore : m.result.homeScore}</span>
@@ -309,7 +332,7 @@ export default function StatsPage() {
                                                                     return <span key={i} className="mr-3 whitespace-nowrap">{String(map.map)} {home ? s.home : s.away}–{home ? s.away : s.home}</span>
                                                                 })}
                                                             </td>
-                                                            <td className="pr-4 text-right text-sm text-ink-3">{home ? t("sx.home") : t("sx.away")}</td>
+                                                            <td className="pr-4 text-right text-sm text-ink-3">{isEventMatch(m) ? "—" : home ? t("sx.home") : t("sx.away")}</td>
                                                         </tr>
                                                         {isOpen && (
                                                             <tr className="border-b border-line bg-shell">

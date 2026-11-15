@@ -1,9 +1,9 @@
 "use client"
-import { stageName } from "@/lib/display-names"
+import { roundOfName, stageName } from "@/lib/display-names"
 import { t } from "@/lib/i18n"
 
 import React, { useEffect, useRef, useState } from "react"
-import Image from "next/image"
+import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, ChevronRight, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -16,7 +16,8 @@ interface AdvancementAnimationProps {
     fromStage: string
     toStage: string
     teamName: string
-    teamLogo?: string
+    /** The club whose crest is shown (uploaded art, redesign or its emblem). */
+    team?: React.ComponentProps<typeof TeamLogoDisplay>["team"]
     tournamentName?: string
     isChampionship?: boolean
     onComplete?: () => void
@@ -27,7 +28,7 @@ export function AdvancementAnimation({
     fromStage,
     toStage,
     teamName,
-    teamLogo,
+    team,
     tournamentName,
     isChampionship = false,
     onComplete
@@ -95,8 +96,8 @@ export function AdvancementAnimation({
         if (lower === "final" || lower === "finals") return t("tm.finals")
         if (lower.includes("semi")) return t("stage.semifinals")
         if (lower.includes("quarter")) return t("stage.quarterfinals")
-        if (lower.includes("round of 16") || lower.includes("ro16")) return t("stage.roundOf", { size: 16 })
-        if (lower.includes("round of 32") || lower.includes("ro32")) return t("stage.roundOf", { size: 32 })
+        if (lower.includes("round of 16") || lower.includes("ro16")) return roundOfName(16)
+        if (lower.includes("round of 32") || lower.includes("ro32")) return roundOfName(32)
         // Handle numbered stages like "Round 1", "Stage 2", etc.
         return stageName(stage.charAt(0).toUpperCase() + stage.slice(1))
     }
@@ -163,8 +164,8 @@ export function AdvancementAnimation({
                                     : "bg-raised border-2 border-positive/40"
                             )}
                         >
-                            {teamLogo ? (
-                                <Image src={teamLogo} alt={teamName} width={64} height={64} className="w-16 h-16 object-contain" unoptimized />
+                            {team ? (
+                                <TeamLogoDisplay team={team} size={64} />
                             ) : (
                                 <span className="text-3xl font-bold text-ink-1">{teamName?.[0] || "?"}</span>
                             )}

@@ -9,7 +9,7 @@ import { useGameStore } from "@/store/game-store"
 import { PlayerLink } from "@/components/ui/EntityLink"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
-import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
+import { HelpTooltip } from "@/components/ui/stat-tooltip"
 import Image from "next/image"
 import { Award, ChevronRight, Search, X, ArrowUp, ArrowDown } from "lucide-react"
 import { trophyArtKind } from "@/components/squad/TrophyCabinet"
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils"
 import { intlLocale, ordinalLabel, t } from "@/lib/i18n"
 import { calculateTeamTier, getTierStyle } from "@/engine/tier-system"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { getTeamFlag } from "@/engine/region-logic"
+import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { LeagueEngine, LeagueTier } from "@/engine/league-engine"
 import { isUnrankedTeamId, seasonEndTierMove } from "@/engine/world-ranking"
@@ -200,7 +200,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
                 <div>{t("rk.col.rank")}</div>
                 <div>{t("rk.col.team")}</div>
                 <div>{t("rk.col.league")}</div>
-                <div className="flex items-center justify-end gap-1">Elo <HelpTooltip content={StatExplanations.elo} size={11} /></div>
+                <div className="flex items-center justify-end gap-1">Elo <HelpTooltip content={t("rk.eloHelp")} size={11} /></div>
                 <div className="text-right">OVR</div>
                 <div className="text-center">{t("rk.col.last5")}</div>
                 <div className="text-right">{t("rk.col.division")}</div>
@@ -351,9 +351,9 @@ function RankingsPageInner() {
     // Precompute:
     //   - teamsByLeagueTier: O(1) tier-filtered list + per-tier counts
     //   - posInTierByTeamId:  O(1) "which position is team X within its tier?"
-    //   - teamFlagByTeamId:   O(1) majority-region flag (replaces the
-    //     getTeamFlag(rosterIds, players) scan that previously ran per row
-    //     with O(roster × players) cost).
+    //   - teamFlagByTeamId:   the club's own region (CIS, ASIA, …) — the
+    //     same region the team select and the League page show, never a
+    //     flag guessed from the players' passports.
     // Single O(rankedTeams) pass per data change replaces an O(rankedTeams²)
     // inline computation on every render.
     const rankingMeta = useMemo(() => {
@@ -374,7 +374,7 @@ function RankingsPageInner() {
         }
         const teamFlagByTeamId = new Map<string, string>()
         for (const t of rankedTeams) {
-            teamFlagByTeamId.set(t.id, getTeamFlag(t.rosterIds, players as any))
+            teamFlagByTeamId.set(t.id, t.region || "un")
         }
         return {
             teamsByLeagueTier,
@@ -387,7 +387,7 @@ function RankingsPageInner() {
                 C_TIER: teamsByLeagueTier.C_TIER.length,
             },
         }
-    }, [rankedTeams, players])
+    }, [rankedTeams])
 
     const leagueTierCounts = rankingMeta.counts
 
@@ -539,7 +539,7 @@ function RankingsPageInner() {
                                     <tr key={`${trophy.tournamentId}_${idx}`} data-slot="table-row" className="h-11 border-b border-line last:border-b-0">
                                         <td className="pl-4"><Image src={trophyArtFor(trophyArtKind(trophy)).src} alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7 object-contain" /></td>
                                         <td className="text-sm font-semibold text-ink-1">{recordEventName(trophy.tournamentName ?? "", trophy.tournamentId, trophy.week, gameStartDate)}</td>
-                                        <td className="px-3"><TierTag tier={trophy.tier} /></td>
+                                        <td className="px-3">{isLeagueMatchId(trophy.tournamentId) ? <span className="text-sm text-ink-2">{t("common.league")}</span> : <TierTag tier={trophy.tier} />}</td>
                                         <td className="pr-4 text-right text-sm tabular-nums text-ink-2">{t("rk.week", { n: trophy.week })}</td>
                                     </tr>
                                 ))}

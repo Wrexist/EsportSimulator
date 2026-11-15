@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, type ReactNode } from "react"
-import { eventRegionName } from "@/lib/display-names"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
+import { eventRegionName, stageName } from "@/lib/display-names"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -15,7 +15,7 @@ import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { StorylinesPanel } from "@/components/storylines/StorylinesPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { BoardConfidenceChip } from "@/components/career/BoardConfidence"
-import { graceWeeksLeft } from "@/components/career/board-view"
+import { graceWeeksLeft, liveObjectives, objectiveLabel } from "@/components/career/board-view"
 import { LeagueSnapshot } from "@/components/league/LeagueSnapshot"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { Button } from "@/components/ui/button"
@@ -26,14 +26,16 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { Meter } from "@/src/components/ui/Meter"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { DraftCupBracket } from "@/components/draft-cup/DraftCupBracket"
+import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
 import { ProCareerPanel } from "@/components/pro/ProCareerPanel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
 import { Activity, ArrowUpRight, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
-import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { formatCurrency, formatSignedCurrency, getDynamicTournamentName } from "@/lib/utils-extended"
+import { matchEventName } from "@/lib/tournament-instances"
+import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -43,6 +45,7 @@ import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
+import { sideScore } from "@/lib/week-changes"
 import { ordinalLabel, t, tn } from "@/lib/i18n"
 
 const tierLabel = (tier: string) => ["S_TIER", "A_TIER", "B_TIER", "C_TIER"].includes(tier) ? t(`common.tier.${tier}`) : tier
@@ -66,32 +69,10 @@ const FINANCE_STATE: Record<string, { className: string }> = {
   INSOLVENT: { className: "text-negative" },
 }
 
-type MatchLike = {
-  id: string
-  week: number
-  homeTeamId: string
-  awayTeamId: string
-  isScrim?: boolean
-  tournamentId?: string | null
-  result?: { winnerId?: string; homeScore: number; awayScore: number; maps?: { finalScore?: { team1: number; team2: number } }[] }
-}
-
-/** Score from the player's side: round score for a BO1, map score otherwise. */
-function scoreFor(match: MatchLike, teamId: string): string {
-  const r = match.result
-  if (!r) return "—"
-  const isHome = match.homeTeamId === teamId
-  const maps = r.maps
-  if (maps && maps.length === 1 && maps[0]?.finalScore) {
-    const fs = maps[0].finalScore
-    return isHome ? `${fs.team1}–${fs.team2}` : `${fs.team2}–${fs.team1}`
-  }
-  return isHome ? `${r.homeScore}–${r.awayScore}` : `${r.awayScore}–${r.homeScore}`
-}
-
 function tournamentFor(id?: string | null) {
   if (!id) return undefined
-  return FULL_TOURNAMENT_CALENDAR.find(t => t.id === id || t.id === id.replace(/_s\d+$/, "") || id.startsWith(`${t.id}_`))
+  // Exact id or season instance first, so a qualifier ("…_open_s1") never takes its main event's entry.
+  return getTournamentById(id) ?? FULL_TOURNAMENT_CALENDAR.find(t => id.startsWith(`${t.id}_`))
 }
 
 export default function Page() {
@@ -128,7 +109,13 @@ export default function Page() {
 
   const boardState = useGameStore(s => s.boardState)
   const league = useGameStore(s => s.league)
-  const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
+  const managerDetails = useGameStore(s => s.managerDetails)
+  const tenureStartWeek = managerDetails?.tenureStartWeek
+  // MODES-01/07: in a pro career the staff run the club: no board or finance cards.
+  const proActive = useGameStore(s => !!s.proCareer && s.proCareer.retiredWeek == null)
+  // MODES-19: a created club short of five can reopen the roster builder (it
+  // was lost when the app reloaded while the builder was open).
+  const [rosterBuilderOpen, setRosterBuilderOpen] = useState(false)
 
   // The season recap and the awards ceremony are the season review moment
   // now (components/moments/SeasonReviewMomentView); past reviews replay
@@ -185,6 +172,13 @@ export default function Page() {
   }, [opponent, playersById])
 
   const tournament = useMemo(() => tournamentFor(nextMatch?.tournamentId), [nextMatch])
+  // The event's name with the year it is played in: the saved instance's name,
+  // else the calendar name dated by the match week (never the data's "2025").
+  const tournamentName = useMemo(() => {
+    if (!nextMatch || !tournament) return undefined
+    const stored = tournaments.find(t => t.id === nextMatch.tournamentId)?.name
+    return matchEventName(stored, tournament?.name, nextMatch.tournamentId, nextMatch.week, gameStartDate)
+  }, [nextMatch, tournaments, tournament, gameStartDate])
 
   // Last five official results (oldest first) for any team.
   const formFor = useCallback((teamId: string | undefined | null): FormResult[] => {
@@ -222,8 +216,11 @@ export default function Page() {
       .filter((t): t is NonNullable<typeof t> => !!t && t.startWeek > currentCalendarWeek)
       .sort((a, b) => a.startWeek - b.startWeek)
       .slice(0, 2)
-      .map(t => ({ ...t, weeksUntil: t.startWeek - currentCalendarWeek }))
-  }, [nextMatch, tournamentQualifications, playerTeamId, currentWeek])
+      .map(t => {
+        const weeksUntil = t.startWeek - currentCalendarWeek
+        return { ...t, weeksUntil, name: getDynamicTournamentName(t.name, currentWeek + weeksUntil, gameStartDate, t.duration) }
+      })
+  }, [nextMatch, tournamentQualifications, playerTeamId, currentWeek, gameStartDate])
 
   // Financial projection for the next weekly settlement (same engine the week tick uses)
   const financialReport = useMemo(() => {
@@ -280,7 +277,7 @@ export default function Page() {
         return weeks === 0 ? t("home.thisWeek") : tn("home.matchInWeeks", weeks)
       })()
       const leagueStage = leagueStageLabel(nextMatch)
-      const competitionName = nextMatch.isScrim ? t("common.scrim") : leagueStage ?? tournament?.name ?? nextMatch.stage ?? t("common.match")
+      const competitionName = nextMatch.isScrim ? t("common.scrim") : leagueStage ?? tournamentName ?? (nextMatch.stage ? stageName(nextMatch.stage) : undefined) ?? t("common.match")
       const competition = (
         <span className="flex min-w-0 items-center gap-2.5">
           {leagueStage && <span className="shrink-0 rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("common.league")}</span>}
@@ -289,7 +286,7 @@ export default function Page() {
           )}
           <span className="truncate font-semibold text-ink-1">{competitionName}</span>
           {!nextMatch.isScrim && tournament && <span className="text-ink-3">{tierLabel(tournament.tier)}</span>}
-          {nextMatch.stage && !nextMatch.isScrim && tournament && <span className="truncate text-ink-3">· {nextMatch.stage}</span>}
+          {nextMatch.stage && !nextMatch.isScrim && tournament && <span className="truncate text-ink-3">· {stageName(nextMatch.stage)}</span>}
           {nextMatch.isScrim && <span className="text-ink-3">{t("home.practiceMatch")}</span>}
         </span>
       )
@@ -370,8 +367,9 @@ export default function Page() {
   const trophiesThisSeason = (playerTeam?.trophies ?? []).filter(t => t.week >= seasonStartWeek).length
   const sanctioned = boardState && playerTeam ? getBoardSanctionedFee(boardState, playerTeam.budget) : null
   const rankOnTrack = worldRank > 0 && worldRank <= rankTarget
-  // Phase 4.4: the board's real objectives (league finish, ranking, budget).
-  const objectives = boardState?.objectives ?? []
+  // Phase 4.4: the board's real objectives (league finish, ranking, budget),
+  // read now so they match the league card and the header (HOME-02).
+  const objectives = liveObjectives(boardState?.objectives, { teams, playerTeamId: playerTeamId ?? "", currentWeek, managerDetails, league, completedMatches })
   const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
     : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : o.id === "trophies" ? `${o.current}` : ordinalLabel(o.current)
   const objectiveTarget = (o: (typeof objectives)[number]) =>
@@ -382,11 +380,19 @@ export default function Page() {
 
   // G7: a Draft Cup run shows its round and record instead of the season.
   const cupBracket = draftCup ? (tournaments.find(t => t.id === draftCup.tournamentId)?.playoffBracket ?? []).filter(m => m.homeTeamId === draftCup.teamId || m.awayTeamId === draftCup.teamId) : []
-  const cupRound = cupBracket.find(m => !m.isCompleted)?.stage.replace(/ \d+$/, "")
+  const cupStage = cupBracket.find(m => !m.isCompleted)?.stage.replace(/ \d+$/, "")
+  const cupRound = cupStage ? stageName(cupStage) : undefined
   const cupWins = cupBracket.filter(m => m.isCompleted && m.winnerId === draftCup?.teamId).length
 
   return (
     <div className="space-y-5 pb-12">
+      {rosterBuilderOpen && playerTeam && (
+        <RosterBuilderModal
+          isOpen
+          onComplete={() => setRosterBuilderOpen(false)}
+          teamColors={{ primary: playerTeam.customTeamData?.primaryColor ?? "", secondary: playerTeam.customTeamData?.secondaryColor ?? "" }}
+        />
+      )}
       {draftCup ? (
       <ScreenHeader
         eyebrow={timeMode === "HYBRID_DAILY"
@@ -482,6 +488,9 @@ export default function Page() {
                       <td colSpan={5} className="px-4 py-3 text-sm text-caution">
                         {tn("home.startersMissing", 5 - starters.length)}{" "}
                         <Link href="/transfers" className="font-semibold underline underline-offset-2">{t("home.findPlayers")}</Link>
+                        {playerTeam?.customTeamData && !draftCup && !proActive && (
+                          <>{" · "}<button type="button" onClick={() => setRosterBuilderOpen(true)} className="rounded-sm font-semibold underline underline-offset-2">{t("home.openRosterBuilder")}</button></>
+                        )}
                       </td>
                     </tr>
                   )}
@@ -498,14 +507,14 @@ export default function Page() {
             )}
 
             {/* Board objectives; the chip opens Club → Board */}
-            <Panel eyebrow={t("home.board")} title={t(`board.expectation.${expectationTier}`)} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
+            {!proActive && <Panel eyebrow={t("home.board")} title={t(`board.expectation.${expectationTier}`)} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
               <dl className="divide-y divide-line text-sm">
                 {objectives.length > 0 ? objectives.map(o => (
                   <div key={o.id} className="flex items-center justify-between gap-3 py-2">
-                    <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT.has(o.id) ? t(`home.objective.${o.id}`) : o.label}</dt>
+                    <dt className="min-w-0 truncate text-ink-3" title={objectiveLabel(o)}>{OBJECTIVE_SHORT.has(o.id) ? t(`home.objective.${o.id}`) : objectiveLabel(o)}</dt>
                     <dd className="shrink-0 text-xs tabular-nums">
                       <span className="text-ink-3">{t("home.target", { value: objectiveTarget(o) })}</span>
-                      <span className={cn("ml-2", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>
+                      <span className={cn("ml-2", o.current === undefined ? "text-ink-3" : o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>
                     </dd>
                   </div>
                 )) : (
@@ -531,14 +540,14 @@ export default function Page() {
                   {t("home.feeCap", { pct: Math.round(sanctioned.fraction * 100), max: formatCurrency(sanctioned.maxFee) })}
                 </p>
               )}
-            </Panel>
+            </Panel>}
             </>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Finances strip */}
-            {!draftCup && <Panel
+            {!draftCup && !proActive && <Panel
               title={t("home.finances")}
               actions={<><span className={cn("text-xs font-semibold", financeState.className)}>{t(`home.finance.${FINANCE_STATE[finance?.state ?? "STABLE"] ? finance?.state ?? "STABLE" : "STABLE"}`)}</span><PanelLink href="/finances">{t("home.ledger")}</PanelLink></>}
               padded={false}
@@ -578,15 +587,16 @@ export default function Page() {
                     const won = m.result.winnerId === playerTeamId
                     const oppId = m.homeTeamId === playerTeamId ? m.awayTeamId : m.homeTeamId
                     const opp = teams.find(t => t.id === oppId)
-                    const comp = m.isScrim ? t("common.scrim") : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? m.stage ?? t("common.match")
+                    const comp = m.isScrim ? t("common.scrim") : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? (m.stage ? stageName(m.stage) : undefined) ?? t("common.match")
                     return (
                       <li key={m.id}>
                         <Link href={`/match/${m.id}/result`} className="flex h-11 items-center gap-3 px-4 transition-colors hover:bg-raised">
                           <FormGuide results={[won ? "W" : "L"]} />
                           <TeamLogoDisplay team={opp} size={22} />
-                          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
-                          <span className="hidden truncate text-xs text-ink-3 sm:inline">{comp} · {t("common.weekShort", { n: m.week })}</span>
-                          <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{scoreFor(m as MatchLike, playerTeamId || "")}</span>
+                          {/* The opponent's name wins the space; a long league label truncates (HOME-15). */}
+                          <span className="min-w-[6rem] flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
+                          <span className="hidden min-w-0 max-w-[45%] truncate text-xs text-ink-3 sm:inline" title={`${comp} · ${t("common.weekShort", { n: m.week })}`}>{comp} · {t("common.weekShort", { n: m.week })}</span>
+                          <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{sideScore(m.result, m.homeTeamId === playerTeamId)}</span>
                         </Link>
                       </li>
                     )
@@ -596,9 +606,9 @@ export default function Page() {
             </Panel>
           </div>
 
-          {/* Two columns below 2xl: the rail is far taller than this column,
-              so News sits here instead of leaving the bottom half empty (HOME-19). */}
-          <Panel title={t("home.news")} padded={false} className="hidden xl:block 2xl:hidden">
+          {/* Two columns (xl and up): the rail is far taller than this column,
+              so News sits here instead of leaving the bottom half empty (HOME-19, HOME-09). */}
+          <Panel title={t("home.news")} padded={false} className="hidden xl:block">
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>
@@ -611,7 +621,7 @@ export default function Page() {
           <ActionCenter />
           <StorylinesPanel />
           <LastWeekPanel />
-          <Panel title={t("home.news")} padded={false} className="xl:hidden 2xl:block">
+          <Panel title={t("home.news")} padded={false} className="xl:hidden">
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>

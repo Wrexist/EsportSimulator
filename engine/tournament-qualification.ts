@@ -16,6 +16,7 @@ import {
     normalizeQualificationStatus,
     resolveTournamentIdentity,
 } from "./circuit-engine"
+import { feederSlots, hasRankedInvites } from "./tournament/qualification-path"
 export type { QualificationStatus, CircuitPointsEntry } from "./save-types"
 
 // ============================================================================
@@ -213,7 +214,32 @@ export class QualificationEngine {
                 break
 
             case "INVITE":
-                if (tournament.requiredRanking) {
+                if (tournament.requiredRanking && hasRankedInvites(tournament) && feederSlots(getSeriesIdFromTournamentId(tournament.id)) > 0) {
+                    // Ranked invites plus a qualifier path (Winter Open Katova,
+                    // Summer Open Colone): the top of the ranking is invited,
+                    // everyone else goes through the qualifiers. There is no
+                    // sign-up, so a sign-up can't take a qualifier's place.
+                    const isInvited = qualificationStatuses.some(
+                        qs => isQualificationForTournament(qs, tournament.id) &&
+                            qs.teamId === team.id &&
+                            qs.status === "QUALIFIED"
+                    )
+                    requirements.push({
+                        type: "RANKING",
+                        description: t("tm.req.rankTop", { n: tournament.requiredRanking }),
+                        required: tournament.requiredRanking,
+                        current: worldRanking,
+                        met: worldRanking <= tournament.requiredRanking
+                    })
+                    requirements.push({
+                        type: "INVITE",
+                        description: t("tm.req.invite"),
+                        required: "Invite",
+                        current: isInvited ? "Invited" : "Not Invited",
+                        met: isInvited
+                    })
+                    if (!isInvited) allMet = false
+                } else if (tournament.requiredRanking) {
                     const met = worldRanking <= tournament.requiredRanking
                     requirements.push({
                         type: "RANKING",
@@ -490,37 +516,43 @@ export class QualificationEngine {
     }
 
     /**
-     * Generate automatic invites for top-ranked teams
+     * Generate automatic invites for top-ranked teams: the best-ranked clubs
+     * (within `requiredRanking`) up to `inviteSlots` invites in all, however
+     * often this runs while the ranking moves. A club that registered
+     * itself is upgraded to the invite; a club that came through a qualifier
+     * keeps that place. Events entered through qualifiers (the Majors) hand
+     * out their direct invites the same way.
+     * @param seasonNumber - season of the instance (defaults to the season of `currentWeek`)
      */
     static generateAutoInvites(
         qualificationStatuses: QualificationStatus[],
         tournament: TournamentDefinition,
         rankedTeams: { id: string; worldRanking: number }[],
-        currentWeek?: number
+        currentWeek?: number,
+        seasonNumber?: number,
     ): QualificationStatus[] {
-        if (tournament.entryType !== "INVITE" || !tournament.inviteSlots) {
+        if ((tournament.entryType !== "INVITE" && tournament.entryType !== "QUALIFIER") || !tournament.inviteSlots) {
             return qualificationStatuses
         }
 
-        const seasonNumber = getSeasonFromWeek(currentWeek ?? 1)
-        const tournamentInstanceId = buildInstanceId(tournament.id, seasonNumber)
-
-        // Use all invite slots — auto-invites fill the full allocation
-        const effectiveSlots = tournament.inviteSlots || 0
-
-        const eligibleTeams = rankedTeams
-            .filter(t => tournament.requiredRanking ? t.worldRanking <= tournament.requiredRanking : true)
-            .slice(0, effectiveSlots)
+        const tournamentInstanceId = buildInstanceId(tournament.id, seasonNumber ?? getSeasonFromWeek(currentWeek ?? 1))
+        const rowOf = (rows: QualificationStatus[], teamId: string) =>
+            rows.find(qs => qs.teamId === teamId && isQualificationForTournament(qs, tournamentInstanceId))
 
         let updated = [...qualificationStatuses]
+        let invited = updated.filter(qs => qs.qualifiedVia === "Direct Invite" && qs.status !== "REGISTERED"
+            && isQualificationForTournament(qs, tournamentInstanceId)).length
+
+        const eligibleTeams = [...rankedTeams]
+            .filter(t => tournament.requiredRanking ? t.worldRanking <= tournament.requiredRanking : true)
+            .sort((a, b) => a.worldRanking - b.worldRanking || a.id.localeCompare(b.id))
 
         for (const team of eligibleTeams) {
-            const alreadyQualified = updated.some(
-                qs => isQualificationForTournament(qs, tournamentInstanceId, currentWeek) && qs.teamId === team.id
-            )
-            if (!alreadyQualified) {
-                updated = this.qualifyTeam(updated, tournamentInstanceId, team.id, "Direct Invite")
-            }
+            if (invited >= tournament.inviteSlots) break
+            const existing = rowOf(updated, team.id)
+            if (existing && existing.status !== "REGISTERED") continue // invited already, qualified via a qualifier, or out
+            updated = this.qualifyTeam(updated, tournamentInstanceId, team.id, "Direct Invite")
+            invited++
         }
 
         return updated

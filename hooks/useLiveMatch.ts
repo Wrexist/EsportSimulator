@@ -9,7 +9,7 @@ import type { TeamSaveData } from "@/engine/save-types"
 import { EconomyManager, WEAPONS, commentaryManager } from "@/engine"
 import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents } from "@/engine/match/live-checkpoint"
 import { isEngineVersion, resolveEngineVersion } from "@/engine/match/engine-version"
-import { buildRestoredGameState } from "@/engine/match/live-match-init"
+import { buildRestoredGameState, sanitizeRoundLossLevels } from "@/engine/match/live-match-init"
 import {
     createLegacySeriesState,
     finalizeLegacySeries,
@@ -29,12 +29,13 @@ import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRound
 import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
 import { keyRoundReason } from "@/lib/live-key-rounds"
 import { buildRoundTimeline, summarizeRound, type RoundSummary, type RoundTimeline } from "@/lib/live-match-roster"
-import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime } from "@/lib/live-clock"
+import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime, startPlaybackLoop } from "@/lib/live-clock"
 import type { LegacyTransition } from "@/engine/match/legacy-series"
 import { MAP_NAMES } from "@/data/map-pool"
 import { t, tn } from "@/lib/i18n"
 import { strategyLabel } from "@/lib/live-match-decision"
 import { liveCheckpointStore, persistCommittedMatch } from "@/lib/live-checkpoint-store"
+import { fixtureNotDueYet } from "@/lib/playable-match"
 import { commitLiveMatch } from "@/lib/live-match-commit"
 import {
     ROUND_SECONDS,
@@ -353,8 +354,12 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         const aTeam = teams.find(t => t.id === foundMatch.awayTeamId)
         if (!hTeam || !aTeam) return
 
-        // HYBRID_DAILY day pacing: never start a current-week match before its day.
-        if (timeMode === "HYBRID_DAILY" && foundMatch.week === currentWeek && (foundMatch.day ?? 6) > currentDay) {
+        // Never start a match before its date: a later week, or (daily mode) a
+        // later day of this week. A direct link used to start a future fixture
+        // and lock the game until it was played (CROSSCUT-01). A match already
+        // started (its checkpoint) still resumes, so no save is left locked.
+        if (useGameStore.getState().activeMatchState?.matchId !== id && fixtureNotDueYet({ currentWeek, currentDay, timeMode }, foundMatch)) {
+            if (useGameStore.getState().activeMatchId === id) setActiveMatch(null)
             if (isMountedRef.current) router.replace(`/match/${id}/tactics`)
             return
         }
@@ -448,8 +453,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             const lastMap = inFlight && sanitizedSimState.lastRound ? restoredResult.maps[sanitizedSimState.lastRound.mapIndex] : undefined
             const lastRecorded = lastMap?.rounds[lastMap.rounds.length - 1]
             setRoundHomeIsCT(lastRecorded ? lastRecorded.ctTeam === hTeam.id : sanitizedSimState.homeStartsCT)
-            // Pre-round loss levels of an in-flight round are not checkpointed.
-            setShownLossLevels(inFlight ? {} : { home: sanitizedSimState.homeLossLevel, away: sanitizedSimState.awayLossLevel })
+            // An in-flight round shows the levels it started with (checkpointed, MATCHDAY-08).
+            setShownLossLevels(inFlight ? sanitizeRoundLossLevels(activeMatchState!.roundLossLevels) : { home: sanitizedSimState.homeLossLevel, away: sanitizedSimState.awayLossLevel })
 
             // Radar: rebuild the shown round's script from its recorded round
             // (the bought utility is not checkpointed, so no grenades).
@@ -563,6 +568,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             isWaitingForStrategy,
             timeoutsRemaining,
             timeoutBoostRounds,
+            roundLossLevels: shownLossLevels,
             // Legacy duplicated type shapes; structurally identical at runtime.
             originalHomePlayers: originalHomePlayers as unknown as ActiveMatchState["originalHomePlayers"],
             originalAwayPlayers: originalAwayPlayers as unknown as ActiveMatchState["originalAwayPlayers"],
@@ -570,7 +576,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         }
 
         pendingCheckpoint.current = state
-    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, originalHomePlayers, originalAwayPlayers])
+    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, shownLossLevels, originalHomePlayers, originalAwayPlayers])
 
     // Fixed cadence cannot be starved by fast playback. Clone at the ownership boundary.
     // The page only renders when the screen changes, so while a round plays the
@@ -707,7 +713,12 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         ]
         if (step.round.managerCall?.regroup) buyLogEntries.push({ type: "SYSTEM", message: t("feed.regroup") })
 
-        setGameState(prev => ({ ...prev, round: currentRoundNumber, time: 0, status: "IN_PROGRESS" }))
+        // A new map: the screen leaves the finished map (kept on screen through the map break).
+        setGameState(prev => ({
+            ...prev,
+            ...(prev.currentMapIndex !== mapIndex ? { currentMapIndex: mapIndex, homeScore: 0, awayScore: 0 } : {}),
+            round: currentRoundNumber, time: 0, status: "IN_PROGRESS",
+        }))
         const roundStartMsg = commentaryManager.generate("ROUND_START", { round: currentRoundNumber })
         setLogs(prev => [...buyLogEntries.reverse(), { type: "SYSTEM", message: roundStartMsg }, ...prev])
 
@@ -879,8 +890,14 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 const transition = last.transition
                 const isHomeWinner = last.winner === "HOME"
 
-                setRoundHomeIsCT(roundState.homeStartsCT)
-                setShownLossLevels({ home: roundState.homeLossLevel, away: roundState.awayLossLevel })
+                // A finished map stays on screen through the map break (MATCHDAY-18):
+                // its sides, loss bonus and end-of-round roster, not the next map's
+                // pistol-round reset, until the next map's first round starts.
+                const mapBreak = transition === "MAP_END"
+                if (!mapBreak) {
+                    setRoundHomeIsCT(roundState.homeStartsCT)
+                    setShownLossLevels({ home: roundState.homeLossLevel, away: roundState.awayLossLevel })
+                }
                 setGameState(prev => ({
                     ...prev,
                     homeScore: last.homeRounds,
@@ -897,8 +914,10 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     hasKit: econ[player.id]?.hasKit ?? false,
                     isDead: false
                 }))
-                setHomeRoster(resetRoster(roundState.homeEconomy, roundState.homeStartsCT))
-                setAwayRoster(resetRoster(roundState.awayEconomy, !roundState.homeStartsCT))
+                if (!mapBreak) {
+                    setHomeRoster(resetRoster(roundState.homeEconomy, roundState.homeStartsCT))
+                    setAwayRoster(resetRoster(roundState.awayEconomy, !roundState.homeStartsCT))
+                }
 
                 const winnerName = isHomeWinner ? runtime.homeTeam.name : runtime.awayTeam.name
                 const lastMap = runtime.result.maps[last.mapIndex]
@@ -947,24 +966,25 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     if (playerIsHomeSide || playerIsAwaySide) playMatchOutcomeCue(runtime.match.id, playerWon)
                 } else if (transition === "MAP_END") {
                     const nextMapId = runtime.canonicalMaps[roundState.currentMapIndex]
-                    uiTimeRef.current = -1
-                    setGameState(prev => ({ ...prev, currentMapIndex: roundState.currentMapIndex, homeScore: 0, awayScore: 0, round: 1, time: -1 }))
+                    // The screen (scorebug, rounds, radar, break stats) stays on the
+                    // finished map during the break; the next map's first round
+                    // moves it on (startNextRound, MATCHDAY-18).
                     settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
-                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.nextMap", { map: (MAP_NAMES[nextMapId] || nextMapId).toUpperCase() }) }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.nextMap", { map: MAP_NAMES[nextMapId] || nextMapId }) }, ...prev])
                     // Warm the next map's walk graph before its pistol round is built.
                     if (nextMapId) warmRoundMap(nextMapId)
                     breakAt("map-end", nextMapId)
                     queueRoundStart("PISTOL", ROUND_BEAT_MS + BREAK_CARD_MS)
                 } else if (transition === "OVERTIME") {
-                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.overtimeStart") }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.overtimeStart") }, ...prev])
                     breakAt("overtime")
                     settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(true)
                 } else if (transition === "HALFTIME") {
-                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.halfTime") }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.halfTime") }, ...prev])
                     breakAt("halftime")
                     settle()
                     setIsPlaying(false)
@@ -972,7 +992,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     queueRoundStart("PISTOL", ROUND_BEAT_MS + BREAK_CARD_MS)
                 } else if (transition === "OVERTIME_SWITCH") {
                     const newSet = (roundState.currentRound - 25) % 6 === 0
-                    setLogs(prev => [{ type: "SYSTEM", message: newSet ? t("feed.overtimeNewSet") : t("feed.overtimeSwitch") }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: newSet ? t("feed.overtimeNewSet") : t("feed.overtimeSwitch") }, ...prev])
                     breakAt("overtime-switch")
                     settle()
                     setIsPlaying(false)
@@ -1033,29 +1053,20 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     useEffect(() => { liveClock.configure(speed, pacingMode) }, [liveClock, speed, pacingMode])
     useEffect(() => { liveClock.setRunning(running) }, [liveClock, running])
 
+    // A new round restarts the loop even when `running` stayed true across the
+    // break before it (the loop also keeps checking while nothing is due).
+    const shownRoundKey = roundView?.key ?? null
     useEffect(() => {
         if (!running) return
-        let timer = 0
         // Without a round view (a restore that could not rebuild it) the events alone.
         const fallback = roundViewRef.current ? null : [...new Set(currentRoundEvents.current.map(e => e.time))].sort((a, b) => a - b)
-        const schedule = () => {
-            const wake = nextWakeAfter(roundViewRef.current?.wakes ?? fallback ?? undefined, uiTimeRef.current)
-            const now = performance.now()
-            const due = liveClock.wallAt(wake, now)
-            if (!Number.isFinite(due)) return
-            // A long timer re-checks now and then (the clock may have been re-anchored).
-            timer = window.setTimeout(() => fire(wake, due), Math.min(MAX_WAKE_WAIT_MS, Math.max(0, due - now + 1)))
-        }
-        const fire = (wake: number, due: number) => {
-            const now = performance.now()
-            // Timer jitter: a wake that is due is reached.
-            const t = now >= due - 2 ? Math.max(wake, liveClock.now(now)) : liveClock.now(now)
-            if (t >= wake) advanceRef.current(t)
-            schedule()
-        }
-        schedule()
-        return () => window.clearTimeout(timer)
-    }, [running, liveClock, speed, pacingMode])
+        return startPlaybackLoop({
+            clock: liveClock,
+            wakes: () => roundViewRef.current?.wakes ?? fallback ?? undefined,
+            shown: () => uiTimeRef.current,
+            advance: t => advanceRef.current(t),
+        }, { maxWaitMs: MAX_WAKE_WAIT_MS })
+    }, [running, liveClock, speed, pacingMode, shownRoundKey])
 
     // --- AUTO ACTIONS ---
     // Auto/skip makes no manager call: the managed team buys by its economy
@@ -1118,6 +1129,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         if (latestGameStateRef.current.status !== "IN_PROGRESS") return
         // Without auto tactics there is no countdown to hold: the card waits for a call.
         if (waitingRef.current && !roundInFlightRef.current) { if (autoRef.current) setDecisionHold(hold => !hold); return }
+        // A break (half time, between maps): no round to play or pause; the next one starts on its own.
+        if (!roundInFlightRef.current) return
         setIsPlaying(playing => !playing)
     }, [])
 
@@ -1219,8 +1232,18 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 .join(", ")
             const winnerName = homeWon ? homeTeam.name : awayTeam.name
             const seriesScore = homeWon ? `${sim.homeSeriesScore}-${sim.awaySeriesScore}` : `${sim.awaySeriesScore}-${sim.homeSeriesScore}`
+            // A best-of-one names the round score and the map, not "1-0" (MATCHDAY-15).
+            const playedMaps = done.state.maps.filter(m => m.rounds.length > 0)
+            const onlyMap = runtime.canonicalMaps.length === 1 && playedMaps.length === 1 ? playedMaps[0] : null
+            const finalLine = onlyMap
+                ? t("feed.finalMap", {
+                    team: winnerName,
+                    score: homeWon ? `${onlyMap.homeScore ?? 0}–${onlyMap.awayScore ?? 0}` : `${onlyMap.awayScore ?? 0}–${onlyMap.homeScore ?? 0}`,
+                    map: MAP_NAMES[onlyMap.map] || onlyMap.map,
+                })
+                : t("feed.final", { team: winnerName, series: seriesScore, maps: mapScores })
             setLogs(prev => [
-                { type: "SYSTEM", message: t("feed.final", { team: winnerName, series: seriesScore, maps: mapScores }) },
+                { type: "SYSTEM", divider: true, message: finalLine },
                 { type: "SYSTEM", message: tn("feed.skippedEnd", done.roundsPlayed) },
                 ...prev,
             ])

@@ -79,7 +79,6 @@ export function processForfeitMatch(args: {
             keyFactor: "FIREPOWER",
             winningFactor: "Win by forfeit",
             losingFactor: "Insufficient healthy players",
-            teamPerformance: { economyRating: 0, aimRating: 0, utilityRating: 0, tradingRating: 0 },
         },
     } as CompletedMatchSaveData
 

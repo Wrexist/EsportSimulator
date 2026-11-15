@@ -3,6 +3,7 @@
 import { useId } from "react"
 import { textOnBrand } from "@/lib/branding/fallback"
 import { cn } from "@/lib/utils"
+import { t } from "@/lib/i18n"
 import type { TeamBranding } from "@/data/snapshot-types"
 import { EMBLEM_DRAWINGS, emblemOutlineColor } from "@/lib/team-emblem-design"
 import { teamEmblemIdentity } from "@/lib/team-emblem-identity"
@@ -30,7 +31,7 @@ export function TeamEmblem({ name, branding, seed, size = 32, className }: TeamE
 
     return (
         <svg viewBox="0 0 100 100" width={size} height={size}
-            className={cn("shrink-0", className)} role="img" aria-label={`${name} logo`}>
+            className={cn("shrink-0", className)} role="img" aria-label={t("common.logoAria", { name })}>
             <defs>
                 <linearGradient id={`${uid}-color`} x1="0" y1="0" x2="0.8" y2="1">
                     <stop offset="0" stopColor={primary} />

@@ -32,6 +32,15 @@ describe("legacy goals", () => {
         expect(row(view({ teams: [team("a", [], { worldRanking: 1 })] as never, gameOverReason: "SACKED" } as never), "summit").level).toBe(0)
     })
 
+    test("COMP-25: the summit does not count the rank of a club just taken over", () => {
+        const stint = (matches: number) => ({ stints: [{ teamId: "a", teamName: "a", fromWeek: 1, matches, wins: 0, losses: 0, trophies: 0 }] }) as never
+        const day1 = view({ teams: [team("a", [], { worldRanking: 5 })] as never, currentWeek: 1, managerDetails: stint(0) })
+        expect(row(day1, "summit").level).toBe(0)
+        expect(checkLegacyGoals(day1, new Set()).some(h => h.goalId === "summit")).toBe(false)
+        // From the first official match the club's rank is the manager's.
+        expect(row(view({ teams: [team("a", [], { worldRanking: 5 })] as never, managerDetails: stint(1) }), "summit").level).toBe(1)
+    })
+
     test("each level fires once, with its reward; a pro career has no manager legacy", () => {
         const v = view({ teams: [team("a", [{ week: 5, tournamentId: "cup" }], { worldRanking: 2 })] as never, managerDetails: { tenureStartWeek: 1 } as never })
         const hits = checkLegacyGoals(v, new Set())

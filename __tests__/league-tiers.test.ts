@@ -85,4 +85,32 @@ describe("initializeTeamData — rank bands on a new career and on load", () => 
         expect(last.worldRanking).toBe(1)
         expect(last.leagueTier).toBe("C_TIER")
     })
+
+    test("loading keeps the ranking the week tick set (ENGINE-05: a reload no longer re-ranks)", () => {
+        const save = {
+            currentWeek: 30,
+            teams: Array.from({ length: 46 }, (_, i) => team(`ai${i}`, 1500 - i)),
+        } as unknown as GameSave
+        AIManager.initializeTeamData(save)
+        // Results after the tick's ranking (later steps, day fixtures) moved Elo.
+        const last = save.teams[45]
+        last.elo = 2000
+        const before = save.teams.map(t => [t.worldRanking, t.rankedElo, t.peakWorldRanking])
+        AIManager.initializeTeamData(save, { keepRanking: true })
+        expect(save.teams.map(t => [t.worldRanking, t.rankedElo, t.peakWorldRanking])).toEqual(before)
+        expect(last.worldRanking).toBe(46)
+    })
+
+    test("loading still ranks a save with an unranked club", () => {
+        const save = {
+            currentWeek: 30,
+            teams: Array.from({ length: 46 }, (_, i) => team(`ai${i}`, 1500 - i)),
+        } as unknown as GameSave
+        AIManager.initializeTeamData(save)
+        const added = save.teams[45]
+        added.elo = 2000
+        added.worldRanking = undefined
+        AIManager.initializeTeamData(save, { keepRanking: true })
+        expect(added.worldRanking).toBe(1)
+    })
 })

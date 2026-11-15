@@ -1,15 +1,28 @@
 import { EconomyEngine } from "./economy-engine"
 import type { ContractSaveData, PlayerSaveData, StaffSaveData, TeamSaveData } from "./save-types"
 
+/**
+ * Role-retraining fees due at the weekly update `weeksAhead` weeks from now
+ * (0 = the next one). TrainingManager.processWeeklyTraining charges each
+ * active session's weeklyCost until its weeks are done; it is not part of
+ * EconomyEngine's settlement, so the forecast adds it here (SQUAD-27).
+ */
+export function roleTrainingCost(team: Pick<TeamSaveData, "activeRoleTraining">, weeksAhead = 0): number {
+    return (team.activeRoleTraining ?? []).reduce((sum, rt) =>
+        rt.totalWeeks - rt.weeksCompleted > weeksAhead ? sum + Math.max(0, rt.weeklyCost || 0) : sum, 0)
+}
+
 /** Scenario at today's reputation/followers/upkeep. No unearned prizes, goals or speculative sales. */
 export function forecastFinances(team: TeamSaveData, players: PlayerSaveData[], contracts: ContractSaveData[], staff: StaffSaveData[], currentWeek: number, weeks = 12, academyProspectCount = 0) {
     let projected = { ...team, sponsors: (team.sponsors ?? []).map(s => ({ ...s })) }
     return Array.from({ length: Math.max(0, Math.min(104, Math.floor(weeks))) }, (_, i) => {
         const week = currentWeek + i + 1
         const report = EconomyEngine.processWeeklyFinances(projected, players, contracts, staff, week, academyProspectCount)
-        projected = { ...projected, budget: report.newBalance, sponsors: projected.sponsors
+        const retraining = roleTrainingCost(team, i)
+        const budget = report.newBalance - retraining
+        projected = { ...projected, budget, sponsors: projected.sponsors
             .map(s => ({ ...s, remainingWeeks: s.remainingWeeks - 1 })).filter(s => s.remainingWeeks > 0) }
-        return { week, budget: report.newBalance, isNegative: report.newBalance < 0, income: report.income.total, expenses: report.expenses.total, net: report.net }
+        return { week, budget, isNegative: budget < 0, income: report.income.total, expenses: report.expenses.total + retraining, net: report.net - retraining }
     })
 }
 
@@ -27,4 +40,15 @@ export function quotePlayerSigning(team: TeamSaveData, players: PlayerSaveData[]
         { playerId, teamId: team.id, salaryPerWeek: salary, startWeek: currentWeek, endWeek: currentWeek + duration, buyout: 0 }]
     const report = EconomyEngine.processWeeklyFinances(projectedTeam, players, projectedContracts, staff, currentWeek + 1, academyProspectCount)
     return { cashAfterSigning, weeklyNet: report.net, runwayWeeks: cashRunway(cashAfterSigning, report.net) }
+}
+
+/**
+ * Wage settlements a contract still pays from now (MARKET-10). The weekly
+ * settlement for week w charges contracts with startWeek <= w < endWeek, and
+ * this week's has already run, so a deal ending at endWeek pays for weeks
+ * currentWeek + 1 .. endWeek - 1. Payroll, the deal panel and the staff hire
+ * card all count with this.
+ */
+export function settlementsLeft(endWeek: number, currentWeek: number): number {
+    return Math.max(0, Math.floor(endWeek) - Math.floor(currentWeek) - 1)
 }

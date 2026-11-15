@@ -29,7 +29,10 @@ test("pro career: start, staff-run weeks, an offer, retirement", async () => {
     const teams = snapshotLoader.getSnapshot()!.teams as unknown as { id: string; reputation: number }[]
     const club = [...teams].sort((a, b) => a.reputation - b.reputation || a.id.localeCompare(b.id))[5]
     await useGameStore.getState().initializeNewGame("Pro", club.id)
+    // A manager career opens with the board brief; START-27: a pro career does not.
+    expect(useGameStore.getState().momentQueue?.some(m => m.kind === "welcome")).toBe(true)
     expect(useGameStore.getState().startProCareer({ nickname: "zyro", role: PlayerRole.RIFLER })).toBe(true)
+    expect(useGameStore.getState().momentQueue?.some(m => m.kind === "welcome")).toBe(false)
     expect(useGameStore.getState().startProCareer({ nickname: "again", role: PlayerRole.AWPER })).toBe(false)
 
     let s = useGameStore.getState()

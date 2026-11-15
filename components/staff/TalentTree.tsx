@@ -95,8 +95,10 @@ function talentDescription(node: TalentNode): string {
 }
 
 const DEFAULT_SPACING_X = 112
-const SPACING_Y = 104
+const SPACING_Y = 124
 const NODE = 52
+/** Room under a node for its name (mt-3 + two lines); edges start below it (SQUAD-18). */
+const LABEL_SPACE = 44
 
 /**
  * TalentTree — talent nodes on a quiet grid. Owned nodes read solid, nodes you
@@ -122,12 +124,13 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                         const parent = nodes.find(n => n.id === reqId)
                         if (!parent) return null
                         const a = center(parent), b = center(node)
+                        const y1 = a.y + NODE / 2 + LABEL_SPACE, y2 = b.y - NODE / 2
                         const owned = unlockedIds.includes(node.id)
                         const open = unlockedIds.includes(parent.id)
                         return (
                             <path
                                 key={`${parent.id}-${node.id}`}
-                                d={`M ${a.x} ${a.y + NODE / 2} C ${a.x} ${(a.y + b.y) / 2}, ${b.x} ${(a.y + b.y) / 2}, ${b.x} ${b.y - NODE / 2}`}
+                                d={`M ${a.x} ${y1} C ${a.x} ${(y1 + y2) / 2}, ${b.x} ${(y1 + y2) / 2}, ${b.x} ${y2}`}
                                 fill="none"
                                 strokeWidth={owned ? 1.5 : 1}
                                 strokeDasharray={!owned && open ? "4 4" : undefined}

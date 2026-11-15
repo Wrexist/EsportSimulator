@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { ArrowLeft, Mail, MailOpen, Heart, Repeat2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { tournamentHref } from "@/components/ui/EntityLink"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { useGameStore } from "@/store/game-store"
@@ -72,6 +73,7 @@ function ResolvedNote({ event }: { event: GameEventSaveData }) {
     const unanswered = data.unanswered as { week?: number } | undefined
     const text = unanswered ? (choice ? t("ib.res.defaulted", { choice: choiceLabel(choice), week: unanswered.week ?? "" }) : t("ib.res.lapsed", { week: unanswered.week ?? "" }))
         : event.selectedChoiceId === "expired" ? t("ib.res.expired")
+        : event.selectedChoiceId === "sold" ? t("ib.res.soldElsewhere", { club: data.soldToTeamName || t("ib.aClub") })
         : choice ? t("ib.res.chose", { choice: choiceLabel(choice) })
             : event.selectedChoiceId === "reject" ? t("ib.res.rejected")
                 : event.selectedChoiceId === "ACCEPT" || event.selectedChoiceId === "accept" ? t("ib.res.accepted")
@@ -83,7 +85,10 @@ function EventLinks({ event }: { event: GameEventSaveData }) {
     const data = (event.data ?? {}) as AnyData
     const links: [string, string][] = []
     if (data.matchId) links.push([`/match/${data.matchId}/tactics`, t("ib.link.match")])
-    else if (data.tournamentId) links.push([`/tournaments/${data.tournamentId}`, t("ib.link.tournament")])
+    else if (data.tournamentId) {
+        const href = tournamentHref(String(data.tournamentId))
+        links.push([href, href === "/league" ? t("nav.league") : t("ib.link.tournament")])
+    }
     if (event.type === "FINANCE" || event.type === "BUDGET_WARNING") links.push(["/finances", t("nav.finances")])
     if (event.type === "SCOUTING_COMPLETE") links.push(["/scouting", t("nav.scouting")])
     if (event.type === "STAFF_REPORT") links.push(["/staff#delegation", t("ib.link.delegation")])

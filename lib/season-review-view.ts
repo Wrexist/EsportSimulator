@@ -28,7 +28,7 @@ import { WEEKS_PER_SEASON } from "@/engine/official-stats"
 import { trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
 import type { StoryArc, StoryArcKind } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL } from "@/engine/storylines/view"
-import { ordinalLabel, t } from "@/lib/i18n"
+import { ordinalLabel, t, tn } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 import { storyKindName } from "@/lib/story-names"
 import { lineText } from "@/lib/news-text"
@@ -259,9 +259,9 @@ function reviewRecord(lk: Lookups, key: RecordKey, r: RecordEntry, broken: boole
     const club = teamName(lk, r.teamId)
     const opp = teamName(lk, r.opponentId)
     const value = key === "bestMapRating" ? r.value.toFixed(2)
-        : key === "mostMapKills" ? t("sr.kills", { n: r.value })
+        : key === "mostMapKills" ? tn("sr.kills", r.value, { n: r.value })
             : key === "biggestWin" ? (r.score ? dash(r.score) : `+${r.value}`)
-                : t("sr.wins", { n: r.value })
+                : tn("sr.wins", r.value, { n: r.value })
     const detail = key === "longestWinStreak"
         ? [r.fromWeek ? t("sr.streakSpan", { from: weekOfSeasonLabel(r.fromWeek), to: weekOfSeasonLabel(r.week) }) : weekOfSeasonLabel(r.week), r.endedBy ? t("sr.endedBy", { team: teamName(lk, r.endedBy) }) : null].filter(Boolean).join(" · ")
         : [t("sr.vs", { team: opp }), r.map, weekOfSeasonLabel(r.week)].filter(Boolean).join(" · ")
@@ -271,7 +271,7 @@ function reviewRecord(lk: Lookups, key: RecordKey, r: RecordEntry, broken: boole
         value,
         holder: r.playerName ?? club,
         teamName: club,
-        detail: key === "biggestWin" ? `${detail} · ${t("sr.plusRounds", { n: r.value })}` : detail,
+        detail: key === "biggestWin" ? `${detail} · ${tn("sr.plusRounds", r.value, { n: r.value })}` : detail,
         allTime: broken,
         ours: r.teamId === lk.teamId,
     }
@@ -343,8 +343,8 @@ function seasonBeats(src: ReviewSource, lk: Lookups, review: SeasonReview, club:
         }
     }
     for (const tr of club.trophies) beats.push({ order: tr.week * 10 + 1, when: weekOfSeasonLabel(tr.week), title: t("sr.won", { name: tr.name }), detail: tr.major ? t("sr.majorChampions") : tr.tier === "LEAGUE" ? t("sr.leagueTitle") : tr.tier === "QUALIFIER" ? t("sr.tier.QUALIFIER") : t("sr.tierTitle", { tier: tierLabel(tr.tier) }), tone: "gold" })
-    if (club.biggestWin) beats.push({ order: club.biggestWin.week * 10 + 2, when: weekOfSeasonLabel(club.biggestWin.week), title: t("sr.beat.biggestWin", { score: club.biggestWin.score, team: club.biggestWin.opponentName }), detail: `${t("sr.plusRounds", { n: club.biggestWin.margin })}${club.biggestWin.map ? ` · ${club.biggestWin.map}` : ""}`, tone: "positive" })
-    if (club.worstLoss) beats.push({ order: club.worstLoss.week * 10 + 2, when: weekOfSeasonLabel(club.worstLoss.week), title: t("sr.beat.worstLoss", { score: club.worstLoss.score, team: club.worstLoss.opponentName }), detail: `${t("sr.minusRounds", { n: club.worstLoss.margin })}${club.worstLoss.map ? ` · ${club.worstLoss.map}` : ""}`, tone: "negative" })
+    if (club.biggestWin) beats.push({ order: club.biggestWin.week * 10 + 2, when: weekOfSeasonLabel(club.biggestWin.week), title: t("sr.beat.biggestWin", { score: club.biggestWin.score, team: club.biggestWin.opponentName }), detail: `${tn("sr.plusRounds", club.biggestWin.margin, { n: club.biggestWin.margin })}${club.biggestWin.map ? ` · ${club.biggestWin.map}` : ""}`, tone: "positive" })
+    if (club.worstLoss) beats.push({ order: club.worstLoss.week * 10 + 2, when: weekOfSeasonLabel(club.worstLoss.week), title: t("sr.beat.worstLoss", { score: club.worstLoss.score, team: club.worstLoss.opponentName }), detail: `${tn("sr.minusRounds", club.worstLoss.margin, { n: club.worstLoss.margin })}${club.worstLoss.map ? ` · ${club.worstLoss.map}` : ""}`, tone: "negative" })
     for (const key of review.records.broken) {
         const r = review.records.season[key]
         if (!r || r.teamId !== lk.teamId) continue

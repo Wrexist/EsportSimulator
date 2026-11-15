@@ -14,7 +14,7 @@
 
 import { liveText } from "@/lib/i18n"
 import type { TournamentActions, SliceCreator } from "@/store/types"
-import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
+import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS, type TournamentDefinition } from "@/data/tournament-calendar"
 import {
     buildInstanceId,
     getSeasonFromTournamentId,
@@ -29,6 +29,7 @@ import { QualificationEngine } from "@/engine/tournament-qualification"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { eventText, newsText } from "@/lib/news-ref"
+import { instanceName } from "@/lib/tournament-instances"
 
 export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get) => ({
     registerForTournament: (tournamentId: string) => {
@@ -52,6 +53,8 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
         }
 
         const instanceId = buildInstanceId(baseId, seasonNumber)
+        // Messages name the event with the year it is played in, as its saved instance will.
+        const eventName = (def: TournamentDefinition) => instanceName(def, seasonNumber, state.gameStartDate)
 
         const team = state.teams.find(t => t.id === state.playerTeamId)
         if (!team) return { success: false, message: "Team not found" }
@@ -80,7 +83,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 const mainTournament = FULL_TOURNAMENT_CALENDAR.find(t => t.id === definition.qualifierFor)
                 return {
                     success: false,
-                    message: liveText(mainTournament?.name ? { key: "lv.qualifiedFor", params: { event: mainTournament.name } } : { key: "lv.qualifiedMain" }),
+                    message: liveText(mainTournament?.name ? { key: "lv.qualifiedFor", params: { event: eventName(mainTournament) } } : { key: "lv.qualifiedMain" }),
                 }
             }
 
@@ -97,7 +100,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 if (isInSibling) {
                     return {
                         success: false,
-                        message: liveText({ key: "lv.siblingQualifier", params: { event: sibling.name || sibling.shortName } }),
+                        message: liveText({ key: "lv.siblingQualifier", params: { event: eventName(sibling) } }),
                     }
                 }
             }
@@ -123,13 +126,13 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 acknowledged: false,
                 data: {
                     tournamentId: instanceId,
-                    ...eventText({ key: "evn.registered.t" }, { key: "evn.registered.m", params: { event: definition.name } }),
+                    ...eventText({ key: "evn.registered.t" }, { key: "evn.registered.m", params: { event: eventName(definition) } }),
                     sender: "Tournament Ops",
                     severity: "success",
                 },
             })
         })
-        return { success: true, message: liveText({ key: "lv.registered", params: { event: definition.name } }) }
+        return { success: true, message: liveText({ key: "lv.registered", params: { event: eventName(definition) } }) }
     },
 
     checkTournamentEligibility: (tournamentId: string) => {

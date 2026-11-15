@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, intlLocale, t, tn } from "@/lib/i18n"
 
 import { AGE_CURVE, lastsLonger } from "@/engine/development-rates"
 import { useMemo } from "react"
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
 
 function pct(m: number) {
     const v = Math.round((m - 1) * 100)
-    return `${v > 0 ? "+" : "−"}${Math.abs(v)}%`
+    return v === 0 ? "±0%" : `${v > 0 ? "+" : "−"}${Math.abs(v)}%`
 }
 
 /**
@@ -40,7 +40,7 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                 <div className="min-w-0 space-y-3">
                     <p className="text-sm text-ink-2">
                         {outlook.trainsWithClub
-                            ? <Trans k={outlook.weeklyGain > 0 ? (outlook.focusIsPersonal ? "outlook.trainsPersonalGain" : "outlook.trainsClubGain") : (outlook.focusIsPersonal ? "outlook.trainsPersonal" : "outlook.trainsClub")} params={{ focus: t(`focus.${outlook.focus}`), gain: outlook.weeklyGain.toFixed(2) }} tags={{ b: s => <span className="font-semibold text-ink-1">{s}</span> }} />
+                            ? <Trans k={outlook.weeklyGain > 0 ? (outlook.focusIsPersonal ? "outlook.trainsPersonalGain" : "outlook.trainsClubGain") : (outlook.focusIsPersonal ? "outlook.trainsPersonal" : "outlook.trainsClub")} params={{ focus: t(`focus.${outlook.focus}`), gain: formatDecimal(outlook.weeklyGain, 2) }} tags={{ b: s => <span className="font-semibold text-ink-1">{s}</span> }} />
                             : t("outlook.notTraining")}
                     </p>
                     {outlook.trainsWithClub && (
@@ -49,7 +49,7 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                                 {moving.map(f => (
                                     <li key={f.stat} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                                         <span className="text-ink-3">{t(`attr.${f.stat}`)}</span>
-                                        <span className="tabular-nums text-ink-1">{Math.round(f.now)} → <span className="font-semibold text-positive">{Math.round(f.after * 10) / 10}</span></span>
+                                        <span className="tabular-nums text-ink-1">{Math.round(f.now)} → <span className="font-semibold text-positive">{(Math.round(f.after * 10) / 10).toLocaleString(intlLocale())}</span></span>
                                     </li>
                                 ))}
                             </ul>
@@ -61,13 +61,19 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                     )}
                     {outlook.factors.length > 0 && (
                         <p className="flex flex-wrap gap-1.5 text-xs">
-                            {outlook.factors.map(f => (
-                                <span key={f.label} className={cn("rounded border px-1.5 py-0.5 tabular-nums", f.multiplier >= 1 ? "border-positive/40 text-positive" : "border-negative/40 text-negative")}>
-                                    {f.label} {pct(f.multiplier)}
-                                </span>
-                            ))}
+                            {outlook.factors.map(f => {
+                                // SQUAD-04: the age chip is relative to the best training age.
+                                const shown = f.display ?? f.multiplier
+                                return (
+                                    <span key={f.label} className={cn("rounded border px-1.5 py-0.5 tabular-nums", shown >= 1 - 1e-9 ? "border-positive/40 text-positive" : "border-negative/40 text-negative")}>
+                                        {f.label} {pct(shown)}
+                                    </span>
+                                )
+                            })}
                         </p>
                     )}
+                    {/* SQUAD-01: drills are not in this forecast; say how they relate to it. */}
+                    {outlook.trainsWithClub && <p className="text-xs text-ink-3">{t("outlook.drills")}</p>}
                 </div>
                 <dl className="min-w-0 space-y-2 text-sm">
                     <div>
@@ -86,7 +92,7 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                         <dt className="font-semibold text-ink-1">{t("outlook.natural")}</dt>
                         <dd className="text-ink-3">
                             {outlook.naturalPerSeason > 0.05
-                                ? t("outlook.naturalGrowth", { n: outlook.naturalPerSeason.toFixed(1) })
+                                ? t("outlook.naturalGrowth", { n: formatDecimal(outlook.naturalPerSeason) })
                                 : (player.age ?? 22) > 24 ? t("outlook.naturalNoneAge") : t("outlook.naturalNonePotential")}
                         </dd>
                     </div>
@@ -94,7 +100,7 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                         <dt className="font-semibold text-ink-1">{t("outlook.decline")}</dt>
                         <dd className="text-ink-3">
                             {outlook.declinePerSeason > 0
-                                ? t(lastsLonger(player.role, player.secondaryRole) ? "outlook.declineOnSlow" : "outlook.declineOn", { n: outlook.declinePerSeason.toFixed(1) })
+                                ? t(lastsLonger(player.role, player.secondaryRole) ? "outlook.declineOnSlow" : "outlook.declineOn", { n: formatDecimal(outlook.declinePerSeason) })
                                 : t("outlook.declineLater", { age: AGE_CURVE.CEILING_LOSS[0][0] })}
                         </dd>
                     </div>

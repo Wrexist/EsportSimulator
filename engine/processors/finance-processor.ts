@@ -387,6 +387,8 @@ export class FinanceProcessor {
                         data: {
                             playerId: player.id,
                             description: `Contract expired for ${player.nickname}. They have left the team.`,
+                            // The inbox shows the key in the player's language (I18N-27 check).
+                            messageRef: { key: "evn.contractExpired", params: { name: player.nickname } },
                             weeksLeft: 0
                         },
                         acknowledged: false

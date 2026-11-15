@@ -35,7 +35,10 @@ test("the week tick raises the press conference before the managed final, the sa
     expect(pressDataOf(press)?.questions.map(q => q.topic)).toEqual(["MATCH", "PLAYER"])
     expect(press.data).toMatchObject({ deadlineWeek: a.save.currentWeek, matchId: "qa_final", defaultChoiceId: "no_one" })
     expect(String(press.data.ifUnanswered)).toContain("sends no one to the press conference: no effect")
-    expect(a.save.newsFeed.find(n => n.id === "match_preview_qa_final")?.content).toBe("QA Aurora face AI Team 1 in the event final this week. QA Aurora come in fresh; AI Team 1 are ranked #2.")
+    // The tick also plays the Winter Open Katova open qualifier (week 2):
+    // AI Team 1 beats AI Team 2 there, goes up to 1507 Elo and leads the
+    // ranking (the others stay on 1500 and below).
+    expect(a.save.newsFeed.find(n => n.id === "match_preview_qa_final")?.content).toBe("QA Aurora face AI Team 1 in the event final this week. QA Aurora come in fresh; AI Team 1 are ranked #1.")
     expect(JSON.stringify(a.save.eventsLog)).toBe(JSON.stringify(b.save.eventsLog))
     expect(JSON.stringify(a.save.storylines ?? [])).toBe(JSON.stringify(b.save.storylines ?? []))
 })

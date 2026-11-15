@@ -45,6 +45,7 @@ import { applyFormResult, applyMoraleResult, resultSurpriseFactor } from "@/engi
 import { expectedScore } from "@/engine/world-ranking"
 import { isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "@/engine/personality"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
+import { applyMatchSponsorGoalProgress } from "@/engine/processors/match-sponsor-goals"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
 import { recordOfficialMatch } from "@/engine/official-stats"
 import { queueDecidedTitle } from "@/engine/processors/standings-processor"
@@ -56,6 +57,8 @@ import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legac
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
 import { checkAchievements } from "@/engine/steam-service"
+import { detectAchievementFlags } from "@/engine/processors/match-achievement-flags"
+import { officialCareerWins } from "@/engine/processors/post-tick-achievements"
 import {
     ensureDeterministicSeed,
     nextDeterministicId,
@@ -71,9 +74,9 @@ import {
     MAX_MATCH_RATING,
 } from "@/store/utils/helpers"
 
-import { formatCurrency } from "@/lib/utils-extended"
 import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import { eventText, newsText } from "@/lib/news-ref"
+import { sideScore } from "@/lib/week-changes"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
@@ -272,6 +275,15 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
             const oldHomeRank = homeTeam.worldRanking || 999
             const oldAwayRank = awayTeam.worldRanking || 999
+            // MODES-04: the managed club's comeback / upset, judged on the pre-match ranks.
+            const achievementFlags = detectAchievementFlags(
+                result,
+                { id: homeTeam.id, worldRanking: homeTeam.worldRanking },
+                { id: awayTeam.id, worldRanking: awayTeam.worldRanking },
+                state.playerTeamId,
+            )
+            if (achievementFlags.comebackWin) completedMatch._comebackWin = true
+            if (achievementFlags.underdogWin) completedMatch._underdogWin = true
 
             // ELO update (shared path with weekly auto-sim).
             if (!isDraw) {
@@ -350,56 +362,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
 
             // Sponsor goal progress: per-match "Win Matches" / "Win Tournament maps".
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;[homeTeam, awayTeam].forEach(team => {
-                const wonMatch = (team.id === homeTeam.id && homeWon) || (team.id === awayTeam.id && !homeWon)
-                if (!team.sponsors) return
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                team.sponsors.forEach((sponsor: any) => {
-                    if (!sponsor.goals) return
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    sponsor.goals.forEach((goal: any) => {
-                        if (goal.isCompleted) return
-                        if (goal.description.includes("Win Matches") && wonMatch) goal.current += 1
-                        if (goal.description.includes("Win Tournament maps")) {
-                            const mapsWon = team.id === homeTeam.id ? result.homeScore : result.awayScore
-                            goal.current += mapsWon
-                        }
-                        if (goal.current >= goal.target) {
-                            goal.current = goal.target
-                            goal.isCompleted = true
-                            const payoutEntryId = `fin_sponsor_match_${state.currentWeek}_${team.id}_${sponsor.id}_${goal.id}_${matchId}`
-                            const alreadyPaid = state.financeLedger.some(entry => entry.id === payoutEntryId)
-                            if (alreadyPaid) return
-                            team.budget += goal.bonusPayout
-                            state.financeLedger.push({
-                                id: payoutEntryId,
-                                week: state.currentWeek,
-                                teamId: team.id,
-                                type: "INCOME",
-                                category: "SPONSOR",
-                                amount: goal.bonusPayout,
-                                description: `Goal Reached: ${goal.description}`,
-                                balance: team.budget,
-                            })
-                            if (team.id === state.playerTeamId) {
-                                const eventId = `evt_sponsor_match_goal_${state.currentWeek}_${sponsor.id}_${goal.id}_${matchId}`
-                                if (!state.eventsLog.some(event => event.id === eventId)) {
-                                    state.eventsLog.unshift({
-                                        id: eventId,
-                                        type: "SPONSOR_OFFER",
-                                        week: state.currentWeek,
-                                        data: {
-                                            ...eventText({ key: "evn.sponsorGoal.t" }, { key: "evn.sponsorGoal.m", params: { sponsor: sponsor.name, amount: formatCurrency(goal.bonusPayout, "$", false) } }),
-                                        },
-                                        acknowledged: false,
-                                    })
-                                }
-                            }
-                        }
-                    })
-                })
-            })
+            // One shared path with the week tick's matches (MARKET-01): only
+            // official matches count, and the bonus pays through paySponsorGoalBonus.
+            applyMatchSponsorGoalProgress(state as unknown as GameSave, homeTeam, !isDraw && homeWon, result.homeScore, match)
+            applyMatchSponsorGoalProgress(state as unknown as GameSave, awayTeam, !isDraw && !homeWon, result.awayScore, match)
 
             // Player XP, level-ups, weapon mastery, morale/fatigue.
             const xpGains: Record<string, number> = {}
@@ -536,10 +502,13 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 if (pWon) state.managerDetails.careerWins = (state.managerDetails.careerWins || 0) + 1
                 else state.managerDetails.careerLosses = (state.managerDetails.careerLosses || 0) + 1
 
+                // Achievements count official matches only (MODES-06), as the Manager page does.
                 checkAchievements({
-                    totalWins: state.managerDetails.careerWins,
+                    totalWins: officialCareerWins(state as unknown as GameSave),
                     matchesPlayed: state.managerDetails.careerMatches,
-                    firstTournamentParticipation: !!match.tournamentId && match.tournamentId !== "SCRIM",
+                    firstTournamentParticipation: isOfficialMatch(match),
+                    comebackWin: achievementFlags.comebackWin,
+                    underdogWin: achievementFlags.underdogWin,
                 })
 
                 // Same base and analyst talent bonus as a match the week auto-plays.
@@ -609,9 +578,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // Post-match news headline (player team's perspective).
             const winner = homeWon ? homeTeam : awayTeam
             const loser = homeWon ? awayTeam : homeTeam
-            const scoreStr = homeWon
-                ? `${result.homeScore}-${result.awayScore}`
-                : `${result.awayScore}-${result.homeScore}`
+            // Rounds for a single map, maps for a series, as the result screen shows it (HOME-07).
+            const scoreStr = sideScore(result, homeWon)
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_match"),
                 ...newsText(
@@ -622,6 +590,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 teamId: winner.id,
                 matchId: match.id,
                 week: state.currentWeek,
+                ...(typeof match.day === "number" ? { day: match.day } : {}),
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
         })
@@ -740,8 +709,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
         // Achievement re-check after the manager stats bump.
         checkAchievements({
-            totalWins: get().managerDetails.careerWins,
-            firstTournamentParticipation: !!match.tournamentId && match.tournamentId !== "SCRIM",
+            totalWins: officialCareerWins(get() as unknown as GameSave),
+            firstTournamentParticipation: isOfficialMatch(match),
         })
 
         // If we just simulated the match the user was actively viewing,

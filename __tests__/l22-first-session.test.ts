@@ -96,6 +96,30 @@ describe('first-session checklist completes from real actions', () => {
         expect(h.next()).toBeNull()
     })
 
+    test('MODES-21: a played match plus a passed week also ticks off squad and budget; either alone does not', () => {
+        const h = harness()
+        h.settings.syncFirstSession()
+        h.set(s => { s.completedMatches.push(playedResult('own', s.playerTeamId!, 'opp') as never) })
+        h.settings.syncFirstSession(); expect(h.reviewed()).toEqual(['match'])
+        expect(h.next()!.step).toBe('squad')
+        h.set(s => { s.currentWeek += 1 })
+        h.settings.syncFirstSession()
+        expect(h.reviewed()).toEqual(['squad', 'budget', 'match', 'week'])
+        expect(h.next()!.step).toBe('decision')
+    })
+
+    test('MODES-25: on match day the match step points to the match, not the schedule', () => {
+        const h = harness({ ...newFirstSession(), reviewed: ['squad', 'budget', 'decision'] })
+        const ctx = { team: h.team(), players: h.read().players, matches: h.read().scheduledMatches, completed: h.read().completedMatches, currentWeek: h.read().currentWeek }
+        const state = restoreFirstSession(h.read().firstSession)
+        const later = firstSessionGuidance(state, ctx)!
+        expect(later.action.href).toBe('/schedule')
+        const today = firstSessionGuidance(state, { ...ctx, dueMatchId: 'm_today' })!
+        expect(today.action).toEqual({ href: '/match/m_today/tactics', label: 'Prepare the match' })
+        expect(today.detail).toContain('Your match is today')
+        expect(today.alternatives.map(a => a.href)).toEqual(['/schedule'])
+    })
+
     test('sync never runs during an active match or for an ended career', () => {
         const h = harness()
         h.set({ activeMatchId: 'live' } as Partial<StoreState>)

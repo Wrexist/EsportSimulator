@@ -63,15 +63,19 @@ export function arcHeadline(arc: StoryArc): string {
 
 /**
  * The most important storyline beat of the managed club logged in
- * [fromWeek, toWeek], for the weekly report headline.
+ * [fromWeek, toWeek], for the weekly report headline. `skipText`: a beat
+ * that already led the previous report (the windows of two consecutive
+ * reports overlap by a week), so an unchanged beat is not the headline
+ * twice (HOME-14).
  */
-export function leadingBeat(storylines: readonly StoryArc[] | undefined, teamId: string, fromWeek: number, toWeek: number): { arc: StoryArc; text: string; ref?: TextRef } | null {
+export function leadingBeat(storylines: readonly StoryArc[] | undefined, teamId: string, fromWeek: number, toWeek: number, skipText?: string): { arc: StoryArc; text: string; ref?: TextRef } | null {
     let best: { arc: StoryArc; text: string; ref?: TextRef; score: number } | null = null
     for (const arc of storylines ?? []) {
         if (!arc.managed || arc.teamId !== teamId) continue
         for (let i = arc.log.length - 1; i >= 0; i--) {
             const entry = arc.log[i]
             if (entry.week < fromWeek || entry.week > toWeek) continue
+            if (skipText !== undefined && entry.text === skipText) break
             const score = IMPORTANCE[arc.kind] * 100 + (arc.state === "RESOLVED" ? 50 : 0) + entry.week
             if (!best || score > best.score) best = { arc, text: entry.text, ref: entry.ref, score }
             break

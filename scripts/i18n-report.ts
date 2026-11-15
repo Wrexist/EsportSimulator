@@ -3,10 +3,12 @@
  * how much of the interface already goes through the translation layer.
  *
  *   npx tsx scripts/i18n-report.ts            report
+ *   npx tsx scripts/i18n-report.ts --all      list every hard-coded JSX text node
  *   npx tsx scripts/i18n-report.ts --template write locales/template.json (English text to translate)
  */
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs"
-import { join } from "node:path"
+import { join, relative, sep } from "node:path"
+import ts from "typescript"
 import { EN } from "@/locales/en"
 import { checkTranslation } from "@/lib/i18n"
 
@@ -34,15 +36,58 @@ for (const file of files) {
     if (badPlaceholders.length) failed = true
 }
 
-// How much of the interface is still hard-coded English (a rough count of JSX text).
-const walk = (d: string): string[] => readdirSync(d, { withFileTypes: true }).flatMap(e =>
-    e.isDirectory() ? (e.name === "node_modules" || e.name.startsWith(".") ? [] : walk(join(d, e.name))) : e.name.endsWith(".tsx") ? [join(d, e.name)] : [])
-let hardcoded = 0, translatedFiles = 0, total = 0
-for (const f of ["app", "components", "src"].filter(d => existsSync(join(root, d))).flatMap(d => walk(join(root, d)))) {
+// How much of the interface is still hard-coded English. JSX text only (the TypeScript parser tells
+// `<b>Text</b>` from `Promise<Text>`), outside the dev-only screens (I18N-27).
+const walk = (d: string, ext: string): string[] => readdirSync(d, { withFileTypes: true }).flatMap(e =>
+    e.isDirectory() ? (e.name === "node_modules" || e.name.startsWith(".") ? [] : walk(join(d, e.name), ext)) : e.name.endsWith(ext) ? [join(d, e.name)] : [])
+const DEV_ONLY = [join(root, "app", "dev"), join(root, "components", "dev")]
+const isDev = (f: string) => DEV_ONLY.some(d => f.startsWith(d + sep))
+const lineOf = (sf: ts.SourceFile, node: ts.Node) => `${relative(root, sf.fileName)}:${sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1}`
+let translatedFiles = 0, total = 0
+const hardcoded: string[] = []
+for (const f of ["app", "components", "src"].filter(d => existsSync(join(root, d))).flatMap(d => walk(join(root, d), ".tsx")).filter(f => !isDev(f))) {
     const src = readFileSync(f, "utf8")
     total++
     if (/from ["']@\/lib\/i18n["']/.test(src)) translatedFiles++
-    hardcoded += (src.match(/>\s*[A-Z][a-z][^<>{}]{2,}</g) ?? []).length
+    const sf = ts.createSourceFile(f, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+    const visit = (node: ts.Node) => {
+        // Two letters in a row: words, not "·", "/" or "%".
+        if (ts.isJsxText(node) && /\p{L}{2}/u.test(node.text)) hardcoded.push(`${lineOf(sf, node)}  ${node.text.trim().replace(/\s+/g, " ").slice(0, 60)}`)
+        ts.forEachChild(node, visit)
+    }
+    visit(sf)
 }
-console.log(`\nInterface: ${translatedFiles} of ${total} component files use the translation layer; about ${hardcoded} hard-coded text nodes left.`)
+console.log(`\nInterface: ${translatedFiles} of ${total} component files use the translation layer; ${hardcoded.length} JSX text nodes are hard-coded.`)
+for (const h of hardcoded.slice(0, process.argv.includes("--all") ? undefined : 40)) console.log(`  ${h}`)
+
+// Engine-written news and inbox items must carry translation keys (newsText / eventText refs), or the
+// player reads English in every language (I18N-01). Flags pushes whose title/content/message is a plain string.
+const TEXT_PROPS = new Set(["title", "content", "message", "description"])
+const isPlainText = (e: ts.Expression): boolean =>
+    ts.isStringLiteral(e) || ts.isNoSubstitutionTemplateLiteral(e) || ts.isTemplateExpression(e) || (ts.isBinaryExpression(e) && e.operatorToken.kind === ts.SyntaxKind.PlusToken)
+const plainLines: string[] = []
+for (const f of ["engine", "store", "lib"].filter(d => existsSync(join(root, d))).flatMap(d => walk(join(root, d), ".ts"))) {
+    const src = readFileSync(f, "utf8")
+    if (!/(newsFeed|eventsLog)\.(unshift|push)\(/.test(src)) continue
+    const sf = ts.createSourceFile(f, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+    const checkObject = (obj: ts.ObjectLiteralExpression) => {
+        for (const p of obj.properties) {
+            if (!ts.isPropertyAssignment(p)) continue
+            const name = p.name.getText(sf)
+            if (TEXT_PROPS.has(name) && isPlainText(p.initializer)) plainLines.push(`${lineOf(sf, p)}  ${name}: ${p.initializer.getText(sf).slice(0, 60)}`)
+            if (name === "data" && ts.isObjectLiteralExpression(p.initializer)) checkObject(p.initializer)
+        }
+    }
+    const visit = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+            && /^(unshift|push)$/.test(node.expression.name.text)
+            && /(newsFeed|eventsLog)$/.test(node.expression.expression.getText(sf))) {
+            for (const arg of node.arguments) if (ts.isObjectLiteralExpression(arg)) checkObject(arg)
+        }
+        ts.forEachChild(node, visit)
+    }
+    visit(sf)
+}
+console.log(`\nStored text: ${plainLines.length} news/inbox pushes write a plain English title, content or message (use newsText / eventText).`)
+for (const l of plainLines) console.log(`  ${l}`)
 if (failed) process.exit(1)

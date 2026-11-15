@@ -10,10 +10,14 @@
  */
 
 import type { GameSave } from "./save-types"
+import { NUMBER_REF, tRefEn, type TextRef } from "@/lib/i18n"
 
 export interface MilestoneHit {
     id: string
+    /** English copy (toasts, logs). */
     message: string
+    /** The same line as a translation key, shown in the active language. */
+    ref: TextRef
 }
 
 const WIN_TIERS = [1, 10, 50, 100, 250, 500]
@@ -22,20 +26,15 @@ const KILL_TIERS = [1000, 5000, 10000, 25000]
 const FOLLOWER_TIERS = [100_000, 500_000, 1_000_000]
 const STREAK_TIERS = [3, 5, 10]
 
-function compactFollowers(n: number): string {
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`
-    if (n >= 1_000) return `${Math.round(n / 1_000)}k`
-    return `${n}`
-}
-
 export function checkMilestones(save: GameSave, firedIds: Set<string>): MilestoneHit[] {
     const team = save.teams.find(t => t.id === save.playerTeamId)
     if (!team) return []
 
     const hits: MilestoneHit[] = []
-    const add = (id: string, met: boolean, message: string) => {
-        if (met && !firedIds.has(id)) hits.push({ id, message })
+    const add = (id: string, met: boolean, ref: TextRef) => {
+        if (met && !firedIds.has(id)) hits.push({ id, message: tRefEn(ref), ref })
     }
+    const number = (n: number): TextRef => ({ key: NUMBER_REF, count: n })
 
     // Single pass over the player's matches (chronological) for total wins + the
     // longest win streak across the whole career.
@@ -62,11 +61,11 @@ export function checkMilestones(save: GameSave, firedIds: Set<string>): Mileston
     const followers = team.followers ?? team.fanbase ?? 0
     const trophyCount = team.trophies?.length ?? 0
 
-    for (const t of WIN_TIERS) add(`ms_win_${t}`, totalWins >= t, t === 1 ? "Your first win!" : `${t} career wins!`)
-    for (const t of TROPHY_TIERS) add(`ms_trophy_${t}`, trophyCount >= t, t === 1 ? "Your first trophy!" : `${t} trophies in the cabinet!`)
-    for (const t of KILL_TIERS) add(`ms_kills_${t}`, totalKills >= t, `${t.toLocaleString()} team kills!`)
-    for (const t of FOLLOWER_TIERS) add(`ms_fans_${t}`, followers >= t, `${compactFollowers(t)} followers reached!`)
-    for (const t of STREAK_TIERS) add(`ms_streak_${t}`, maxStreak >= t, `${t}-match win streak!`)
+    for (const t of WIN_TIERS) add(`ms_win_${t}`, totalWins >= t, t === 1 ? { key: "evn.ms.firstWin" } : { key: "evn.ms.wins", count: t })
+    for (const t of TROPHY_TIERS) add(`ms_trophy_${t}`, trophyCount >= t, t === 1 ? { key: "evn.ms.firstTrophy" } : { key: "evn.ms.trophies", count: t })
+    for (const t of KILL_TIERS) add(`ms_kills_${t}`, totalKills >= t, { key: "evn.ms.kills", count: t, params: { n: number(t) } })
+    for (const t of FOLLOWER_TIERS) add(`ms_fans_${t}`, followers >= t, { key: "evn.ms.followers", count: t, params: { n: number(t) } })
+    for (const t of STREAK_TIERS) add(`ms_streak_${t}`, maxStreak >= t, { key: "evn.ms.streak", count: t })
 
     return hits
 }

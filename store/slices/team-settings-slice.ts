@@ -46,7 +46,7 @@ export interface TeamSettingsActions {
     /** G1: replace the club's playbook (invalid entries are dropped; empty clears it). */
     setPlaybook: (teamId: string, playbook: Playbook) => void
     swapRosterPositions: (teamId: string, index1: number, index2: number) => void
-    updateTeamBudget: (teamId: string, amount: number) => void
+    updateTeamBudget: (teamId: string, amount: number, description?: string) => void
     treatInjury: (playerId: string) => void
 }
 
@@ -117,7 +117,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
         })
     },
 
-    updateTeamBudget: (teamId, amount) => {
+    updateTeamBudget: (teamId, amount, description) => {
         set((state) => {
             if (!state.playerTeamId || teamId !== state.playerTeamId) return
 
@@ -146,7 +146,8 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
                 type: amountValidation.value >= 0 ? "INCOME" : "EXPENSE",
                 category: "TRAINING",
                 amount: Math.abs(amountValidation.value),
-                description: "Training expense",
+                // SQUAD-26: the caller may say what was paid for (a bounded line of text).
+                description: typeof description === "string" && description.trim() && description.length <= 160 ? description : "Training expense",
                 balance: team.budget,
             })
         })

@@ -4,9 +4,10 @@ import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
-import type { GameEventSaveData, PlayerSaveData, TeamSaveData } from "@/engine/save-types"
+import type { GameEventSaveData, GameSave, PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { deriveExpectationTier, getTierTargets, rankTargetFor } from "@/engine/board-expectations"
+import { deriveExpectationTier, getTierTargets, leagueObjective, rankTargetFor } from "@/engine/board-expectations"
+import { objectiveLabel } from "@/components/career/board-view"
 import { getTierStyle, type TierLevel } from "@/engine/tier-system"
 import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -103,7 +104,7 @@ export function DismissalJobMarket({ blockedRoute = false }: { blockedRoute?: bo
                             {t("job.career", { clubs: tn("car.clubsN", stints.length), w: record.w, l: record.l, trophies: tn("board.trophies", record.t) })}
                         </p>
                     )}
-                    {blockedRoute && <p className="text-xs text-ink-3">{t("job.blocked")}</p>}
+                    {blockedRoute && <p className="text-xs text-ink-3">{firstJob ? t("job.blockedFirst") : t("job.blocked")}</p>}
                 </div>
 
                 {offers.length > 0 && (
@@ -113,9 +114,11 @@ export function DismissalJobMarket({ blockedRoute = false }: { blockedRoute?: bo
                             {offers.map(offer => {
                                 const club = s.teams.find(team => team.id === offer.data.offeringTeamId)
                                 const division = club ? s.league?.current?.divisions.find(d => d.teamIds.includes(club.id))?.name : undefined
+                                // MODES-28: the league objective the board will set, shown before the manager signs.
+                                const league = club ? leagueObjective({ teams: s.teams, league: s.league } as GameSave, club.id) : undefined
                                 return (
                                     <OfferRow
-                                        key={offer.id} offer={offer} club={club} division={division} lookup={id => playerById.get(id)} currentWeek={s.currentWeek}
+                                        key={offer.id} offer={offer} club={club} division={division} leagueGoal={league ? objectiveLabel(league) : undefined} lookup={id => playerById.get(id)} currentWeek={s.currentWeek}
                                         confirming={confirming === offer.id}
                                         onAccept={() => (confirming === offer.id ? take(offer) : setConfirming(offer.id))}
                                         onCancel={() => setConfirming(null)}
@@ -157,11 +160,13 @@ function squadRating(club: TeamSaveData, lookup: (id: string) => PlayerSaveData 
     return five.reduce((n, p) => n + evaluatePlayer(p, undefined, undefined, week).overallRating, 0) / five.length
 }
 
-function OfferRow({ offer, club, division, lookup, currentWeek, confirming, onAccept, onCancel, onDecline, onNegotiate }: {
+function OfferRow({ offer, club, division, leagueGoal, lookup, currentWeek, confirming, onAccept, onCancel, onDecline, onNegotiate }: {
     offer: GameEventSaveData
     club: TeamSaveData | undefined
     /** League division the club plays in, when it has one. */
     division?: string
+    /** The league objective the board sets on arrival, in the active language. */
+    leagueGoal?: string
     lookup: (id: string) => PlayerSaveData | undefined
     currentWeek: number
     confirming: boolean
@@ -195,6 +200,7 @@ function OfferRow({ offer, club, division, lookup, currentWeek, confirming, onAc
                             {rankTarget > 0 ? t("job.boardGoalRank", { goal: t(`board.expectation.${expectation}`), rank: rankTarget }) : t("job.boardGoal", { goal: t(`board.expectation.${expectation}`) })}
                         </p>
                     )}
+                    {leagueGoal && <p className="mt-1 text-xs text-ink-2">{t("job.boardLeague", { goal: leagueGoal })}</p>}
                     <p className="mt-1 text-xs text-ink-2">
                         {t("job.wage", { wage: formatCurrency(wage), funds: formatCurrency(wage * 4) })}
                     </p>

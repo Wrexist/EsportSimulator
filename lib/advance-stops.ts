@@ -15,6 +15,9 @@
  * the stop marks the event (`data.continueStopped`), and a refreshed repeat
  * keeps that mark. A request past its deadline never stops; the week tick
  * settles it with its stated default (engine/decision-deadlines.ts).
+ *
+ * MODES-09: a club's offer to the pro in a pro career blocks Continue like a
+ * moment until it is answered (Skip week still lets it lapse to "stay").
  */
 
 import { isPendingDecisionEvent, isTransferRumor, getEventTitle } from "@/lib/event-format"
@@ -24,6 +27,7 @@ import { momentHeadline, titleMomentFromCelebration, type Moment } from "@/engin
 import { inboxHref } from "@/lib/navigation"
 import { isTextRef, t, tn, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
+import { getEventSubject } from "@/components/inbox/inbox-model"
 
 export type StopKind =
     | "moment" | "match" | "game-over" | "forfeit" | "injury" | "event" | "offer"
@@ -37,6 +41,9 @@ export interface AdvanceStop {
     href?: string
     actionLabel?: string
 }
+
+/** A club's offer to the pro (engine/pro-career.ts processProWeek). */
+const PRO_OFFER_PREFIX = "pro_offer_"
 
 /** Stop after this many completed weeks with nothing needing the manager. */
 export const CONTINUE_WEEK_CAP = 4
@@ -70,8 +77,20 @@ export function nextMoment(state: Pick<StopSource, "momentQueue" | "pendingCeleb
     return queue.find(m => m.kind !== "season-review") ?? titleMomentFromCelebration(state.pendingCelebration) ?? queue[0] ?? null
 }
 
-/** A readable name for a decision event; some carry no title (fan and sponsor requests). */
-function decisionLabel(e: GameEventSaveData): string {
+/**
+ * A readable name for a decision event, the same subject line Home's
+ * Decisions panel and the inbox show ("3-match win streak", not the event
+ * type "Performance", HOME-03); some carry no title (fan and sponsor requests).
+ */
+function decisionLabel(e: GameEventSaveData, state: StopSource): string {
+    const roster = new Set(state.teams.find(tm => tm.id === state.playerTeamId)?.rosterIds ?? [])
+    const subject = getEventSubject(e, {
+        currentWeek: state.currentWeek,
+        playerTeamId: state.playerTeamId ?? null,
+        rosterIds: roster,
+        playerName: id => state.players.find(p => p.id === id)?.nickname,
+    })
+    if (subject && subject !== t("ib.subj.notification")) return subject
     const title = getEventTitle(e)
     if (title !== "Notification") return storedText(title)
     const data = (e.data ?? {}) as Record<string, unknown>
@@ -153,7 +172,8 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     for (const e of state.eventsLog) {
         if (e.week < state.currentWeek - 2) continue
         const data = (e.data ?? {}) as Record<string, unknown>
-        if (data.isWithdrawn || data.continueStopped) continue
+        const proOffer = e.id.startsWith(PRO_OFFER_PREFIX)
+        if (data.isWithdrawn || (data.continueStopped && !proOffer)) continue
         const type = String(e.type)
         if (isPendingDecisionEvent(e)) {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
@@ -162,7 +182,7 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
                 out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.press", { topic: pressTopic(e) }), href: `/match/${data.matchId}/tactics`, actionLabel: t("stop.facePress") })
                 continue
             }
-            out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.needsAnswer", { label: decisionLabel(e) }), href: "/", actionLabel: t("stop.decide") })
+            out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.needsAnswer", { label: decisionLabel(e, state) }), href: "/", actionLabel: t("stop.decide") })
             continue
         }
         const resolved = (e as unknown as { selectedChoiceId?: string }).selectedChoiceId !== undefined
@@ -215,6 +235,21 @@ export function stoppedEventIds(keys: readonly string[]): string[] {
     return keys.filter(k => k.startsWith("event:") || k.startsWith("offer:")).map(k => k.slice(k.indexOf(":") + 1))
 }
 
+/**
+ * False once every decision or offer a stop names has been answered (or
+ * withdrawn, or is gone): its "Decision waiting" notice no longer applies.
+ * Other stops stay until dismissed or the next advance.
+ */
+export function advanceStopStillOpen(stop: Pick<AdvanceStop, "key" | "kind"> & { keys?: string[] }, eventsLog: readonly GameEventSaveData[]): boolean {
+    if (stop.kind !== "event" && stop.kind !== "offer") return true
+    const ids = stoppedEventIds(stop.keys?.length ? stop.keys : [stop.key])
+    if (ids.length === 0) return true
+    return ids.some(id => {
+        const e = eventsLog.find(x => x.id === id) as (GameEventSaveData & { selectedChoiceId?: string }) | undefined
+        return !!e && e.selectedChoiceId === undefined && !(e.data as Record<string, unknown> | undefined)?.isWithdrawn
+    })
+}
+
 /** Several new items of one kind become one stop ("2 decisions need an answer"). */
 const GROUPED: Partial<Record<StopKind, (n: number) => string>> = {
     event: n => tn("stop.grp.event", n),
@@ -232,6 +267,7 @@ export function nextStop(state: StopSource, seen: ReadonlySet<string>): (Advance
     const signals = collectStopSignals(state)
     for (const s of signals) {
         if (s.kind === "moment" || s.kind === "game-over") return s
+        if (s.key.startsWith(`event:${PRO_OFFER_PREFIX}`)) return s
         // Phase 5.3: a press conference stops Continue once, before its match.
         if (s.kind === "match") {
             const press = signals.find(x => x.key.startsWith("event:press_") && !seen.has(x.key))

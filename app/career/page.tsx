@@ -22,14 +22,17 @@ import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { stripEmoji } from "@/components/inbox/inbox-model"
 import { formatCurrency } from "@/lib/utils-extended"
-import { t, tn, intlLocale } from "@/lib/i18n"
+import { t, tn, intlLocale, isTextRef, tRef } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
+/** A log row in the active language: the saved translation key first (as the inbox reads it), else the stored English through stored-text. */
 function eventText(event: { type: string; data?: unknown }): string {
     const d = (event.data ?? {}) as Record<string, unknown>
-    const text = d.description ?? d.message ?? d.text ?? d.title
+    const stored = d.description ?? d.message ?? d.text ?? d.title
+    const text = isTextRef(d.messageRef) ? tRef(d.messageRef) : isTextRef(d.titleRef) ? tRef(d.titleRef) : typeof stored === "string" ? storedText(stored) : ""
     // Same plain-text rule as the inbox: no emoji headings in UI text.
-    if (typeof text === "string" && text.trim()) return stripEmoji(text).replace(/\s+/g, " ").trim()
-    return event.type.replace(/_/g, " ").toLowerCase().replace(/^./, c => c.toUpperCase())
+    if (text.trim()) return stripEmoji(text).replace(/\s+/g, " ").trim()
+    return t("ib.subj.notification")
 }
 
 export default function CareerPage() {

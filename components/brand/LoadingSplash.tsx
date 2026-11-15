@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import { t } from "@/lib/i18n"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { Logotype } from "./Logotype"
 import styles from "./brand.module.css"
@@ -37,7 +38,7 @@ export function LoadingSplash({ label, className }: LoadingSplashProps) {
                 </div>
             </div>
             <p aria-hidden="true" className="mt-4 h-4 text-xs font-medium uppercase tracking-[0.18em] text-ink-3">{label ?? ""}</p>
-            <span className="sr-only">{label ?? "Loading"}</span>
+            <span className="sr-only">{label ?? t("common.loading")}</span>
         </div>
     )
 }

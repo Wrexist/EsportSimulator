@@ -121,6 +121,23 @@ export function releaseAIPlayer(team: TeamSaveData, save: GameSave, player: Play
     })
 }
 
+/**
+ * Let staff of an AI club go: they join the staff market with releasedWeek,
+ * as staff whose contract ends do (finance-processor), instead of vanishing
+ * from the world (ENGINE-08).
+ */
+export function releaseAIStaff(save: GameSave, team: TeamSaveData, staffIds: readonly string[]): void {
+    const released = new Set(staffIds)
+    team.staffIds = team.staffIds.filter(id => !released.has(id))
+    const leaving = save.staff.filter(s => released.has(s.id) && s.teamId === team.id)
+    if (!leaving.length) return
+    save.staff = save.staff.filter(s => !(released.has(s.id) && s.teamId === team.id))
+    save.marketStaff ??= []
+    for (const member of leaving) {
+        if (!save.marketStaff.some(s => s.id === member.id)) save.marketStaff.push({ ...member, teamId: "", contractEndWeek: undefined, yearsRemaining: 0, releasedWeek: save.currentWeek })
+    }
+}
+
 /** Sign a free agent onto an AI club (no fee). The caller has checked availability. */
 export function signAIPlayer(team: TeamSaveData, save: GameSave, player: PlayerSaveData, salary: number, weeks: number, idPrefix = "transfer_ai"): void {
     if (team.rosterIds.includes(player.id)) return
@@ -175,8 +192,7 @@ export function aiCostControl(save: GameSave, team: TeamSaveData, pool?: () => P
     if (team.staffIds.length) {
         const staffById = new Map(save.staff.map(s => [s.id, s]))
         const priciest = [...team.staffIds].sort((a, b) => (staffById.get(b)?.salaryPerWeek ?? 0) - (staffById.get(a)?.salaryPerWeek ?? 0) || a.localeCompare(b))[0]
-        team.staffIds = team.staffIds.filter(id => id !== priciest)
-        save.staff = save.staff.filter(s => !(s.id === priciest && s.teamId === team.id))
+        releaseAIStaff(save, team, [priciest])
         return "staff"
     }
     // 3. Facilities: the highest level first (the costliest upkeep).

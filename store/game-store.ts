@@ -60,6 +60,7 @@ import { generateSeed } from "@/engine/rng"
 import { buildEntityIndexes, type SaveIndexes } from "@/store/indexes"
 import { pendingPlayableMatch } from "@/lib/playable-match"
 import { pruneGameState } from "@/store/utils/array-pruning"
+import { deepFreezeState } from "@/store/utils/deep-freeze"
 import { perfTrace } from "@/engine/perf-trace"
 import { logger } from "@/lib/logger"
 import { createSettingsSlice } from "@/store/slices/settings-slice"
@@ -116,6 +117,7 @@ import { foldWeeklyDigest } from "@/lib/inbox-digest"
 import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
+import { teamOvr } from "@/lib/team-ovr"
 import { eventText } from "@/lib/news-ref"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
@@ -414,6 +416,8 @@ export interface GameStoreState extends AdvanceState, MomentsState {
     teamId?: string;
     playerId?: string;
     matchId?: string;
+    /** Day of the week it happened (HOME-08). */
+    day?: number;
     link?: string;
     engagement?: { likes: number; views: number; };
   }[]
@@ -608,7 +612,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
-  updateTeamBudget: (teamId: string, amount: number) => void
+  updateTeamBudget: (teamId: string, amount: number, description?: string) => void
 
   // Phase 60: Job Market
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
@@ -787,7 +791,10 @@ function draftCupOver(state: { draftCup?: unknown }): boolean {
 function careerAdvanceState(save: GameSave, playerTeamId: string | null, fresh: boolean): AdvanceState {
   const loaded = sanitizeWeekReports((save as GameSave & { weekReports?: unknown }).weekReports)
   const source = { ...save, playerTeamId, weekReports: loaded } as unknown as TrackingState
-  return { ...initialAdvanceState, weekReports: withTracker(source, !fresh) }
+  // Continue's seen stop keys are career state: a reload must not stop again
+  // on an injury, contract or board notice already shown (HOME-24).
+  const seen = Array.isArray(save.advanceSeenKeys) ? save.advanceSeenKeys.filter((k): k is string => typeof k === "string").slice(-200) : []
+  return { ...initialAdvanceState, weekReports: withTracker(source, !fresh), advanceSeenKeys: seen }
 }
 
 /**
@@ -1214,9 +1221,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             selectedTeam.startingLeagueTier = selectedTeam.leagueTier
           }
           const teamRoster = newSave.players.filter((p: any) => selectedTeam?.rosterIds?.includes(p.id))
-          const avgRating = teamRoster.length > 0
-            ? Math.round(teamRoster.reduce((acc: number, p: any) => acc + (p.skill || 75), 0) / teamRoster.length)
-            : 75
+          // The starting five's OVR, the Team OVR Home and the club picker show (HOME-22).
+          const avgRating = teamOvr(selectedTeam, newSave.players) ?? 0
 
           // Add Welcome Mail
           if (!unemployed && !draftCup) newSave.eventsLog.unshift({
@@ -1725,7 +1731,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (s.unlockedTalentIds === undefined) s.unlockedTalentIds = []
           })
 
-          AIManager.initializeTeamData(hydratedSave)
+          AIManager.initializeTeamData(hydratedSave, { keepRanking: true })
           // SQUAD-10: older careers still carry the snapshot's placeholder attributes.
           spreadPlaceholderAttributes(hydratedSave.players)
           reconcileAllRoles(hydratedSave.teams, hydratedSave.players)
@@ -2151,8 +2157,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // and committed as one plain partial. Doing this inside an Immer
             // producer made Immer walk and deep-freeze the entire save on every
             // tick: ~0.1 s for a new career, ~2 s by season 10 (L27). The
-            // committed values are identical; the state is simply not frozen,
-            // exactly as it already is after loadGame.
+            // committed values are identical. Immer still has to freeze them
+            // before its next producer (the academy step used to pay that,
+            // ENGINE-03), so the save is frozen once below with a faster walk.
             const committed = processedSave as GameSave & { currentDay: number; selectedWeeklyActivity: null }
             const live = get()
             // Keys the old producer read from the merged draft fall back to the
@@ -2179,6 +2186,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // new careers do. Without this a save/reload re-assigned roles
             // and the reloaded career diverged from the uninterrupted one.
             reconcileAllRoles(committed.teams, committed.players)
+            // ENGINE-03: freeze what Immer would freeze in the next producer
+            // anyway (it cannot be skipped: an unfrozen career makes every
+            // later store update walk all of it), about 4x faster than Immer.
+            deepFreezeState(committed)
+            phase("05a_freeze")
             set({ ...(committed as unknown as Partial<GameStoreState>), weekProgress: "applying" })
             phase("05_commit")
 
@@ -2215,13 +2227,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               ])
               const milestones = checkMilestones(msState as unknown as GameSave, firedIds)
               milestones.forEach(ms => {
-                if (claimMilestoneToast(ms.id)) get().addToast({ message: ms.message, type: "achievement" })
+                if (claimMilestoneToast(ms.id)) get().addToast({ message: liveText(ms.ref), type: "achievement" })
                 set((s) => {
-                  s.eventsLog.unshift({
+                  // The assistant coach's win-streak decision this week already
+                  // tells the run: no second line in the round-up (HOME-13).
+                  const told = ms.id.startsWith("ms_streak_") && s.eventsLog.some(e => e.type === "win_streak" && e.week >= s.currentWeek - 1)
+                  if (!told) s.eventsLog.unshift({
                     id: ms.id,
                     week: s.currentWeek,
                     type: "MILESTONE",
-                    data: { description: ms.message, importance: "MEDIUM" },
+                    data: { description: ms.message, messageRef: ms.ref, importance: "MEDIUM" },
                     acknowledged: true,
                   })
                   if (!s.acknowledgedEventIds.includes(ms.id)) s.acknowledgedEventIds.push(ms.id)

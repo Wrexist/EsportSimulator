@@ -21,6 +21,8 @@ export interface MarqueeTarget {
     reason: "free" | "listed" | "expiring"
     contractWeeksLeft?: number
     rivalCount: number
+    /** MARKET-24: his fee is beyond what the board lets the club pay. */
+    outOfReach?: boolean
 }
 
 /**
@@ -71,7 +73,10 @@ export function MarqueeTargets({ targets, selectedId, onSelect }: { targets: Mar
                                             <p className="truncate text-ink-3">
                                                 {tg.reason === "free" ? t("market.row.free") : tg.reason === "listed" ? t("marquee.listed", { club: tg.team?.name ?? "" }) : tn("marquee.weeksLeft", tg.contractWeeksLeft ?? 0, { club: tg.team?.name ?? "" })}
                                             </p>
-                                            <p className="font-semibold tabular-nums text-ink-1">{tg.reason === "free" ? t("marquee.noFee") : formatCurrency(tg.value, "$", true)}</p>
+                                            <p className="font-semibold tabular-nums text-ink-1">
+                                                {tg.reason === "free" ? t("marquee.noFee") : formatCurrency(tg.value, "$", true)}
+                                                {tg.outOfReach && <span className="ml-1.5 font-normal text-caution">{t("marquee.outOfReach")}</span>}
+                                            </p>
                                         </div>
                                         {tg.rivalCount > 0 && (
                                             <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-gold" title={tn("marquee.rivals", tg.rivalCount)}>

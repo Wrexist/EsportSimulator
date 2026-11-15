@@ -10,6 +10,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getActivePlayersByRosterOrder } from "@/lib/live-match-builders"
 import { pendingPlayableMatch } from "@/lib/playable-match"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
+import { sideScore } from "@/lib/week-changes"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -30,7 +31,7 @@ type MatchRow = {
     stage: string | null
     format: string
     isScrim?: boolean
-    result?: { winnerId?: string | null; homeScore: number; awayScore: number }
+    result?: { winnerId?: string | null; homeScore: number; awayScore: number; maps?: unknown[] }
 }
 
 /**
@@ -110,7 +111,8 @@ export function WeekFixtures() {
                         const ovr = ovrOf(oppId)
                         const played = !!m.result
                         const won = played && m.result?.winnerId === me
-                        const score = played ? (m.homeTeamId === me ? `${m.result!.homeScore}–${m.result!.awayScore}` : `${m.result!.awayScore}–${m.result!.homeScore}`) : null
+                        // Rounds for a single map (13–8), maps for a series, as Home and the Calendar show it (HOME-16).
+                        const score = played ? sideScore(m.result!, m.homeTeamId === me) : null
                         const playable = m.id === playableId
                         return (
                             <li key={m.id} className="flex items-center gap-4 px-4 py-3">

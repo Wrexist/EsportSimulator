@@ -174,3 +174,28 @@ test("zero skill stays zero; OVR is the shared evaluation; sorting uses the visi
     expect(scoutedRatingSortValue([30, 60])).toBe(45)
     expect(recruitmentRole("ENTRY")).toBe(recruitmentRole("ENTRY_FRAGGER"))
 })
+
+test("MARKET-09: accepting one bid closes the other open bids for the same player", () => {
+    const h = harness()
+    const playerId = h.get().teams[0].rosterIds[0]
+    const otherId = h.get().teams[0].rosterIds[1]
+    const [buyer, other] = [h.get().teams[1], h.get().teams[2]]
+    h.set(s => {
+        s.players.find(p => p.id === playerId)!.forSale = true
+        s.teams[0].rosterIds.push("qa_free_agent") // a sixth player, so selling one leaves five
+        s.teams[1].budget = 10_000_000
+        const bid = (id: string, teamId: string, pid: string) => ({ id, type: "TRANSFER_OFFER" as const, week: s.currentWeek, acknowledged: false,
+            data: { playerId: pid, teamId, offerAmount: 1000, expiresWeek: s.currentWeek + 2 } })
+        s.eventsLog.push(bid("bid_a", buyer.id, playerId), bid("bid_b", other.id, playerId), bid("bid_other_player", other.id, otherId))
+    })
+    h.get().acceptTransferOffer("bid_a")
+    expect((h.get().addToast as jest.Mock).mock.calls).toEqual([])
+    expect(h.get().teams[1].rosterIds).toContain(playerId)
+    const log = (id: string) => h.get().eventsLog.find(e => e.id === id)!
+    expect(log("bid_a").selectedChoiceId).toBe("accept")
+    expect(log("bid_b")).toMatchObject({ selectedChoiceId: "sold", acknowledged: true })
+    expect((log("bid_b").data as { soldToTeamName?: string }).soldToTeamName).toBe(buyer.name)
+    expect(h.get().acknowledgedEventIds).toContain("bid_b")
+    // A bid for another player stays open.
+    expect(log("bid_other_player").selectedChoiceId).toBeUndefined()
+})

@@ -1,4 +1,4 @@
-import { t } from "@/lib/i18n"
+import { t, tn } from "@/lib/i18n"
 /**
  * Academy facts for the UI, taken from the code that applies them
  * (store/slices/academy-slice.ts, engine/academy-engine.ts,
@@ -13,6 +13,20 @@ export const ACADEMY_ROLES = ["IGL", "Entry", "AWPer", "Support", "Rifler"] as c
 
 /** academy-slice POTENTIAL_REVEAL_WEEKS (level 5 also reveals on enrolment). */
 export const POTENTIAL_REVEAL_WEEKS: Record<number, number> = { 1: 12, 2: 8, 3: 4, 4: 2, 5: 2 }
+
+/**
+ * SQUAD-22: weeks until an enrolled prospect's potential is revealed (the
+ * academy table's rule). 0 = at the next week update.
+ */
+export function weeksToPotentialReveal(enrolledWeek: number, academyLevel: number, currentWeek: number): number {
+    return Math.max(0, (POTENTIAL_REVEAL_WEEKS[academyLevel] ?? 12) - Math.max(0, currentWeek - enrolledWeek))
+}
+
+/** "In 4 wks" / "Next update": when a hidden potential shows (ac.inWeeks, as the academy table says it). */
+export function potentialRevealText(enrolledWeek: number, academyLevel: number, currentWeek: number): string {
+    const weeks = weeksToPotentialReveal(enrolledWeek, academyLevel, currentWeek)
+    return weeks > 0 ? tn("ac.inWeeks", weeks) : t("ac.nextUpdate")
+}
 
 /** academy-slice releaseProspect default fee. */
 export const RELEASE_FEE = 1000

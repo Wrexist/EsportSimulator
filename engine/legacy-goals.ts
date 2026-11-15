@@ -91,8 +91,16 @@ export const LEGACY_GOALS: readonly LegacyGoal[] = [
         describe: n => n === 1 ? "Take your club to world number one" : `Take your club into the world top ${n}`,
         levels: [10, 3, 1],
         reputation: STEP_REPUTATION,
-        // The club's world ranking now (lower is better; see reached()).
-        progress: save => currentClub(save)?.worldRanking ?? 0,
+        // The club's world ranking now (lower is better; see reached()), once
+        // the manager has played an official match with it: the rank of the
+        // club as taken over is not an achievement (COMP-25).
+        progress: save => {
+            const club = currentClub(save)
+            if (!club) return 0
+            const stint = (save.managerDetails?.stints ?? []).filter(s => s.teamId === club.id && s.toWeek == null).pop()
+            if (stint && stint.matches === 0) return 0
+            return club.worldRanking ?? 0
+        },
     },
     {
         id: "loyalty",

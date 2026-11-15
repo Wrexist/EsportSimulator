@@ -28,8 +28,12 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
-import { t } from "@/lib/i18n"
+import { formatDecimal, t } from "@/lib/i18n"
 import { stageName } from "@/lib/display-names"
+import { matchEventName } from "@/lib/tournament-instances"
+import { LoadingState } from "@/components/ui/loading"
+import { fixtureNotDueYet } from "@/lib/playable-match"
+import { liveMatchInProgress } from "@/app/match/match-centre"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -104,6 +108,12 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         mapRecords: state.mapRecords,
         mapRotation: state.mapRotation,
     })))
+    const gameStartDate = useGameStore(state => state.gameStartDate)
+    // The saved event's name carries the year it is played in ("Winter Open Katova 2027").
+    const storedTournamentName = useGameStore(state => {
+        const tid = state.scheduledMatches.find(m => m.id === id)?.tournamentId
+        return tid ? state.tournaments.find(x => x.id === tid)?.name : undefined
+    })
 
     // State
     const [match, setMatch] = useState<MatchSaveData | undefined>(undefined)
@@ -116,6 +126,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const [vetoSequence, setVetoSequence] = useState<VetoTurn[]>([]) // Dynamic sequence
     const [mapStartingSides, setMapStartingSides] = useState<Record<string, string>>({}) // MapId -> TeamId of CT team
     const [showSideSelection, setShowSideSelection] = useState<MapId | null>(null)
+    // Sent on to the prep page (veto done, match live, or not due yet).
+    const [leaving, setLeaving] = useState(false)
     // Side choice is required to continue: focus is trapped, Escape does not dismiss.
     const sideDialogRef = useFocusTrap(!!showSideSelection)
 
@@ -183,6 +195,19 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             // Check completed?
             setStatus(t("veto.notFound"))
             return
+        }
+
+        // On the way in only (not when this page saves its own veto): a veto
+        // that is done, a match already being played, or a fixture whose date
+        // has not come has no veto to run here; its prep page shows the maps,
+        // Resume, or when it unlocks (MATCHDAY-03, CROSSCUT-01).
+        if (vetoSequence.length === 0) {
+            const s = useGameStore.getState()
+            if (foundMatch.vetoComplete || liveMatchInProgress(s, id) || fixtureNotDueYet(s, foundMatch)) {
+                setLeaving(true)
+                router.replace(`/match/${id}/tactics`)
+                return
+            }
         }
 
         const hTeam = teams.find(t => t.id === foundMatch.homeTeamId)
@@ -389,6 +414,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         [awayTeam?.rosterIds, playersById],
     )
 
+    if (leaving) return <LoadingState message={t("veto.initializing")} size="lg" />
+
     if (!match || !homeTeam || !awayTeam) {
         return (
             <div className="flex min-h-[70vh] items-center justify-center p-8">
@@ -451,7 +478,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     <ArrowLeft size={15} aria-hidden="true" /> {t("home.matchDay")}
                 </button>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                    {leagueStageLabel(match) ?? (tournament ? `${tournament.name}${match.stage ? ` · ${stageName(match.stage)}` : ""}` : t("veto.mapVeto"))}
+                    {leagueStageLabel(match) ?? (tournament ? `${matchEventName(storedTournamentName, tournament.name, match.tournamentId, match.week, gameStartDate)}${match.stage ? ` · ${stageName(match.stage)}` : ""}` : t("veto.mapVeto"))}
                 </p>
             </div>
 
@@ -494,9 +521,19 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                 <p className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", current ? "text-gold" : done ? "text-ink-3" : "text-ink-3/70")}>
                                     {actionLabel(step.action)}
                                 </p>
-                                <p className={cn("truncate text-xs", done ? "text-ink-1" : current ? "text-ink-2" : "text-ink-3")}>
-                                    {done && entry?.mapId && step.action !== "SIDE_PICK" ? MAP_NAMES[entry.mapId] : teamName(step.team)}
-                                </p>
+                                {/* A finished ban or pick keeps who made it beside the map; the decider
+                                    step shows its map (or a dash), never "Decider" twice (MATCHDAY-20). */}
+                                {(() => {
+                                    const mapName = done && entry?.mapId && step.action !== "SIDE_PICK" ? (MAP_NAMES[entry.mapId] ?? entry.mapId) : null
+                                    const by = step.team === "home" || step.team === "away" ? teamName(step.team) : null
+                                    const text = mapName ? (by ? `${mapName} · ${by}` : mapName) : by ?? "—"
+                                    return (
+                                        <p className={cn("truncate text-xs", done ? "text-ink-1" : current ? "text-ink-2" : "text-ink-3")} title={text}>
+                                            {mapName ?? by ?? "—"}
+                                            {mapName && by && <span className="text-ink-3"> · {by}</span>}
+                                        </p>
+                                    )
+                                })()}
                             </li>
                         )
                     })}
@@ -583,11 +620,13 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     <dl className="space-y-0.5 text-[11px] text-ink-3">
                                         <div className="flex justify-between gap-2" title={t("veto.readEdgeTitle")}>
                                             <dt>{t("veto.readEdge")}</dt>
-                                            <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{Math.abs(edge).toFixed(1)}%</dd>
+                                            <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{formatDecimal(Math.abs(edge))}%</dd>
                                         </div>
-                                        <div className="flex justify-between gap-2" title={t("veto.comfortTitle")}>
+                                        {/* Label above the value and one line only: a long translated value ("Schwächste Map / Schwächste Map")
+                                            wrapped on some cards and pushed their map names out of line (I18N-16). */}
+                                        <div className="flex flex-col" title={t("veto.comfortTitle")}>
                                             <dt>{t("veto.comfort")}</dt>
-                                            <dd className="text-ink-2">
+                                            <dd className="truncate text-ink-2" title={`${mapComfortLabel(mapComfort(homeTeam.id, mapId))} / ${mapComfortLabel(mapComfort(awayTeam.id, mapId))}`}>
                                                 {mapComfortLabel(mapComfort(homeTeam.id, mapId))} <span className="text-ink-3">/</span> {mapComfortLabel(mapComfort(awayTeam.id, mapId))}
                                                 <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
                                             </dd>

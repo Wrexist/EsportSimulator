@@ -20,7 +20,7 @@ import type { GameSave, PlayerSaveData, TeamSaveData } from "../save-types"
 import { CLUB_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { EconomyEngine } from "../economy-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
-import { aiClubBudget, aiCostControl, ensureAIRosterViability, releaseAIPlayer, signableFreeAgents, swapOverpaidStarter } from "../ai/club-budget"
+import { aiClubBudget, aiCostControl, ensureAIRosterViability, releaseAIPlayer, releaseAIStaff, signableFreeAgents, swapOverpaidStarter } from "../ai/club-budget"
 import { distressedListingPrice } from "../ai/transfer-market"
 import { newsText } from "@/lib/news-ref"
 
@@ -102,13 +102,11 @@ export function processAIAdministration(save: GameSave, playerTeamId: string): s
             const p = players.get(id)
             if (p) releaseAIPlayer(team, save, p, "administration", "release_admin")
         }
-        // 2. Staff contracts end; 3. the academy closes.
-        if (team.staffIds.length) {
-            const released = new Set(team.staffIds)
-            save.staff = save.staff.filter(s => !(released.has(s.id) && s.teamId === team.id))
-            team.staffIds = []
-        }
+        // 2. Staff contracts end (they join the staff market); 3. the academy
+        //    closes and its prospects leave as free agents (ENGINE-08).
+        if (team.staffIds.length) releaseAIStaff(save, team, team.staffIds)
         if (team.academyFacility?.level) team.academyFacility = { ...team.academyFacility, level: 0, lastUpgradeWeek: save.currentWeek }
+        if (team.youthAcademyIds?.length) team.youthAcademyIds = []
         // 4. Administrators bring the wage bill within the club's income:
         //    overpaid starters are swapped for cheaper free agents (Phase 4.6;
         //    before, a club whose five starters cost more than it earned was

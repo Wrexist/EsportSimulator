@@ -3,7 +3,7 @@
 import { normalizeColorVision, type ColorVisionMode } from './accessibility-preferences'
 import { normalizeUiLanguage } from './ui-languages'
 import { normalizeWindowMode, type WindowModeChoice } from './window-mode'
-import { applyUiScale, clampUiScale } from './ui-scale'
+import { applyUiScale, clampUiScale, effectiveUiScale, stableBaseViewportSize } from './ui-scale'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -180,7 +180,8 @@ export const useSettingsStore = create<GameSettings>()(
             setUiScale: (scale) => {
                 const bounded = clampUiScale(scale)
                 set({ uiScale: bounded, uiScaleAuto: false })
-                applyUiScale(bounded)
+                // The choice is kept; what is applied never exceeds what fits the window (CROSSCUT-14).
+                applyUiScale(effectiveUiScale({ uiScale: bounded, uiScaleAuto: false }, stableBaseViewportSize()))
             },
             setUiScaleAuto: (enabled) => set({ uiScaleAuto: enabled === true }),
             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),

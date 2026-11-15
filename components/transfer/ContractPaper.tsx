@@ -149,7 +149,11 @@ function SignaturePad({ strokes, setStrokes, disabled, onAutoSign }: { strokes: 
  */
 export function ContractPaper({ n, standing }: { n: NegotiationState; standing?: MarketStanding }) {
     const reduce = useAppReducedMotion()
-    const { gameStartDate, currentWeek, saveId, managerName } = useGameStore(useShallow(s => ({ gameStartDate: s.gameStartDate, currentWeek: s.currentWeek, saveId: s.saveId, managerName: s.managerDetails?.name })))
+    const { gameStartDate, currentWeek, saveId, managerName, dayOffset } = useGameStore(useShallow(s => ({
+        gameStartDate: s.gameStartDate, currentWeek: s.currentWeek, saveId: s.saveId, managerName: s.managerDetails?.name,
+        // MARKET-13: dated today, as the top bar shows it (the day counts in daily mode).
+        dayOffset: s.timeMode === "HYBRID_DAILY" ? s.currentDay : 0,
+    })))
     const [strokes, setStrokes] = useState<Point[][]>([])
     const [saved, setSaved] = useState<SigningSignature | null>(null)
     const [useSaved, setUseSaved] = useState(false)
@@ -167,9 +171,9 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
 
     if (!deal || !player || !club || typeof document === "undefined") return null
 
-    const date = (week: number) => gameStartDate ? formatGameCalendarDate(gameCalendarDate(gameStartDate, week), { day: "numeric", month: "long", year: "numeric" }) : t("common.week", { n: week })
+    const date = (week: number) => gameStartDate ? formatGameCalendarDate(gameCalendarDate(gameStartDate, week, dayOffset), { day: "numeric", month: "long", year: "numeric" }) : t("common.week", { n: week })
     const endWeek = currentWeek + deal.duration
-    const release = releaseClauseFee(deal.clauses.release, deal.salary)
+    const release = releaseClauseFee(deal.clauses.release, deal.salary, deal.fee)
     const contractNo = `${String(currentWeek).padStart(3, "0")}-${(player.id + (saveId ?? "")).split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36).toUpperCase().slice(0, 6)}`
     const fullName = player.name && player.name !== player.nickname ? player.name : player.nickname
     const initials = club.name.split(/\s+/).map(w => w[0]).join("").slice(0, 3).toUpperCase()

@@ -13,6 +13,7 @@ import {
     Swords, Rocket, Heart, BarChart3, Calendar, Handshake, HeartCrack, RefreshCcw, Landmark,
 } from "lucide-react"
 import { useToast } from "@/lib/toast"
+import { debug } from "@/lib/debug-logger"
 import { cn } from "@/lib/utils"
 import { steamService as steamAchievements, Achievement } from "@/engine/steam-service"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
@@ -109,9 +110,11 @@ export default function SettingsPage() {
   const handleImportSave = async (file: File) => {
     try {
       const text = await file.text()
-      const { save, error } = saveManager.importSave(text)
+      const { save, error, errorCode } = saveManager.importSave(text)
       if (!save || error) {
-        toast({ title: t("settings.toast.importFailed"), description: error || t("settings.toast.invalidSave"), variant: "destructive" })
+        // START-30: plain words for the player, the schema detail for the log.
+        if (error) debug.error("Import failed:", error)
+        toast({ title: t("settings.toast.importFailed"), description: errorCode === "NEWER_VERSION" ? t("lg.err.newerBody") : t("settings.toast.invalidSave"), variant: "destructive" })
         return
       }
       const result = await saveManager.saveGame(save)
@@ -121,7 +124,8 @@ export default function SettingsPage() {
       }
       toast({ title: t("settings.toast.imported"), description: t("settings.toast.importedBody", { name: save.saveName }) })
     } catch (e) {
-      toast({ title: t("settings.toast.importFailed"), description: e instanceof Error ? e.message : t("common.unknownError"), variant: "destructive" })
+      debug.error("Import failed:", e)
+      toast({ title: t("settings.toast.importFailed"), description: t("settings.toast.invalidSave"), variant: "destructive" })
     }
   }
 
@@ -158,7 +162,7 @@ export default function SettingsPage() {
       localStorage.removeItem("game-metrics")
       localStorage.removeItem("error-reports")
       localStorage.removeItem("performance-metrics")
-      localStorage.removeItem("skipQuickSimConfirm")
+      // skipQuickSimConfirm is a preference and stays (START-38).
     } catch {
       // Storage clear is best-effort; proceed regardless
     }
@@ -218,8 +222,8 @@ export default function SettingsPage() {
       {activeTab === "SETTINGS" && (
         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
           <div className="space-y-4">
-            <Panel title={t("settings.panel.language")} padded={false}><LanguageSettings /></Panel>
-            <Panel title={t("settings.panel.display")} padded={false}><DisplaySettings /></Panel>
+            {/* START-38: Language is the first row of Display (as in the main-menu dialog), not a panel of one row. */}
+            <Panel title={t("settings.panel.display")} padded={false}><LanguageSettings /><div className="border-t border-line"><DisplaySettings /></div></Panel>
             <Panel title={t("settings.panel.audio")} padded={false}><AudioSettings /></Panel>
             <Panel title={t("settings.panel.accessibility")} padded={false}><AccessibilitySettings /></Panel>
           </div>
@@ -286,7 +290,7 @@ export default function SettingsPage() {
             <Panel title={t("settings.panel.controls")} padded={false}><ControlsSettings /></Panel>
 
             <Panel title={t("settings.panel.about")} padded={false}>
-              <SettingRow label={`Esports Manager v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`} hint={t("settings.aboutHint")}>
+              <SettingRow label={`Esports Manager: FPS v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`} hint={t("settings.aboutHint")}>
                 <div className="flex gap-2">
                   <Button asChild variant="outline" size="sm"><Link href="/credits">{t("settings.credits")}</Link></Button>
                   <Button ref={licensesButtonRef} variant="outline" size="sm" onClick={() => setLicensesOpen(true)}>{t("settings.licenses")}</Button>

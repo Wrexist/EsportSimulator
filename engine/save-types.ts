@@ -88,6 +88,8 @@ export interface GameSave {
     // === WEEKLY REPORT (Phase 4.1) ===
     /** Last four weekly reports (changes with causes) + this week's baseline. Compact, bounded. */
     weekReports?: import("@/lib/week-report").WeekReportsState | null
+    /** Continue's stop keys already shown (injury, contract, board, …), so a reload does not stop on them again (HOME-24). At most 200. */
+    advanceSeenKeys?: string[]
 
     // === SESSION TRACKING ===
     lastPlayedAt?: string // ISO date of last save for offline recovery
@@ -506,6 +508,8 @@ export interface NewsFeedItem {
     playerId?: string
     /** The match this item reports on (so a result is reported once). */
     matchId?: string
+    /** Day of the week it happened on (0-6), when known; the feed dates it by this day. */
+    day?: number
     link?: string
     engagement?: {
         likes: number
@@ -1143,12 +1147,8 @@ export interface MatchAnalysis {
     keyFactor: "ECONOMY" | "FIREPOWER" | "TRADING" | "CLUTCH" | "ENTRY" | "UTILITY"
     winningFactor: string // "Better economy management"
     losingFactor: string // "Lost too many opening duels"
-    teamPerformance: {
-        economyRating: number // 0-100
-        aimRating: number
-        utilityRating: number
-        tradingRating: number
-    }
+    // MATCHENGINE-09: `teamPerformance` (four 0-100 ratings) was dropped: never
+    // shown and wrong. Older saves still carry it on their matches; nothing reads it.
 }
 
 /**
@@ -1188,7 +1188,7 @@ export interface FinanceLedgerEntry {
     teamId: string
     type: "INCOME" | "EXPENSE"
     // Strict categories for Phase 8
-    category: "WAGES_PLAYER" | "WAGES_STAFF" | "FACILITIES" | "PRIZE" | "SPONSOR" | "TRANSFER_IN" | "TRANSFER_OUT" | "OTHER" | "MERCH" | "TRAINING" | "OPERATIONS" | "LEAGUE"
+    category: "WAGES_PLAYER" | "WAGES_STAFF" | "FACILITIES" | "PRIZE" | "SPONSOR" | "TRANSFER_IN" | "TRANSFER_OUT" | "OTHER" | "MERCH" | "TRAINING" | "OPERATIONS" | "LEAGUE" | "SCOUTING"
     amount: number
     description: string
     balance: number // Running balance after this entry

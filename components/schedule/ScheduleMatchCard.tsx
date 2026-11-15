@@ -19,6 +19,8 @@ interface ScheduleMatchCardProps {
     isCurrentWeek?: boolean
     isLocked?: boolean
     onClick?: () => void // Optional custom click handler
+    /** Calendar grid: below 1440px the competition line moves into the tooltip, so the opponent's name has the room (HOME-17). */
+    compact?: boolean
     projected?: {
         stage: string
         tournamentName: string
@@ -54,7 +56,8 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
     tournamentName,
     isLocked,
     onClick,
-    projected
+    projected,
+    compact = false,
 }: ScheduleMatchCardProps) {
     const router = useRouter()
 
@@ -91,7 +94,7 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                 <TeamLogoDisplay team={opponent} size={18} className="shrink-0" />
                 <span className="min-w-0 flex-1">
                     <span className={cn("block truncate text-xs font-semibold leading-tight", isScrim ? "text-ink-2" : "text-ink-1")}>{opponentName}</span>
-                    <span className="block truncate text-[11px] leading-tight text-ink-3">{label}</span>
+                    <span className={cn("truncate text-[11px] leading-tight text-ink-3", compact ? "hidden min-[90rem]:block" : "block")}>{label}</span>
                 </span>
                 {score ? (
                     <span className={cn("shrink-0 font-display text-sm font-bold tabular-nums", !involvesPlayer ? "text-ink-1" : won ? "text-positive" : "text-negative")}>{score}</span>

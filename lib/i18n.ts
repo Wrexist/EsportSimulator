@@ -67,6 +67,20 @@ export function ordinalLabel(n: number): string {
     }
 }
 
+/**
+ * A decimal in the active language ("19.8", "19,8"), with exactly `digits`
+ * decimals. Ratings, ADR and K/D keep the HLTV style ("1.25") everywhere
+ * (locales/GLOSSARY.md), so they do not use this.
+ */
+export function formatDecimal(n: number, digits = 1): string {
+    return n.toLocaleString(intlLocale(), { minimumFractionDigits: digits, maximumFractionDigits: digits })
+}
+
+/** A plain number in the active language with up to `maxDigits` decimals and no grouping ("14.6", "14,6", "8"). */
+export function formatNumber(n: number, maxDigits = 1): string {
+    return n.toLocaleString(intlLocale(), { maximumFractionDigits: maxDigits, useGrouping: false })
+}
+
 /** Locales with a complete dictionary. */
 export function getAvailableLocales(): string[] {
     return Object.keys(translations).filter(locale => getLocaleCompleteness(locale).complete)

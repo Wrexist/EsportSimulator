@@ -7,7 +7,7 @@
 
 import type { ContractSaveData, GameSave, PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import {
-    DEFAULT_MARKET_CRITERIA, describeCriteria, isNarrowing, marketCandidates, matchesMarketSearch, newSavedSearch, processMarketAlerts,
+    DEFAULT_MARKET_CRITERIA, describeCriteria, isNarrowing, sameCriteria, marketCandidates, matchesMarketSearch, newSavedSearch, processMarketAlerts,
     SHORTLIST_CONTRACT_ALERT_WEEKS, type MarketCriteria,
 } from "@/engine/market-search"
 
@@ -101,5 +101,11 @@ describe("market search", () => {
         const event = processMarketAlerts(save)
         expect(event?.data.title).toBe("o1's contract enters its final six months")
         expect(event?.data.playerId).toBe("o1")
+    })
+
+    test("MARKET-23: the same criteria are recognised whatever the query's case or spaces", () => {
+        expect(sameCriteria(youngAwp, { ...youngAwp })).toBe(true)
+        expect(sameCriteria({ ...youngAwp, query: " Zep " }, { ...youngAwp, query: "zep" })).toBe(true)
+        expect(sameCriteria(youngAwp, { ...youngAwp, region: "EU" })).toBe(false)
     })
 })

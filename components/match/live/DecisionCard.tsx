@@ -34,9 +34,9 @@ export interface DecisionCardProps {
  */
 function BuyCell({ p, muted }: { p: BuyPreviewOption["players"][number]; muted: boolean }) {
     return (
-        <div className={cn("flex h-7 min-w-0 items-center gap-1.5 px-2 @max-[52rem]:gap-1 @max-[52rem]:px-1.5", muted && "opacity-50")} title={`${weaponDisplayName(p.weapon)}${p.armor ? ` · ${p.helmet ? t("decision.kevlarHelmet") : t("decision.kevlar")}` : ""}${p.kit ? ` · ${t("decision.kit")}` : ""}${p.utility.length ? ` · ${p.utility.join(", ")}` : ""} · ${t("decision.left", { money: money(p.cash - p.spend) })}`}>
-            <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 shrink-0 text-ink-1 @max-[52rem]:w-5" />
-            <span className={cn("text-xs tabular-nums", p.spend > 0 ? "text-ink-1" : "text-ink-3")}>{p.spend > 0 ? money(p.spend) : "—"}</span>
+        <div className={cn("flex h-7 min-w-0 items-center gap-1.5 overflow-hidden px-2 @max-[52rem]:flex-col @max-[52rem]:items-start @max-[52rem]:justify-center @max-[52rem]:gap-0.5 @max-[52rem]:px-1.5", muted && "opacity-50")} title={`${weaponDisplayName(p.weapon)}${p.armor ? ` · ${p.helmet ? t("decision.kevlarHelmet") : t("decision.kevlar")}` : ""}${p.kit ? ` · ${t("decision.kit")}` : ""}${p.utility.length ? ` · ${p.utility.join(", ")}` : ""} · ${t("decision.left", { money: money(p.cash - p.spend) })}`}>
+            <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 shrink-0 text-ink-1 @max-[52rem]:h-2 @max-[52rem]:w-5" />
+            <span className={cn("whitespace-nowrap text-xs tabular-nums @max-[52rem]:text-[11px] @max-[52rem]:leading-none", p.spend > 0 ? "text-ink-1" : "text-ink-3")}>{p.spend > 0 ? money(p.spend) : "—"}</span>
             <span className="ml-auto flex shrink-0 items-center gap-0.5 text-ink-3 @max-[52rem]:hidden">
                 {p.armor && <ArmorGlyph helmet={p.helmet} className="h-2.5 w-2.5" />}
                 {p.kit && <KitGlyph className="h-2.5 w-2.5 text-side-ct" />}
@@ -141,7 +141,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
 
                 {/* Calls × players: what each call buys each player, at its real cost. */}
                 <div className="mt-2.5 overflow-hidden rounded-md border border-line">
-                    <div className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
+                    <div className="grid grid-cols-[160px_repeat(var(--cols),minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[92px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
                         <div className="flex items-end px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">{t("decision.playerCash")}</div>
                         {calls.map(o => {
                             const label = strategyLabel(o.id)
@@ -154,12 +154,12 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                                         onClick={() => onPick(o.id)}
                                         title={isRec ? t("decision.optionTitleRec", { call: label, money: money(o.total) }) : t("decision.optionTitle", { call: label, money: money(o.total) })}
                                         className={cn(
-                                            "flex h-[50px] w-full flex-col items-start justify-center gap-0.5 rounded-[4px] border pl-2 pr-7 text-left @max-[52rem]:pl-1.5 @max-[52rem]:pr-1.5",
+                                            "flex h-[50px] w-full flex-col items-start justify-center gap-0.5 overflow-hidden rounded-[4px] border pl-2 pr-7 text-left @max-[52rem]:pl-1.5 @max-[52rem]:pr-1",
                                             isRec ? "border-gold bg-gold hover:border-gold-hover hover:bg-gold-hover" : "border-line bg-raised hover:border-gold hover:bg-hover",
                                         )}
                                     >
-                                        <span className={cn("whitespace-nowrap text-sm font-semibold leading-none @max-[52rem]:text-xs", isRec ? "text-gold-on" : "text-ink-1")}>{label}</span>
-                                        <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums", isRec ? "text-gold-on/80" : "text-ink-3")}>
+                                        <span className={cn("whitespace-nowrap text-sm font-semibold leading-none @max-[52rem]:whitespace-normal @max-[52rem]:text-xs @max-[52rem]:leading-tight", isRec ? "text-gold-on" : "text-ink-1")}>{label}</span>
+                                        <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums @max-[52rem]:text-[11px]", isRec ? "text-gold-on/80" : "text-ink-3")}>
                                             {isRec && counting ? <>{t("decision.autoIn")} <Countdown ms={auto.durationMs} restart={auto.key} /> {t("decision.seconds")}</> : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> {t("decision.total")}</span></> : t("decision.noSpend")}
                                         </span>
                                     </Button>
@@ -177,10 +177,10 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         })}
                     </div>
                     {!folded && preview.options[0]?.players.map((p, row) => (
-                        <div key={p.id} className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
-                            <div className="flex h-7 min-w-0 items-center gap-1.5 px-2 text-xs">
+                        <div key={p.id} className="grid grid-cols-[160px_repeat(var(--cols),minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[92px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
+                            <div className="flex h-7 min-w-0 items-center gap-1.5 px-2 text-xs @max-[52rem]:flex-col @max-[52rem]:items-start @max-[52rem]:justify-center @max-[52rem]:gap-0.5 @max-[52rem]:leading-none">
                                 <span className="min-w-0 truncate font-semibold text-ink-1" title={names[p.id] ?? p.id}>{names[p.id] ?? p.id}</span>
-                                <span className="ml-auto shrink-0 tabular-nums text-positive">{money(p.cash)}</span>
+                                <span className="ml-auto shrink-0 tabular-nums text-positive @max-[52rem]:ml-0 @max-[52rem]:text-[11px]">{money(p.cash)}</span>
                             </div>
                             {calls.map(o => (
                                 <div key={o.id} className={cn("border-l border-line", o.id === recommended && "bg-gold/[0.08]")}>

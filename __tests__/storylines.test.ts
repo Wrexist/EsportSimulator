@@ -219,6 +219,19 @@ describe("contract standoff", () => {
         expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(bench))).toEqual([])
     })
 
+    test("MODES-20: a player the club signed in the last STANDOFF_MIN_TENURE_WEEKS is not a standoff; an opening deal still is", () => {
+        const save = world(10, { p0: "MERCENARY" })
+        save.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + 51
+        // An opening deal (no signing on record) in its final year qualifies, as before.
+        expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(save)).map(c => c.subject)).toEqual(["p0"])
+        // Signed as a free agent in week 1 on a one-year deal: he chose these terms.
+        save.transferHistory = [{ id: "t1", week: 1, type: "TRANSFER", playerId: "p0", playerName: "p0", fromTeamId: null, fromTeamName: "Free Agent", toTeamId: "us", toTeamName: "US", fee: 0 }] as never
+        expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(save))).toEqual([])
+        // Once he has been at the club long enough, the usual rule applies.
+        save.currentWeek = 1 + S.STANDOFF_MIN_TENURE_WEEKS
+        expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(save)).map(c => c.subject)).toEqual(["p0"])
+    })
+
     test("Phase 5 fix: the final year of a top-five deal qualifies, and waiting runs out STANDOFF_PATIENCE_WEEKS after the talks", () => {
         const save = world(10, { p4: "AMBITIOUS" })
         save.contracts.find(c => c.playerId === "p4")!.endWeek = 10 + 40

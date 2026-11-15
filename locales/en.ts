@@ -48,7 +48,7 @@ export const EN = {
     "nav.hub.club": "Club",
     "nav.overview": "Overview",
     "nav.inbox": "Inbox",
-    "nav.roster": "Roster",
+    "nav.roster": "Squad",
     "nav.staff": "Staff",
     "nav.academy": "Academy",
     "nav.statistics": "Statistics",
@@ -77,8 +77,8 @@ export const EN = {
     "topbar.funds": "Funds",
     "topbar.settings": "Settings",
     "topbar.managerProfile": "Manager profile",
-    "topbar.noTeam": "No Team",
-    "common.loading": "Loading...",
+    "topbar.noTeam": "No team",
+    "common.loading": "Loading…",
 
     // Screen search (Ctrl K)
     "search.open": "Go to\u2026",

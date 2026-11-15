@@ -27,16 +27,32 @@ interface RenewContractModalProps {
     trigger?: React.ReactNode
 }
 
+/**
+ * Renewal terms and why the raise is what it is (SQUAD-06): the archetype's
+ * usual raise, or a market catch-up when his level now earns more
+ * (engine/personality.ts renewalSalary). Shared by this dialog and the
+ * profile's Contract tab so both explain it the same way.
+ */
+export function renewalTerms(player: PlayerSaveData, currentSalary: number, currentWeek: number) {
+    const archetypeId = getArchetype(player)
+    const newSalary = renewalSalary(player, currentSalary, currentWeek)
+    const multiplier = renewalMultiplier(archetypeId, AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER)
+    return {
+        newSalary,
+        raisePct: currentSalary > 0 ? Math.round((newSalary / currentSalary - 1) * 100) : Math.round((multiplier - 1) * 100),
+        usualPct: Math.round((multiplier - 1) * 100),
+        /** The raise is above the archetype's usual one because of his market level. */
+        market: newSalary > Math.round(currentSalary * multiplier),
+        archetype: ARCHETYPE_INFO[archetypeId].label,
+    }
+}
+
 /** Renewal terms mirror the store: the archetype's raise (+10%; Loyal +5%, Mercenary +20%), or more when his level now earns more on the market, +52 weeks (renewContract). */
 export function RenewContractModal({ player, currentSalary, currentEndWeek, currentWeek, onConfirm, trigger }: RenewContractModalProps) {
     const [open, setOpen] = React.useState(false)
 
-    const newSalary = renewalSalary(player, currentSalary, currentWeek)
-    const raisePct = currentSalary > 0 ? Math.round((newSalary / currentSalary - 1) * 100) : 0
-    const archetype = ARCHETYPE_INFO[getArchetype(player)].label
-    const usualRaise = Math.round(currentSalary * renewalMultiplier(getArchetype(player), AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER))
-    const reason = newSalary > usualRaise ? t("renew.reason.market")
-        : raisePct === 10 ? "" : raisePct < 10 ? t("renew.reason.loyal") : t("renew.reason.more")
+    const { newSalary, raisePct, usualPct, market, archetype } = renewalTerms(player, currentSalary, currentWeek)
+    const reason = raisePct === 10 ? "" : raisePct < 10 ? t("renew.reason.loyal") : t("renew.reason.more")
     const weeksRemaining = Math.max(0, currentEndWeek - currentWeek)
     const newWeeksRemaining = weeksRemaining + 52
 
@@ -54,7 +70,9 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                 <DialogHeader>
                     <DialogTitle>{t("renew.title")}</DialogTitle>
                     <DialogDescription className="text-ink-3">
-                        {t(reason ? "renew.bodyReason" : "renew.body", { name: player.nickname, pct: raisePct, archetype, reason })}
+                        {market
+                            ? t("renew.bodyMarket", { name: player.nickname, pct: raisePct, archetype, usual: usualPct })
+                            : t(reason ? "renew.bodyReason" : "renew.body", { name: player.nickname, pct: raisePct, archetype, reason })}
                     </DialogDescription>
                 </DialogHeader>
 

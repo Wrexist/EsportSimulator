@@ -466,11 +466,12 @@ export default function CreateTeamPage() {
 
     return (
         <div className="relative min-h-dvh overflow-hidden bg-ink">
-            <RosterBuilderModal
-                isOpen={showRosterBuilder}
+            {/* Mounted only once the club exists: the builder reads its roster when it opens (MODES-19). */}
+            {showRosterBuilder && <RosterBuilderModal
+                isOpen
                 onComplete={handleRosterComplete}
                 teamColors={{ primary: teamData.primaryColor, secondary: teamData.secondaryColor }}
-            />
+            />}
 
             <Image
                 src="/esport-ui-assets/backgrounds/club-campus-dusk.webp"
@@ -531,7 +532,7 @@ export default function CreateTeamPage() {
                         <div className="mt-4 flex items-center gap-4">
                             <CrestPreview team={teamData} size={88} />
                             <div className="min-w-0">
-                                <p className="truncate font-display text-3xl font-bold uppercase leading-none text-ink-1">{teamData.name || t("ct.yourClub")}</p>
+                                <p className="line-clamp-2 break-words font-display text-3xl font-bold uppercase leading-none text-ink-1">{teamData.name || t("ct.yourClub")}</p>
                                 <p className="mt-1.5 text-sm text-ink-3">{teamData.shortName || t("ct.tagFallback")} · {t(`ct.region.${teamData.region}`)}</p>
                             </div>
                         </div>

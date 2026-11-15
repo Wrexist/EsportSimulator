@@ -5,8 +5,10 @@ export interface CashPoint {
     week: number
     /** Closing balance that week. */
     balance: number
-    /** Income minus expenses that week. */
+    /** Income minus expenses of that week's settlement (wages, sponsors, upkeep...). */
     net: number
+    /** Transfers, bonuses and other one-off items that week (they move the balance, not the net bar). */
+    oneOff?: number
     projected: boolean
 }
 
@@ -59,6 +61,9 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
     const ticks = [dataHi, (dataHi + dataLo) / 2, dataLo].map(v => Math.round(v))
     const nowIndex = points.findIndex(p => p.week === nowWeek)
     const labelEvery = n > 16 ? 4 : 2
+    // One fixed stride, anchored on "now" so its label never crowds a neighbour.
+    const anchor = nowIndex >= 0 ? nowIndex : 0
+    const labelled = (i: number) => (((i - anchor) % labelEvery) + labelEvery) % labelEvery === 0
 
     return (
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={t("fin.chartAria")}>
@@ -101,12 +106,14 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
                         className={p.net < 0 ? "fill-negative" : "fill-ink-2"}
                         fillOpacity={p.projected ? 0.2 : 0.55}
                     >
-                        <title>{t(p.projected ? "fin.tipNetProjected" : "fin.tipNet", { week: p.week, amount: formatCurrency(p.net, "$", false) })}</title>
+                        <title>{p.oneOff
+                            ? t("fin.tipNetOneOff", { week: p.week, amount: formatCurrency(p.net, "$", false), other: formatCurrency(p.oneOff, "$", false) })
+                            : t(p.projected ? "fin.tipNetProjected" : "fin.tipNet", { week: p.week, amount: formatCurrency(p.net, "$", false) })}</title>
                     </rect>
                 )
             })}
 
-            {points.map((p, i) => (i % labelEvery === 0 || i === nowIndex) && (
+            {points.map((p, i) => labelled(i) && (
                 <text key={i} x={x(i)} y={H - 4} textAnchor="middle" fontSize="11" className={i === nowIndex ? "fill-ink-2" : "fill-ink-3"}>{t("fin.axisWeek", { n: p.week })}</text>
             ))}
         </svg>

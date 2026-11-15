@@ -4,7 +4,9 @@
  *
  * Extracted from atomic-week-processor.ts processMatches (Phase M6).
  * Pure functions — no side effects, no save mutation. Caller writes
- * the returned booleans onto the CompletedMatchSaveData record.
+ * the returned booleans onto the CompletedMatchSaveData record; both
+ * the week tick (auto-match.ts) and played matches (saveMatchResult)
+ * call detectAchievementFlags, which only flags the managed club's wins.
  *
  * Definitions:
  *   - Comeback win: team was DOWN by 9+ rounds at some point during
@@ -87,16 +89,36 @@ export function detectUnderdogWin(
 }
 
 /**
- * Convenience: compute both flags in one call. Returns the flag pair
- * the caller writes onto the CompletedMatchSaveData record.
+ * The managed club's achievement flags for one finished series (MODES-04):
+ * set only when `managedTeamId` played AND won the series. The comeback must
+ * be on a map the managed club won from 9+ rounds down; the upset needs the
+ * managed club ranked 20+ places below the club it beat. A comeback or upset
+ * by the other side never counts. Pass the clubs' world rankings from before
+ * the match.
  */
 export function detectAchievementFlags(
     result: MatchResult,
     homeTeam: TeamRankLike & { id: string },
-    awayTeam: TeamRankLike,
+    awayTeam: TeamRankLike & { id: string },
+    managedTeamId: string | null | undefined,
 ): { comebackWin: boolean; underdogWin: boolean } {
+    const none = { comebackWin: false, underdogWin: false }
+    if (!managedTeamId || (homeTeam.id !== managedTeamId && awayTeam.id !== managedTeamId)) return none
+    const r = result as unknown as MatchResultLike
+    const managedHome = homeTeam.id === managedTeamId
+    const wonSeries = managedHome ? r.homeScore > r.awayScore : r.awayScore > r.homeScore
+    if (!wonSeries) return none
+    // Comeback on a map the managed club won: read the map from its side.
+    const comebackWin = (r.maps ?? []).some(map => {
+        const final = map.finalScore
+        if (!final) return false
+        const own = managedHome ? final.team1 : final.team2
+        const opp = managedHome ? final.team2 : final.team1
+        if (own <= opp) return false
+        return detectComebackWin({ maps: [map], homeScore: r.homeScore, awayScore: r.awayScore }, homeTeam.id)
+    })
     return {
-        comebackWin: detectComebackWin(result as unknown as MatchResultLike, homeTeam.id),
-        underdogWin: detectUnderdogWin(result as unknown as MatchResultLike, homeTeam, awayTeam),
+        comebackWin,
+        underdogWin: detectUnderdogWin(r, homeTeam, awayTeam),
     }
 }

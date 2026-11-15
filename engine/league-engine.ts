@@ -22,6 +22,7 @@ import { GameSave, TeamSaveData } from "./save-types"
 import { EventType } from "@/types"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { queueMoment } from "./moments"
+import { eventText } from "@/lib/news-ref"
 import {
     applyRatedResult,
     applyTierBands,
@@ -249,8 +250,8 @@ export class LeagueEngine {
                 type: EventType.MEDIA,
                 week: save.currentWeek,
                 data: {
-                    title: "🎉 PROMOTION!",
-                    message: `Congratulations! ${playerTeam?.name} finished the season #${finalRank} in the world (${TIER_DISPLAY[playerPromotion.to].label}: ranks ${bandOf(playerPromotion.to)}) and has been promoted to ${TIER_DISPLAY[playerPromotion.to].label}!`,
+                    // Saved with translation keys so the inbox shows the player's language (I18N-27 check).
+                    ...eventText({ key: "evn.promo.t" }, { key: "evn.promo.m", params: { team: playerTeam?.name ?? "", rank: finalRank, tier: { key: `common.tier.${playerPromotion.to}` }, band: bandOf(playerPromotion.to) } }),
                     from: playerPromotion.from,
                     to: playerPromotion.to,
                     isPromotion: true,
@@ -267,8 +268,7 @@ export class LeagueEngine {
                 type: EventType.MEDIA,
                 week: save.currentWeek,
                 data: {
-                    title: "📉 Relegated",
-                    message: `${playerTeam?.name} finished the season #${finalRank} in the world (${TIER_DISPLAY[playerRelegation.to].label}: ranks ${bandOf(playerRelegation.to)}) and has been relegated to ${TIER_DISPLAY[playerRelegation.to].label}. Time to rebuild!`,
+                    ...eventText({ key: "evn.releg.t" }, { key: "evn.releg.m", params: { team: playerTeam?.name ?? "", rank: finalRank, tier: { key: `common.tier.${playerRelegation.to}` }, band: bandOf(playerRelegation.to) } }),
                     from: playerRelegation.from,
                     to: playerRelegation.to,
                     isRelegation: true,
@@ -307,8 +307,7 @@ export class LeagueEngine {
             type: EventType.MEDIA,
             week: save.currentWeek,
             data: {
-                title: `Season ${season} Complete`,
-                message: `Season ${season} has concluded. ${promoted.length} teams promoted, ${relegated.length} teams relegated.`,
+                ...eventText({ key: "evn.season.t", params: { season } }, { key: "evn.season.m", params: { season, promoted: promoted.length, relegated: relegated.length } }),
                 promoted: promoted.length,
                 relegated: relegated.length,
                 playerRank: finalRank || playerTeam?.worldRanking,

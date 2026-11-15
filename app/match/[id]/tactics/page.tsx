@@ -3,7 +3,7 @@
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import { bestOfLabel, playerWinChance } from '@/lib/match-win-chance'
 import { WIN_ODDS_CHECK } from '@/engine/match/win-odds'
-import { fixtureBlockReason } from '@/lib/playable-match'
+import { fixtureBlockReason, fixtureNotDueYet } from '@/lib/playable-match'
 import { useEffect, useRef, useState, useMemo, type ReactNode } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -40,9 +40,10 @@ import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
 import { COUNTER_EFFECT, counterSite, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
-import { t } from "@/lib/i18n"
+import { formatDecimal, intlLocale, t } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { stageName } from "@/lib/display-names"
+import { matchEventName } from "@/lib/tournament-instances"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { autoVetoMaps } from "@/lib/auto-veto"
 import { liveMatchInProgress } from "@/app/match/match-centre"
@@ -180,16 +181,17 @@ function ActionCard({ icon, title, cost, effect, done, doneLabel, disabled, onCl
 
 function TeamBlock({ team, ovr, rank, align }: { team: any; ovr: number; rank?: number; align: "left" | "right" }) {
     return (
-        <div className={cn("flex min-w-0 flex-1 items-center gap-5", align === "right" && "flex-row-reverse text-right")}>
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
+        <div className={cn("flex min-w-0 flex-1 items-center gap-3 xl:gap-5", align === "right" && "flex-row-reverse text-right")}>
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-line bg-raised xl:h-20 xl:w-20">
                 <TeamLogoDisplay team={team} size={60} />
             </div>
             <div className="min-w-0">
-                <h2 className="truncate font-display text-[40px] font-bold uppercase leading-none text-ink-1"><TeamLink id={team.id}>{team.name}</TeamLink></h2>
-                <div className={cn("mt-2 flex items-center gap-3 text-sm text-ink-3", align === "right" && "justify-end")}>
-                    <span><Trans k="prep.worldRank" params={{ rank: rank || "—" }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-2">{v}</span> }} /></span>
+                {/* Below 1280 px the name gets a smaller size and may wrap to a second line instead of being cut (CROSSCUT-11). */}
+                <h2 className="line-clamp-2 font-display text-[30px] font-bold uppercase leading-none text-ink-1 [overflow-wrap:anywhere] xl:text-[40px]" title={team.name}><TeamLink id={team.id}>{team.name}</TeamLink></h2>
+                <div className={cn("mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-3", align === "right" && "justify-end")}>
+                    <span className="whitespace-nowrap"><Trans k="prep.worldRank" params={{ rank: rank || "—" }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-2">{v}</span> }} /></span>
                     <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
-                    <span className="flex items-center gap-1.5">{t("common.teamOvr")} <RatingChip value={ovr} size="sm" bare /></span>
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">{t("common.teamOvr")} <RatingChip value={ovr} size="sm" bare /></span>
                 </div>
             </div>
         </div>
@@ -242,6 +244,7 @@ export default function TacticalHQPage() {
         getDateForWeek: state.getDateForWeek,
     })))
     const league = useGameStore(state => state.league)
+    const gameStartDate = useGameStore(state => state.gameStartDate)
     // A live match that was started and left: its prep is locked, so the hub
     // offers only "Resume match" (with where it stands), not a new veto.
     const liveProgress = useGameStore(useShallow(state => {
@@ -480,7 +483,7 @@ export default function TacticalHQPage() {
     const tournamentDef = isTournament
         ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId)
         : undefined
-    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || t("prep.tournament")) : match.tournamentId === "SCRIM" ? t("common.scrim") : t("prep.friendly"))
+    const competitionName = leagueStage ?? (isTournament ? (matchEventName(liveTournament?.name, tournamentDef?.name, match.tournamentId, match.week, gameStartDate) || t("prep.tournament")) : match.tournamentId === "SCRIM" ? t("common.scrim") : t("prep.friendly"))
     const tableContext = leagueStage ? leagueMatchContext(league, match, myTeam.id) : null
     const competitionDetail = leagueStage
         ? (tableContext ? t("prep.tableContext", { context: tableContext }) : t("common.regionalLeague"))
@@ -523,10 +526,22 @@ export default function TacticalHQPage() {
     const mapsLocked = match.vetoComplete && (match.maps?.length ?? 0) > 0
     const sides = (match as { mapStartingSides?: Record<string, string> }).mapStartingSides || {}
 
+    // A played match: its final score (rounds and map for one map, maps for a series), CROSSCUT-17.
+    const recorded = isCompleted ? completedMatches.find(m => m.id === match.id) : undefined
+    const finalLine = recorded ? (() => {
+        const home = recorded.homeTeamId === myTeam.id
+        const r = recorded.result
+        const single = r.maps.length === 1 ? r.maps[0] : undefined
+        const [us, them] = single
+            ? (home ? [single.finalScore.team1, single.finalScore.team2] : [single.finalScore.team2, single.finalScore.team1])
+            : (home ? [r.homeScore, r.awayScore] : [r.awayScore, r.homeScore])
+        return [`${us}–${them}`, single ? MAP_NAMES[single.map] ?? single.map : null].filter(Boolean).join(" · ")
+    })() : null
     const statusLine = liveProgress
         ? [liveProgress.mapId ? MAP_NAMES[liveProgress.mapId] ?? liveProgress.mapId : null, liveProgress.homeScore != null && liveProgress.awayScore != null
             ? (match.homeTeamId === myTeam.id ? `${liveProgress.homeScore}–${liveProgress.awayScore}` : `${liveProgress.awayScore}–${liveProgress.homeScore}`)
             : null].filter(Boolean).join(" · ")
+        : finalLine !== null ? finalLine
         : isSimulatingVeto
         ? t("prep.status.veto")
         : mapsLocked ? t("prep.status.locked") : t("prep.status.vetoFirst")
@@ -539,7 +554,10 @@ export default function TacticalHQPage() {
                     <ArrowLeft size={15} aria-hidden="true" /> {t("prep.schedule")}
                 </Link>
                 <p className={overline}>
-                    {isCompleted ? t("prep.played") : isMatchWeek ? t("home.matchDay") : isFuture ? t("prep.scheduledWeek", { week: match.week }) : t("prep.expired")}
+                    {isCompleted ? t("prep.played")
+                        // Daily mode: a fixture later this week is not match day yet; name its day (MATCHDAY-02).
+                        : isMatchWeek ? (fixtureNotDueYet({ currentWeek, currentDay, timeMode }, match) ? formatGameCalendarDate(matchDate, { weekday: "long" }) : t("home.matchDay"))
+                        : isFuture ? t("prep.scheduledWeek", { week: match.week }) : t("prep.expired")}
                 </p>
             </div>
 
@@ -550,9 +568,9 @@ export default function TacticalHQPage() {
 
             {/* Broadcast header */}
             <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-label={t("prep.versus", { a: myTeam.name, b: opponent.name })}>
-                <div className="flex items-center gap-8 px-8 py-6">
+                <div className="flex items-center gap-5 px-6 py-6 xl:gap-8 xl:px-8">
                     <TeamBlock team={myTeam} ovr={avgOvr(myLineup)} rank={myTeam.worldRanking} align="left" />
-                    <div className="flex w-[300px] shrink-0 flex-col items-center text-center">
+                    <div className="flex w-[240px] shrink-0 flex-col items-center text-center xl:w-[300px]">
                         <div className="flex items-center gap-2">
                             {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
                             {leagueStage && <span className="inline-flex shrink-0 items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("common.league")}</span>}
@@ -564,7 +582,7 @@ export default function TacticalHQPage() {
                         {winChance !== null && (
                             <p
                                 className="mt-2 text-xs text-ink-3"
-                                title={t("prep.winChanceTitle", { format: bestOfLabel(match.format), maps: WIN_ODDS_CHECK.maps.toLocaleString("en-US"), error: WIN_ODDS_CHECK.meanErrorPts })}
+                                title={t("prep.winChanceTitle", { format: bestOfLabel(match.format), maps: WIN_ODDS_CHECK.maps.toLocaleString(intlLocale()), error: WIN_ODDS_CHECK.meanErrorPts })}
                             >
                                 <Trans k="prep.winChance" params={{ pct: Math.round(winChance * 100) }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-1">{v}</span> }} />
                             </p>
@@ -615,7 +633,7 @@ export default function TacticalHQPage() {
                                     ))}
                                 </div>
                                 <p className="mt-1.5 text-[11px] text-ink-3">
-                                    {t("prep.counterExplain", { bonus: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS), penalty: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY), rounds: ROUNDS_PER_STRENGTH_PCT.toFixed(2), points: MAP_POINTS_PER_STRENGTH_PCT.toFixed(2), cap: pct(NON_PLAYER_BONUS_CAP) })}
+                                    {t("prep.counterExplain", { bonus: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS), penalty: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY), rounds: formatDecimal(ROUNDS_PER_STRENGTH_PCT, 2), points: formatDecimal(MAP_POINTS_PER_STRENGTH_PCT, 2), cap: pct(NON_PLAYER_BONUS_CAP) })}
                                 </p>
                             </div>
 
@@ -722,7 +740,7 @@ export default function TacticalHQPage() {
 
                 <aside className="min-w-0 space-y-4">
                     {/* Primary action */}
-                    <Panel title={liveProgress ? t("tm.inProgress") : mapsLocked ? t("prep.ready") : t("prep.nextStep")} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
+                    <Panel title={liveProgress ? t("tm.inProgress") : isCompleted ? t("prep.played") : mapsLocked ? t("prep.ready") : t("prep.nextStep")} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
                         <div className="space-y-3">
                             {mapsLocked && (
                                 <ul className="space-y-2">

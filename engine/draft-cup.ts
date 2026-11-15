@@ -183,7 +183,12 @@ export const DRAFT_CUP_SCORE = {
     finish: { champion: 1000, final: 600, semi: 350, quarter: 150 } as Record<DraftCupFinish, number>,
     perMapWon: 40,
     perRoundDiff: 3,
-    perBudgetPointLeft: 5,
+    /**
+     * MODES-13: a tie-breaker, not a strategy. At 5 a point, a draft of the
+     * five cheapest players banked ~455 points, more than a round of the cup
+     * is worth; at 1 the whole budget left is worth less than one finish step.
+     */
+    perBudgetPointLeft: 1,
 }
 
 export interface DraftCupOutcome {

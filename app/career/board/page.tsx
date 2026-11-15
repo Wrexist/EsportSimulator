@@ -23,13 +23,16 @@ import {
     boardWeeks,
     confidenceTrail,
     graceWeeksLeft,
+    liveObjectives,
     objectiveView,
     signedDelta,
 } from "@/components/career/board-view"
-import { t, tn } from "@/lib/i18n"
+import { formatNumber, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 const T = BOARD_TUNING
+/** Tuning values in the rule lines, with the language's decimal mark ("0,8" in German). */
+const num = (n: number) => formatNumber(n)
 const EXPECTATIONS = new Set(["WIN", "CONTEND", "COMPETE", "SURVIVE"])
 const STATUS_CHIP: Record<string, string> = {
     positive: "bg-positive/15 text-positive",
@@ -41,20 +44,20 @@ const STATUS_CHIP: Record<string, string> = {
 /** What the weekly update and the reviews do, straight from BOARD_TUNING. Built at render time for the active language. */
 function weeklyRules(): Array<[string, string]> {
     return [
-        [t("brd.rule.win"), t("brd.rule.winText", { win: T.RESULT_WIN, upset: T.UPSET_WIN, gap: T.UPSET_ELO_GAP, expected: T.EXPECTED_WIN })],
-        [t("brd.rule.loss"), t("brd.rule.lossText", { loss: T.RESULT_LOSS, expected: T.EXPECTED_LOSS, gap: T.UPSET_ELO_GAP, upset: T.UPSET_LOSS })],
-        [t("brd.rule.title"), t("brd.rule.titleText", { title: T.TITLE, sTier: T.TITLE_S_TIER })],
-        [t("brd.rule.table"), t("brd.rule.tableText", { on: T.LEAGUE_ON_TRACK, behind: T.LEAGUE_BEHIND, games: T.LEAGUE_MIN_PLAYED })],
-        [t("brd.rule.finances"), t("brd.rule.financesText", { risk: T.FINANCE_RISK, crisis: T.FINANCE_CRISIS, insolvent: T.FINANCE_INSOLVENT })],
-        [t("brd.rule.cap"), t("brd.rule.capText", { max: T.WEEKLY_MAX_MOVE })],
+        [t("brd.rule.win"), t("brd.rule.winText", { win: num(T.RESULT_WIN), upset: num(T.UPSET_WIN), gap: num(T.UPSET_ELO_GAP), expected: num(T.EXPECTED_WIN) })],
+        [t("brd.rule.loss"), t("brd.rule.lossText", { loss: num(T.RESULT_LOSS), expected: num(T.EXPECTED_LOSS), gap: num(T.UPSET_ELO_GAP), upset: num(T.UPSET_LOSS) })],
+        [t("brd.rule.title"), t("brd.rule.titleText", { title: num(T.TITLE), sTier: num(T.TITLE_S_TIER) })],
+        [t("brd.rule.table"), t("brd.rule.tableText", { on: num(T.LEAGUE_ON_TRACK), behind: num(T.LEAGUE_BEHIND), games: num(T.LEAGUE_MIN_PLAYED) })],
+        [t("brd.rule.finances"), t("brd.rule.financesText", { risk: num(T.FINANCE_RISK), crisis: num(T.FINANCE_CRISIS), insolvent: num(T.FINANCE_INSOLVENT) })],
+        [t("brd.rule.cap"), t("brd.rule.capText", { max: num(T.WEEKLY_MAX_MOVE) })],
     ]
 }
 
 function reviewRules(): Array<[string, string]> {
     return [
-        [t("brd.review.league"), t("brd.review.leagueText", { week: LEAGUE_TUNING.SPLITS[1].drawWeek, exceeded: T.REVIEW_LEAGUE_EXCEEDED, met: T.REVIEW_LEAGUE_MET, missed: T.REVIEW_LEAGUE_MISSED, failed: T.REVIEW_LEAGUE_FAILED })],
-        [t("brd.review.ranking"), t("brd.review.rankingText", { exceeded: T.REVIEW_RANK_EXCEEDED, met: T.REVIEW_RANK_MET, missed: T.REVIEW_RANK_MISSED, failed: T.REVIEW_RANK_FAILED })],
-        [t("brd.review.budget"), t("brd.review.budgetText", { halfMet: T.REVIEW_FINANCE_MET / 2, halfMissed: T.REVIEW_FINANCE_MISSED / 2, met: T.REVIEW_FINANCE_MET, missed: T.REVIEW_FINANCE_MISSED })],
+        [t("brd.review.league"), t("brd.review.leagueText", { week: LEAGUE_TUNING.SPLITS[1].drawWeek, exceeded: num(T.REVIEW_LEAGUE_EXCEEDED), met: num(T.REVIEW_LEAGUE_MET), missed: num(T.REVIEW_LEAGUE_MISSED), failed: num(T.REVIEW_LEAGUE_FAILED) })],
+        [t("brd.review.ranking"), t("brd.review.rankingText", { exceeded: num(T.REVIEW_RANK_EXCEEDED), met: num(T.REVIEW_RANK_MET), missed: num(T.REVIEW_RANK_MISSED), failed: num(T.REVIEW_RANK_FAILED) })],
+        [t("brd.review.budget"), t("brd.review.budgetText", { halfMet: num(T.REVIEW_FINANCE_MET / 2), halfMissed: num(T.REVIEW_FINANCE_MISSED / 2), met: num(T.REVIEW_FINANCE_MET), missed: num(T.REVIEW_FINANCE_MISSED) })],
     ]
 }
 
@@ -66,7 +69,7 @@ function reviewRules(): Array<[string, string]> {
  * formal review.
  */
 export default function BoardPage() {
-    const { hydrated, isLoading, playerTeamId, teams, boardState, currentWeek, managerDetails } = useGameStore(useShallow(s => ({
+    const { hydrated, isLoading, playerTeamId, teams, boardState, currentWeek, managerDetails, league, completedMatches } = useGameStore(useShallow(s => ({
         hydrated: s._hasHydrated,
         isLoading: s.isLoading,
         playerTeamId: s.playerTeamId,
@@ -74,6 +77,8 @@ export default function BoardPage() {
         boardState: s.boardState,
         currentWeek: s.currentWeek,
         managerDetails: s.managerDetails,
+        league: s.league,
+        completedMatches: s.completedMatches,
     })))
     const team = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     const weeks = useMemo(() => boardWeeks(boardState?.history), [boardState?.history])
@@ -90,7 +95,7 @@ export default function BoardPage() {
     const tier = getTierTargets(expectation)
     // The season's real rank target (the same number as the ranking objective, COMP-12).
     const rankTarget = boardState?.rankTarget ?? fallback.rankTarget
-    const objectives = (boardState?.objectives ?? []).map(objectiveView)
+    const objectives = liveObjectives(boardState?.objectives, { teams, playerTeamId, currentWeek, managerDetails, league, completedMatches }).map(objectiveView)
     const warnings = boardState?.warnings ?? (boardState?.onNotice ? 2 : 0)
     const lastWeek = weeks.find(w => w.week === currentWeek) ?? null
     const sanctioned = boardState && team ? getBoardSanctionedFee(boardState, team.budget) : null

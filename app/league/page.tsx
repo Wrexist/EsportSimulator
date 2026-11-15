@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { ListOrdered } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
-import { isLeagueMatchId } from "@/engine/season/regional-league"
+import { divisionWithPendingResults, isLeagueMatchId } from "@/engine/season/regional-league"
 import { LEAGUE_TUNING, leagueCentralPayment } from "@/lib/balance-tuning"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
@@ -55,7 +55,15 @@ export default function LeaguePage() {
         gameStartDate: s.gameStartDate,
     })))
 
-    const split = league?.current
+    // Divisions as the table will read after this week's tick: league matches
+    // already played this week count now, the same table Home's league card and
+    // the board objective read (HOME-02 / MODES-30).
+    const split = useMemo(() => {
+        const raw = league?.current
+        if (!raw) return raw
+        const divisions = raw.divisions.map(d => divisionWithPendingResults(d, completedMatches))
+        return divisions.every((d, i) => d === raw.divisions[i]) ? raw : { ...raw, divisions }
+    }, [league, completedMatches])
     const own = useMemo(() => split?.divisions.find(d => !!playerTeamId && d.teamIds.includes(playerTeamId)), [split, playerTeamId])
     const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -110,6 +118,7 @@ export default function LeaguePage() {
     const pool = level ? pools[Math.min(pools.length, level) - 1] : undefined
     const shares = LEAGUE_TUNING.SPLIT_PRIZE_SHARES
     const prizeNow = pool && me && started ? Math.round(pool * (shares[me.position - 1] ?? 0)) : 0
+    const outcomePrize = outcome ? Math.round(pools[Math.min(pools.length, outcome.level) - 1] * (shares[outcome.position - 1] ?? 0)) : 0
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
@@ -191,6 +200,8 @@ export default function LeaguePage() {
                                         </span>
                                     )}
                                     {outcome.champion && <span className="rounded-sm border border-gold/50 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("lgp.champions")}</span>}
+                                    {/* The split prize the engine paid for that place (regional-league payout). */}
+                                    {outcomePrize > 0 && <span className="tabular-nums">{t("tm.prize")} <span className="font-semibold text-ink-1">{formatCurrency(outcomePrize, "$", false)}</span></span>}
                                 </p>
                             </div>
                         ) : (

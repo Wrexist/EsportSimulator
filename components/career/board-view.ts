@@ -6,9 +6,10 @@
  */
 
 import type { BoardMove, BoardObjective, BoardState } from "@/engine/save-types"
+import { objectiveProgressNow, type ObjectiveProgressSource } from "@/engine/board-expectations"
 import { BOARD_TUNING } from "@/lib/balance-tuning"
 import { formatCurrency } from "@/lib/utils-extended"
-import { ordinalLabel, t, tn } from "@/lib/i18n"
+import { intlLocale, ordinalLabel, t, tn } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 
 export type BoardTone = "positive" | "neutral" | "caution" | "negative"
@@ -116,6 +117,15 @@ export function objectiveLabel(o: Pick<BoardObjective, "id" | "label" | "target"
     return l
 }
 
+/**
+ * The board's objectives with progress read now (live table with this
+ * week's played matches, world rank, budget), not as of the last week tick,
+ * so Home, Club → Board and the League page agree (HOME-02 / MODES-30).
+ */
+export function liveObjectives(objectives: readonly BoardObjective[] | undefined, source: ObjectiveProgressSource): BoardObjective[] {
+    return (objectives ?? []).map(o => ({ ...o, ...objectiveProgressNow(source, o) }))
+}
+
 export function objectiveView(o: BoardObjective): ObjectiveView {
     const status = o.status ? { label: t(`board.objective.${o.status}`), tone: STATUS[o.status] } : { label: t("board.objective.notStarted"), tone: "neutral" as BoardTone }
     const cur = o.current
@@ -188,5 +198,7 @@ function round1(n: number): number {
 
 export function signedDelta(n: number): string {
     const r = round1(n)
-    return r > 0 ? `+${r}` : r < 0 ? `−${Math.abs(r)}` : "0"
+    // The language's decimal mark ("+0,8" in German), like the week report.
+    const shown = Math.abs(r).toLocaleString(intlLocale(), { maximumFractionDigits: 1, useGrouping: false })
+    return r > 0 ? `+${shown}` : r < 0 ? `−${shown}` : "0"
 }

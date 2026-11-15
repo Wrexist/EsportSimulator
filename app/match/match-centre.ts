@@ -65,3 +65,16 @@ export function liveMatchInProgress(
     if (state.activeMatchId !== matchId && state.activeMatchState?.matchId !== matchId) return false
     return state.scheduledMatches.some(m => m.id === matchId) && !state.completedMatches.some(m => m.id === matchId)
 }
+
+/**
+ * Is the stored live-match state a leftover (its match is recorded or no
+ * longer scheduled)? Only such a leftover may be cleared from a result
+ * screen; a match paused from the live screen stays resumable while the
+ * manager looks at other results (MATCHDAY-01).
+ */
+export function staleActiveMatch(
+    state: { activeMatchId?: string | null; activeMatchState?: { matchId?: string } | null; completedMatches: ReadonlyArray<{ id: string }>; scheduledMatches: ReadonlyArray<{ id: string }> },
+): boolean {
+    const ids = [state.activeMatchId, state.activeMatchState?.matchId].filter((id): id is string => !!id)
+    return ids.length > 0 && !ids.some(id => liveMatchInProgress(state, id))
+}

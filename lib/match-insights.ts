@@ -26,6 +26,9 @@ export interface MatchInsights {
 
 const BUY_RANK: Record<string, number> = { PISTOL: 0, ECO: 0, FORCE: 1, SEMIBUY: 2, FULL: 3, 'DOUBLE AWP': 3 }
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0)
+/** A starter "struggled badly" below this rating and STRUGGLED_GAP below his lineup's average. */
+export const STRUGGLED_RATING = 0.6
+export const STRUGGLED_GAP = 0.4
 const BUY_KEY: Record<string, string> = { PISTOL: 'pistol', ECO: 'eco', FORCE: 'force', SEMIBUY: 'semibuy', FULL: 'full', 'DOUBLE AWP': 'awp2' }
 /** A buy with its article, for review lines ("a force buy"). */
 const buyPhrase = (id: string) => (BUY_KEY[id] ? t(`insight.buy.${BUY_KEY[id]}`) : id.toLowerCase())
@@ -106,8 +109,19 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
     if (weak.length) actions.push({ label: t('insight.action.training'), href: '/training', reason: tn('insight.reason.weak', weak.length) })
     const buyList = [...buys.values()]
     const fullRec = buyList.find(b => b.buy === 'FULL')
-    if (favouredLosses >= 3 || (fullRec && fullRec.played >= 5 && fullRec.won / fullRec.played < 0.5)) actions.push({ label: t('insight.action.tactics'), href: nextMatchId ? `/match/${nextMatchId}/tactics` : '/schedule', reason: tn('insight.reason.favoured', favouredLosses) })
-    if (own.length && own[own.length - 1].rating < 0.8) actions.push({ label: t('insight.action.transfers'), href: '/transfers', reason: t('insight.reason.struggled') })
+    const poorFullBuys = !!fullRec && fullRec.played >= 5 && fullRec.won / fullRec.played < 0.5
+    // The reason names what triggered the button (MATCHENGINE-06): it said
+    // "0 rounds lost while better equipped" when the full buys triggered it.
+    if (favouredLosses >= 3 || poorFullBuys) actions.push({
+        label: t('insight.action.tactics'), href: nextMatchId ? `/match/${nextMatchId}/tactics` : '/schedule',
+        reason: favouredLosses >= 3 ? tn('insight.reason.favoured', favouredLosses) : t('insight.reason.fullBuys', { won: fullRec!.won, played: fullRec!.played }),
+    })
+    // "Struggled badly" (MATCHENGINE-07): the lowest starter under
+    // STRUGGLED_RATING and well behind his own lineup's average. Under 0.8
+    // alone was true after about 70% of matches (one map's ratings spread wide).
+    const lowest = own[own.length - 1]
+    const ownAverage = own.length ? own.reduce((sum, s) => sum + s.rating, 0) / own.length : 0
+    if (lowest && lowest.rating < STRUGGLED_RATING && lowest.rating <= ownAverage - STRUGGLED_GAP) actions.push({ label: t('insight.action.transfers'), href: '/transfers', reason: t('insight.reason.struggled') })
     actions.push({ label: t('insight.action.squad'), href: '/squad', reason: t('insight.reason.squad') })
     if (!actions.some(a => a.href.includes('/tactics'))) actions.push({ label: t('insight.action.prepare'), href: nextMatchId ? `/match/${nextMatchId}/tactics` : '/schedule', reason: t('insight.reason.prepare') })
 
@@ -115,7 +129,8 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
     const pistols = keyRounds.filter(k => k.kind === 'pistol')
     // Match outcome and the rounds you took are separate facts: "Lost 10 of
     // 23 rounds" read as ten rounds lost when the team had won ten.
-    const headline = t(won ? 'insight.headline.won' : 'insight.headline.lost', { own: ownRounds, total: rounds, pw: pistols.filter(k => k.won).length, pt: pistols.length, under: underdogWins, fav: favouredLosses })
+    // The two buy counts are full plural phrases ("1 round won with the weaker buy", MATCHDAY-12).
+    const headline = t(won ? 'insight.headline.won' : 'insight.headline.lost', { own: ownRounds, total: rounds, pw: pistols.filter(k => k.won).length, pt: pistols.length, under: tn('insight.underdogWins', underdogWins), fav: tn('insight.favouredLosses', favouredLosses) })
 
     return {
         won, headline, keyRounds: keyRounds.slice(0, 12),

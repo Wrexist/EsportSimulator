@@ -11,3 +11,17 @@ test("the Space shortcut is described as Continue", () => {
     expect(space).toContain(t("advance.continueTitle"))
     expect(space).not.toContain("Advance time (day or week)")
 })
+
+// HOME-11 (2026-11-15 audit): no row twice, alternatives on one row, Ctrl+K listed.
+test("each shortcut description appears once per group and Ctrl+K is listed", () => {
+    for (const group of SHORTCUT_GROUPS) {
+        if (group.label === "shortcuts.group.gameplay") continue // Space does two different things
+        const descriptions = group.shortcuts.map(s => s.description)
+        expect(new Set(descriptions).size).toBe(descriptions.length)
+    }
+    const general = SHORTCUT_GROUPS.find(g => g.label === "shortcuts.group.general")!.shortcuts
+    expect(general.find(s => s.description === "shortcuts.openLoad")).toMatchObject({ keys: ["Ctrl", "L"], altKeys: ["F3"] })
+    expect(general.find(s => s.description === "shortcuts.showShortcuts")).toMatchObject({ keys: ["F1"], altKeys: ["?"] })
+    const nav = SHORTCUT_GROUPS.find(g => g.label === "shortcuts.group.navigation")!.shortcuts
+    expect(nav.some(s => s.keys.join("+") === "Ctrl+K")).toBe(true)
+})

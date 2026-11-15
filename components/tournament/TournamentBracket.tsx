@@ -300,7 +300,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
         return (
             <div className={cn("flex h-9 items-center gap-2.5 px-2.5", own && "shadow-[inset_2px_0_0_var(--gold)]")}>
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-hover">
-                    {team?.logo ? <TeamLogoImage src={team.logo} alt="" size={18} /> : <span className="text-[11px] font-semibold text-ink-3">{tbd ? "?" : name[0]}</span>}
+                    {team?.logo ? <TeamLogoImage src={team.logo} alt="" size={18} team={{ id: team.id, name: team.name, logoPath: team.logo, branding: team.branding }} /> : <span className="text-[11px] font-semibold text-ink-3">{tbd ? "?" : name[0]}</span>}
                 </div>
                 <span className={cn(
                     "min-w-0 flex-1 truncate text-sm",
@@ -375,6 +375,8 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                             {organizedMatches[round]?.map((match) => {
                                 const isUpcomingPlayerMatch = isPlayerMatch(match) && match.status === "scheduled"
                                 const completed = match.status === "completed"
+                                // Only a played match has a result page to open.
+                                const clickable = !!onMatchClick && completed
                                 return (
                                     <div key={match.id} data-match-id={match.id} className="relative">
                                         {(isUpcomingPlayerMatch || match.status === "live") && (
@@ -387,9 +389,9 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                             className={cn(
                                                 "relative z-10 overflow-hidden rounded-[4px] border bg-raised transition-colors duration-150",
                                                 isPlayerMatch(match) ? "border-line-strong" : "border-line",
-                                                onMatchClick && !isDragging && "cursor-pointer hover:border-line-strong hover:bg-hover",
+                                                clickable && !isDragging && "cursor-pointer hover:border-line-strong hover:bg-hover",
                                             )}
-                                            {...(onMatchClick ? pressable(() => handleMatchClick(match.id)) : {})}
+                                            {...(clickable ? pressable(() => handleMatchClick(match.id)) : {})}
                                         >
                                             {teamRow(match.team1, match.team2, completed)}
                                             <div className="h-px bg-line" />

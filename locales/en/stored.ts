@@ -358,4 +358,10 @@ export const STORED = {
     "svd.msg.gearMissing": "Equipment not found",
     "svd.msg.gearInstalled": "This equipment is already installed",
     "svd.msg.noFunds": "Insufficient funds",
+    "svd.p.weaponDrill": "Weapon drill: {{drill}} ({{name}})",
+    "svd.driftBaseline": "Drift toward baseline",
+    "svd.settledRoster": "Settled roster",
+    "svd.p.leaguePayment": "League central payment ({{division}})",
+    "svd.cmp.qualifier": "Qualifier",
+    "svd.cmp.playoffs": "{{tier}} playoffs",
 } as const

@@ -107,8 +107,8 @@ export const STAFF: Record<string, string> = {
     "st.neg.perWeek": "{{amount}}/wk",
     "st.neg.renewal": "Contract renewal",
     "st.neg.offer": "Make an offer",
-    "st.neg.renewalHint": "Expect to pay around 15% more to keep them.",
-    "st.neg.offerHint": "Epic staff want about 5% over the asking wage, Legendary about 10%.",
+    "st.neg.renewalHint": "The wage below is the lowest they accept to stay another year.",
+    "st.neg.offerHint": "The asking wage is the lowest they accept for a one-year deal; rarity is already included.",
     "st.neg.close": "Close dialog",
     "st.neg.wage": "Weekly wage",
     "st.neg.wageAria": "Weekly salary offer",
@@ -143,7 +143,7 @@ export const STAFF: Record<string, string> = {
     "deleg.scouting": "Scouting missions",
     "deleg.scouting.hint": "When the scout is free, sends them to watch the next player on your shortlist.",
     "deleg.veto": "Map veto",
-    "deleg.veto.hint": "Your coach runs the map veto for you when you open match prep.",
+    "deleg.veto.hint": "The map veto is made for you when you open match prep; an analyst makes it sharper.",
     "deleg.needScout": "Needs a scout on your staff.",
     "deleg.emptyList": "Your shortlist is empty, so there is nobody to watch yet.",
     "deleg.lastReport": "Last report · week {{n}}",
@@ -193,5 +193,7 @@ export const STAFF: Record<string, string> = {
     "stf.hiredBody": "{{team}} have signed {{name}} to their staff as {{role}}. The contract runs for {{weeks}}.",
     "stf.leftTitle": "{{name}} leaves {{team}}",
     "stf.leftBody": "{{name}} is no longer on the staff as {{role}}. The search for a replacement begins.",
+    "st.released": "{{name}} released",
+    "st.releasedPaid": "{{name}} released · {{amount}} severance paid",
 }
 

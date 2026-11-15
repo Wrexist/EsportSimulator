@@ -2,20 +2,37 @@
 
 import { useFocusTrap } from "@/lib/accessibility"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AccessibilitySettings, AudioSettings, ControlsSettings, DisplaySettings, GameplaySettings, LanguageSettings } from "./SettingsSections"
-import { t } from "@/lib/i18n"
+import { getLocale, subscribeLocale, t } from "@/lib/i18n"
 
 interface SettingsModalProps {
     isOpen: boolean
     onClose: () => void
+    /** Tab to open on (the page passes pendingSettingsReopen() after a language change). */
+    initialTab?: Tab
 }
 
-type Tab = "display" | "audio" | "game" | "controls"
+export type Tab = "display" | "audio" | "game" | "controls"
+
+/**
+ * A language change remounts the whole shell (GameShell keys on the locale),
+ * which unmounts the page hosting this dialog (I18N-12). While the dialog is
+ * open it notes the change here, so the remounted page can open it again on
+ * the same tab. The note is short-lived: a page mounted later never reopens it.
+ */
+let reopen: { tab: Tab; at: number } | null = null
+const REOPEN_WINDOW_MS = 5000
+
+/** The tab to reopen the dialog on after a language change, or null. Does not clear the note (StrictMode runs initialisers twice). */
+export function pendingSettingsReopen(): Tab | null {
+    return reopen && Date.now() - reopen.at < REOPEN_WINDOW_MS ? reopen.tab : null
+}
 
 const TABS: { id: Tab; label: string }[] = [
     { id: "display", label: "settings.panel.display" },
@@ -28,9 +45,20 @@ const TABS: { id: Tab; label: string }[] = [
  * Settings dialog for the main menu (no career loaded). Every control applies
  * live, so the footer only closes.
  */
-export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-    const [activeTab, setActiveTab] = useState<Tab>("display")
+export function SettingsModal({ isOpen, onClose, initialTab }: SettingsModalProps) {
+    const [activeTab, setActiveTab] = useState<Tab>(initialTab ?? "display")
     const dialogRef = useFocusTrap(isOpen, onClose)
+    const tabRef = useRef(activeTab)
+    tabRef.current = activeTab
+
+    useEffect(() => {
+        if (!isOpen) return
+        reopen = null
+        const locale = getLocale()
+        return subscribeLocale(() => {
+            if (getLocale() !== locale) reopen = { tab: tabRef.current, at: Date.now() }
+        })
+    }, [isOpen])
 
     return (
         <AnimatePresence>
@@ -44,13 +72,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     className="fixed inset-0 z-modal flex items-center justify-center bg-ink/80 p-4"
                     onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}
                 >
+                    {/* START-32: a fixed height, so the title and tabs stay put when the tab changes. */}
                     <div
                         ref={dialogRef}
                         tabIndex={-1}
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="modal-title-settings"
-                        className="flex max-h-[calc(100dvh-4rem)] w-full max-w-2xl flex-col overflow-hidden rounded-[10px] border border-line-strong bg-panel outline-none"
+                        className="flex h-[min(720px,calc(100dvh-4rem))] w-full max-w-2xl flex-col overflow-hidden rounded-[10px] border border-line-strong bg-panel outline-none"
                     >
                         <header className="flex shrink-0 items-center justify-between gap-4 px-6 pt-4">
                             <h2 id="modal-title-settings" className="font-display text-2xl font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{t("settings.title")}</h2>
@@ -76,7 +105,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                         <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-line px-6 py-4">
                             <p className="text-xs text-ink-3">{t("settings.footer")}</p>
-                            <Button variant="outline" onClick={onClose}>{t("settings.done")}</Button>
+                            <div className="flex shrink-0 items-center gap-2">
+                                {/* START-39: Import, Delete all and Achievements live on the full Settings page. */}
+                                <Button asChild variant="ghost"><Link href="/settings" onClick={onClose}>{t("settings.savesAndAchievements")}</Link></Button>
+                                <Button variant="outline" onClick={onClose}>{t("settings.done")}</Button>
+                            </div>
                         </footer>
                     </div>
                 </motion.div>

@@ -29,6 +29,7 @@ import { logger } from "@/lib/logger"
 import { processFreeAgentMarket, freeAgentScoutingFactor, hashRoll } from "./free-agent-market"
 import { processReleaseClauses } from "../ai/transfer-market"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
+import { getAcademyLevelInfo } from "../academy-constants"
 
 // Flavour backstory fragments so intakes read as distinct scouted talents
 // rather than a wall of identical "Youth Prospect" clones. Picked
@@ -94,7 +95,8 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
 
 /**
  * Per-team youth prospect generation at season end. Teams need a Training
- * facility of level ≥ 3 to qualify; level 5+ gets 2 prospects, else 1.
+ * facility of level ≥ 3 to qualify; level 5+ gets 2 prospects, else 1. The
+ * managed club also needs an academy with free places (its intake joins it).
  */
 function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
     logger.debug("[Season End] Generating Youth Prospects...")
@@ -115,13 +117,23 @@ function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRN
     save.teams.forEach(team => {
         const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
         if (!trainingFacility || trainingFacility.level < 3) return
-        // Pass 2: the same free-agent pool feedback as AI scouting, for every
-        // club: while the pool is over target, each club's intake happens with
-        // probability = factor (pure hash roll; the week RNG is untouched).
-        if (intakeFactor < 1 && hashRoll(`youth_intake:${team.id}:${save.currentWeek}`) >= intakeFactor) return
-
-        const prospectsToGenerate = trainingFacility.level >= 5 ? 2 : 1
         const isPlayerTeam = team.id === playerTeamId
+        // Pass 2: the same free-agent pool feedback as AI scouting, for the
+        // other clubs: while the pool is over target, each club's intake
+        // happens with probability = factor (pure hash roll; the week RNG is
+        // untouched). The manager's intake goes to his academy, not the pool.
+        if (!isPlayerTeam && intakeFactor < 1 && hashRoll(`youth_intake:${team.id}:${save.currentWeek}`) >= intakeFactor) return
+
+        let prospectsToGenerate = trainingFacility.level >= 5 ? 2 : 1
+        if (isPlayerTeam) {
+            // ENGINE-01: the manager's intake joins his academy, so it needs
+            // one (the academy screen says "build academy first") and only
+            // fills its free places (the enrol button's capacity rule).
+            const academy = getAcademyLevelInfo(team.academyFacility?.level ?? 0)
+            if (!academy) return
+            prospectsToGenerate = Math.min(prospectsToGenerate, academy.maxProspects - (save.academyPlayers?.length ?? 0))
+            if (prospectsToGenerate <= 0) return
+        }
 
         for (let i = 0; i < prospectsToGenerate; i++) {
             const prospectId = `youth_${team.id}_${save.currentWeek}_${i}`
@@ -132,7 +144,9 @@ function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRN
             // of a wall of "Youth Prospect" clones from an 80-combo pool.
             const identity = generateProspect("LOCAL", undefined, rng)
 
-            const prospectAge = 16 + Math.floor(rng.next() * 3) // 16-18
+            // 15-17 today: the season-end birthday later in this same tick
+            // (atomic-week-processor) makes the intake 16-18 on arrival (ENGINE-07).
+            const prospectAge = 15 + Math.floor(rng.next() * 3)
             // The user's academy keeps its 60-89 intake; AI clubs draw from the world's spread
             // by their reputation (development-rates AI_PROSPECT_POTENTIAL).
             const potential = isPlayerTeam ? 60 + Math.floor(rng.next() * 30)

@@ -170,7 +170,9 @@ test('drill effects come from the catalog; leadership and wellness effects reach
     const age = h.read().players[0].age
     expect(drills.runTeamDrill('unknown', [{ stat: 'age', amount: 50 }], -100).success).toBe(false)
     expect(drills.runTeamDrill('igl_drill', [{ stat: 'age', amount: 50 }], -100).success).toBe(true)
-    expect(h.read().players[0].leader).toBe(44)
+    // Leadership +4 reaches leader, scaled like weekly training (SQUAD-01).
+    expect(h.read().players[0].leader).toBeGreaterThan(40)
+    expect(h.read().players[0].leader).toBeLessThanOrEqual(44)
     expect(h.read().players[0].age).toBe(age)
     drills.runTeamDrill('sleep_protocol', [], 100)
     expect(h.read().players[0].morale).toBe(84)

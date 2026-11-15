@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, t, tn } from "@/lib/i18n"
 
 import { LoadChip } from "@/components/squad/LoadChip"
 import React, { useCallback, useMemo, useState } from "react"
@@ -25,8 +25,10 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { Meter } from "@/src/components/ui/Meter"
-import { focusLabel as weeklyFocusLabel, drillStatLabel, trainingModifiers } from "@/components/training/weekly-training"
+import { focusLabel as weeklyFocusLabel, drillStatLabel, statLabel, stopRetrainingText, trainingModifiers } from "@/components/training/weekly-training"
 import { storedText } from "@/lib/stored-text"
+import { drillClubFactors, drillGainsForPlayer, type DrillContext } from "@/engine/drill-gains"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
@@ -70,10 +72,10 @@ export default function TrainingPage() {
     const [editing, setEditing] = useState<{ strategy: keyof CustomTactics; side: "ct" | "t" } | null>(null)
 
     // Roster order, like Squad. Memoized: the global players list is ~1000 entries.
+    const playersById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
     const roster = useMemo(() => {
-        const byId = new Map(players.map(p => [p.id, p]))
-        return (team?.rosterIds || []).map(id => byId.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired)
-    }, [players, team?.rosterIds])
+        return (team?.rosterIds || []).map(id => playersById.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired)
+    }, [playersById, team?.rosterIds])
     const mods = useMemo(() => trainingModifiers(team ?? undefined, staff, currentWeek), [team, staff, currentWeek])
     const roleTraining = useMemo(() => team?.activeRoleTraining || [], [team?.activeRoleTraining])
     const inRoleTraining = useCallback((id: string) => roleTraining.some(rt => rt.playerId === id), [roleTraining])
@@ -84,6 +86,11 @@ export default function TrainingPage() {
     const drillPlayers = roster.filter(p => !inRoleTraining(p.id))
     const exhausted = drillPlayers.find(p => (p.fatigue || 0) >= EXHAUSTION_THRESHOLD)
     const drill = drills.find(d => d.id === selectedDrill)
+    // SQUAD-01/03: what a drill really adds to each player (engine/drill-gains.ts, the action's own rule).
+    const drillCtx = useMemo<DrillContext | null>(() => team ? { team, staff, currentWeek, lookup: id => playersById.get(id) } : null, [team, staff, currentWeek, playersById])
+    const drillClub = useMemo(() => drillCtx ? drillClubFactors(drillCtx.team, drillCtx.staff, drillCtx.currentWeek) : null, [drillCtx])
+    const gainsOf = (p: PlayerSaveData, rewards: ReadonlyArray<{ stat: string; value: number }>) =>
+        drillCtx && drillClub ? drillGainsForPlayer(p, rewards, drillCtx, drillClub).filter(g => g.amount >= 0.05) : []
     const drillBlock = !drill ? t("tr.block.pick")
         : activeMatchId ? t("tr.block.match")
             : slotsLeft === 0 ? t("tr.block.slots")
@@ -93,9 +100,15 @@ export default function TrainingPage() {
 
     const runDrill = () => {
         if (!drill || drillBlock) return
+        // SQUAD-03: read each player's gains before the drill changes him, for the toast.
+        const before = drillPlayers.map(p => ({ name: p.nickname, gains: gainsOf(p, drill.rewards) }))
         const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
-        if (result.success) toast.success(t(`tr.drill.${drill.id}`), { description: tn("tr.trained", drillPlayers.length) })
-        else toast.error(t("tr.notRun"), { description: storedText(result.message) })
+        if (result.success) {
+            const lines = before.filter(b => b.gains.length).map(b => `${b.name} ${b.gains.map(g => `+${formatDecimal(g.amount, 1)} ${statLabel(g.stat)}`).join(", ")}`)
+            const capped = before.filter(b => !b.gains.length).map(b => b.name)
+            const description = [tn("tr.trained", drillPlayers.length), ...lines, ...(capped.length ? [t("tr.noGain", { names: capped.join(", ") })] : [])].join(" · ")
+            toast.success(t(`tr.drill.${drill.id}`), { description })
+        } else toast.error(t("tr.notRun"), { description: storedText(result.message) })
     }
 
     if (!team) {
@@ -164,17 +177,24 @@ export default function TrainingPage() {
                                 )}
                             >
                                 <span className="flex items-baseline justify-between gap-2">
-                                    <span className="truncate text-sm font-semibold text-ink-1">{t(`tr.drill.${d.id}`)}</span>
+                                    {/* Wraps rather than truncates: long translated drill names were cut at 1280 (I18N-16). */}
+                                    <span className="min-w-0 text-sm font-semibold leading-snug text-ink-1">{t(`tr.drill.${d.id}`)}</span>
                                     <span className={cn("shrink-0 text-xs tabular-nums", d.fatigueCost < 0 ? "text-positive" : "text-ink-3")}>
                                         {t("tr.fatigue", { n: d.fatigueCost > 0 ? `+${d.fatigueCost}` : d.fatigueCost === 0 ? "±0" : `−${Math.abs(d.fatigueCost)}` })}
                                     </span>
                                 </span>
                                 <span className="mt-1.5 flex flex-wrap gap-1">
-                                    {d.rewards.map(r => (
-                                        <span key={r.stat} className="rounded-sm bg-shell px-1.5 py-0.5 text-xs text-ink-2">
-                                            +{r.value} {drillStatLabel(r.stat)}
-                                        </span>
-                                    ))}
+                                    {d.rewards.map(r => {
+                                        // SQUAD-03: how many of the drilled players this reward still moves.
+                                        const open = drillPlayers.filter(p => gainsOf(p, [r]).length > 0).length
+                                        const partial = drillPlayers.length > 0 && open < drillPlayers.length
+                                        return (
+                                            <span key={r.stat} className={cn("rounded-sm bg-shell px-1.5 py-0.5 text-xs", open === 0 && drillPlayers.length > 0 ? "text-ink-3" : "text-ink-2")}
+                                                title={partial ? t("tr.belowCeiling", { n: open, total: drillPlayers.length }) : undefined}>
+                                                +{r.value} {drillStatLabel(r.stat)}{partial && <span className="tabular-nums text-ink-3"> · {open}/{drillPlayers.length}</span>}
+                                            </span>
+                                        )
+                                    })}
                                 </span>
                             </button>
                         )
@@ -226,7 +246,7 @@ export default function TrainingPage() {
                                         </td>
                                         <td className="px-3 text-sm">
                                             {retraining
-                                                ? <span className="text-ink-2">{t("tr.retrainingLine", { role: retraining.targetRole.toUpperCase(), done: retraining.weeksCompleted, total: retraining.totalWeeks, cost: formatCurrency(retraining.weeklyCost || 0, "$", false) })}</span>
+                                                ? <span className="text-ink-2">{t("tr.retrainingLine", { role: t(`tr.role.${retraining.targetRole}`), done: retraining.weeksCompleted, total: retraining.totalWeeks, cost: formatCurrency(retraining.weeklyCost || 0, "$", false) })}</span>
                                                 : <span className="text-ink-3"><Trans k="tr.weeklyFocusLine" params={{ focus: focusLabel }} tags={{ b: x => <span className="text-ink-2">{x}</span> }} /></span>}
                                         </td>
                                         <td className="pr-4">
@@ -236,9 +256,18 @@ export default function TrainingPage() {
                                                     <Crosshair size={13} /> {t("tr.weapons")}
                                                 </Button>
                                                 {retraining ? (
-                                                    <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => { cancelRoleTraining(p.id); toast.success(t("tr.cancelled"), { description: t("tr.cancelledBody", { name: p.nickname }) }) }}>
-                                                        {t("tr.stop")}
-                                                    </Button>
+                                                    // SQUAD-20: stopping settles money and loses the weeks done; confirm it.
+                                                    <ConfirmDialog
+                                                        title={t("tr.stopTitle", { name: p.nickname })}
+                                                        description={stopRetrainingText(retraining)}
+                                                        confirmText={t("tr.stop")}
+                                                        destructive
+                                                        onConfirm={() => { cancelRoleTraining(p.id); toast.success(t("tr.cancelled"), { description: t("tr.cancelledBody", { name: p.nickname }) }) }}
+                                                    >
+                                                        <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs">
+                                                            {t("tr.stop")}
+                                                        </Button>
+                                                    </ConfirmDialog>
                                                 ) : (
                                                     <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setTrainingPlayer(p)} disabled={!!p.injury || !!p.secondaryRole}
                                                         title={p.secondaryRole ? t("tr.twoRoles") : p.injury ? t("tr.injured", { type: p.injury.type }) : t("tr.eightWeek")}>

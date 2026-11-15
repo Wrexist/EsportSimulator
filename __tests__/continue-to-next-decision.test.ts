@@ -77,7 +77,7 @@ test("an expiring contract stops the run with its reason; pressing again goes on
 test.each([
     ["injury", (s: GameSave) => { s.players[2].injury = { type: "RSI", name: "Wrist Strain", weeksRemaining: 3 } as never }, "PlayerA3 is injured (Wrist Strain, 3 weeks)"],
     ["offer", (s: GameSave) => { s.eventsLog.push({ id: "off", week: s.currentWeek, type: "TRANSFER_OFFER", acknowledged: false, data: { teamName: "AI Team 2", playerName: "PlayerA4", offerAmount: 90000, expiresWeek: s.currentWeek + 2 }, choices: [] } as never) }, "AI Team 2 bid $90k for PlayerA4"],
-    ["event", (s: GameSave) => { s.eventsLog.push({ id: "ev", week: s.currentWeek, type: "MORALE", acknowledged: false, data: {}, choices: [{ id: "a", text: "Talk", effects: { morale: 3 } }] } as never) }, "Internal Morale needs an answer"],
+    ["event", (s: GameSave) => { s.eventsLog.push({ id: "ev", week: s.currentWeek, type: "MORALE", acknowledged: false, data: {}, choices: [{ id: "a", text: "Talk", effects: { morale: 3 } }] } as never) }, "Decision waiting: A player is unhappy"],
     ["board", (s: GameSave) => { s.newsFeed.unshift({ id: `board_pulse_w${s.currentWeek}_${s.playerTeamId}`, title: "The board is uneasy", content: "", week: s.currentWeek, category: "FINANCE" }) }, "Board review: The board is uneasy"],
 ])("a %s arriving in the week stops the run", async (kind, mutate, reason) => {
     const save = load({ script: { 2: mutate } })

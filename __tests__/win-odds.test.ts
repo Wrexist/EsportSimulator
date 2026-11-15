@@ -20,8 +20,8 @@ describe('win odds', () => {
             ({ managedTeamId: managed, managerMatch, counters, home: { team: { id: 'H' } } }) as never
         const both = { mirage: { ct: true, t: true } }
         const shift = counterShift(ctx('H', both), 'mirage')
-        // At even odds the shift lands exactly on the measured points (CT 5 + T 8).
-        expect(1 / (1 + Math.exp(-shift))).toBeCloseTo(0.63, 5)
+        // At even odds the shift lands exactly on the measured points (CT 5 + T 4).
+        expect(1 / (1 + Math.exp(-shift))).toBeCloseTo(0.59, 5)
         expect(counterShift(ctx('A', both), 'mirage')).toBeCloseTo(-shift, 10)
         expect(counterShift(ctx('H', both), 'inferno')).toBe(0)
         expect(counterShift(ctx('H', undefined), 'mirage')).toBe(0)

@@ -20,7 +20,7 @@ import {
 import type { StoryArc } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL, leadingBeat } from "@/engine/storylines/view"
 import type { StoryArcKind } from "@/engine/storylines/types"
-import { getLocale, listJoin, t, tn } from "@/lib/i18n"
+import { getLocale, intlLocale, listJoin, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { storyKindName } from "@/lib/story-names"
 import { lineText } from "@/lib/news-text"
@@ -142,6 +142,8 @@ export interface ReportStateSource {
     eventsLog?: Array<{ id: string; data?: unknown }>
     /** Phase 5.3: storyline arcs (the headline leads with the week's most important beat). */
     storylines?: StoryArc[]
+    /** Earlier reports: the beat that led the previous one does not lead again (HOME-14). */
+    weekReports?: { history?: Array<Pick<WeekReport, "week" | "teamId" | "story">> } | null
 }
 
 export interface BuildReportInput {
@@ -262,7 +264,8 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
 
     // 7. Phase 5.3: the most important storyline beat of the played week or
     // the tick that closed it.
-    const beat = leadingBeat(state.storylines, teamId, week, state.currentWeek)
+    const previous = state.weekReports?.history?.find(r => r.teamId === teamId && r.week === week - 1)
+    const beat = leadingBeat(state.storylines, teamId, week, state.currentWeek, previous?.story?.text)
     const story = beat ? { kind: beat.arc.kind, label: STORY_KIND_LABEL[beat.arc.kind], text: beat.text, ...(beat.ref ? { ref: beat.ref } : {}) } : undefined
 
     const report: WeekReport = {
@@ -351,10 +354,11 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     return t("wr.h.sentence", { sentence: `${sentence.charAt(0).toUpperCase()}${sentence.slice(1)}` })
 }
 
-/** Delta text: one decimal under 10, whole numbers above. */
+/** Delta text: one decimal under 10, whole numbers above, with the language's decimal mark ("0,2" in German). */
 export function fmtDelta(d: number): string {
     const a = Math.abs(d)
-    return a >= 10 ? String(Math.round(a)) : a >= 1 ? (Math.round(a * 10) / 10).toString() : (Math.round(a * 10) / 10 || Math.round(a * 100) / 100).toString()
+    const shown = a >= 10 ? Math.round(a) : a >= 1 ? Math.round(a * 10) / 10 : (Math.round(a * 10) / 10 || Math.round(a * 100) / 100)
+    return shown.toLocaleString(intlLocale(), { maximumFractionDigits: 2, useGrouping: false })
 }
 
 export function signedDelta(d: number): string {

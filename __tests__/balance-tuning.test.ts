@@ -240,6 +240,10 @@ describe('automatic entry to open qualifiers', () => {
         const mk = (series: string): TournamentSaveData => ({ id: `${series}_s1`, seriesId: series, name: series, tier: 'QUALIFIER', startWeek: 11, endWeek: 12, seasonNumber: 1, teamIds: [], isCompleted: false } as unknown as TournamentSaveData)
         save.tournaments = [mk('copenhagen_rmr_na'), mk('copenhagen_rmr_eu'), mk('iem_katowice_closed_eu')]
         save.tournaments[2].startWeek = 9
+        // A world above the managed club: the top 8 get the Major's direct
+        // invites, so they never play its RMRs (COMP-02).
+        for (let i = 1; i <= 8; i++) save.teams.push({ ...save.teams[1], id: `top_${i}`, name: `Top ${i}`, rosterIds: [], worldRanking: i })
+        save.teams.find(t => t.id === save.playerTeamId)!.worldRanking = 30
         return save
     }
 
@@ -255,6 +259,14 @@ describe('automatic entry to open qualifiers', () => {
         // Idempotent.
         applyAutoRegistration(save, { playerTeamId: save.playerTeamId!, nextId })
         expect(save.tournamentQualifications.filter(q => q.teamId === save.playerTeamId)).toHaveLength(regs.length)
+    })
+
+    test('COMP-02: a club the Major will invite is not entered in its RMRs', () => {
+        const save = withQualifiers()
+        save.teams.find(t => t.id === save.playerTeamId)!.worldRanking = 3
+        save.teams.find(t => t.id === 'top_3')!.worldRanking = 30
+        applyAutoRegistration(save, { playerTeamId: save.playerTeamId!, nextId })
+        expect(save.tournamentQualifications.some(q => q.teamId === save.playerTeamId && q.tournamentId.includes('rmr'))).toBe(false)
     })
 
     test('no qualifier entry while already in the main event, or without a full squad', () => {

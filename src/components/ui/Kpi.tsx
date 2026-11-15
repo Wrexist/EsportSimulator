@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { Children, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 export interface KpiProps {
@@ -15,7 +15,9 @@ export function Kpi({ label, value, hint, className, valueClassName }: KpiProps)
     return (
         <div className={cn("min-w-0", className)}>
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</p>
-            <p className={cn("mt-1 font-display text-[28px] font-bold leading-none tabular-nums text-ink-1", valueClassName)}>{value}</p>
+            {/* Inline children keep the value's one-line height (CROSSCUT-12): a RatingChip's text-3xl
+                brings its own 36px line-height and sat 3-6px below the other KPI values. */}
+            <p className={cn("mt-1 font-display text-[28px] font-bold leading-none tabular-nums text-ink-1 [&>span]:leading-none", valueClassName)}>{value}</p>
             {hint != null && <p className="mt-1 text-xs text-ink-3">{hint}</p>}
         </div>
     )
@@ -25,9 +27,8 @@ export function Kpi({ label, value, hint, className, valueClassName }: KpiProps)
 export function KpiStrip({ children, className }: { children: ReactNode; className?: string }) {
     return (
         <div className={cn("flex items-stretch divide-x divide-line rounded-lg border border-line bg-panel", className)}>
-            {Array.isArray(children)
-                ? children.map((child, i) => <div key={i} className="px-5 py-3">{child}</div>)
-                : <div className="px-5 py-3">{children}</div>}
+            {/* SQUAD-24: conditional KPIs (null/false) get no empty bordered cell. */}
+            {Children.toArray(children).map((child, i) => <div key={i} className="px-5 py-3">{child}</div>)}
         </div>
     )
 }

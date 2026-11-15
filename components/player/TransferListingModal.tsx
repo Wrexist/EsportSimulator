@@ -95,10 +95,12 @@ export function TransferListingModal({ isOpen, onClose, player, overall, estimat
                             onValueChange={vals => setPriceMultiplier(vals[0])}
                             className="py-3"
                             aria-label={t("listing.sliderAria")}
+                            aria-valuetext={formatCurrency(askingPrice)}
                         />
-                        <div className="flex justify-between text-xs tabular-nums text-ink-3">
+                        {/* MARKET-11: "Market value" sits under 100%, a third of the way along 50%-200%. */}
+                        <div className="relative flex justify-between text-xs tabular-nums text-ink-3">
                             <span>50%</span>
-                            <span>{t("listing.market")}</span>
+                            <span className="absolute left-1/3 -translate-x-1/2">{t("listing.market")}</span>
                             <span>200%</span>
                         </div>
 

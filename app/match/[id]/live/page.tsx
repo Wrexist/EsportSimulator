@@ -17,7 +17,7 @@ import { LiveFeedPanel } from "@/components/match/live/LiveFeed"
 import { RoundsPanel } from "@/components/match/live/RoundsPanel"
 import { DecisionCard } from "@/components/match/live/DecisionCard"
 import { RoundEndBanner } from "@/components/match/live/RoundEndBanner"
-import { MomentCallout, type MomentCalloutData } from "@/components/match/live/MomentCallout"
+import type { MomentCalloutData } from "@/components/match/live/MomentCallout"
 import { IntermissionCard, type HalfStat } from "@/components/match/live/IntermissionCard"
 import { CoachCallBanner, CoachCallBar } from "@/components/match/live/CoachCallBar"
 import { ChevronRight } from "lucide-react"
@@ -273,7 +273,7 @@ export default function LiveMatchPage() {
         if (!introReady || !matchData.current) return null
         const { homeTeam, awayTeam, match, canonicalMaps } = matchData.current
         const st = useGameStore.getState()
-        const competition = competitionOf(match, st.tournaments)
+        const competition = competitionOf(match, st.tournaments, st.gameStartDate)
         const h2h = headToHeadOf(st.completedMatches, homeTeam.id, awayTeam.id)
         const context = introContextLine({ home: homeTeam, away: awayTeam, playerTeamId: st.playerTeamId, stage: match.stage, competitionName: competition.name, h2h })
         return { competition, h2h, context, maps: canonicalMaps as string[] }
@@ -366,11 +366,12 @@ export default function LiveMatchPage() {
     const dockPlaying = isWaitingForStrategy ? (isAutoTactics && !decisionHold) : isPlaying
 
     const breakCard = !roundBeat && intermission && (intermission.kind === "halftime" || intermission.kind === "map-end") ? intermission : null
+    // Over the map the card is about (the screen stays on a finished map until the next one starts, MATCHDAY-18).
     const breakStats: HalfStat[] = breakCard ? (() => {
         const count = (side: "home" | "away", types: string[]) => roundHistory.filter(r => r.winner === side && types.includes(r.winType ?? "")).length
-        const pistol = roundHistory.find(r => r.round === (breakCard.kind === "halftime" ? 1 : 13))
+        const pistols = roundHistory.filter(r => r.round === 1 || (breakCard.kind === "map-end" && r.round === 13))
         return [
-            ...(pistol ? [{ label: t("live.stat.pistol"), home: pistol.winner === "home" ? 1 : 0, away: pistol.winner === "away" ? 1 : 0 }] : []),
+            ...(pistols.length ? [{ label: t("live.stat.pistol"), home: pistols.filter(r => r.winner === "home").length, away: pistols.filter(r => r.winner === "away").length }] : []),
             { label: t("live.stat.eliminations"), home: count("home", ["ELIMINATION"]), away: count("away", ["ELIMINATION"]) },
             { label: t("live.stat.bomb"), home: count("home", ["BOMB_EXPLODED", "BOMB_DEFUSE"]), away: count("away", ["BOMB_EXPLODED", "BOMB_DEFUSE"]) },
             { label: t("live.stat.time"), home: count("home", ["TIME"]), away: count("away", ["TIME"]) },
@@ -459,6 +460,7 @@ export default function LiveMatchPage() {
                         isAnimating={isPlaying}
                         currentTime={gameState.time}
                         roundOver={roundOver}
+                        moment={callout}
                         overlay={gameState.status === "FINISHED" && (endBeatDone || !finishedResult)
                             ? (
                                 // In the radar's overlay slot, above the scrubber (not floating over it).
@@ -471,10 +473,10 @@ export default function LiveMatchPage() {
                             : decisionOverlay ?? coachBar}
                         fillHeight
                     />
-                    <MomentCallout callout={callout} />
                     <CoachCallBanner call={coachCalls[coachCalls.length - 1] ?? null} ct={ownCT} />
                     <AnimatePresence>
-                        {roundBeat && <RoundEndBanner key={roundBeat.id} beat={roundBeat} homeName={homeTeam.name} awayName={awayTeam.name} names={names} />}
+                        {/* The round that ends the match has the end beat instead (its own winner line and match MVP, MATCHDAY-04). */}
+                        {roundBeat && gameState.status !== "FINISHED" && <RoundEndBanner key={roundBeat.id} beat={roundBeat} homeName={homeTeam.name} awayName={awayTeam.name} names={names} />}
                     </AnimatePresence>
                     <AnimatePresence>
                         {breakCard && (

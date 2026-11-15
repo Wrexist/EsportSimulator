@@ -57,7 +57,7 @@ test("an injured player stops with name, injury and time out", () => {
 test("an event choice that needs an answer stops", () => {
     const save = base()
     save.eventsLog.push({ id: "ev1", week: 5, type: "MORALE", acknowledged: false, data: { title: "Dressing room" }, choices: [{ id: "a", text: "Talk", effects: { morale: 2 } }] } as never)
-    expect(nextStop(src(save), new Set())).toMatchObject({ kind: "event", reason: "Internal Morale needs an answer" })
+    expect(nextStop(src(save), new Set())).toMatchObject({ kind: "event", reason: "Decision waiting: Dressing room" })
 })
 
 test("a transfer offer stops with club, amount and player", () => {
@@ -106,7 +106,7 @@ test("season end stops when no board review came with it", () => {
 test("untitled decisions get a readable name; several new ones are one stop", () => {
     const save = base()
     save.eventsLog.push({ id: "fan", week: 5, type: "FAN", acknowledged: false, data: { hype: 10 }, choices: [{ id: "a", text: "Host Fan Meetup", effects: { money: -2000 } }] } as never)
-    expect(nextStop(src(save), new Set())).toMatchObject({ kind: "event", reason: "A fan meetup request needs an answer" })
+    expect(nextStop(src(save), new Set())).toMatchObject({ kind: "event", reason: "Decision waiting: Fans want a meetup" })
     save.eventsLog.push({ id: "spon", week: 5, type: "SPONSOR", acknowledged: false, data: {}, choices: [{ id: "b", text: "Negotiate", effects: { reputation: -5 } }] } as never)
     const grouped = nextStop(src(save), new Set())
     expect(grouped).toMatchObject({ kind: "event", reason: "2 decisions need an answer", keys: ["event:fan", "event:spon"] })

@@ -22,6 +22,7 @@ import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { CLAUSE_TUNING } from "@/engine/contract-clauses"
 import { SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
 import { useInboxDrawer } from "./inbox-drawer-store"
+import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
 import { t, tn } from "@/lib/i18n"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
@@ -65,7 +66,8 @@ function OptionButton({ label, chips, blockedReason, onClick, busy }: {
                 <span className="block text-[13px] font-semibold text-ink-1">{label}</span>
                 {blockedReason && <span className="mt-0.5 block text-xs font-medium text-caution">{blockedReason}</span>}
             </span>
-            <Chips chips={chips} />
+            {/* A blocked option's effects aren't on offer: no green money. */}
+            <Chips chips={blockedReason ? chips.map(c => ({ ...c, tone: "neutral" as const })) : chips} />
         </Button>
     )
 }
@@ -126,15 +128,20 @@ export function ChoiceDecision({ event, budget }: { event: GameEventSaveData; bu
 
 /** An AI club bidding for one of your players (`acceptTransferOffer` / reject). */
 export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData; ctx: InboxContext }) {
-    const { acceptTransferOffer, resolveEventChoice, player, playsThisWeek, rosterSize } = useGameStore(useShallow(s => {
+    const { acceptTransferOffer, resolveEventChoice, player, matchDay, rosterSize, gameStartDate, currentWeek } = useGameStore(useShallow(s => {
         const data = (event.data ?? {}) as AnyData
+        // The store refuses a sale while this week's match is unplayed (acceptTransferOffer).
+        const days = s.scheduledMatches
+            .filter(m => m.week === s.currentWeek && !m.result && (m.homeTeamId === s.playerTeamId || m.awayTeamId === s.playerTeamId))
+            .map(m => m.day ?? 6)
         return {
             acceptTransferOffer: s.acceptTransferOffer,
             resolveEventChoice: s.resolveEventChoice,
             player: s.players.find(p => p.id === data.playerId),
             rosterSize: s.teams.find(t => t.id === s.playerTeamId)?.rosterIds.length ?? 0,
-            playsThisWeek: s.scheduledMatches.some(m =>
-                m.week === s.currentWeek && !m.result && (m.homeTeamId === s.playerTeamId || m.awayTeamId === s.playerTeamId)),
+            matchDay: days.length > 0 ? Math.max(...days) : null,
+            gameStartDate: s.gameStartDate,
+            currentWeek: s.currentWeek,
         }
     }))
     const data = (event.data ?? {}) as AnyData
@@ -142,7 +149,8 @@ export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData
     const fee = typeof data.offerAmount === "number" ? data.offerAmount : 0
     const acceptBlocked = !player?.forSale
         ? t("ib.bid.notListed")
-        : playsThisWeek ? t("ib.bid.playsThisWeek")
+        // MARKET-08: say when the sale opens (after this week's last match).
+        : matchDay !== null ? t("ib.bid.playsThisWeek", { day: formatGameCalendarDate(gameCalendarDate(gameStartDate, currentWeek, matchDay), { weekday: "long" }) })
             // SQUAD-04: the same quorum the store enforces (transferPlayer).
             : rosterSize <= SENIOR_ROSTER_MIN ? t("player.releaseBlock.min", { min: SENIOR_ROSTER_MIN }) : undefined
 

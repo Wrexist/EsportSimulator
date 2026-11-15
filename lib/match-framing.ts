@@ -6,11 +6,13 @@ import { t } from "@/lib/i18n"
  */
 import { leagueDivisionLabel, leagueStageLabel } from "@/components/league/league-view"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { matchEventName } from "@/lib/tournament-instances"
 
 interface FixtureLike {
     id: string
     tournamentId?: string | null
     stage?: string | null
+    week?: number
 }
 
 export interface CompetitionFraming {
@@ -23,7 +25,8 @@ export interface CompetitionFraming {
     kind: "league" | "tournament" | "friendly"
 }
 
-export function competitionOf(match: FixtureLike, tournaments: ReadonlyArray<{ id: string; name: string; tier?: string }> = []): CompetitionFraming {
+/** `gameStartDate` dates a calendar name ("… 2025") to the match when the event is not saved yet. */
+export function competitionOf(match: FixtureLike, tournaments: ReadonlyArray<{ id: string; name: string; tier?: string }> = [], gameStartDate?: string | null): CompetitionFraming {
     const leagueStage = leagueStageLabel(match)
     if (leagueStage) {
         const division = leagueDivisionLabel(match) ?? t("intro.regionalLeague")
@@ -34,5 +37,5 @@ export function competitionOf(match: FixtureLike, tournaments: ReadonlyArray<{ i
     if (!tid || tid === "SCRIM") return { name: match.stage?.trim() ? stageName(match.stage.trim()) : t("intro.friendly"), kind: "friendly" }
     const live = tournaments.find(t => t.id === tid)
     const def = FULL_TOURNAMENT_CALENDAR.find(t => t.id === tid.replace(/_s\d+$/, "") || t.id === tid)
-    return { name: live?.name ?? def?.name ?? t("intro.tournament"), tier: live?.tier ?? def?.tier, stage: match.stage ? stageName(match.stage) : undefined, kind: "tournament" }
+    return { name: matchEventName(live?.name, def?.name, tid, match.week ?? 1, gameStartDate) ?? t("intro.tournament"), tier: live?.tier ?? def?.tier, stage: match.stage ? stageName(match.stage) : undefined, kind: "tournament" }
 }

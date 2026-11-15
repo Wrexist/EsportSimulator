@@ -38,6 +38,29 @@ describe("storedText", () => {
         expect(storedText("TRAINING Facility — Upgrade to Level 3")).toBe("Leistungszentrum: Ausbau auf Stufe 3")
     })
 
+    test("SQUAD-26: squad-area ledger lines read in English and translate, old and new forms", () => {
+        const build = tRefEn({ key: "svd.p.facilityBuild", params: { facility: { key: "fac.TRAINING.name" } } })
+        const upgrade = tRefEn({ key: "svd.p.facilityUpgrade", params: { facility: { key: "fac.TRAINING.name" }, level: 2 } })
+        const gear = tRefEn({ key: "svd.p.equipment", params: { item: { key: "gear.item.mouse_t1" } } })
+        const role = tRefEn({ key: "svd.p.roleTraining", params: { name: "glib86rus", role: { key: "tr.role.entry" } } })
+        const drill = tRefEn({ key: "svd.p.weaponDrill", params: { drill: { key: "tr.w.drill.PISTOL_HEADSHOTS" }, name: "glib86rus" } })
+        expect([build, gear, role, drill]).toEqual([
+            "Performance Center: construction",
+            "Equipment purchase: Standard Gaming Mouse",
+            "Role training: glib86rus → Entry fragger",
+            "Weapon drill: Pistol Precision (glib86rus)",
+        ])
+        expect(storedText(build)).toBe(build)
+        setLocale("de")
+        expect(storedText(build)).toBe(de["svd.p.facilityBuild"].replace("{{facility}}", de["fac.TRAINING.name"]))
+        expect(storedText(upgrade)).toBe(storedText("TRAINING Facility — Upgrade to Level 2"))
+        expect(storedText(gear)).toBe(de["svd.p.equipment"].replace("{{item}}", de["gear.item.mouse_t1"]))
+        expect(storedText("Equipment purchase: mouse_t1")).toBe(storedText(gear))
+        expect(storedText(role)).toBe(de["svd.p.roleTraining"].replace("{{name}}", "glib86rus").replace("{{role}}", de["tr.role.entry"]))
+        expect(storedText("Role training: glib86rus → entry")).toBe(storedText(role))
+        expect(storedText(drill)).toBe(de["svd.p.weaponDrill"].replace("{{drill}}", de["tr.w.drill.PISTOL_HEADSHOTS"]).replace("{{name}}", "glib86rus"))
+    })
+
     test("unknown text stays as written", () => {
         setLocale("de")
         expect(storedText("Something the engine never wrote")).toBe("Something the engine never wrote")

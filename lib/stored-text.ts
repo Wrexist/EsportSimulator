@@ -14,7 +14,7 @@
  */
 
 import { EN } from "@/locales/en"
-import { getLocale, liveTextRef, ordinalLabel, setStoredTextResolver, t, tn, tRef } from "@/lib/i18n"
+import { formatDecimal, getLocale, intlLocale, liveTextRef, ordinalLabel, setStoredTextResolver, t, tn, tRef } from "@/lib/i18n"
 import { divisionName, stageName } from "@/lib/display-names"
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string]
@@ -77,6 +77,9 @@ const RULES: Rule[] = [
     [/^Youth Academy — Upgrade to Level (\d+)$/, m => t("svd.p.academyUpgrade", { level: m[1] })],
     [/^(\w+) Facility — Upgrade to Level (\d+)$/, m => t("svd.p.facilityUpgrade", { facility: known(`fac.${m[1]}.name`, m[1]), level: m[2] })],
     [/^(\w+) Facility — Construction$/, m => t("svd.p.facilityBuild", { facility: known(`fac.${m[1]}.name`, m[1]) })],
+    // SQUAD-26: rows since then keep the English the key gives ("Performance Center: construction").
+    [/^(.+): upgrade to level (\d+)$/, m => t("svd.p.facilityUpgrade", { facility: segment(m[1]), level: m[2] })],
+    [/^(.+): construction$/, m => t("svd.p.facilityBuild", { facility: segment(m[1]) })],
     [/^Activity income: (.+)$/, m => t("svd.p.activityIncome", { name: segment(m[1]) })],
     [/^Activity: (.+)$/, m => t("svd.p.activity", { name: segment(m[1]) })],
     [/^Booked: (.+)$/, m => t("svd.p.booked", { name: segment(m[1]) })],
@@ -87,9 +90,10 @@ const RULES: Rule[] = [
     [/^Title contract bonus \((.+)\): (.+)$/, m => t("svd.p.titleBonus", { tournament: m[1], name: m[2] })],
     [/^Board backing — exceptional season$/, () => t("svd.p.boardBackingExceptional")],
     [/^Board backing — successful season$/, () => t("svd.p.boardBackingSuccessful")],
-    [/^Role training: (.+) → (\w+)$/, m => t("svd.p.roleTraining", { name: m[1], role: known(`market.role.${m[2]}`, m[2]) })],
+    [/^Role training: (.+) → (.+)$/, m => t("svd.p.roleTraining", { name: m[1], role: known(`market.role.${m[2]}`, known(`tr.role.${m[2]}`, segment(m[2]))) })],
     [/^Role training cancelled — refund: (.+)$/, m => t("svd.p.roleTrainingRefund", { name: m[1] })],
-    [/^Equipment purchase: (.+)$/, m => t("svd.p.equipment", { item: m[1] })],
+    [/^Equipment purchase: (.+)$/, m => t("svd.p.equipment", { item: known(`gear.item.${m[1]}`, segment(m[1])) })],
+    [/^Weapon drill: (.+) \((.+)\)$/, m => t("svd.p.weaponDrill", { drill: segment(m[1]), name: m[2] })],
     [/^(.+) - (\d+)(?:st|nd|rd|th) Place$/, m => t("svd.p.placement", { tournament: m[1], place: ordinalLabel(Number(m[2])) })],
     [/^(.+) split (\S+) prize: (\d+)(?:st|nd|rd|th) place$/, m => t("svd.p.splitPrize", { division: m[1], split: m[2], place: ordinalLabel(Number(m[3])) })],
     // Board confidence causes (engine/board-expectations.ts) and objectives
@@ -113,10 +117,25 @@ const RULES: Rule[] = [
     [/^Beat (.+)$/, m => t("svd.p.beatTeam", { opp: m[1] })],
     [/^Lost to (.+)$/, m => t("svd.p.lostToTeam", { opp: m[1] })],
     [/^Won (.+)$/, m => t("svd.p.wonEvent", { event: m[1] })],
+    // Career milestones, eliminations and manager levels saved before they carried translation keys
+    [/^(\d+) career wins!$/, m => tn("evn.ms.wins", Number(m[1]))],
+    [/^(\d+) trophies in the cabinet!$/, m => tn("evn.ms.trophies", Number(m[1]))],
+    [/^([\d,]+) team kills!$/, m => countLine("evn.ms.kills", Number(m[1].replace(/,/g, "")))],
+    [/^([\d.]+)(k|M) followers reached!$/, m => countLine("evn.ms.followers", Math.round(Number(m[1]) * (m[2] === "M" ? 1_000_000 : 1_000)))],
+    [/^(\d+)-match win streak!$/, m => tn("evn.ms.streak", Number(m[1]))],
+    [/^Tournament Elimination$/, () => t("evn.elim.t")],
+    [/^Your team has been eliminated from (.+?)\.?$/, m => t("evn.elim.m", { event: m[1] })],
+    [/^Manager leveled up to Level (\d+)!$/, m => t("evn.mgrLevel.m", { level: m[1] })],
+    // Ledger: the league payment names its division; ranking causes name the competition and its weight
+    [/^League central payment \((.+)\)$/, m => t("svd.p.leaguePayment", { division: divisionName(m[1]) })],
+    [/^(.+) \((League|Qualifier|([SABC])-Tier)( playoffs)?\)$/, m => {
+        const kind = m[3] ? t(`common.tier.${m[3]}_TIER`) : m[2] === "League" ? t("svd.league") : t("svd.cmp.qualifier")
+        return `${segment(m[1])} (${m[4] ? t("svd.cmp.playoffs", { tier: kind }) : kind})`
+    }],
     // "Unhappy player (ace)": a label with a name in brackets.
     [/^(.+) \(([^()]+)\)$/, m => `${segment(m[1])} (${m[2]})`],
     // "AWP +0.3", "Leader +10%": a label with a signed number.
-    [/^(.+?) ([+−-][\d.]+%?)$/, m => `${segment(m[1])} ${m[2]}`],
+    [/^(.+?) ([+−-][\d.]+%?)$/, m => `${segment(m[1])} ${localNumber(m[2])}`],
 ]
 
 const LEAGUE_STATE: Record<string, string> = { "On track": "onTrack", "Behind target": "behind", "League objective met": "met", "League objective missed": "missed" }
@@ -132,6 +151,16 @@ function others(rest: string): string {
         if (behind) return t("svd.p.droppedBehind", { names: behind[1] })
         return bit
     }).join("; ")
+}
+
+/** "+0.2" with the active language's decimal separator ("+0,2"). */
+function localNumber(signed: string): string {
+    return signed.replace(/\d+\.\d+/, d => formatDecimal(Number(d), d.split(".")[1].length))
+}
+
+/** A plural line whose {{n}} is the count with the language's digit grouping. */
+function countLine(key: string, n: number): string {
+    return tn(key, n, { n: n.toLocaleString(intlLocale()) })
 }
 
 /** A key's text when the key exists, else the fallback. */

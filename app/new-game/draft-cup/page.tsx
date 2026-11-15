@@ -8,13 +8,13 @@ import { intlLocale, t, tn } from "@/lib/i18n"
  */
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useShallow } from "zustand/react/shallow"
 import { ArrowLeft, Check, Loader2, RefreshCw } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-career-draft"
 import { buildDraftCupWorld } from "@/lib/draft-cup-world"
+import { clearDraftCupBoard, dealFitsWorld, loadDraftCupBoard, saveDraftCupBoard } from "@/lib/draft-cup-board"
 import {
     buildDraftPool, clubStrength, draftSpent, pickCupField,
     DRAFT_BUDGET, DRAFT_CUP_DIFFICULTIES, DRAFT_CUP_DIFFICULTY, DRAFT_REROLLS, DRAFT_ROLES,
@@ -33,6 +33,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { toast } from "@/lib/toast"
 import { debug } from "@/lib/debug-logger"
 import { cn } from "@/lib/utils"
+import { goBackOr } from "@/lib/navigation-back"
 
 const SWATCHES = PRESET_COLORS.slice(0, 8)
 
@@ -59,8 +60,63 @@ export default function DraftCupPage() {
     const dealsRef = useRef<Partial<Record<DraftCupDifficulty, { opponentIds: string[]; pool: DraftPool; picks: Picks }>>>({})
     const [busy, setBusy] = useState<null | "world" | "start">(null)
     const startingRef = useRef(false)
+    /** Seed of the world the pool is dealt from: kept with the board, so a reload rebuilds the same players. */
+    const [worldSeed, setWorldSeed] = useState(() => generateSeed())
+    /** The stored board has been read (nothing is written over it before that). */
+    const [restored, setRestored] = useState(false)
 
-    useEffect(() => { setManagerName(loadCareerDraft()?.managerName ?? "") }, [])
+    // A reload reopens the setup or the draft board where the player left it.
+    useEffect(() => {
+        let cancelled = false
+        const board = loadDraftCupBoard()
+        if (!board) {
+            setManagerName(loadCareerDraft()?.managerName ?? "")
+            setRestored(true)
+            return
+        }
+        setManagerName(board.managerName || (loadCareerDraft()?.managerName ?? ""))
+        setTeamName(board.teamName)
+        setShortName(board.shortName)
+        setSwatch(board.swatch)
+        setDifficulty(board.difficulty)
+        setRerolls(board.rerolls)
+        setWorldSeed(board.worldSeed)
+        const stored = board.deal
+        // The deal comes back on the setup step too, so a reload is never a free new pool.
+        if (!stored) { setRestored(true); return }
+        setBusy("world")
+        buildDraftCupWorld(board.worldSeed).then(w => {
+            if (cancelled) return
+            setWorld(w)
+            if (dealFitsWorld(stored, new Set(w.players.map(p => p.id)), new Set(w.teams.map(tm => tm.id)))) {
+                const picked: Picks = {}
+                for (const role of DRAFT_ROLES) {
+                    const option = stored.pool[role].find(o => o.playerId === stored.picks[role])
+                    if (option) picked[role] = option
+                }
+                setOpponentIds(stored.opponentIds)
+                setPool(stored.pool)
+                setPicks(picked)
+                setDealtFor(stored.difficulty)
+                setStep(board.step)
+            }
+        }).catch(err => {
+            debug.error("Draft Cup world failed:", err)
+        }).finally(() => {
+            if (cancelled) return
+            setBusy(null)
+            setRestored(true)
+        })
+        return () => { cancelled = true }
+    }, [])
+
+    useEffect(() => {
+        if (!restored || startingRef.current) return
+        saveDraftCupBoard({
+            version: 1, step, worldSeed, managerName, teamName, shortName, swatch, difficulty, rerolls,
+            ...(pool && dealtFor ? { deal: { difficulty: dealtFor, opponentIds, pool, picks: Object.fromEntries(DRAFT_ROLES.filter(r => picks[r]).map(r => [r, picks[r]!.playerId])) } } : {}),
+        })
+    }, [restored, step, worldSeed, managerName, teamName, shortName, swatch, difficulty, rerolls, pool, dealtFor, opponentIds, picks])
 
     const playersById = useMemo(() => new Map((world?.players ?? []).map(p => [p.id, p])), [world])
     const teamsById = useMemo(() => new Map((world?.teams ?? []).map(tm => [tm.id, tm])), [world])
@@ -88,7 +144,7 @@ export default function DraftCupPage() {
         if (!nameOk || busy) return
         setBusy("world")
         try {
-            const w = world ?? await buildDraftCupWorld()
+            const w = world ?? await buildDraftCupWorld(worldSeed)
             setWorld(w)
             // A new difficulty needs a new field; the reroll count carries over.
             // A difficulty dealt before gets its old deal back (no free reroll).
@@ -143,6 +199,7 @@ export default function DraftCupPage() {
             await initializeNewGame(managerName.trim(), world.playerTeamId, undefined, { draftCup: { world: structuredClone(world), setup } })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
+            clearDraftCupBoard()
             // Replace: Back/Escape from Home must not reopen the draft (START-05).
             router.replace("/")
         } catch (err) {
@@ -155,10 +212,11 @@ export default function DraftCupPage() {
 
     if (step === "setup") {
         return (
-            <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8">
-                <Link href="/new-game" onClick={() => saveCareerDraft({ step: "welcome" })} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
-                    <ArrowLeft size={16} /> {t("dc.newGame")}
-                </Link>
+            <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8 [@media(max-height:800px)]:gap-4 [@media(max-height:800px)]:py-6">
+                {/* START-40: back to where the player came from (main menu or New career), never out of the app. */}
+                <button type="button" onClick={() => { saveCareerDraft({ step: "welcome" }); clearDraftCupBoard(); goBackOr(router, "/main-menu") }} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
+                    <ArrowLeft size={16} /> {t("ng.back")}
+                </button>
                 <ScreenHeader eyebrow={t("dc.step1")} title={t("dc.title")}
                     subtitle={t("dc.subtitle", { budget: DRAFT_BUDGET })} />
 
@@ -211,7 +269,8 @@ export default function DraftCupPage() {
 
                 <div className="flex items-center justify-between gap-4">
                     <p className="text-xs text-ink-3">{t("dc.ownSave")}</p>
-                    <Button onClick={startDraft} disabled={!nameOk || !!busy} aria-busy={busy === "world" || undefined} className="h-12 px-6 font-display text-xl font-bold tracking-[0.04em]">
+                    {!nameOk && <p className="ml-auto text-right text-xs text-caution">{t("dc.namesShort")}</p>}
+                    <Button onClick={startDraft} disabled={!nameOk || !!busy || !restored} aria-busy={busy === "world" || undefined} className="h-12 px-6 font-display text-xl font-bold tracking-[0.04em]">
                         {busy === "world" ? <><Loader2 className="animate-spin" /> {t("dc.building")}</> : t("dc.startDraft")}
                     </Button>
                 </div>
@@ -269,7 +328,11 @@ export default function DraftCupPage() {
                                                         <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("common.ovr")}</span>
                                                         <span className="font-display text-2xl font-bold leading-none tabular-nums text-ink-1">{o.overall}</span>
                                                     </span>
-                                                    <span className={cn("rounded px-1.5 py-0.5 text-sm font-bold tabular-nums", selected ? "bg-gold text-ink" : "bg-raised text-ink-1")}>{o.price}</span>
+                                                    {/* MODES-15: the chip is the price in draft points; say so. */}
+                                                    <span title={t("dc.priceHint")} className="text-right">
+                                                        <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dc.price")}</span>
+                                                        <span className={cn("rounded px-1.5 py-0.5 text-sm font-bold tabular-nums", selected ? "bg-gold text-ink" : "bg-raised text-ink-1")}>{o.price}</span>
+                                                    </span>
                                                 </span>
                                             </button>
                                         </li>
@@ -280,8 +343,9 @@ export default function DraftCupPage() {
                     ))}
                 </div>
 
-                <aside className="flex min-h-0 flex-col gap-4">
-                    <Panel title={teamName} actions={<span className="text-xs text-ink-3">{shortName}</span>}>
+                {/* START-41: the opponents keep about four rows; on a short window the column scrolls. */}
+                <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto">
+                    <Panel className="shrink-0" title={teamName} actions={<span className="text-xs text-ink-3">{shortName}</span>}>
                         <div>
                             <div className="flex items-baseline justify-between">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dc.budget")}</span>
@@ -306,7 +370,7 @@ export default function DraftCupPage() {
                         </p>
                     </Panel>
 
-                    <Panel title={t("dc.opponents")} padded={false} className="min-h-0 flex-1 overflow-hidden" bodyClassName="max-h-full overflow-y-auto">
+                    <Panel title={t("dc.opponents")} padded={false} className="min-h-[200px] flex-1 overflow-hidden" bodyClassName="max-h-full overflow-y-auto">
                         <ul>
                             {opponentIds.map(id => {
                                 const club = teamsById.get(id)
@@ -322,7 +386,7 @@ export default function DraftCupPage() {
                         </ul>
                     </Panel>
 
-                    <Button onClick={startCup} disabled={!complete || !!busy} aria-busy={busy === "start" || undefined} className="h-12 w-full font-display text-xl font-bold tracking-[0.04em]">
+                    <Button onClick={startCup} disabled={!complete || !!busy} aria-busy={busy === "start" || undefined} className="h-12 w-full shrink-0 font-display text-xl font-bold tracking-[0.04em]">
                         {busy === "start" ? <><Loader2 className="animate-spin" /> {t("ng.starting")}</> : complete ? t("dc.startCup") : t("dc.pickMore", { n: DRAFT_ROLES.length - pickList.length })}
                     </Button>
                 </aside>

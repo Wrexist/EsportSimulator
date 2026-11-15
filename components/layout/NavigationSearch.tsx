@@ -2,18 +2,27 @@
 
 import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Search, ArrowUpRight } from "lucide-react"
+import { Search, ArrowUpRight, FileText } from "lucide-react"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
 import { menuGroupsFor, navLabel, settingsItem } from "@/lib/navigation"
 import { t } from "@/lib/i18n"
 import { useLocale } from "@/lib/use-locale"
+import { useGameStore } from "@/store/game-store"
+import { screenSearchFilter } from "@/lib/search-filter"
 
-export function NavigationSearch({ compact = false, disabled, pro = false }: { compact?: boolean; disabled: boolean; pro?: boolean }) {
+export function NavigationSearch({ compact = false, disabled, pro = false, draftCup = false, betweenClubs = false }: { compact?: boolean; disabled: boolean; pro?: boolean; draftCup?: boolean; betweenClubs?: boolean }) {
     useLocale() // re-render on a language change
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
+    // The latest weekly report, offered as a command (HOME-10).
+    const reportWeek = useGameStore(s => s.weekReports?.history?.[0]?.week ?? null)
+    const openWeekReport = useGameStore(s => s.openWeekReport)
+    // macOS keyboards show the Command key; others the localized Ctrl ("Strg" in German).
+    const [mac, setMac] = useState(false)
+    useEffect(() => setMac(/Mac|iPhone|iPad/.test(navigator.platform)), [])
+    const shortcut = mac ? "⌘ K" : `${t("key.ctrl")} K`
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
@@ -43,21 +52,23 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
         >
             <Search size={15} className="shrink-0" />
             <span className={compact ? "hidden text-xs @min-[110rem]/topbar:inline" : "flex-1 text-left text-xs"}>{t("search.open")}</span>
-            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 @min-[110rem]/topbar:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>Ctrl K</kbd>
+            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 @min-[110rem]/topbar:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>{shortcut}</kbd>
         </button>
         </DialogTrigger>
             <DialogContent className="overflow-hidden p-0 sm:max-w-lg" showCloseButton={false}>
                 <DialogTitle className="sr-only">{t("search.title")}</DialogTitle>
                 <DialogDescription className="sr-only">{t("search.description")}</DialogDescription>
-                <Command className="bg-transparent">
-                    <CommandInput aria-label={t("search.inputLabel")} placeholder={t("search.placeholder")} className="h-14 focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
+                {/* Word-prefix matching, and the focus line on the whole input row
+                    (icon included) instead of a clipped ring on the bare input (HOME-10). */}
+                <Command filter={screenSearchFilter} className="bg-transparent [&_[data-slot=command-input-wrapper]]:h-14 [&_[data-slot=command-input-wrapper]]:border-line [&_[data-slot=command-input-wrapper]:focus-within]:border-b-gold">
+                    <CommandInput aria-label={t("search.inputLabel")} placeholder={t("search.placeholder")} className="h-14 focus-visible:outline-none! focus-visible:shadow-none!" />
                     <CommandList className="max-h-[min(55vh,420px)] p-2" aria-busy={isPending}>
                         <CommandEmpty>{t("search.empty")}</CommandEmpty>
-                        {[...menuGroupsFor(pro), { key: "search.preferences", label: "Preferences", items: [settingsItem] }].map(group =>
+                        {[...menuGroupsFor(pro, draftCup, betweenClubs), { key: "search.preferences", label: "Preferences", items: [settingsItem] }].map(group =>
                             <CommandGroup key={group.key} heading={navLabel(group)}>
                                 {group.items.map(item => <CommandItem
                                     key={item.href}
-                                    value={`${navLabel(group)} ${navLabel(item)}`}
+                                    value={`${navLabel(item)} · ${navLabel(group)}`}
                                     keywords={item.keywords?.split(" ")}
                                     onSelect={() => {
                                         if (disabled) return
@@ -66,6 +77,22 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
                                     }}
                                     className="gap-3 rounded px-3 py-2.5 text-ink-2 data-[selected=true]:bg-hover data-[selected=true]:text-ink-1"
                                 ><item.icon size={16} /><span className="flex-1">{navLabel(item)}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>)}
+                            </CommandGroup>
+                        )}
+                        {reportWeek != null && (
+                            <CommandGroup heading={t("lastWeek.title")}>
+                                <CommandItem
+                                    value={`${t("wr.toastTitle", { week: reportWeek })} · ${t("lastWeek.title")}`}
+                                    keywords={["weekly", "report", "summary", "results"]}
+                                    onSelect={() => {
+                                        if (disabled) return
+                                        setOpen(false)
+                                        // After this key event: the report closes on Enter, and its
+                                        // key listener would otherwise get the Enter that picked it.
+                                        window.setTimeout(() => openWeekReport(reportWeek), 0)
+                                    }}
+                                    className="gap-3 rounded px-3 py-2.5 text-ink-2 data-[selected=true]:bg-hover data-[selected=true]:text-ink-1"
+                                ><FileText size={16} /><span className="flex-1">{t("wr.toastTitle", { week: reportWeek })}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>
                             </CommandGroup>
                         )}
                     </CommandList>

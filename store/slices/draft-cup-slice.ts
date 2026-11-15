@@ -10,6 +10,7 @@ import { draftCupOutcome } from "@/engine/draft-cup"
 import { updateStandings } from "@/engine/processors/standings-processor"
 import type { GameSave } from "@/engine/save-types"
 import { recordDraftCupRun } from "@/lib/draft-cup-runs"
+import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 
 export interface DraftCupActions {
     /** Stores the finished run's outcome on the save (idempotent); false while the run is still going. */
@@ -32,6 +33,9 @@ export const createDraftCupSlice: SliceCreator<DraftCupActions> = (set, get) => 
             updateStandings(s as unknown as GameSave, undefined, undefined, undefined, cup.tournamentId)
             if (s.draftCup) s.draftCup = { ...s.draftCup, result: { ...outcome, finishedWeek: s.currentWeek } }
         })
+        // No week tick follows the final, so the cup's title counts for
+        // the achievements here ("Champion", MODES-03).
+        try { evaluatePostTickAchievements(get() as unknown as GameSave) } catch { /* achievements never block the result */ }
         recordDraftCupRun({
             saveId: state.saveId ?? "",
             teamName: team?.name ?? "Draft side",

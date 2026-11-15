@@ -7,13 +7,16 @@
  *   3. Post-match headlines for completed matches from last week (max 2)
  *   4. Transfer rumors (15% per week, week > 4, expiring contracts)
  *   5. Rivalry storylines for Top-10 vs Top-10 matchups (50% chance)
- *   6. Player milestone celebrations (10% chance per week, 500/1000/2500 kill marks)
+ *   6. Player milestone celebrations (10% chance per week, 500/1000/2500 official kill marks, once each)
  *
  * The season recap is the season review moment, queued when the week tick
  * closes the season (atomic-week-processor, Phase 5.4b).
  *
  * All randomness is fed through the supplied SeededRNG so the news stream
  * is deterministic and replayable.
+ *
+ * Every item is written with translation keys (lib/news-ref newsText): the
+ * save keeps the English and the feed shows the active language.
  *
  * Extracted from atomic-week-processor.ts. Surface area unchanged.
  */
@@ -23,6 +26,9 @@ import type { SeededRNG } from "../rng"
 import type { SaveIndexes } from "@/store/indexes"
 import { getMatchTone } from "@/lib/match-stakes"
 import { finalPreview } from "../storylines/narrative"
+import { LIST_REF, type TextParam, type TextRef } from "@/lib/i18n"
+import { divisionRef, newsText } from "@/lib/news-ref"
+import { sideScore } from "@/lib/week-changes"
 
 export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
     // 1. Monthly Power Rankings
@@ -32,8 +38,10 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             const topTeam = topTeams[0]
             save.newsFeed.unshift({
                 id: `monthly_ranking_${save.currentWeek}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                title: `Pro Power Rankings: ${topTeam.name} Top!`,
-                content: `In this month's official power rankings, ${topTeam.name} secures the #1 spot globally. Current top 5: ${topTeams.map(t => t.name).join(', ')}.`,
+                ...newsText(
+                    { key: "nw.power.t", params: { team: topTeam.name } },
+                    { key: "nw.power.c", params: { team: topTeam.name, list: { key: LIST_REF, params: Object.fromEntries(topTeams.map((t, i) => [`t${i}`, t.name])) } } },
+                ),
                 category: "ACHIEVEMENT",
                 teamId: topTeam.id,
                 week: save.currentWeek,
@@ -58,11 +66,10 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 ?? save.tournaments.find(t => t.id === finalsMatch.tournamentId)
             // Phase 5.3: the line comes from the club's active storyline (or
             // its real form), not a canned quote.
-            const preview = finalPreview(save, playerTeam, finalsMatch, tournament?.name || "event")
+            const preview = finalPreview(save, playerTeam, finalsMatch, tournament?.name || { key: "nw.final.anEvent" })
             save.newsFeed.unshift({
                 id: `match_preview_${finalsMatch.id}`,
-                title: preview.title,
-                content: preview.content,
+                ...preview,
                 category: "MATCH",
                 teamId: playerTeam.id,
                 week: save.currentWeek,
@@ -114,25 +121,32 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             }
 
             // Winner's score first: the sentence reads "winner defeats loser" (HOME-03).
+            // A single map reads in rounds (13–8), as on the result screen (HOME-07).
             const winnerIsHome = winner.id === match.homeTeamId
-            const scoreLine = winnerIsHome ? `${homeScore}-${awayScore}` : `${awayScore}-${homeScore}`
-            const competition = tournament?.name
-                || (match.tournamentId.startsWith("league_") ? (match.stage?.split(" · ")[0]?.trim() || "the regional league") : "tournament play")
+            const scoreLine = match.result.maps?.length === 1
+                ? sideScore(match.result, winnerIsHome)
+                : winnerIsHome ? `${homeScore}–${awayScore}` : `${awayScore}–${homeScore}`
+            const division = match.stage?.split(" · ")[0]?.trim()
+            const competition: TextParam = tournament?.name
+                || (match.tournamentId.startsWith("league_") ? (division ? divisionRef(division) : { key: "nw.head.regionalLeague" }) : { key: "nw.head.tournamentPlay" })
             const isUpset = (loser?.elo || 0) > (winner?.elo || 0) + 100
 
-            const headlines = isUpset
-                ? [`UPSET! ${winner.name} Shocks ${loser.name}`, `${winner.name} Pulls Off Miracle Run`]
-                : [`${winner.name} Dominates ${loser.name}`, `Clinical Win for ${winner.name}`]
+            const names = { winner: winner.name, loser: loser.name }
+            const headlines: TextRef[] = isUpset
+                ? [{ key: "nw.head.upset", params: names }, { key: "nw.head.miracle", params: names }]
+                : [{ key: "nw.head.dominates", params: names }, { key: "nw.head.clinical", params: names }]
 
+            const id = `headline_${match.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`
+            const title = headlines[Math.floor(rng.next() * headlines.length)]
             save.newsFeed.unshift({
-                id: `headline_${match.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                title: headlines[Math.floor(rng.next() * headlines.length)],
-                content: `${winner.name} defeats ${loser.name} ${scoreLine} in ${competition}. ${isUpset ? 'A stunning upset that nobody saw coming!' : 'A well-deserved victory.'}`,
+                id,
+                ...newsText(title, { key: isUpset ? "nw.head.cUpset" : "nw.head.cWon", params: { ...names, score: scoreLine, event: competition } }),
                 category: "MATCH",
                 teamId: winner.id,
                 matchId: match.id,
-                // Dated to the match's week, not the tick that wrote it (HOME-03).
+                // Dated to the match's week and day, not the tick that wrote it (HOME-03, HOME-07).
                 week: match.week,
+                ...(typeof match.day === "number" ? { day: match.day } : {}),
                 engagement: { likes: 500 + Math.floor(rng.next() * 1500), views: 8000 + Math.floor(rng.next() * 12000) },
             })
         }
@@ -178,53 +192,26 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 const isVeteran = player.age >= 28
                 const isStar = (player.totalMVPs ?? 0) >= 5 || (player.majorWins ?? 0) >= 1
 
-                const titlePool: string[] = [
-                    `RUMOR: ${rumoredTeam.name} eyes ${player.nickname}`,
-                    `Transfer Watch: ${player.nickname} linked with move`,
-                    `${rumoredTeam.name} in talks with ${player.nickname}?`,
-                    `${player.nickname} on the move? ${rumoredTeam.name} circling.`,
-                    `Sources: ${rumoredTeam.name} prepping an offer for ${player.nickname}`,
-                ]
-                if (isHotForm) {
-                    titlePool.push(
-                        `Hot streak draws interest: ${rumoredTeam.name} watching ${player.nickname}`,
-                        `${player.nickname}'s form sparks bidding war`,
-                    )
-                }
-                if (isVeteran) {
-                    titlePool.push(
-                        `${rumoredTeam.name} eye veteran signing in ${player.nickname}`,
-                        `One last contract? ${player.nickname} linked with ${rumoredTeam.name}`,
-                    )
-                }
-                if (isStar) {
-                    titlePool.push(
-                        `BLOCKBUSTER: ${rumoredTeam.name} chasing star ${player.nickname}`,
-                        `${player.nickname} to ${rumoredTeam.name}? "Everything is possible," says agent`,
-                    )
-                }
+                const who = { team: rumoredTeam.name, name: player.nickname }
+                const titlePool: TextRef[] = ["nw.rumor.t0", "nw.rumor.t1", "nw.rumor.t2", "nw.rumor.t3", "nw.rumor.t4"].map(key => ({ key, params: who }))
+                if (isHotForm) titlePool.push({ key: "nw.rumor.hot0", params: who }, { key: "nw.rumor.hot1", params: who })
+                if (isVeteran) titlePool.push({ key: "nw.rumor.vet0", params: who }, { key: "nw.rumor.vet1", params: who })
+                if (isStar) titlePool.push({ key: "nw.rumor.star0", params: who }, { key: "nw.rumor.star1", params: who })
 
                 // Content pool — 4 archetypes, picked based on player profile.
-                const contentTemplates = [
-                    `Sources close to ${rumoredTeam.name} suggest they are monitoring ${player.nickname}'s contract situation at ${currentTeam.name}. The ${player.age}-year-old's deal expires soon.`,
-                    `${rumoredTeam.name} are reportedly preparing a formal approach for ${player.nickname} once the transfer window opens. ${currentTeam.name} would be in their rights to demand a premium.`,
-                    `${player.nickname} is "ready for a new challenge," according to people with knowledge of the situation. ${rumoredTeam.name} have been identified as the leading suitor.`,
+                const contentTemplates: TextRef[] = [
+                    { key: "nw.rumor.c0", params: { ...who, club: currentTeam.name, age: player.age } },
+                    { key: "nw.rumor.c1", params: { ...who, club: currentTeam.name } },
+                    { key: "nw.rumor.c2", params: who },
                 ]
-                if (isHotForm) {
-                    contentTemplates.push(
-                        `${player.nickname}'s ${seasonRating.toFixed(2)} rating over ${season?.maps ?? 0} maps this season has triggered interest from across the league. ${rumoredTeam.name} are believed to be at the front of the queue.`,
-                    )
-                }
-                if (isStar) {
-                    contentTemplates.push(
-                        `A move for ${player.nickname} — ${(player.majorWins ?? 0)}× Major champion and ${(player.totalMVPs ?? 0)}× match MVP — would be the headline transfer of the off-season. ${rumoredTeam.name} have been credited with the interest.`,
-                    )
-                }
+                if (isHotForm) contentTemplates.push({ key: "nw.rumor.cHot", count: season?.maps ?? 0, params: { ...who, rating: seasonRating.toFixed(2) } })
+                if (isStar) contentTemplates.push({ key: "nw.rumor.cStar", params: { ...who, majors: player.majorWins ?? 0, mvps: player.totalMVPs ?? 0 } })
 
+                const id = `rumor_${player.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`
+                const title = titlePool[Math.floor(rng.next() * titlePool.length)]
                 save.newsFeed.unshift({
-                    id: `rumor_${player.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                    title: titlePool[Math.floor(rng.next() * titlePool.length)],
-                    content: contentTemplates[Math.floor(rng.next() * contentTemplates.length)],
+                    id,
+                    ...newsText(title, contentTemplates[Math.floor(rng.next() * contentTemplates.length)]),
                     category: "TRANSFER",
                     playerId: player.id,
                     teamId: rumoredTeam.id,
@@ -260,10 +247,15 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             const homeWins = h2hMatches.filter(m => m.result.winnerId === home.id).length
             const awayWins = h2hMatches.filter(m => m.result.winnerId === away.id).length
 
+            // No meetings yet: say so instead of a "0 - 0" record (HOME-08).
             save.newsFeed.unshift({
                 id: `rivalry_${upcomingRivalry.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                title: `Classic Clash: ${home.name} vs ${away.name}`,
-                content: `Two titans collide this week! Historical record: ${home.name} ${homeWins} - ${awayWins} ${away.name}. Fans are hyped for this blockbuster matchup.`,
+                ...newsText(
+                    { key: "nw.rivalry.t", params: { home: home.name, away: away.name } },
+                    h2hMatches.length === 0
+                        ? { key: "nw.rivalry.first", params: { home: home.name, away: away.name } }
+                        : { key: "nw.rivalry.c", params: { home: home.name, away: away.name, homeWins, awayWins } },
+                ),
                 category: "MATCH",
                 teamId: home.id,
                 week: save.currentWeek,
@@ -272,25 +264,26 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 6. Player Milestones (10% per week)
+    // 6. Player Milestones (10% per week). MODES-11: once per player and
+    //    mark. The id is stable (older saves carry a random suffix after it),
+    //    and the official-kill window alone let it repeat every week the roll
+    //    passed.
     if (playerTeam && rng.next() < 0.1) {
         const roster = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
+        const announced = (id: string) => save.newsFeed.some(n => n.id === id || n.id.startsWith(`${id}_`))
         for (const player of roster) {
             const totalKills = player.totalKills || 0
-            const milestones = [
-                { threshold: 500, name: "500 Tournament Kills" },
-                { threshold: 1000, name: "1,000 Tournament Kills" },
-                { threshold: 2500, name: "2,500 Tournament Kills" },
-            ]
-
-            for (const milestone of milestones) {
-                // Window is 100 kills wide so the headline only fires once per
-                // milestone reach (regardless of how many kills land that week).
-                if (totalKills >= milestone.threshold && totalKills < milestone.threshold + 100) {
+            for (const threshold of [500, 1000, 2500]) {
+                // Window is 100 kills wide: an old mark is not announced late.
+                if (totalKills >= threshold && totalKills < threshold + 100) {
+                    const id = `milestone_${player.id}_${threshold}`
+                    if (announced(id)) break
                     save.newsFeed.unshift({
-                        id: `milestone_${player.id}_${milestone.threshold}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                        title: `Milestone: ${player.nickname} hits ${milestone.name}!`,
-                        content: `${player.nickname} has reached an incredible ${milestone.name} in their professional career. A testament to consistency and skill.`,
+                        id,
+                        ...newsText(
+                            { key: "nw.milestone.t", params: { name: player.nickname, kills: threshold } },
+                            { key: "nw.milestone.c", params: { name: player.nickname, kills: threshold } },
+                        ),
                         category: "ACHIEVEMENT",
                         playerId: player.id,
                         teamId: playerTeam.id,
