@@ -1491,7 +1491,7 @@
  "squad.col.personality": "Persönlichkeit",
  "squad.col.age": "Alter",
  "squad.col.form": "Form",
- "squad.col.load": "Belastung · Verletzungsrisiko",
+ "squad.col.load": "Belastung",
  "squad.col.loadTitle": "Belastung und Verletzungsrisiko dieser Woche",
  "squad.col.energyTitle": "Energie: wird durch Drills und Waffentraining verbraucht und durch Ruhe aufgefüllt; unter 50 kostet sie Stärke im Match. Die Belastung (Müdigkeit) ist davon getrennt: Sie steigt durch Training und Matches und erhöht das Verletzungsrisiko.",
  "squad.col.contract": "Vertrag",
@@ -6712,5 +6712,12 @@
  "tr.finRetrainingNote.one": "{{count}} Spieler, fällig beim Wochenupdate",
  "tr.finRetrainingNote.other": "{{count}} Spieler, fällig beim Wochenupdate",
  "svd.p.weaponDrill": "Waffendrill: {{drill}} ({{name}})",
- "outlook.drills": "Teamdrills im Trainingsbildschirm kommen zu dieser Prognose hinzu: Jeder bringt seine aufgeführten Zuwächse mal dieselben Faktoren, bis zum Potenzial."
+ "outlook.drills": "Teamdrills im Trainingsbildschirm kommen zu dieser Prognose hinzu: Jeder bringt seine aufgeführten Zuwächse mal dieselben Faktoren, bis zum Potenzial.",
+ "attr.note.loyalty": "Prägt die Persönlichkeit Richtung Loyal (hoch) oder Söldner (niedrig); gehaltene oder gebrochene Versprechen und Ereignisse verändern den Wert. Wirkt nicht im Match.",
+ "attr.note.health": "Senkt das wöchentliche Verletzungsrisiko (bei 100 um bis zur Hälfte); unter 50 tritt ein Veteran eher zurück. Wirkt nicht im Match.",
+ "renew.bodyMarket": "Ein weiteres Jahr für {{name}}, mit {{pct}}% Gehaltserhöhung: Sein Niveau bringt jetzt mehr auf dem Markt (übliche Erhöhung für {{archetype}}: {{usual}}%).",
+ "player.renewNote": "Eine Verlängerung bringt ein Jahr mit +{{pct}}% Gehalt (die übliche Erhöhung für {{archetype}}) und braucht 26 Wochen der Erhöhung auf dem Konto. Vereine bieten jede Woche auf gelistete Spieler; die Angebote liegen nahe am Marktwert.",
+ "player.renewNoteMarket": "Eine Verlängerung bringt ein Jahr mit +{{pct}}% Gehalt, weil sein Niveau jetzt mehr auf dem Markt bringt (übliche Erhöhung für {{archetype}}: {{usual}}%). Dafür müssen 26 Wochen der Erhöhung auf dem Konto sein. Vereine bieten jede Woche auf gelistete Spieler; die Angebote liegen nahe am Marktwert.",
+ "player.renewOpens": "Verlängerung möglich in {{weeks}}, im letzten Vertragsjahr.",
+ "player.retrainInjured": "Die Umschulung wartet, bis er fit ist (noch {{weeks}})."
 }

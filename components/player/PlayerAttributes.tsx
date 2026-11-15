@@ -15,6 +15,8 @@ interface AttrDef {
     label: string
     /** What the game actually does with it, when it reaches results or development. */
     use?: { tag: string; detail: string }
+    /** SQUAD-36: a hover note (attr.note.*) for numbers that don't reach matches. */
+    note?: boolean
 }
 
 /**
@@ -50,7 +52,7 @@ const GROUPS: { title: string; attrs: AttrDef[] }[] = [
             { key: "clutch", label: "Clutch", use: { tag: "Clutch", detail: "Last alive: +0.08 duel rating per point above 60." } },
             { key: "stressResistance", label: "Composure", use: { tag: "Pressure", detail: "In high-pressure matches each point below 60 costs duel rating (most in a final); also helps when last alive." } },
             { key: "productivity", label: "Work rate", use: { tag: "Training", detail: "Scales weekly training gains." } },
-            { key: "loyalty", label: "Loyalty" },
+            { key: "loyalty", label: "Loyalty", note: true },
         ],
     },
     {
@@ -59,7 +61,7 @@ const GROUPS: { title: string; attrs: AttrDef[] }[] = [
             { key: "reaction", label: "Reaction", use: { tag: "Openings", detail: "The round's first duel, peeking or holding." } },
             { key: "eyesight", label: "Vision", use: { tag: "Holds", detail: "Holding an angle, more with the AWP." } },
             { key: "endurance", label: "Endurance", use: { tag: "Training", detail: "Cuts fatigue from weekly training by up to half." } },
-            { key: "health", label: "Health" },
+            { key: "health", label: "Health", note: true },
         ],
     },
 ]
@@ -86,7 +88,7 @@ function AttributeRow({ def, value, offRole }: { def: AttrDef; value: number; of
     return (
         <div
             className="grid grid-cols-[minmax(0,1fr)_56px_28px] items-center gap-3 py-1.5"
-            title={offRole ? t("attr.offRole", { label: t(`attr.${def.key}`) }) : def.use ? t(`attr.use.${def.key}`) : undefined}
+            title={offRole ? t("attr.offRole", { label: t(`attr.${def.key}`) }) : def.use ? t(`attr.use.${def.key}`) : def.note ? t(`attr.note.${def.key}`) : undefined}
         >
             <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-ink-2">
                 <span className="truncate">{t(`attr.${def.key}`)}</span>

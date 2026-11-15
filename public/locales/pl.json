@@ -1569,7 +1569,7 @@
  "squad.col.personality": "Osobowość",
  "squad.col.age": "Wiek",
  "squad.col.form": "Forma",
- "squad.col.load": "Obciążenie · ryzyko kontuzji",
+ "squad.col.load": "Obciążenie",
  "squad.col.loadTitle": "Obciążenie i ryzyko kontuzji w tym tygodniu",
  "squad.col.energyTitle": "Energia: zużywają ją ćwiczenia i trening broni, odnawia ją odpoczynek; poniżej 50 obniża siłę w meczu. Obciążenie (zmęczenie) to osobna wartość: rośnie od treningów i meczów i zwiększa ryzyko kontuzji.",
  "squad.col.contract": "Kontrakt",
@@ -7122,5 +7122,12 @@
  "tr.finRetrainingNote.many": "{{count}} graczy, płatne przy aktualizacji tygodnia",
  "tr.finRetrainingNote.other": "{{count}} gracza, płatne przy aktualizacji tygodnia",
  "svd.p.weaponDrill": "Ćwiczenie z bronią: {{drill}} ({{name}})",
- "outlook.drills": "Ćwiczenia drużynowe z ekranu treningu dochodzą do tej prognozy: każde daje podane wzrosty razy te same czynniki, do granicy potencjału."
+ "outlook.drills": "Ćwiczenia drużynowe z ekranu treningu dochodzą do tej prognozy: każde daje podane wzrosty razy te same czynniki, do granicy potencjału.",
+ "attr.note.loyalty": "Przesuwa osobowość w stronę Lojalnego (wysoka) lub Najemnika (niska); dotrzymane lub złamane obietnice i wydarzenia ją zmieniają. Nie wpływa na mecze.",
+ "attr.note.health": "Obniża tygodniowe ryzyko kontuzji (do połowy przy 100); poniżej 50 weteran częściej kończy karierę. Nie wpływa na mecze.",
+ "renew.bodyMarket": "Jeszcze rok dla {{name}}, z podwyżką {{pct}}%: ten poziom jest teraz więcej wart na rynku (zwykła podwyżka dla typu {{archetype}}: {{usual}}%).",
+ "player.renewNote": "Przedłużenie dodaje rok z pensją +{{pct}}% (zwykła podwyżka dla typu {{archetype}}) i wymaga 26 tygodni podwyżki na koncie. Kluby co tydzień składają oferty za wystawionych graczy; oferty są blisko wartości rynkowej.",
+ "player.renewNoteMarket": "Przedłużenie dodaje rok z pensją +{{pct}}%, bo ten poziom jest teraz więcej wart na rynku (zwykła podwyżka dla typu {{archetype}}: {{usual}}%). Wymaga 26 tygodni podwyżki na koncie. Kluby co tydzień składają oferty za wystawionych graczy; oferty są blisko wartości rynkowej.",
+ "player.renewOpens": "Przedłużenie będzie możliwe za {{weeks}}, w ostatnim roku kontraktu.",
+ "player.retrainInjured": "Przekwalifikowanie poczeka do powrotu do zdrowia (przerwa: {{weeks}})."
 }

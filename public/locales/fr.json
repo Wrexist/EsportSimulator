@@ -1530,7 +1530,7 @@
  "squad.col.personality": "Personnalité",
  "squad.col.age": "Âge",
  "squad.col.form": "Forme",
- "squad.col.load": "Charge · risque de blessure",
+ "squad.col.load": "Charge",
  "squad.col.loadTitle": "Charge de travail et risque de blessure cette semaine",
  "squad.col.energyTitle": "Énergie : dépensée par les exercices et l’entraînement aux armes, rechargée par le repos ; sous 50, elle coûte de la force en match. La charge (fatigue) est distincte : elle monte avec l’entraînement et les matchs et augmente le risque de blessure.",
  "squad.col.contract": "Contrat",
@@ -6917,5 +6917,12 @@
  "tr.finRetrainingNote.many": "{{count}} joueurs, payé à la mise à jour de la semaine",
  "tr.finRetrainingNote.other": "{{count}} joueurs, payé à la mise à jour de la semaine",
  "svd.p.weaponDrill": "Exercice d’arme : {{drill}} ({{name}})",
- "outlook.drills": "Les exercices d’équipe de l’écran Entraînement s’ajoutent à cette prévision : chacun apporte ses gains indiqués multipliés par les mêmes facteurs, jusqu’au potentiel."
+ "outlook.drills": "Les exercices d’équipe de l’écran Entraînement s’ajoutent à cette prévision : chacun apporte ses gains indiqués multipliés par les mêmes facteurs, jusqu’au potentiel.",
+ "attr.note.loyalty": "Oriente la personnalité vers Fidèle (élevée) ou Mercenaire (basse) ; les promesses tenues ou non et les événements la font bouger. N’agit pas en match.",
+ "attr.note.health": "Réduit le risque de blessure hebdomadaire (jusqu’à moitié à 100) ; sous 50, un vétéran prend plus souvent sa retraite. N’agit pas en match.",
+ "renew.bodyMarket": "Une année de plus pour {{name}}, avec une hausse de {{pct}} % : son niveau vaut désormais plus sur le marché (hausse habituelle pour {{archetype}} : {{usual}} %).",
+ "player.renewNote": "Une prolongation ajoute un an à +{{pct}} % de salaire (la hausse habituelle pour {{archetype}}) et demande 26 semaines de la hausse en caisse. Les clubs font des offres chaque semaine sur les joueurs listés ; elles tournent autour de la valeur marchande.",
+ "player.renewNoteMarket": "Une prolongation ajoute un an à +{{pct}} % de salaire, car son niveau vaut désormais plus sur le marché (hausse habituelle pour {{archetype}} : {{usual}} %). Il faut 26 semaines de la hausse en caisse. Les clubs font des offres chaque semaine sur les joueurs listés ; elles tournent autour de la valeur marchande.",
+ "player.renewOpens": "Prolongation possible dans {{weeks}}, lors de la dernière année de contrat.",
+ "player.retrainInjured": "La reconversion attend son retour de blessure ({{weeks}} d’absence)."
 }

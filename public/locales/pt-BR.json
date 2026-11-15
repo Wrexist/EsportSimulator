@@ -1530,7 +1530,7 @@
  "squad.col.personality": "Personalidade",
  "squad.col.age": "Idade",
  "squad.col.form": "Forma",
- "squad.col.load": "Carga · risco de lesão",
+ "squad.col.load": "Carga",
  "squad.col.loadTitle": "Carga de trabalho e risco de lesão nesta semana",
  "squad.col.energyTitle": "Energia: gasta em treinos e treino de armas e recuperada com descanso; abaixo de 50 custa força na partida. A carga (cansaço) é separada: aumenta com treinos e partidas e eleva o risco de lesão.",
  "squad.col.contract": "Contrato",
@@ -6917,5 +6917,12 @@
  "tr.finRetrainingNote.many": "{{count}} jogadores, cobrado na atualização da semana",
  "tr.finRetrainingNote.other": "{{count}} jogadores, cobrado na atualização da semana",
  "svd.p.weaponDrill": "Treino de arma: {{drill}} ({{name}})",
- "outlook.drills": "Os treinos de equipe da tela de treino somam a esta previsão: cada um dá os ganhos listados vezes os mesmos fatores, até o potencial."
+ "outlook.drills": "Os treinos de equipe da tela de treino somam a esta previsão: cada um dá os ganhos listados vezes os mesmos fatores, até o potencial.",
+ "attr.note.loyalty": "Puxa a personalidade para Leal (alta) ou Mercenário (baixa); promessas cumpridas ou quebradas e eventos a alteram. Não afeta as partidas.",
+ "attr.note.health": "Reduz o risco semanal de lesão (até a metade com 100); abaixo de 50 um veterano tem mais chance de se aposentar. Não afeta as partidas.",
+ "renew.bodyMarket": "Mais um ano para {{name}}, com aumento de {{pct}}%: o nível dele agora vale mais no mercado (aumento normal para {{archetype}}: {{usual}}%).",
+ "player.renewNote": "Renovar adiciona um ano com +{{pct}}% de salário (o aumento normal para {{archetype}}) e exige 26 semanas do aumento em caixa. Clubes fazem ofertas toda semana por jogadores listados; as ofertas ficam perto do valor de mercado.",
+ "player.renewNoteMarket": "Renovar adiciona um ano com +{{pct}}% de salário porque o nível dele agora vale mais no mercado (aumento normal para {{archetype}}: {{usual}}%). Exige 26 semanas do aumento em caixa. Clubes fazem ofertas toda semana por jogadores listados; as ofertas ficam perto do valor de mercado.",
+ "player.renewOpens": "A renovação abre em {{weeks}}, no último ano de contrato.",
+ "player.retrainInjured": "A reciclagem espera a recuperação ({{weeks}} fora)."
 }
