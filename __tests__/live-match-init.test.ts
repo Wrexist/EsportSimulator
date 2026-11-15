@@ -13,6 +13,7 @@ import {
     buildInitialSimState,
     sanitizeRestoredSimState,
     buildRestoredGameState,
+    sanitizeRoundLossLevels,
 } from "@/engine/match/live-match-init"
 import type { MatchResult, SimState } from "@/types"
 import { buildCanonicalResultMaps } from "@/lib/live-match-builders"
@@ -275,5 +276,24 @@ describe("map break keeps the finished map on screen", () => {
         const mapEnd = src.slice(src.indexOf('} else if (transition === "MAP_END") {'), src.indexOf('} else if (transition === "OVERTIME") {'))
         expect(mapEnd).not.toMatch(/currentMapIndex:/)
         expect(src).toMatch(/prev\.currentMapIndex !== mapIndex \? \{ currentMapIndex: mapIndex, homeScore: 0, awayScore: 0 \}/)
+    })
+})
+
+// MATCHDAY-08: a round restored mid-flight shows the loss bonus it started with.
+describe("sanitizeRoundLossLevels", () => {
+    test("keeps valid 0-4 levels per team", () => {
+        expect(sanitizeRoundLossLevels({ home: 0, away: 3 })).toEqual({ home: 0, away: 3 })
+        expect(sanitizeRoundLossLevels({ away: 4 })).toEqual({ away: 4 })
+    })
+    test("drops anything else (older checkpoints have none)", () => {
+        expect(sanitizeRoundLossLevels(undefined)).toEqual({})
+        expect(sanitizeRoundLossLevels(null)).toEqual({})
+        expect(sanitizeRoundLossLevels({ home: 5, away: -1 })).toEqual({})
+        expect(sanitizeRoundLossLevels({ home: 1.5, away: "2" })).toEqual({})
+    })
+    test("the live hook checkpoints the shown levels and restores them for an in-flight round", () => {
+        const src = require("fs").readFileSync(require("path").resolve(__dirname, "../hooks/useLiveMatch.ts"), "utf8") as string
+        expect(src).toMatch(/roundLossLevels: shownLossLevels,/)
+        expect(src).toMatch(/setShownLossLevels\(inFlight \? sanitizeRoundLossLevels\(activeMatchState!\.roundLossLevels\)/)
     })
 })

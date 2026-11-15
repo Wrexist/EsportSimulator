@@ -583,4 +583,6 @@ export interface ActiveMatchState {
   // timeouts. Optional for backward compat with snapshots saved before this.
   timeoutsRemaining?: number
   timeoutBoostRounds?: number
+  /** Loss-bonus levels the round on screen was played with (scorebug after a mid-round resume). Optional: older checkpoints have none. */
+  roundLossLevels?: { home?: number; away?: number }
 }

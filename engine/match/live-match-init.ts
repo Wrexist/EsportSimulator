@@ -158,3 +158,16 @@ export function buildRestoredGameState(args: {
         currentMapIndex,
     }
 }
+
+/**
+ * Loss-bonus levels (script-v1, 0-4 per team) the round on screen was played
+ * with, read from a checkpoint. A round restored mid-flight shows them on the
+ * scorebug; the sim already holds the levels after that round (MATCHDAY-08).
+ * Anything invalid is dropped (older checkpoints have none).
+ */
+export function sanitizeRoundLossLevels(value: unknown): { home?: number; away?: number } {
+    const v = value as { home?: unknown; away?: unknown } | null | undefined
+    const level = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 && x <= 4 ? x : undefined)
+    const home = level(v?.home), away = level(v?.away)
+    return { ...(home !== undefined ? { home } : {}), ...(away !== undefined ? { away } : {}) }
+}

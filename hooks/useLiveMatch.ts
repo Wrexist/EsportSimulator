@@ -9,7 +9,7 @@ import type { TeamSaveData } from "@/engine/save-types"
 import { EconomyManager, WEAPONS, commentaryManager } from "@/engine"
 import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents } from "@/engine/match/live-checkpoint"
 import { isEngineVersion, resolveEngineVersion } from "@/engine/match/engine-version"
-import { buildRestoredGameState } from "@/engine/match/live-match-init"
+import { buildRestoredGameState, sanitizeRoundLossLevels } from "@/engine/match/live-match-init"
 import {
     createLegacySeriesState,
     finalizeLegacySeries,
@@ -453,8 +453,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             const lastMap = inFlight && sanitizedSimState.lastRound ? restoredResult.maps[sanitizedSimState.lastRound.mapIndex] : undefined
             const lastRecorded = lastMap?.rounds[lastMap.rounds.length - 1]
             setRoundHomeIsCT(lastRecorded ? lastRecorded.ctTeam === hTeam.id : sanitizedSimState.homeStartsCT)
-            // Pre-round loss levels of an in-flight round are not checkpointed.
-            setShownLossLevels(inFlight ? {} : { home: sanitizedSimState.homeLossLevel, away: sanitizedSimState.awayLossLevel })
+            // An in-flight round shows the levels it started with (checkpointed, MATCHDAY-08).
+            setShownLossLevels(inFlight ? sanitizeRoundLossLevels(activeMatchState!.roundLossLevels) : { home: sanitizedSimState.homeLossLevel, away: sanitizedSimState.awayLossLevel })
 
             // Radar: rebuild the shown round's script from its recorded round
             // (the bought utility is not checkpointed, so no grenades).
@@ -568,6 +568,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             isWaitingForStrategy,
             timeoutsRemaining,
             timeoutBoostRounds,
+            roundLossLevels: shownLossLevels,
             // Legacy duplicated type shapes; structurally identical at runtime.
             originalHomePlayers: originalHomePlayers as unknown as ActiveMatchState["originalHomePlayers"],
             originalAwayPlayers: originalAwayPlayers as unknown as ActiveMatchState["originalAwayPlayers"],
@@ -575,7 +576,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         }
 
         pendingCheckpoint.current = state
-    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, originalHomePlayers, originalAwayPlayers])
+    }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, shownLossLevels, originalHomePlayers, originalAwayPlayers])
 
     // Fixed cadence cannot be starved by fast playback. Clone at the ownership boundary.
     // The page only renders when the screen changes, so while a round plays the
