@@ -212,6 +212,17 @@ describe("weekly board (Phase 4.4): objectives, moves with causes, reviews, warn
         expect(strong.target).toBeLessThan(weak.target)
     })
 
+    test("START-28: the weakest club of the bottom division cannot meet its league objective by finishing last", () => {
+        const save = league(1)
+        const bottomLevel = Math.max(...save.league!.current!.divisions.map(d => d.level))
+        const bottom = save.league!.current!.divisions.find(d => d.level === bottomLevel)!
+        const elo = new Map(save.teams.map(t => [t.id, t.elo ?? 1000]))
+        const weakest = [...bottom.teamIds].sort((a, b) => (elo.get(a) ?? 0) - (elo.get(b) ?? 0))[0]
+        const lo = leagueObjective(save, weakest)!
+        expect(lo.target).toBe(bottom.teamIds.length - 1)
+        expect(lo.label).toContain(`${bottom.teamIds.length - 1}th or better`)
+    })
+
     test("a title-winning club is asked to keep winning: the ambition follows last season's haul, capped", () => {
         const save = league(53)
         const team = save.teams.find(t => t.id === save.playerTeamId)!
