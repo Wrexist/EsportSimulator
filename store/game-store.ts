@@ -2215,13 +2215,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               ])
               const milestones = checkMilestones(msState as unknown as GameSave, firedIds)
               milestones.forEach(ms => {
-                if (claimMilestoneToast(ms.id)) get().addToast({ message: ms.message, type: "achievement" })
+                if (claimMilestoneToast(ms.id)) get().addToast({ message: liveText(ms.ref), type: "achievement" })
                 set((s) => {
                   s.eventsLog.unshift({
                     id: ms.id,
                     week: s.currentWeek,
                     type: "MILESTONE",
-                    data: { description: ms.message, importance: "MEDIUM" },
+                    data: { description: ms.message, messageRef: ms.ref, importance: "MEDIUM" },
                     acknowledged: true,
                   })
                   if (!s.acknowledgedEventIds.includes(ms.id)) s.acknowledgedEventIds.push(ms.id)

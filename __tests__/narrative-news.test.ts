@@ -55,7 +55,7 @@ describe("post-match headlines (HOME-03 / HOME-10)", () => {
         const save = leagueWorld()
         generateNarrativeNews(save, new SeededRNG(5))
         const head = save.newsFeed.find(n => n.id.startsWith("headline_league_s1_m1"))!
-        expect(head.content).toContain("US defeats X4 1-0 in CIS Division 5.")
+        expect(head.content).toContain("US defeat X4 1-0 in CIS Division 5.")
         expect(head.content).not.toContain("tournament play")
         expect(head.content).not.toContain("0-1")
     })

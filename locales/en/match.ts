@@ -20,6 +20,12 @@ export const MATCH = {
     "stage.phase.Lower Semi": "Lower semi-final",
     "stage.phase.Lower Final": "Lower final",
     "stage.groupPhase": "{{group}} · {{phase}}",
+    "stage.leaguePlay": "League play",
+    "stage.bracket": "Bracket",
+    "stage.swissStage": "Swiss stage",
+    "stage.playoffs": "Playoffs",
+    "stage.registration": "Registration",
+    "stage.qualifiers": "Qualifiers",
 
     "stakes.league.win": "3 points in the division table",
     "stakes.league.loss": "No points from this round",

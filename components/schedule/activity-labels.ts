@@ -14,6 +14,7 @@ const STORED_NAME_KEY: Record<string, string> = {
     "Social Media Push": "sch.mkt.SOCIAL",
     "Sponsorship Drive": "sch.mkt.SPONSORSHIP",
     "Influencer Collab Tour": "sch.mkt.INFLUENCER",
+    "Rest Day": "sch.rest",
     ...Object.fromEntries(MEETING_TYPES.map(m => [m.name, `sch.meet.${m.id}`])),
 }
 
@@ -28,6 +29,11 @@ export function activityName(name: string | null | undefined): string {
 
 /** A booked activity's description: the option's own text when it is a known one. */
 export function activityDescription(name: string | null | undefined, description: string | null | undefined): string {
+    // A rest day stores its recovery as "Recovery (+15 energy)".
+    if (name === "Rest Day") {
+        const rest = /^Recovery \(\+(\d+) energy\)$/.exec(description ?? "")
+        return rest ? t("sch.rest.desc", { n: Number(rest[1]) }) : description || ""
+    }
     const key = name ? STORED_NAME_KEY[name] : undefined
     if (!key) return description || ""
     const text = t(`${key}.desc`)

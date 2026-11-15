@@ -14,7 +14,7 @@
  */
 
 import { EN } from "@/locales/en"
-import { getLocale, liveTextRef, ordinalLabel, setStoredTextResolver, t, tn, tRef } from "@/lib/i18n"
+import { formatDecimal, getLocale, intlLocale, liveTextRef, ordinalLabel, setStoredTextResolver, t, tn, tRef } from "@/lib/i18n"
 import { divisionName, stageName } from "@/lib/display-names"
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string]
@@ -113,10 +113,25 @@ const RULES: Rule[] = [
     [/^Beat (.+)$/, m => t("svd.p.beatTeam", { opp: m[1] })],
     [/^Lost to (.+)$/, m => t("svd.p.lostToTeam", { opp: m[1] })],
     [/^Won (.+)$/, m => t("svd.p.wonEvent", { event: m[1] })],
+    // Career milestones, eliminations and manager levels saved before they carried translation keys
+    [/^(\d+) career wins!$/, m => tn("evn.ms.wins", Number(m[1]))],
+    [/^(\d+) trophies in the cabinet!$/, m => tn("evn.ms.trophies", Number(m[1]))],
+    [/^([\d,]+) team kills!$/, m => countLine("evn.ms.kills", Number(m[1].replace(/,/g, "")))],
+    [/^([\d.]+)(k|M) followers reached!$/, m => countLine("evn.ms.followers", Math.round(Number(m[1]) * (m[2] === "M" ? 1_000_000 : 1_000)))],
+    [/^(\d+)-match win streak!$/, m => tn("evn.ms.streak", Number(m[1]))],
+    [/^Tournament Elimination$/, () => t("evn.elim.t")],
+    [/^Your team has been eliminated from (.+?)\.?$/, m => t("evn.elim.m", { event: m[1] })],
+    [/^Manager leveled up to Level (\d+)!$/, m => t("evn.mgrLevel.m", { level: m[1] })],
+    // Ledger: the league payment names its division; ranking causes name the competition and its weight
+    [/^League central payment \((.+)\)$/, m => t("svd.p.leaguePayment", { division: divisionName(m[1]) })],
+    [/^(.+) \((League|Qualifier|([SABC])-Tier)( playoffs)?\)$/, m => {
+        const kind = m[3] ? t(`common.tier.${m[3]}_TIER`) : m[2] === "League" ? t("svd.league") : t("svd.cmp.qualifier")
+        return `${segment(m[1])} (${m[4] ? t("svd.cmp.playoffs", { tier: kind }) : kind})`
+    }],
     // "Unhappy player (ace)": a label with a name in brackets.
     [/^(.+) \(([^()]+)\)$/, m => `${segment(m[1])} (${m[2]})`],
     // "AWP +0.3", "Leader +10%": a label with a signed number.
-    [/^(.+?) ([+−-][\d.]+%?)$/, m => `${segment(m[1])} ${m[2]}`],
+    [/^(.+?) ([+−-][\d.]+%?)$/, m => `${segment(m[1])} ${localNumber(m[2])}`],
 ]
 
 const LEAGUE_STATE: Record<string, string> = { "On track": "onTrack", "Behind target": "behind", "League objective met": "met", "League objective missed": "missed" }
@@ -132,6 +147,16 @@ function others(rest: string): string {
         if (behind) return t("svd.p.droppedBehind", { names: behind[1] })
         return bit
     }).join("; ")
+}
+
+/** "+0.2" with the active language's decimal separator ("+0,2"). */
+function localNumber(signed: string): string {
+    return signed.replace(/\d+\.\d+/, d => formatDecimal(Number(d), d.split(".")[1].length))
+}
+
+/** A plural line whose {{n}} is the count with the language's digit grouping. */
+function countLine(key: string, n: number): string {
+    return tn(key, n, { n: n.toLocaleString(intlLocale()) })
 }
 
 /** A key's text when the key exists, else the fallback. */

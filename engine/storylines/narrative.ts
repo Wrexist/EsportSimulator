@@ -1,44 +1,47 @@
 /**
  * Storyline-aware lines for the news (Phase 5.3): the final preview reads
  * the managed club's most important active story, else its real form. No
- * invented quotes: every clause is a fact in the save.
+ * invented quotes: every clause is a fact in the save. Written with
+ * translation keys, so the feed shows it in the active language.
  */
 
 import type { GameSave, MatchSaveData, TeamSaveData } from "../save-types"
 import type { StoryArc, StoryArcKind } from "./types"
 import { STORY_TUNING as S } from "@/lib/balance-tuning"
 import { getRivalryBetween } from "../history-tracker"
-import { headToHead } from "./arcs/rivalry"
+import { headToHeadRef } from "./arcs/rivalry"
 import { fmtRating, formOver, nameOf } from "./common"
+import { LIST_REF, type TextParam, type TextRef } from "@/lib/i18n"
+import { newsText } from "@/lib/news-ref"
 
 const ORDER: StoryArcKind[] = ["BOARD_PRESSURE", "CONTRACT_STANDOFF", "LAST_DANCE", "SLUMP", "RIFT", "RISING_STAR", "GIANT_KILLER", "RIVALRY"]
 
-function storyLine(save: GameSave, team: TeamSaveData, opp: TeamSaveData | undefined, arc: StoryArc): string | null {
+function storyLine(save: GameSave, team: TeamSaveData, opp: TeamSaveData | undefined, arc: StoryArc): TextRef | null {
     const p = arc.playerIds[0] ? save.players.find(x => x.id === arc.playerIds[0] && team.rosterIds.includes(x.id)) : undefined
     const n = nameOf(p)
     switch (arc.kind) {
-        case "BOARD_PRESSURE": return save.boardState ? `With board confidence at ${Math.round(save.boardState.confidence)}/100, a trophy would ease the pressure on ${save.managerDetails?.name || "the manager"}.` : null
-        case "CONTRACT_STANDOFF": return p ? `${n} plays with his contract ending in Week ${arc.facts.endWeek} and no new deal agreed.` : null
-        case "LAST_DANCE": return p ? `${n}, ${p.age}, may be playing his last final.` : null
+        case "BOARD_PRESSURE": return save.boardState ? { key: "nw.final.board", params: { c: Math.round(save.boardState.confidence), manager: save.managerDetails?.name || { key: "nw.final.theManager" } } } : null
+        case "CONTRACT_STANDOFF": return p ? { key: "nw.final.contract", params: { name: n, week: Number(arc.facts.endWeek) } } : null
+        case "LAST_DANCE": return p ? { key: "nw.final.lastDance", params: { name: n, age: p.age } } : null
         case "SLUMP": {
             const r = formOver(p, team.id, S.SLUMP_MAPS)
-            return p && r !== null ? `${n} arrives rated ${fmtRating(r)} over his last ${S.SLUMP_MAPS} official maps; a final is a chance to answer.` : null
+            return p && r !== null ? { key: "nw.final.slump", count: S.SLUMP_MAPS, params: { name: n, rating: fmtRating(r) } } : null
         }
         case "RIFT": {
             const b = save.players.find(x => x.id === arc.playerIds[1])
-            return p && b ? `${n} and ${nameOf(b)} will have to put their differences aside.` : null
+            return p && b ? { key: "nw.final.rift", params: { name: n, other: nameOf(b) } } : null
         }
-        case "RISING_STAR": return p ? `All eyes on ${n}, ${p.age}, rated ${fmtRating(Number(arc.facts.rating))} over ${arc.facts.maps} official maps when his rise began.` : null
-        case "GIANT_KILLER": return `${team.name} arrive having beaten ${arc.clubIds.map(id => save.teams.find(t => t.id === id)?.name ?? "a top side").join(" and ")} on the way.`
+        case "RISING_STAR": return p ? { key: "nw.final.rising", count: Number(arc.facts.maps), params: { name: n, age: p.age, rating: fmtRating(Number(arc.facts.rating)) } } : null
+        case "GIANT_KILLER": return { key: "nw.final.giant", params: { team: team.name, clubs: { key: LIST_REF, params: Object.fromEntries(arc.clubIds.map((id, i) => [`c${i}`, save.teams.find(t => t.id === id)?.name ?? { key: "nw.final.topSide" }])) } } }
         case "RIVALRY": {
             const r = opp && arc.clubIds[0] === opp.id ? getRivalryBetween(team, opp.id) : undefined
-            return r ? `It is ${opp!.name} again: ${team.name} ${headToHead(r)}.` : null
+            return r ? { key: "nw.final.rivalry", params: { opp: opp!.name, team: team.name, h2h: headToHeadRef(r) } } : null
         }
         default: return null
     }
 }
 
-function formLine(save: GameSave, team: TeamSaveData, opp: TeamSaveData | undefined): string {
+function formLine(save: GameSave, team: TeamSaveData, opp: TeamSaveData | undefined): TextRef {
     let w = 0, n = 0
     for (let i = save.completedMatches.length - 1; i >= 0 && n < 5; i--) {
         const m = save.completedMatches[i]
@@ -46,19 +49,19 @@ function formLine(save: GameSave, team: TeamSaveData, opp: TeamSaveData | undefi
         n++
         if (m.result.winnerId === team.id) w++
     }
-    const form = n ? `${team.name} come in with ${w} win${w === 1 ? "" : "s"} from their last ${n} official match${n === 1 ? "" : "es"}` : `${team.name} come in fresh`
-    return `${form}${opp?.worldRanking ? `; ${opp.name} are ranked #${opp.worldRanking}` : ""}.`
+    const form: TextRef = n ? { key: "nw.final.form", count: n, params: { team: team.name, w, l: n - w } } : { key: "nw.final.fresh", params: { team: team.name } }
+    return opp?.worldRanking ? { key: "nw.final.formRank", params: { form, opp: opp.name, rank: opp.worldRanking } } : { key: "nw.final.formOnly", params: { form } }
 }
 
-/** Final preview copy for the managed club's final this week. */
-export function finalPreview(save: GameSave, team: TeamSaveData, match: Pick<MatchSaveData, "homeTeamId" | "awayTeamId">, eventName: string): { title: string; content: string } {
+/** Final preview copy for the managed club's final this week (English text plus the keys the feed shows). */
+export function finalPreview(save: GameSave, team: TeamSaveData, match: Pick<MatchSaveData, "homeTeamId" | "awayTeamId">, eventName: TextParam): { title: string; content: string; titleRef: TextRef; contentRef: TextRef } {
     const opp = save.teams.find(t => t.id === (match.homeTeamId === team.id ? match.awayTeamId : match.homeTeamId))
     const arcs = (save.storylines ?? []).filter(a => a.state === "ACTIVE" && a.managed && a.teamId === team.id)
         .sort((a, b) => ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind))
-    let line: string | null = null
+    let line: TextRef | null = null
     for (const arc of arcs) if ((line = storyLine(save, team, opp, arc))) break
-    return {
-        title: `${team.name} in the ${eventName} final`,
-        content: `${team.name} face ${opp?.name ?? "their opponent"} in the ${eventName} final this week. ${line ?? formLine(save, team, opp)}`,
-    }
+    return newsText(
+        { key: "nw.final.t", params: { team: team.name, event: eventName } },
+        { key: "nw.final.c", params: { team: team.name, opp: opp?.name ?? { key: "nw.final.theirOpponent" }, event: eventName, line: line ?? formLine(save, team, opp) } },
+    )
 }
