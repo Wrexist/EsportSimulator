@@ -26,6 +26,7 @@ import { LeagueEngine } from "../league-engine"
 import { expectedScore } from "../world-ranking"
 import { TournamentManager } from "../tournament-manager"
 import { recordOfficialMatch } from "../official-stats"
+import { isManagedMatch, resultForSave } from "./match-detail"
 import type { SaveIndexes } from "@/store/indexes"
 import { perfTrace } from "../perf-trace"
 
@@ -138,30 +139,12 @@ export function playAutoMatch(
             awayPlayers
         )
 
-        // Record result.
-        //
-        // Phase O.2 save-size fix: AI-vs-AI matches were averaging
-        // 123 KB each — almost entirely from result.maps[].rounds[]
-        // event detail that the player never sees. At week 52 of a
-        // smoke save, this was ballooning the on-disk save to 18 MB.
-        //
-        // Player-team matches keep full round detail (the result
-        // page reads it for the play-by-play view). AI-vs-AI matches
-        // strip rounds[] — the scoreboard (finalScore, MVP, etc.)
-        // survives intact for stats pages, ranking, and trophy
-        // tracking, which only read summary fields.
-        const isPlayerMatch =
-            match.homeTeamId === playerTeamId ||
-            match.awayTeamId === playerTeamId
-        const resultForSave = isPlayerMatch
-            ? result
-            : {
-                ...result,
-                maps: result.maps.map(m => ({ ...m, rounds: [] })),
-            }
+        // Record result. Only the managed club's matches keep their
+        // round-by-round detail (Phase O.2 save-size fix, match-detail.ts).
+        const isPlayerMatch = isManagedMatch(match, playerTeamId)
         const completedMatch: CompletedMatchSaveData = {
             ...match,
-            result: resultForSave,
+            result: resultForSave(result, match, playerTeamId),
             analysis,
         }
 
