@@ -341,7 +341,8 @@ export default function SchedulePage() {
         <table data-slot="table" className="w-full table-fixed border-collapse text-left">
           <thead data-slot="table-header">
             <tr className="border-b border-line">
-              <th data-slot="table-head" className="w-[200px] pl-4">{t("sx.col.week")}</th>
+              {/* A narrower week column below 1440px leaves the day columns room for names (HOME-17). */}
+              <th data-slot="table-head" className="w-[140px] pl-4 min-[90rem]:w-[200px]">{t("sx.col.week")}</th>
               {weekdayHeaders.map((d, i) => (
                 <th key={i} data-slot="table-head" className="border-l border-line px-3">{d}</th>
               ))}
@@ -391,7 +392,7 @@ export default function SchedulePage() {
 
               return (
                 <tr key={weekNum} className={cn("border-b border-line align-top last:border-b-0", isPast && "bg-shell/60")}>
-                  <th scope="row" className={cn("px-4 py-3 text-left font-normal", isCurrent && "bg-hover/40")}>
+                  <th scope="row" className={cn("px-3 py-3 text-left font-normal min-[90rem]:px-4", isCurrent && "bg-hover/40")}>
                     <div className="flex items-baseline gap-2">
                       <span className={cn("font-display text-xl font-bold uppercase leading-none", isCurrent ? "text-gold" : isPast ? "text-ink-3" : "text-ink-1")}>{t("common.week", { n: displayWeek })}</span>
                       <span className="text-xs text-ink-3">{isCurrent ? t("sch.thisWeek") : t("sch.seasonShort", { n: displayYear })}</span>
@@ -444,8 +445,11 @@ export default function SchedulePage() {
                       if (m.isScrim) return dayIndex === (idx % 2 === 0 ? 3 : 4)
                       return dayIndex === (idx % 2 === 0 ? 5 : 6)
                     })
+                    // Automatic rest days (rest_w*) exist only once a week is played, so
+                    // they made past rows look busy and future rows empty; the week
+                    // plan leaves them out too (HOME-17).
                     const dayActivities = (scheduledActivities || []).filter(a =>
-                      a.week === weekNum && a.day === dayIndex && a.duration === 0
+                      a.week === weekNum && a.day === dayIndex && a.duration === 0 && !a.id.startsWith("rest_w")
                     )
                     const isPastDay = isPast || (isCurrent && daily && dayIndex < currentDay)
                     const isToday = isCurrent && (daily ? dayIndex === currentDay : false)
@@ -485,6 +489,7 @@ export default function SchedulePage() {
                                 isScrim={match.isScrim}
                                 tournamentName={leagueStageLabel(match) ?? (tournamentDef ? recordEventName(tournamentDef.shortName || tournamentDef.name, match.tournamentId, weekNum, gameStartDate) : undefined)}
                                 isCurrentWeek={isCurrent}
+                                compact
                                 onClick={() => {
                                   if (match.result) router.push(`/match/${match.id}/result`)
                                   else setSelectedMatchForPopup(match)
