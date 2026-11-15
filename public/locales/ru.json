@@ -516,8 +516,8 @@
  "stage.thirdPlace": "Матч за 3-е место",
  "stage.semiN": "Полуфинал {{n}}",
  "stage.quarterN": "Четвертьфинал {{n}}",
- "stage.roundOf": "1/{{size}} финала",
- "stage.roundOfMatch": "1/{{size}} финала · матч {{n}}",
+ "stage.roundOf": "Раунд {{size}} команд",
+ "stage.roundOfMatch": "Раунд {{size}} команд · матч {{n}}",
  "stage.roundN": "Раунд {{n}}",
  "stage.swiss": "Швейцарский раунд {{n}} ({{record}})",
  "stage.group": "Группа {{letter}}",
@@ -7334,5 +7334,11 @@
  "insight.favouredLosses.few": "{{count}} проиграно с сильной",
  "insight.favouredLosses.many": "{{count}} проиграно с сильной",
  "insight.favouredLosses.other": "{{count}} проиграно с сильной",
- "feed.finalMap": "Итог: победа {{team}} {{score}} на {{map}}"
+ "feed.finalMap": "Итог: победа {{team}} {{score}} на {{map}}",
+ "stage.ro16": "1/8 финала",
+ "stage.ro32": "1/16 финала",
+ "stage.ro64": "1/32 финала",
+ "stage.ro16Match": "1/8 финала · матч {{n}}",
+ "stage.ro32Match": "1/16 финала · матч {{n}}",
+ "stage.ro64Match": "1/32 финала · матч {{n}}"
 }

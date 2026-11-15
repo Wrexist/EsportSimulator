@@ -516,8 +516,8 @@
  "stage.thirdPlace": "Mecz o 3. miejsce",
  "stage.semiN": "Półfinał {{n}}",
  "stage.quarterN": "Ćwierćfinał {{n}}",
- "stage.roundOf": "1/{{size}} finału",
- "stage.roundOfMatch": "1/{{size}} finału · mecz {{n}}",
+ "stage.roundOf": "Runda {{size}} drużyn",
+ "stage.roundOfMatch": "Runda {{size}} drużyn · mecz {{n}}",
  "stage.roundN": "Runda {{n}}",
  "stage.swiss": "Runda szwajcarska {{n}} ({{record}})",
  "stage.group": "Grupa {{letter}}",
@@ -7334,5 +7334,11 @@
  "insight.favouredLosses.few": "{{count}} przegrane mocniejszym",
  "insight.favouredLosses.many": "{{count}} przegranych mocniejszym",
  "insight.favouredLosses.other": "{{count}} przegranej mocniejszym",
- "feed.finalMap": "Koniec: {{team}} wygrywa {{score}} na {{map}}"
+ "feed.finalMap": "Koniec: {{team}} wygrywa {{score}} na {{map}}",
+ "stage.ro16": "1/8 finału",
+ "stage.ro32": "1/16 finału",
+ "stage.ro64": "1/32 finału",
+ "stage.ro16Match": "1/8 finału · mecz {{n}}",
+ "stage.ro32Match": "1/16 finału · mecz {{n}}",
+ "stage.ro64Match": "1/32 finału · mecz {{n}}"
 }

@@ -729,4 +729,10 @@ export const MATCH = {
     "playbook.import": "Import",
     "scoreboard.series": "Map {{n}} of {{of}} · Series {{home}}–{{away}}",
     "dock.paused": "Paused",
+    "stage.ro16": "Round of 16",
+    "stage.ro32": "Round of 32",
+    "stage.ro64": "Round of 64",
+    "stage.ro16Match": "Round of 16 · match {{n}}",
+    "stage.ro32Match": "Round of 32 · match {{n}}",
+    "stage.ro64Match": "Round of 64 · match {{n}}",
 } as const

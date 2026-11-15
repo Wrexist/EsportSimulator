@@ -36,8 +36,8 @@ export function stageName(stored: string | null | undefined): string {
     let m: RegExpExecArray | null
     if ((m = /^Semi-final (\d+)$/.exec(s))) return t("stage.semiN", { n: Number(m[1]) })
     if ((m = /^Quarter-final (\d+)$/.exec(s))) return t("stage.quarterN", { n: Number(m[1]) })
-    if ((m = /^Round of (\d+) Match (\d+)$/.exec(s))) return t("stage.roundOfMatch", { size: Number(m[1]), n: Number(m[2]) })
-    if ((m = /^Round of (\d+)$/.exec(s))) return t("stage.roundOf", { size: Number(m[1]) })
+    if ((m = /^Round of (\d+) Match (\d+)$/.exec(s))) return roundOfName(Number(m[1]), Number(m[2]))
+    if ((m = /^Round of (\d+)$/.exec(s))) return roundOfName(Number(m[1]))
     if ((m = /^Round (\d+)$/.exec(s))) return t("stage.roundN", { n: Number(m[1]) })
     if ((m = /^Group ([A-Z])$/.exec(s))) return t("stage.group", { letter: m[1] })
     if ((m = /^Swiss Round (\d+) \(([^)]+)\)$/.exec(s))) return t("stage.swiss", { n: Number(m[1]), record: m[2] })
@@ -46,6 +46,15 @@ export function stageName(stored: string | null | undefined): string {
         return t("stage.groupPhase", { group, phase: t(`stage.phase.${m[3]}`) })
     }
     return divisionName(stored)
+}
+
+/** Rounds with their own name in some languages ("1/8 финала", "Achtelfinale"). */
+const NAMED_ROUNDS_OF = new Set([16, 32, 64])
+
+/** "Round of 16" (and "· match 3") in the active language. */
+export function roundOfName(size: number, match?: number): string {
+    if (NAMED_ROUNDS_OF.has(size)) return match == null ? t(`stage.ro${size}`) : t(`stage.ro${size}Match`, { n: match })
+    return match == null ? t("stage.roundOf", { size }) : t("stage.roundOfMatch", { size, n: match })
 }
 
 const FIXED_STAGES: Record<string, string> = {

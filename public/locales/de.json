@@ -6880,5 +6880,11 @@
  "insight.underdogWins.other": "{{count}} Runden mit dem schwächeren Kauf gewonnen",
  "insight.favouredLosses.one": "{{count}} mit dem stärkeren verloren",
  "insight.favouredLosses.other": "{{count}} mit dem stärkeren verloren",
- "feed.finalMap": "Endstand: {{team}} gewinnt {{score}} auf {{map}}"
+ "feed.finalMap": "Endstand: {{team}} gewinnt {{score}} auf {{map}}",
+ "stage.ro16": "Achtelfinale",
+ "stage.ro32": "Sechzehntelfinale",
+ "stage.ro64": "Runde der letzten 64",
+ "stage.ro16Match": "Achtelfinale · Spiel {{n}}",
+ "stage.ro32Match": "Sechzehntelfinale · Spiel {{n}}",
+ "stage.ro64Match": "Runde der letzten 64 · Spiel {{n}}"
 }
