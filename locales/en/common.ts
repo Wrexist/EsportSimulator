@@ -63,4 +63,5 @@ export const COMMON = {
     "common.win.short": "W",
     "common.loss.short": "L",
     "common.draw.short": "D",
+    "nf.bodyCareer": "This screen doesn't exist. Your career is untouched; head back to Home to carry on.",
 } as const

@@ -6907,5 +6907,12 @@
  "bd.rev.MISSED.mNotice": "La saison est restée en deçà des objectifs de la direction. La confiance a baissé à {{c}}/100 : tu es sous ultimatum.",
  "bd.rev.FAILED.t": "La direction de {{club}} furieuse",
  "bd.rev.FAILED.m": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100 : tu es sous ultimatum et dois répondre présent la saison prochaine."
+ "bd.rev.FAILED.mNotice": "Une saison très en dessous des attentes. La confiance de la direction s'est effondrée à {{c}}/100 : tu es sous ultimatum et dois répondre présent la saison prochaine.",
+ "topbar.moreHubs": "Autres sections",
+ "settings.uiScaleWindowMax": "Jusqu'à {{max}} % tient dans cette fenêtre.",
+ "nf.bodyCareer": "Cet écran n’existe pas. Ta carrière est intacte ; retourne à l’accueil pour continuer.",
+ "teamPage.notFound": "Club introuvable",
+ "teamPage.notFoundBody": "Ce club n’existe pas dans ton monde de jeu. Il a peut-être disparu ou changé de nom.",
+ "teamPage.backToRankings": "Retour au classement",
+ "tm.notFoundBody": "Ce tournoi n’est pas au calendrier de ta carrière."
 }

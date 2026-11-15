@@ -6907,5 +6907,12 @@
  "bd.rev.MISSED.mNotice": "La temporada se quedó por debajo de los objetivos de la directiva. La confianza ha bajado a {{c}}/100: estás bajo ultimátum.",
  "bd.rev.FAILED.t": "La directiva de {{club}}, furiosa",
  "bd.rev.FAILED.m": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100: estás bajo ultimátum y tienes que cumplir la próxima temporada."
+ "bd.rev.FAILED.mNotice": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100: estás bajo ultimátum y tienes que cumplir la próxima temporada.",
+ "topbar.moreHubs": "Más secciones",
+ "settings.uiScaleWindowMax": "Hasta un {{max}} % cabe en esta ventana.",
+ "nf.bodyCareer": "Esta pantalla no existe. Tu carrera sigue intacta; vuelve al inicio para continuar.",
+ "teamPage.notFound": "Club no encontrado",
+ "teamPage.notFoundBody": "Este club no está en tu mundo de juego. Puede que haya desaparecido o cambiado de nombre.",
+ "teamPage.backToRankings": "Volver a la clasificación mundial",
+ "tm.notFoundBody": "Este torneo no está en el calendario de tu carrera."
 }

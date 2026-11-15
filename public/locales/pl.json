@@ -7111,5 +7111,12 @@
  "bd.rev.MISSED.mNotice": "Sezon nie spełnił celów zarządu. Zaufanie spadło do {{c}}/100: masz ostatnie ostrzeżenie.",
  "bd.rev.FAILED.t": "Zarząd {{club}} wściekły",
  "bd.rev.FAILED.m": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100: masz ostatnie ostrzeżenie i w przyszłym sezonie musisz dowieźć wynik."
+ "bd.rev.FAILED.mNotice": "Sezon daleko poniżej oczekiwań. Zaufanie zarządu załamało się do {{c}}/100: masz ostatnie ostrzeżenie i w przyszłym sezonie musisz dowieźć wynik.",
+ "topbar.moreHubs": "Więcej sekcji",
+ "settings.uiScaleWindowMax": "Do {{max}}% mieści się w tym oknie.",
+ "nf.bodyCareer": "Ten ekran nie istnieje. Kariera jest nienaruszona; wróć do startu, aby kontynuować.",
+ "teamPage.notFound": "Nie znaleziono klubu",
+ "teamPage.notFoundBody": "Tego klubu nie ma w świecie gry. Mógł zostać rozwiązany albo zmienić nazwę.",
+ "teamPage.backToRankings": "Wróć do rankingu",
+ "tm.notFoundBody": "Tego turnieju nie ma w kalendarzu twojej kariery."
 }

@@ -215,4 +215,5 @@ export const TOURNAMENTS: Record<string, string> = {
     "tm.adv.final": "Into the final",
     "tm.adv.advancing": "Advancing",
     "tm.adv.click": "Click anywhere to continue",
+    "tm.notFoundBody": "This tournament isn't on your career's calendar.",
 }

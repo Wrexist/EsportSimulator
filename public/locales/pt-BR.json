@@ -6907,5 +6907,12 @@
  "bd.rev.MISSED.mNotice": "A temporada ficou abaixo das metas da diretoria. A confiança caiu para {{c}}/100: você está no último aviso.",
  "bd.rev.FAILED.t": "Diretoria do {{club}} furiosa",
  "bd.rev.FAILED.m": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100: você está no último aviso e precisa entregar na próxima temporada."
+ "bd.rev.FAILED.mNotice": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100: você está no último aviso e precisa entregar na próxima temporada.",
+ "topbar.moreHubs": "Mais seções",
+ "settings.uiScaleWindowMax": "Até {{max}}% cabe nesta janela.",
+ "nf.bodyCareer": "Esta tela não existe. Sua carreira está intacta; volte ao início para continuar.",
+ "teamPage.notFound": "Clube não encontrado",
+ "teamPage.notFoundBody": "Este clube não está no seu mundo de jogo. Ele pode ter fechado ou mudado de nome.",
+ "teamPage.backToRankings": "Voltar ao ranking",
+ "tm.notFoundBody": "Este torneio não está no calendário da sua carreira."
 }

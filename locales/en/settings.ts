@@ -175,4 +175,5 @@ export const SETTINGS = {
     "achievements.secretHint": "Keep playing to discover it.",
     "achievements.none": "None yet. Your first win unlocks one.",
     "achievements.all": "Everything unlocked.",
+    "settings.uiScaleWindowMax": "Up to {{max}}% fits this window.",
 } as const
