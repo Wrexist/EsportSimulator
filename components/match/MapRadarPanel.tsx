@@ -22,6 +22,7 @@ import type { RadarSite } from "@/lib/radar-draw"
 import { roundMapBounds } from "@/lib/radar-view"
 import { RadarCanvas, createRadarFeed, feedLiveTime, type RadarCanvasHandle, type RadarFeed } from "./RadarCanvas"
 import { RadarScrubber } from "./RadarScrubber"
+import { MomentCallout, type MomentCalloutData } from "./live/MomentCallout"
 
 export type { RadarScriptPlayerInfo } from "@/lib/radar-types"
 export type { RadarReviewSource } from "@/lib/radar-review"
@@ -85,6 +86,11 @@ interface MapRadarPanelProps {
      * (the slot then leaves the DOM, fading out).
      */
     overlay?: ReactNode
+    /**
+     * Multi-kill callout of the live round: shown at the top of the radar in
+     * one stack with the clutch tag, so the two never overlap (MATCHDAY-05).
+     */
+    moment?: MomentCalloutData | null
 }
 
 type ReviewUi = { active: boolean; round: number | null; playing: boolean }
@@ -93,7 +99,7 @@ const NO_REVIEW: ReviewUi = { active: false, round: null, playing: false }
 function MapRadarPanelComponent({
     currentMapId, mapName, radarDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime,
     killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false, roundOver = false,
-    script, roundMap, players, review, roundEvents, clock, overlay,
+    script, roundMap, players, review, roundEvents, clock, overlay, moment,
 }: MapRadarPanelProps) {
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
@@ -379,11 +385,15 @@ function MapRadarPanelComponent({
                                     onFrame={onFrame}
                                     onReviewEnd={onReviewEnd}
                                 />
-                                {clutchText && (
-                                    <div className={cn("pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded bg-ink/80 px-3 py-1 font-display text-lg font-bold tracking-[0.06em]", clutchSide === "ct" ? "text-side-ct" : "text-side-t")}>
-                                        {clutchText}
-                                    </div>
-                                )}
+                                {/* Top of the radar: clutch tag, then the multi-kill callout under it (one stack, never on top of each other). */}
+                                <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex flex-col items-center gap-1.5">
+                                    {clutchText && (
+                                        <div className={cn("rounded bg-ink/80 px-3 py-1 font-display text-lg font-bold tracking-[0.06em]", clutchSide === "ct" ? "text-side-ct" : "text-side-t")}>
+                                            {clutchText}
+                                        </div>
+                                    )}
+                                    <MomentCallout callout={moment ?? null} />
+                                </div>
                             </div>
                         </div>
                         {/* Mounted only while there is something to show: an empty
@@ -431,4 +441,10 @@ function MapRadarPanelComponent({
     )
 }
 
-export const MapRadarPanel = memo(MapRadarPanelComponent)
+// The live page builds `moment` on each render; the same moment (id) is not a change.
+export const MapRadarPanel = memo(MapRadarPanelComponent, (prev, next) => {
+    for (const key of new Set([...Object.keys(prev), ...Object.keys(next)]) as Set<keyof MapRadarPanelProps>) {
+        if (key === "moment" ? prev.moment?.id !== next.moment?.id : !Object.is(prev[key], next[key])) return false
+    }
+    return true
+})

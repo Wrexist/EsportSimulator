@@ -172,11 +172,17 @@ export function AdvanceControl() {
         )
     }
 
+    // On the match's own prep / veto / live screens the match-day notice only
+    // repeats the page (its "Prepare" points here) and covered the page header
+    // (MATCHDAY-06); it shows again elsewhere while the match is due.
+    const stopMatchPath = advanceStop?.kind === "match" ? advanceStop.href?.match(/^\/match\/[^/]+\//)?.[0] : undefined
+    const onStopMatch = !!stopMatchPath && !!pathname?.startsWith(stopMatchPath)
+
     return (
         <div className="relative shrink-0">
             {control}
             {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20). */}
-            {advanceStop && !running && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
+            {advanceStop && !running && !onStopMatch && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
         </div>
     )
 }

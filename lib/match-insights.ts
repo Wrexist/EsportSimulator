@@ -129,7 +129,8 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
     const pistols = keyRounds.filter(k => k.kind === 'pistol')
     // Match outcome and the rounds you took are separate facts: "Lost 10 of
     // 23 rounds" read as ten rounds lost when the team had won ten.
-    const headline = t(won ? 'insight.headline.won' : 'insight.headline.lost', { own: ownRounds, total: rounds, pw: pistols.filter(k => k.won).length, pt: pistols.length, under: underdogWins, fav: favouredLosses })
+    // The two buy counts are full plural phrases ("1 round won with the weaker buy", MATCHDAY-12).
+    const headline = t(won ? 'insight.headline.won' : 'insight.headline.lost', { own: ownRounds, total: rounds, pw: pistols.filter(k => k.won).length, pt: pistols.length, under: tn('insight.underdogWins', underdogWins), fav: tn('insight.favouredLosses', favouredLosses) })
 
     return {
         won, headline, keyRounds: keyRounds.slice(0, 12),

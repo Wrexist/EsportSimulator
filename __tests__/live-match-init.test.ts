@@ -13,6 +13,7 @@ import {
     buildInitialSimState,
     sanitizeRestoredSimState,
     buildRestoredGameState,
+    sanitizeRoundLossLevels,
 } from "@/engine/match/live-match-init"
 import type { MatchResult, SimState } from "@/types"
 import { buildCanonicalResultMaps } from "@/lib/live-match-builders"
@@ -245,5 +246,54 @@ describe("buildRestoredGameState", () => {
         expect(gs.currentMapIndex).toBe(1) // forced from arg
         // series scores always pulled from simState (caller can't override)
         expect(gs.homeSeriesScore).toBe(1)
+    })
+
+    // MATCHDAY-18: during a BO3 map break the screen stays on the finished
+    // map; a reload then resumes on the next map at 0-0, not at the old score.
+    test("a checkpoint saved on the finished map resumes the next map from the sim", () => {
+        const nextMap = { ...baseSim, currentMapIndex: 1, currentRound: 1, homeRounds: 0, awayRounds: 0 }
+        const gs = buildRestoredGameState({
+            savedGameState: { round: 18, homeScore: 5, awayScore: 13, status: "IN_PROGRESS", time: 80, isPaused: false, currentMapIndex: 0 } as any,
+            simState: nextMap,
+            currentMapIndex: 1,
+        })
+        expect(gs).toMatchObject({ currentMapIndex: 1, round: 1, homeScore: 0, awayScore: 0, time: -1, status: "IN_PROGRESS" })
+        // Same map: the saved screen is kept.
+        const same = buildRestoredGameState({
+            savedGameState: { round: 9, homeScore: 5, awayScore: 3, status: "IN_PROGRESS", time: 12, isPaused: true, currentMapIndex: 1 } as any,
+            simState: nextMap,
+            currentMapIndex: 1,
+        })
+        expect(same).toMatchObject({ round: 9, homeScore: 5, awayScore: 3, time: 12, isPaused: true })
+    })
+})
+
+// MATCHDAY-18: the map-end break keeps the finished map on screen; the next
+// map's first round moves the screen on (source contract of the live hook).
+describe("map break keeps the finished map on screen", () => {
+    const src = require("fs").readFileSync(require("path").resolve(__dirname, "../hooks/useLiveMatch.ts"), "utf8") as string
+    test("MAP_END no longer switches the shown map; startNextRound does", () => {
+        const mapEnd = src.slice(src.indexOf('} else if (transition === "MAP_END") {'), src.indexOf('} else if (transition === "OVERTIME") {'))
+        expect(mapEnd).not.toMatch(/currentMapIndex:/)
+        expect(src).toMatch(/prev\.currentMapIndex !== mapIndex \? \{ currentMapIndex: mapIndex, homeScore: 0, awayScore: 0 \}/)
+    })
+})
+
+// MATCHDAY-08: a round restored mid-flight shows the loss bonus it started with.
+describe("sanitizeRoundLossLevels", () => {
+    test("keeps valid 0-4 levels per team", () => {
+        expect(sanitizeRoundLossLevels({ home: 0, away: 3 })).toEqual({ home: 0, away: 3 })
+        expect(sanitizeRoundLossLevels({ away: 4 })).toEqual({ away: 4 })
+    })
+    test("drops anything else (older checkpoints have none)", () => {
+        expect(sanitizeRoundLossLevels(undefined)).toEqual({})
+        expect(sanitizeRoundLossLevels(null)).toEqual({})
+        expect(sanitizeRoundLossLevels({ home: 5, away: -1 })).toEqual({})
+        expect(sanitizeRoundLossLevels({ home: 1.5, away: "2" })).toEqual({})
+    })
+    test("the live hook checkpoints the shown levels and restores them for an in-flight round", () => {
+        const src = require("fs").readFileSync(require("path").resolve(__dirname, "../hooks/useLiveMatch.ts"), "utf8") as string
+        expect(src).toMatch(/roundLossLevels: shownLossLevels,/)
+        expect(src).toMatch(/setShownLossLevels\(inFlight \? sanitizeRoundLossLevels\(activeMatchState!\.roundLossLevels\)/)
     })
 })

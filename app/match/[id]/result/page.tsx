@@ -30,12 +30,14 @@ import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimati
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { MAP_NAMES } from "@/data/map-pool"
+import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 import { ProGoalVerdict, useProGoal } from "@/components/pro/ProMatchGoal"
+import { staleActiveMatch } from "@/app/match/match-centre"
 
 // Confetti in the v2 palette: trophy gold, white, win green.
 const CONFETTI_COLORS = ['#F2B53A', '#F2F4F7', '#3DD68C']
@@ -71,9 +73,12 @@ export default function MatchResultPage() {
     } | null>(null)
     const advancementChecked = useRef(false)
 
+    // Clear only a leftover live-match state (its match is recorded or gone):
+    // a match paused on the live screen stays resumable while the manager
+    // looks at other results (MATCHDAY-01).
     useEffect(() => {
-        clearActiveMatchState()
-    }, [clearActiveMatchState])
+        if (staleActiveMatch(useGameStore.getState())) clearActiveMatchState()
+    }, [clearActiveMatchState, completedMatches])
 
     const [notFound, setNotFound] = useState(false)
     useEffect(() => {
@@ -498,7 +503,7 @@ export default function MatchResultPage() {
                             <dl className="divide-y divide-line text-sm">
                                 <div className="flex items-center justify-between px-4 py-2.5">
                                     <dt className="text-ink-3">Elo</dt>
-                                    <dd className={cn("font-semibold tabular-nums", elo == null ? "text-ink-3" : elo >= 0 ? "text-positive" : "text-negative")}>{elo == null ? "—" : `${elo > 0 ? "+" : ""}${elo}`}</dd>
+                                    <dd className={cn("font-semibold tabular-nums", elo == null || elo === 0 ? "text-ink-3" : elo > 0 ? "text-positive" : "text-negative")}>{elo == null ? "—" : `${elo > 0 ? "+" : ""}${elo}`}</dd>
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2.5">
                                     <dt className="text-ink-3">{t("result.worldRanking")}</dt>
@@ -528,7 +533,8 @@ export default function MatchResultPage() {
                                             ))}
                                         </ul>
                                     )}
-                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">{t("result.noMoney")} {leagueStage ? t("result.prizeLeague") : t("result.prizeEvent")}</p>}
+                                    {/* Prize money only exists for a league or an event; a scrim or friendly pays none (MATCHDAY-10). */}
+                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">{t("result.noMoney")}{leagueStage ? ` ${t("result.prizeLeague")}` : isTournament ? ` ${t("result.prizeEvent")}` : ""}</p>}
                                 </div>
                             </dl>
                         </Panel>
@@ -840,34 +846,47 @@ export default function MatchResultPage() {
                             return teamPlayers.reduce((sum: number, e: any) => sum + (e.spent || 0) + (e.remaining || 0), 0) / teamPlayers.length
                         }
                         const maxMoney = 16000
+                        // MATCHDAY-21: a gap and a rule where money resets (the half, each overtime set),
+                        // a full-buy guide line, and each team's name beside its own row.
+                        const resetBefore = (n: number) => n === 13 || (n > 24 && (n - 25) % 6 === 0)
+                        const fullBuyPct = (ROUND_ECONOMY_TUNING.FULL_MIN_AVG_CASH / maxMoney) * 100
+                        const gapCls = (i: number) => resetBefore(i + 1) && "ml-2 border-l border-line-strong pl-[3px]"
                         const bars = (teamId: string, flip: boolean) => (
-                            <div className={cn("flex h-20 gap-[3px]", flip ? "items-start" : "items-end")}>
-                                {rounds.map((round: any, i: number) => {
-                                    const avgMoney = getTeamEconomy(round, teamId)
-                                    const height = Math.max(4, Math.min(100, (avgMoney / maxMoney) * 100))
-                                    const won = round.winningTeamId === teamId
-                                    return (
-                                        <div
-                                            key={i}
-                                            className={cn("flex-1", flip ? "rounded-b-[2px]" : "rounded-t-[2px]", won ? "bg-ink-1" : "bg-ink-3/50")}
-                                            style={{ height: `${height}%` }}
-                                            title={`R${i + 1}: ${t("result.avgMoney", { money: formatCurrency(Math.round(avgMoney), "$", false) })}${won ? ` · ${t("result.wonLower")}` : ""}`}
-                                        />
-                                    )
-                                })}
+                            <div className="relative h-20">
+                                <div className="pointer-events-none absolute inset-x-0 border-t border-dashed border-line-strong" style={flip ? { top: `${fullBuyPct}%` } : { bottom: `${fullBuyPct}%` }} aria-hidden="true" />
+                                <div className={cn("relative flex h-full gap-[3px]", flip ? "items-start" : "items-end")}>
+                                    {rounds.map((round: any, i: number) => {
+                                        const avgMoney = getTeamEconomy(round, teamId)
+                                        const height = Math.max(4, Math.min(100, (avgMoney / maxMoney) * 100))
+                                        const won = round.winningTeamId === teamId
+                                        return (
+                                            <div key={i} className={cn("flex h-full flex-1", flip ? "items-start" : "items-end", gapCls(i))}>
+                                                <div
+                                                    className={cn("w-full", flip ? "rounded-b-[2px]" : "rounded-t-[2px]", won ? "bg-ink-1" : "bg-ink-3/50")}
+                                                    style={{ height: `${height}%` }}
+                                                    title={`R${i + 1}: ${t("result.avgMoney", { money: formatCurrency(Math.round(avgMoney), "$", false) })}${won ? ` · ${t("result.wonLower")}` : ""}`}
+                                                />
+                                            </div>
+                                        )
+                                    })}
+                                </div>
                             </div>
                         )
+                        const rowLabel = "truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"
                         return (
                             <Panel title={`${t("result.roundEconomy")} · ${MAP_NAMES[selectedMap.map] ?? selectedMap.map}`} actions={<span className="text-xs text-ink-3">{t("result.roundEconomyNote")}</span>}>
-                                <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{homeTeam?.name}</p>
-                                {bars(match.homeTeamId, false)}
-                                <div className="my-1 flex gap-[3px]">
-                                    {rounds.map((_: any, i: number) => (
-                                        <span key={i} className="flex-1 text-center text-[11px] tabular-nums text-ink-3">{(i + 1) % 3 === 1 ? i + 1 : ""}</span>
-                                    ))}
+                                <div className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-3">
+                                    <p className={cn(rowLabel, "self-end pb-0.5")} title={homeTeam?.name}>{homeTeam?.name}</p>
+                                    {bars(match.homeTeamId, false)}
+                                    <p className="self-center truncate text-[11px] tabular-nums text-ink-3" title={t("buy.full")}>{t("buy.full")} <span className="text-ink-2">{formatCurrency(ROUND_ECONOMY_TUNING.FULL_MIN_AVG_CASH, "$", false)}</span> <span aria-hidden="true">┄</span></p>
+                                    <div className="my-1 flex gap-[3px]">
+                                        {rounds.map((_: any, i: number) => (
+                                            <span key={i} className={cn("flex-1 text-center text-[11px] tabular-nums text-ink-3", gapCls(i), resetBefore(i + 1) && "font-semibold text-ink-2")} title={resetBefore(i + 1) ? (i + 1 === 13 ? t("live.halftime") : t("live.overtime")) : undefined}>{(i + 1) % 3 === 1 || resetBefore(i + 1) ? i + 1 : ""}</span>
+                                        ))}
+                                    </div>
+                                    <p className={cn(rowLabel, "self-start pt-0.5")} title={awayTeam?.name}>{awayTeam?.name}</p>
+                                    {bars(match.awayTeamId, true)}
                                 </div>
-                                {bars(match.awayTeamId, true)}
-                                <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{awayTeam?.name}</p>
                             </Panel>
                         )
                     })()}
@@ -898,9 +917,10 @@ function MvpCard({ label, stat, player, isMatchMvp }: { label: string; stat: Pla
                 <PlayerPortrait src={player?.portraitPath} seed={player?.id} alt={player?.nickname || "Player"} size={64} />
             </div>
             <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                    {label}
-                    {isMatchMvp && <span className="inline-flex items-center gap-1 text-gold"><Trophy size={11} aria-hidden="true" /> {t("endBeat.matchMvp")}</span>}
+                {/* Each label stays on one line; the Match MVP badge moves under the label when the column is narrow (MATCHDAY-14). */}
+                <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
+                    <span className="whitespace-nowrap">{label}</span>
+                    {isMatchMvp && <span className="inline-flex items-center gap-1 whitespace-nowrap text-gold"><Trophy size={11} aria-hidden="true" /> {t("endBeat.matchMvp")}</span>}
                 </p>
                 <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1"><PlayerLink id={player?.id}>{player?.nickname ?? t("result.formerPlayer")}</PlayerLink></p>
                 <p className="text-xs tabular-nums text-ink-3">
