@@ -14,6 +14,7 @@ import { nextStop, type StopSource } from "@/lib/advance-stops"
 import { buildWeekReport, type ReportStateSource } from "@/lib/week-report"
 import { eventToItem, digestLine, type InboxContext } from "@/components/inbox/inbox-model"
 import { makeWorld, playLeagueWeek } from "./league-fixtures"
+import { formatGameCalendarRange, gameCalendarDate } from "@/lib/game-calendar"
 
 describe("HOME-01: league draw links open the league table", () => {
     it("routes league division ids to /league", () => {
@@ -169,5 +170,15 @@ describe("HOME-21: mid-week level-ups read as real messages in the inbox", () =>
         expect(item.subject).toBe("Manager level up!")
         expect(item.preview).toBe("You have reached manager level 3.")
         expect(digestLine({ id: event.id, type: event.type, week: 5, data: event.data } as never, ctx)).toBe("You have reached manager level 3.")
+    })
+})
+
+describe("HOME-18: weekly mode shows the whole week in the top bar", () => {
+    it("formats the week as a span, not as its first day", () => {
+        const start = gameCalendarDate("2027-01-03T00:00:00Z", 5)
+        const end = gameCalendarDate("2027-01-03T00:00:00Z", 5, 6)
+        const label = formatGameCalendarRange(start, end, { day: "numeric", month: "short", year: "numeric" })
+        expect(label).toMatch(/Jan 31/)
+        expect(label).toMatch(/Feb 6, 2027/)
     })
 })

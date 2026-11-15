@@ -7,7 +7,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { usePathname } from "next/navigation"
 import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from "react"
-import { formatGameCalendarDate } from "@/lib/game-calendar"
+import { formatGameCalendarDate, formatGameCalendarRange } from "@/lib/game-calendar"
 import { Settings } from "lucide-react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
@@ -102,6 +102,11 @@ export function TopBar() {
         date.setUTCDate(date.getUTCDate() + dayOffset)
         return date
     }, [getDateForWeek, currentWeek, currentDay, timeMode])
+    const weekEnd = useMemo(() => {
+        const date = new Date(getDateForWeek(currentWeek))
+        date.setUTCDate(date.getUTCDate() + 6)
+        return date
+    }, [getDateForWeek, currentWeek])
     const playerTeam = useCurrentTeam()
     const budget = playerTeam?.budget || 0
 
@@ -214,7 +219,10 @@ export function TopBar() {
 
                     {!hideCareerControls && <div className="flex flex-col items-end leading-none">
                         <span suppressHydrationWarning className="topbar-date whitespace-nowrap text-sm font-semibold text-ink-1">
-                            {formatGameCalendarDate(currentDate, { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
+                            {/* Weekly mode: the whole week, so results already played this week are never "in the future" (HOME-18). */}
+                            {timeMode === "HYBRID_DAILY"
+                                ? formatGameCalendarDate(currentDate, { weekday: "short", day: "2-digit", month: "short", year: "numeric" })
+                                : formatGameCalendarRange(currentDate, weekEnd, { day: "numeric", month: "short", year: "numeric" })}
                         </span>
                         <button
                             type="button"
