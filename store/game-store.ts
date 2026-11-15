@@ -788,7 +788,10 @@ function draftCupOver(state: { draftCup?: unknown }): boolean {
 function careerAdvanceState(save: GameSave, playerTeamId: string | null, fresh: boolean): AdvanceState {
   const loaded = sanitizeWeekReports((save as GameSave & { weekReports?: unknown }).weekReports)
   const source = { ...save, playerTeamId, weekReports: loaded } as unknown as TrackingState
-  return { ...initialAdvanceState, weekReports: withTracker(source, !fresh) }
+  // Continue's seen stop keys are career state: a reload must not stop again
+  // on an injury, contract or board notice already shown (HOME-24).
+  const seen = Array.isArray(save.advanceSeenKeys) ? save.advanceSeenKeys.filter((k): k is string => typeof k === "string").slice(-200) : []
+  return { ...initialAdvanceState, weekReports: withTracker(source, !fresh), advanceSeenKeys: seen }
 }
 
 /**

@@ -88,6 +88,8 @@ export interface GameSave {
     // === WEEKLY REPORT (Phase 4.1) ===
     /** Last four weekly reports (changes with causes) + this week's baseline. Compact, bounded. */
     weekReports?: import("@/lib/week-report").WeekReportsState | null
+    /** Continue's stop keys already shown (injury, contract, board, …), so a reload does not stop on them again (HOME-24). At most 200. */
+    advanceSeenKeys?: string[]
 
     // === SESSION TRACKING ===
     lastPlayedAt?: string // ISO date of last save for offline recovery

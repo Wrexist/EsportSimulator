@@ -112,5 +112,6 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         gameOverReason: state.gameOverReason ?? undefined,
         gameOverWeek: state.gameOverWeek ?? undefined,
         weekReports: state.weekReports ?? undefined,
+        advanceSeenKeys: state.advanceSeenKeys ?? [],
     }
 }

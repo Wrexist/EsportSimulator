@@ -36,7 +36,7 @@ export interface AdvanceState {
     continueRun: ContinueRunState | null
     /** Transient: why the last Continue stopped. */
     advanceStop: AdvanceStopNotice | null
-    /** Transient: stop keys already shown (Continue passes them next time). */
+    /** Stop keys already shown (Continue passes them next time); saved with the career (HOME-24). */
     advanceSeenKeys: string[]
     /** Transient: week whose report is open in the modal. */
     weekReportOpen: number | null
