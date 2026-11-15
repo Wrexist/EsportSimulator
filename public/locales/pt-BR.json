@@ -6907,5 +6907,8 @@
  "bd.rev.MISSED.mNotice": "A temporada ficou abaixo das metas da diretoria. A confiança caiu para {{c}}/100: você está no último aviso.",
  "bd.rev.FAILED.t": "Diretoria do {{club}} furiosa",
  "bd.rev.FAILED.m": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100: você está no último aviso e precisa entregar na próxima temporada."
+ "bd.rev.FAILED.mNotice": "Uma temporada muito abaixo do esperado. A confiança da diretoria despencou para {{c}}/100: você está no último aviso e precisa entregar na próxima temporada.",
+ "nw.rivalry.t": "Duelo do top 10: {{home}} x {{away}}",
+ "nw.rivalry.c": "Dois clubes do top 10 mundial se enfrentam nesta semana. Retrospecto: {{home}} {{homeWins}}–{{awayWins}} {{away}}.",
+ "nw.rivalry.first": "Dois clubes do top 10 mundial se enfrentam nesta semana: {{home}} e {{away}} nunca jogaram entre si."
 }

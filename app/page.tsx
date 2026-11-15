@@ -43,6 +43,7 @@ import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
+import { sideScore } from "@/lib/week-changes"
 import { ordinalLabel, t, tn } from "@/lib/i18n"
 
 const tierLabel = (tier: string) => ["S_TIER", "A_TIER", "B_TIER", "C_TIER"].includes(tier) ? t(`common.tier.${tier}`) : tier
@@ -64,29 +65,6 @@ const FINANCE_STATE: Record<string, { className: string }> = {
   RISK: { className: "text-caution" },
   CRISIS: { className: "text-negative" },
   INSOLVENT: { className: "text-negative" },
-}
-
-type MatchLike = {
-  id: string
-  week: number
-  homeTeamId: string
-  awayTeamId: string
-  isScrim?: boolean
-  tournamentId?: string | null
-  result?: { winnerId?: string; homeScore: number; awayScore: number; maps?: { finalScore?: { team1: number; team2: number } }[] }
-}
-
-/** Score from the player's side: round score for a BO1, map score otherwise. */
-function scoreFor(match: MatchLike, teamId: string): string {
-  const r = match.result
-  if (!r) return "—"
-  const isHome = match.homeTeamId === teamId
-  const maps = r.maps
-  if (maps && maps.length === 1 && maps[0]?.finalScore) {
-    const fs = maps[0].finalScore
-    return isHome ? `${fs.team1}–${fs.team2}` : `${fs.team2}–${fs.team1}`
-  }
-  return isHome ? `${r.homeScore}–${r.awayScore}` : `${r.awayScore}–${r.homeScore}`
 }
 
 function tournamentFor(id?: string | null) {
@@ -589,7 +567,7 @@ export default function Page() {
                           {/* The opponent's name wins the space; a long league label truncates (HOME-15). */}
                           <span className="min-w-[6rem] flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
                           <span className="hidden min-w-0 max-w-[45%] truncate text-xs text-ink-3 sm:inline" title={`${comp} · ${t("common.weekShort", { n: m.week })}`}>{comp} · {t("common.weekShort", { n: m.week })}</span>
-                          <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{scoreFor(m as MatchLike, playerTeamId || "")}</span>
+                          <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{sideScore(m.result, m.homeTeamId === playerTeamId)}</span>
                         </Link>
                       </li>
                     )

@@ -506,6 +506,8 @@ export interface NewsFeedItem {
     playerId?: string
     /** The match this item reports on (so a result is reported once). */
     matchId?: string
+    /** Day of the week it happened on (0-6), when known; the feed dates it by this day. */
+    day?: number
     link?: string
     engagement?: {
         likes: number

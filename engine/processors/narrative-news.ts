@@ -23,6 +23,8 @@ import type { SeededRNG } from "../rng"
 import type { SaveIndexes } from "@/store/indexes"
 import { getMatchTone } from "@/lib/match-stakes"
 import { finalPreview } from "../storylines/narrative"
+import { newsText } from "@/lib/news-ref"
+import { sideScore } from "@/lib/week-changes"
 
 export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
     // 1. Monthly Power Rankings
@@ -114,8 +116,11 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             }
 
             // Winner's score first: the sentence reads "winner defeats loser" (HOME-03).
+            // A single map reads in rounds (13–8), as on the result screen (HOME-07).
             const winnerIsHome = winner.id === match.homeTeamId
-            const scoreLine = winnerIsHome ? `${homeScore}-${awayScore}` : `${awayScore}-${homeScore}`
+            const scoreLine = match.result.maps?.length === 1
+                ? sideScore(match.result, winnerIsHome)
+                : winnerIsHome ? `${homeScore}–${awayScore}` : `${awayScore}–${homeScore}`
             const competition = tournament?.name
                 || (match.tournamentId.startsWith("league_") ? (match.stage?.split(" · ")[0]?.trim() || "the regional league") : "tournament play")
             const isUpset = (loser?.elo || 0) > (winner?.elo || 0) + 100
@@ -131,8 +136,9 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 category: "MATCH",
                 teamId: winner.id,
                 matchId: match.id,
-                // Dated to the match's week, not the tick that wrote it (HOME-03).
+                // Dated to the match's week and day, not the tick that wrote it (HOME-03, HOME-07).
                 week: match.week,
+                ...(typeof match.day === "number" ? { day: match.day } : {}),
                 engagement: { likes: 500 + Math.floor(rng.next() * 1500), views: 8000 + Math.floor(rng.next() * 12000) },
             })
         }
@@ -260,10 +266,15 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             const homeWins = h2hMatches.filter(m => m.result.winnerId === home.id).length
             const awayWins = h2hMatches.filter(m => m.result.winnerId === away.id).length
 
+            // No meetings yet: say so instead of a "0 - 0" record (HOME-08).
             save.newsFeed.unshift({
                 id: `rivalry_${upcomingRivalry.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
-                title: `Classic Clash: ${home.name} vs ${away.name}`,
-                content: `Two titans collide this week! Historical record: ${home.name} ${homeWins} - ${awayWins} ${away.name}. Fans are hyped for this blockbuster matchup.`,
+                ...newsText(
+                    { key: "nw.rivalry.t", params: { home: home.name, away: away.name } },
+                    h2hMatches.length === 0
+                        ? { key: "nw.rivalry.first", params: { home: home.name, away: away.name } }
+                        : { key: "nw.rivalry.c", params: { home: home.name, away: away.name, homeWins, awayWins } },
+                ),
                 category: "MATCH",
                 teamId: home.id,
                 week: save.currentWeek,

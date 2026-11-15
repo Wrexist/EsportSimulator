@@ -6907,5 +6907,8 @@
  "bd.rev.MISSED.mNotice": "La temporada se quedó por debajo de los objetivos de la directiva. La confianza ha bajado a {{c}}/100: estás bajo ultimátum.",
  "bd.rev.FAILED.t": "La directiva de {{club}}, furiosa",
  "bd.rev.FAILED.m": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100.",
- "bd.rev.FAILED.mNotice": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100: estás bajo ultimátum y tienes que cumplir la próxima temporada."
+ "bd.rev.FAILED.mNotice": "Una temporada muy por debajo de lo esperado. La confianza de la directiva se ha hundido a {{c}}/100: estás bajo ultimátum y tienes que cumplir la próxima temporada.",
+ "nw.rivalry.t": "Duelo del top 10: {{home}} contra {{away}}",
+ "nw.rivalry.c": "Dos clubes del top 10 mundial se enfrentan esta semana. Historial: {{home}} {{homeWins}}–{{awayWins}} {{away}}.",
+ "nw.rivalry.first": "Dos clubes del top 10 mundial se enfrentan esta semana: {{home}} y {{away}} nunca se han enfrentado."
 }
