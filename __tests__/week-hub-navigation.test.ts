@@ -9,7 +9,7 @@ import path from "path"
 import { t } from "@/lib/i18n"
 import { GEAR_HREF, PRO_HIDDEN_HREFS, hubForPath, menuGroups, menuGroupsFor, navHubs, staffMeetingHref } from "@/lib/navigation"
 import { NUMBER_KEY_ROUTES, SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
-import { liveMatchInProgress, matchCentreHref, type MatchCentreState } from "@/app/match/match-centre"
+import { liveMatchInProgress, matchCentreHref, staleActiveMatch, type MatchCentreState } from "@/app/match/match-centre"
 
 const redirect = jest.fn((href: string) => { throw new Error(`NEXT_REDIRECT ${href}`) })
 jest.mock("next/navigation", () => ({ redirect: (href: string) => redirect(href) }))
@@ -160,6 +160,23 @@ describe("/match → match centre target", () => {
         expect(liveMatchInProgress({ activeMatchId: null, activeMatchState: { matchId: "m1" }, scheduledMatches: scheduled, completedMatches: [] }, "m1")).toBe(true)
         expect(liveMatchInProgress({ activeMatchId: "m1", scheduledMatches: scheduled, completedMatches: [{ id: "m1" }] }, "m1")).toBe(false)
         expect(liveMatchInProgress({ activeMatchId: null, scheduledMatches: scheduled, completedMatches: [] }, "m1")).toBe(false)
+    })
+    // MATCHDAY-01 (2026-11-15): opening another match's result must not wipe a paused live match.
+    test("only a leftover live-match state is stale (the result screen clears nothing else)", () => {
+        const scheduled = [fixture("m1", 10, 2), fixture("m2", 10, 4)]
+        // m2 paused on the live screen; the manager opens m0's (old) result.
+        expect(staleActiveMatch({ activeMatchId: "m2", activeMatchState: { matchId: "m2" }, scheduledMatches: scheduled, completedMatches: [{ id: "m0" }] })).toBe(false)
+        expect(staleActiveMatch({ activeMatchId: null, activeMatchState: { matchId: "m2" }, scheduledMatches: scheduled, completedMatches: [] })).toBe(false)
+        // Nothing stored: nothing to clear.
+        expect(staleActiveMatch({ activeMatchId: null, activeMatchState: null, scheduledMatches: scheduled, completedMatches: [] })).toBe(false)
+        // The active match was recorded (or dropped from the schedule): a leftover.
+        expect(staleActiveMatch({ activeMatchId: "m1", activeMatchState: { matchId: "m1" }, scheduledMatches: scheduled, completedMatches: [{ id: "m1" }] })).toBe(true)
+        expect(staleActiveMatch({ activeMatchId: "gone", scheduledMatches: scheduled, completedMatches: [] })).toBe(true)
+    })
+    test("the result screen clears the live-match state only through staleActiveMatch", () => {
+        const src = fs.readFileSync(path.resolve(__dirname, "../app/match/[id]/result/page.tsx"), "utf8")
+        expect(src).toMatch(/if \(staleActiveMatch\(useGameStore\.getState\(\)\)\) clearActiveMatchState\(\)/)
+        expect(src.match(/clearActiveMatchState\(\)/g)).toHaveLength(1)
     })
 })
 

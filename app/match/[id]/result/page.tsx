@@ -35,6 +35,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { ProGoalVerdict, useProGoal } from "@/components/pro/ProMatchGoal"
+import { staleActiveMatch } from "@/app/match/match-centre"
 
 // Confetti in the v2 palette: trophy gold, white, win green.
 const CONFETTI_COLORS = ['#F2B53A', '#F2F4F7', '#3DD68C']
@@ -70,9 +71,12 @@ export default function MatchResultPage() {
     } | null>(null)
     const advancementChecked = useRef(false)
 
+    // Clear only a leftover live-match state (its match is recorded or gone):
+    // a match paused on the live screen stays resumable while the manager
+    // looks at other results (MATCHDAY-01).
     useEffect(() => {
-        clearActiveMatchState()
-    }, [clearActiveMatchState])
+        if (staleActiveMatch(useGameStore.getState())) clearActiveMatchState()
+    }, [clearActiveMatchState, completedMatches])
 
     const [notFound, setNotFound] = useState(false)
     useEffect(() => {
