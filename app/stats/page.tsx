@@ -1,6 +1,6 @@
 "use client"
 import { stageName } from "@/lib/display-names"
-import { intlLocale, t } from "@/lib/i18n"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 import React, { Fragment, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -227,7 +227,7 @@ export default function StatsPage() {
 
                         {teamMatches.length > 0 && (
                             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                                <Panel title={t("sx.teamRating")} actions={<span className="text-xs text-ink-3">{t("sx.teamRatingNote", { n: trend.length })}</span>}>
+                                <Panel title={t("sx.teamRating")} actions={<span className="text-xs text-ink-3">{tn("sx.teamRatingNote", trend.length, { n: trend.length })}</span>}>
                                     <div className="h-[240px]">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <LineChart data={trend} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>

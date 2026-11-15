@@ -22,7 +22,7 @@ function standing(o: BoardObjective): TextRef {
     if (o.current === undefined) return { key: "sl.bp.standing.none" }
     return o.id === "finance" ? { key: "sl.bp.standing.finance", params: { current: usd(o.current), target: usd(o.target) } }
         : o.id === "ranking" ? { key: "sl.bp.standing.ranking", params: { current: o.current, target: o.target } }
-            : o.id === "trophies" ? { key: "sl.bp.standing.trophies", params: { current: o.current, target: o.target } }
+            : o.id === "trophies" ? { key: "sl.bp.standing.trophyCount", count: o.current, params: { target: o.target } }
                 : { key: "sl.bp.standing.place", params: { current: ord(o.current), target: ord(o.target) } }
 }
 
