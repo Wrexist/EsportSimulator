@@ -49,26 +49,30 @@ export function WelcomeMomentView({ moment, onDismiss }: { moment: WelcomeMoment
     if (team) facts.push({ label: t("mo.budget"), value: formatCurrency(Math.round(team.budget), "$", false) })
 
     const headlineId = `moment-welcome-${moment.key}`
+    // START-26 / CROSSCUT-16: below 800 px of height the brief tightens (smaller
+    // crest and headline, less spacing, cards side by side from 768 px) so the
+    // objectives and the first fixture sit above the sticky action at 1280x720
+    // and 1024x640.
     return (
-        <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="welcome" onDismiss={onDismiss} actionLabel={t("mo.toDashboard")}>
+        <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="welcome" onDismiss={onDismiss} actionLabel={t("mo.toDashboard")} className="[@media(max-height:800px)]:py-6">
             <div className="flex w-full max-w-5xl flex-col items-center">
-                <motion.div {...reveal(0)} className="flex h-28 w-28 items-center justify-center rounded-xl border border-line bg-raised">
-                    <TeamLogoDisplay team={team} size={88} />
+                <motion.div {...reveal(0)} className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-raised [@media(max-height:800px)]:h-16 [@media(max-height:800px)]:w-16">
+                    <span className="flex shrink-0 [@media(max-height:800px)]:scale-[0.6]"><TeamLogoDisplay team={team} size={88} /></span>
                 </motion.div>
-                <motion.div {...reveal(0.2)} className="mt-6">
+                <motion.div {...reveal(0.2)} className="mt-6 [@media(max-height:800px)]:mt-3">
                     <MomentOverline>{t("mo.boardBrief")}{s.managerName ? ` · ${s.managerName}` : ""}</MomentOverline>
                 </motion.div>
-                <motion.h2 {...reveal(0.3, 22)} id={headlineId} className="mt-3 max-w-5xl font-display text-[length:clamp(40px,min(5.4vw,9vh),92px)] font-extrabold uppercase leading-[0.86] text-ink-1">
+                <motion.h2 {...reveal(0.3, 22)} id={headlineId} className="mt-3 max-w-5xl font-display text-[length:clamp(40px,min(5.4vw,9vh),92px)] font-extrabold uppercase leading-[0.86] text-ink-1 [@media(max-height:800px)]:mt-2 [@media(max-height:800px)]:text-[length:clamp(32px,min(5.4vw,7vh),72px)]">
                     {team ? t("mo.welcome", { team: team.name }) : t("mo.welcomeClub")}
                 </motion.h2>
-                <MomentRule className="mt-7" delay={0.4} />
+                <MomentRule className="mt-7 [@media(max-height:800px)]:mt-4" delay={0.4} />
                 {facts.length > 0 && (
-                    <motion.div {...reveal(0.5)} className="mt-7 w-full max-w-3xl">
+                    <motion.div {...reveal(0.5)} className="mt-7 w-full max-w-3xl [@media(max-height:800px)]:mt-4">
                         <MomentFacts facts={facts} />
                     </motion.div>
                 )}
-                <div className="mt-6 grid w-full grid-cols-1 gap-4 text-left lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-                    <motion.section {...reveal(0.65)} className="rounded-lg border border-line bg-panel px-6 py-5" aria-labelledby={`${headlineId}-obj`}>
+                <div className="mt-6 grid w-full grid-cols-1 gap-4 text-left md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] [@media(max-height:800px)]:mt-4">
+                    <motion.section {...reveal(0.65)} className="rounded-lg border border-line bg-panel px-6 py-5 [@media(max-height:800px)]:py-4" aria-labelledby={`${headlineId}-obj`}>
                         <h3 id={`${headlineId}-obj`} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("mo.boardExpects")}</h3>
                         {objectives.length > 0 ? (
                             <ol className="mt-3 space-y-2.5">
@@ -83,7 +87,7 @@ export function WelcomeMomentView({ moment, onDismiss }: { moment: WelcomeMoment
                             <p className="mt-3 text-sm text-ink-2">{t("mo.noObjectives")}</p>
                         )}
                     </motion.section>
-                    <motion.section {...reveal(0.75)} className="rounded-lg border border-line bg-panel px-6 py-5" aria-labelledby={`${headlineId}-fix`}>
+                    <motion.section {...reveal(0.75)} className="rounded-lg border border-line bg-panel px-6 py-5 [@media(max-height:800px)]:py-4" aria-labelledby={`${headlineId}-fix`}>
                         <h3 id={`${headlineId}-fix`} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("mo.firstFixture")}</h3>
                         {first && opponent && comp ? (
                             <div className="mt-3 flex items-center gap-4">
@@ -92,7 +96,8 @@ export function WelcomeMomentView({ moment, onDismiss }: { moment: WelcomeMoment
                                     <p className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{opponent.name}</p>
                                     <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm text-ink-2">
                                         {comp.tier && <TierTag tier={comp.tier} />}
-                                        <span>{divisionName(comp.name)}{comp.stage ? ` · ${stageName(comp.stage)}` : ""}</span>
+                                        {/* START-44: practice fixtures read as on Home ("Scrim · Practice match"). */}
+                                        <span>{first.isScrim ? `${t("common.scrim")} · ${t("home.practiceMatch")}` : `${divisionName(comp.name)}${comp.stage ? ` · ${stageName(comp.stage)}` : ""}`}</span>
                                     </p>
                                     <p className="mt-1 text-xs text-ink-3">{firstDate ? `${firstDate} · ` : ""}{t("mo.weekN", { n: first.week })}{first.format ? ` · ${String(first.format).toUpperCase()}` : ""}</p>
                                 </div>

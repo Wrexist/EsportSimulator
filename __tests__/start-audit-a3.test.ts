@@ -81,3 +81,15 @@ describe("START-36: load game", () => {
         expect(src("engine/save-manager.ts")).toContain("migrated.saveId = `imported_")
     })
 })
+
+describe("START-26 / CROSSCUT-16 / START-44: the board brief fits short windows", () => {
+    const file = src("components/moments/WelcomeMomentView.tsx")
+    test("tightens below 800 px of height and puts the cards side by side from 768 px", () => {
+        expect(file).toContain("[@media(max-height:800px)]:h-16")
+        expect(file).toContain("[@media(max-height:800px)]:text-[length:clamp(32px,min(5.4vw,7vh),72px)]")
+        expect(file).toContain("md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]")
+    })
+    test("a practice fixture reads as on Home", () => {
+        expect(file).toContain('first.isScrim ? `${t("common.scrim")} · ${t("home.practiceMatch")}`')
+    })
+})
