@@ -17,7 +17,7 @@
  * prize money. The UI says so next to the numbers.
  */
 
-import { t, tn, intlLocale } from "@/lib/i18n"
+import { t, tn, intlLocale, formatNumber } from "@/lib/i18n"
 import { activityName } from "@/components/schedule/activity-labels"
 import { WEEKLY_ACTIVITIES, weeklyActivityXpBonus, type WeeklyActivityType } from "@/types/activities"
 import { TrainingFocus } from "@/types"
@@ -145,7 +145,7 @@ function meetingEffects(a: ActivitySaveData): Record<string, number> {
     return ((a.data as { effects?: Record<string, number> } | undefined)?.effects) ?? { morale: 10, xp: 25 }
 }
 
-const signedN = (n: number) => `${n > 0 ? "+" : "−"}${Math.abs(n)}`
+const signedN = (n: number) => `${n > 0 ? "+" : "−"}${formatNumber(Math.abs(n))}`
 const money = (n: number) => `${n > 0 ? "+" : "−"}$${Math.abs(Math.round(n)).toLocaleString("en-US")}`
 
 export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
@@ -299,7 +299,7 @@ export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
         source: "recovery",
         label: tn("wkp.recovery", rest.length),
         effects: [
-            { text: t("fx.fatigue", { value: `−${BASE_WEEKLY_RECOVERY + Math.round(recoveryBonus * 10) / 10}` }), good: true },
+            { text: t("fx.fatigue", { value: `−${formatNumber(BASE_WEEKLY_RECOVERY + Math.round(recoveryBonus * 10) / 10)}` }), good: true },
             ...(rest.length ? [{ text: t("wkp.restDayFx", { fatigue: Math.round(CONDITION_TUNING.IDLE_DAY_FATIGUE_RECOVERY_RATE * 100), energy: CONDITION_TUNING.IDLE_DAY_ENERGY }), good: true }] : []),
         ],
     })

@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
-import { eventRegionName } from "@/lib/display-names"
+import { eventRegionName, stageName } from "@/lib/display-names"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -33,8 +33,9 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
 import { Activity, ArrowUpRight, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
-import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { formatCurrency, formatSignedCurrency, getDynamicTournamentName } from "@/lib/utils-extended"
+import { matchEventName } from "@/lib/tournament-instances"
+import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -70,7 +71,8 @@ const FINANCE_STATE: Record<string, { className: string }> = {
 
 function tournamentFor(id?: string | null) {
   if (!id) return undefined
-  return FULL_TOURNAMENT_CALENDAR.find(t => t.id === id || t.id === id.replace(/_s\d+$/, "") || id.startsWith(`${t.id}_`))
+  // Exact id or season instance first, so a qualifier ("…_open_s1") never takes its main event's entry.
+  return getTournamentById(id) ?? FULL_TOURNAMENT_CALENDAR.find(t => id.startsWith(`${t.id}_`))
 }
 
 export default function Page() {
@@ -170,6 +172,13 @@ export default function Page() {
   }, [opponent, playersById])
 
   const tournament = useMemo(() => tournamentFor(nextMatch?.tournamentId), [nextMatch])
+  // The event's name with the year it is played in: the saved instance's name,
+  // else the calendar name dated by the match week (never the data's "2025").
+  const tournamentName = useMemo(() => {
+    if (!nextMatch || !tournament) return undefined
+    const stored = tournaments.find(t => t.id === nextMatch.tournamentId)?.name
+    return matchEventName(stored, tournament?.name, nextMatch.tournamentId, nextMatch.week, gameStartDate)
+  }, [nextMatch, tournaments, tournament, gameStartDate])
 
   // Last five official results (oldest first) for any team.
   const formFor = useCallback((teamId: string | undefined | null): FormResult[] => {
@@ -207,8 +216,11 @@ export default function Page() {
       .filter((t): t is NonNullable<typeof t> => !!t && t.startWeek > currentCalendarWeek)
       .sort((a, b) => a.startWeek - b.startWeek)
       .slice(0, 2)
-      .map(t => ({ ...t, weeksUntil: t.startWeek - currentCalendarWeek }))
-  }, [nextMatch, tournamentQualifications, playerTeamId, currentWeek])
+      .map(t => {
+        const weeksUntil = t.startWeek - currentCalendarWeek
+        return { ...t, weeksUntil, name: getDynamicTournamentName(t.name, currentWeek + weeksUntil, gameStartDate, t.duration) }
+      })
+  }, [nextMatch, tournamentQualifications, playerTeamId, currentWeek, gameStartDate])
 
   // Financial projection for the next weekly settlement (same engine the week tick uses)
   const financialReport = useMemo(() => {
@@ -265,7 +277,7 @@ export default function Page() {
         return weeks === 0 ? t("home.thisWeek") : tn("home.matchInWeeks", weeks)
       })()
       const leagueStage = leagueStageLabel(nextMatch)
-      const competitionName = nextMatch.isScrim ? t("common.scrim") : leagueStage ?? tournament?.name ?? nextMatch.stage ?? t("common.match")
+      const competitionName = nextMatch.isScrim ? t("common.scrim") : leagueStage ?? tournamentName ?? (nextMatch.stage ? stageName(nextMatch.stage) : undefined) ?? t("common.match")
       const competition = (
         <span className="flex min-w-0 items-center gap-2.5">
           {leagueStage && <span className="shrink-0 rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("common.league")}</span>}
@@ -274,7 +286,7 @@ export default function Page() {
           )}
           <span className="truncate font-semibold text-ink-1">{competitionName}</span>
           {!nextMatch.isScrim && tournament && <span className="text-ink-3">{tierLabel(tournament.tier)}</span>}
-          {nextMatch.stage && !nextMatch.isScrim && tournament && <span className="truncate text-ink-3">· {nextMatch.stage}</span>}
+          {nextMatch.stage && !nextMatch.isScrim && tournament && <span className="truncate text-ink-3">· {stageName(nextMatch.stage)}</span>}
           {nextMatch.isScrim && <span className="text-ink-3">{t("home.practiceMatch")}</span>}
         </span>
       )
@@ -368,7 +380,8 @@ export default function Page() {
 
   // G7: a Draft Cup run shows its round and record instead of the season.
   const cupBracket = draftCup ? (tournaments.find(t => t.id === draftCup.tournamentId)?.playoffBracket ?? []).filter(m => m.homeTeamId === draftCup.teamId || m.awayTeamId === draftCup.teamId) : []
-  const cupRound = cupBracket.find(m => !m.isCompleted)?.stage.replace(/ \d+$/, "")
+  const cupStage = cupBracket.find(m => !m.isCompleted)?.stage.replace(/ \d+$/, "")
+  const cupRound = cupStage ? stageName(cupStage) : undefined
   const cupWins = cupBracket.filter(m => m.isCompleted && m.winnerId === draftCup?.teamId).length
 
   return (
@@ -574,7 +587,7 @@ export default function Page() {
                     const won = m.result.winnerId === playerTeamId
                     const oppId = m.homeTeamId === playerTeamId ? m.awayTeamId : m.homeTeamId
                     const opp = teams.find(t => t.id === oppId)
-                    const comp = m.isScrim ? t("common.scrim") : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? m.stage ?? t("common.match")
+                    const comp = m.isScrim ? t("common.scrim") : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? (m.stage ? stageName(m.stage) : undefined) ?? t("common.match")
                     return (
                       <li key={m.id}>
                         <Link href={`/match/${m.id}/result`} className="flex h-11 items-center gap-3 px-4 transition-colors hover:bg-raised">

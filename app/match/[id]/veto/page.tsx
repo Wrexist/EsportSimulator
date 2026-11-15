@@ -30,6 +30,7 @@ import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { formatDecimal, t } from "@/lib/i18n"
 import { stageName } from "@/lib/display-names"
+import { matchEventName } from "@/lib/tournament-instances"
 import { LoadingState } from "@/components/ui/loading"
 import { fixtureNotDueYet } from "@/lib/playable-match"
 import { liveMatchInProgress } from "@/app/match/match-centre"
@@ -107,6 +108,12 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         mapRecords: state.mapRecords,
         mapRotation: state.mapRotation,
     })))
+    const gameStartDate = useGameStore(state => state.gameStartDate)
+    // The saved event's name carries the year it is played in ("Winter Open Katova 2027").
+    const storedTournamentName = useGameStore(state => {
+        const tid = state.scheduledMatches.find(m => m.id === id)?.tournamentId
+        return tid ? state.tournaments.find(x => x.id === tid)?.name : undefined
+    })
 
     // State
     const [match, setMatch] = useState<MatchSaveData | undefined>(undefined)
@@ -471,7 +478,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     <ArrowLeft size={15} aria-hidden="true" /> {t("home.matchDay")}
                 </button>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                    {leagueStageLabel(match) ?? (tournament ? `${tournament.name}${match.stage ? ` · ${stageName(match.stage)}` : ""}` : t("veto.mapVeto"))}
+                    {leagueStageLabel(match) ?? (tournament ? `${matchEventName(storedTournamentName, tournament.name, match.tournamentId, match.week, gameStartDate)}${match.stage ? ` · ${stageName(match.stage)}` : ""}` : t("veto.mapVeto"))}
                 </p>
             </div>
 

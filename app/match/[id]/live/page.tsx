@@ -273,7 +273,7 @@ export default function LiveMatchPage() {
         if (!introReady || !matchData.current) return null
         const { homeTeam, awayTeam, match, canonicalMaps } = matchData.current
         const st = useGameStore.getState()
-        const competition = competitionOf(match, st.tournaments)
+        const competition = competitionOf(match, st.tournaments, st.gameStartDate)
         const h2h = headToHeadOf(st.completedMatches, homeTeam.id, awayTeam.id)
         const context = introContextLine({ home: homeTeam, away: awayTeam, playerTeamId: st.playerTeamId, stage: match.stage, competitionName: competition.name, h2h })
         return { competition, h2h, context, maps: canonicalMaps as string[] }

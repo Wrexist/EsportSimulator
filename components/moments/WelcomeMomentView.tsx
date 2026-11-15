@@ -40,7 +40,7 @@ export function WelcomeMomentView({ moment, onDismiss }: { moment: WelcomeMoment
         .filter(m => m.homeTeamId === moment.teamId || m.awayTeamId === moment.teamId)
         .sort((a, b) => a.week - b.week || (a.day ?? 6) - (b.day ?? 6))[0]
     const opponent = first ? s.teams.find(t => t.id === (first.homeTeamId === moment.teamId ? first.awayTeamId : first.homeTeamId)) : undefined
-    const comp = first ? competitionOf(first, s.tournaments) : null
+    const comp = first ? competitionOf(first, s.tournaments, s.gameStartDate) : null
     const firstDate = first && s.gameStartDate ? formatGameCalendarDate(gameCalendarDate(s.gameStartDate, first.week, first.day ?? 0), { weekday: "short", month: "short", day: "numeric" }) : null
 
     const facts: MomentFact[] = []
