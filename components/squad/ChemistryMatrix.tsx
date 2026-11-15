@@ -56,12 +56,20 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
         return { nodes: calculatedNodes, links: calculatedLinks }
     }, [activePlayers, synergyMatrix])
 
-    // Helper to get color info based on value
+    // Helper to get color info based on value. SQUAD-16: strong and good
+    // share one green and differ by weight, so they can't be confused.
     const getStrokeStyle = (value: number) => {
-        if (value >= 85) return { color: "#3DD68C", width: 3, opacity: 0.9, tone: "text-positive" }       // strong pair
-        if (value >= 70) return { color: "#8FE3B5", width: 2, opacity: 0.7, tone: "text-rating-good" }    // good pair
+        if (value >= 85) return { color: "#3DD68C", width: 3.5, opacity: 1, tone: "text-positive" }       // strong pair
+        if (value >= 70) return { color: "#3DD68C", width: 1.5, opacity: 0.6, tone: "text-positive" }     // good pair
         if (value >= 50) return { color: "#808A99", width: 1.5, opacity: 0.55, tone: "text-ink-2" }       // neutral pair
         return { color: "#FF8A3D", width: 1.5, opacity: 0.7, tone: "text-caution" }                         // friction
+    }
+    // SQUAD-16: lines stop at the portrait ring instead of running under it.
+    const NODE_GAP = 27
+    const clip = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+        const len = Math.hypot(b.x - a.x, b.y - a.y) || 1
+        const ux = (b.x - a.x) / len, uy = (b.y - a.y) / len
+        return { x1: a.x + ux * NODE_GAP, y1: a.y + uy * NODE_GAP, x2: b.x - ux * NODE_GAP, y2: b.y - uy * NODE_GAP }
     }
 
     return (
@@ -71,12 +79,13 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
                     {/* Connecting Lines */}
                     {links.map((link, i) => {
                         const style = getStrokeStyle(link.value)
+                        const seg = clip(link.source, link.target)
                         return (
                             <g key={i} className="group/link hover:opacity-100 transition-opacity">
                                 {/* Actual Line */}
                                 <motion.line
-                                    x1={link.source.x} y1={link.source.y}
-                                    x2={link.target.x} y2={link.target.y}
+                                    x1={seg.x1} y1={seg.y1}
+                                    x2={seg.x2} y2={seg.y2}
                                     stroke={style.color}
                                     strokeWidth={style.width}
                                     strokeOpacity={style.opacity}
@@ -145,7 +154,8 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
                         </foreignObject>
                         {/* SQUAD-23: the name stays visible under the portrait (the old
                             hover label sat outside the foreignObject and was clipped). */}
-                        <text x={node.x} y={node.y + 38} textAnchor="middle" fill="#C9D0DA" fontSize="12" fontWeight="600" className="pointer-events-none select-none">
+                        <text x={node.x} y={node.y + 38} textAnchor="middle" fill="#C9D0DA" fontSize="12" fontWeight="600"
+                            stroke="hsl(var(--card))" strokeWidth={4} strokeLinejoin="round" paintOrder="stroke" className="pointer-events-none select-none">
                             {node.nickname}
                         </text>
                         </g>
@@ -154,7 +164,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
 
                 {/* Central Stats or Logo */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                    <div className="relative rounded-md bg-panel/90 px-3 py-2">
+                    <div className="relative rounded-full bg-panel px-5 py-5">
                         <span className="font-display text-4xl font-bold tabular-nums text-ink-1">
                             {Math.round(teamChemistry ?? links.reduce((acc, l) => acc + l.value, 0) / (links.length || 1))}%
                         </span>
@@ -164,11 +174,11 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
             </div>
 
             {/* Legend: what a pair line means */}
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-semibold text-ink-3">
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-positive" />{t("squad.chem.strong")}</span>
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-rating-good" />{t("squad.chem.good")}</span>
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-ink-3" />{t("squad.chem.neutral")}</span>
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-caution" />{t("squad.chem.friction")}</span>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-semibold text-ink-3">
+                <span className="flex items-center gap-1 whitespace-nowrap"><span className="h-1 w-4 rounded-full bg-positive" />{t("squad.chem.strong")}</span>
+                <span className="flex items-center gap-1 whitespace-nowrap"><span className="h-0.5 w-4 rounded-full bg-positive opacity-60" />{t("squad.chem.good")}</span>
+                <span className="flex items-center gap-1 whitespace-nowrap"><span className="h-0.5 w-4 rounded-full bg-ink-3" />{t("squad.chem.neutral")}</span>
+                <span className="flex items-center gap-1 whitespace-nowrap"><span className="h-0.5 w-4 rounded-full bg-caution" />{t("squad.chem.friction")}</span>
             </div>
         </div>
     )
