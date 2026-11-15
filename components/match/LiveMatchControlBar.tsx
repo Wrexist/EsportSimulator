@@ -37,6 +37,7 @@ interface LiveMatchControlBarProps {
 const segment = (active: boolean) => cn(
     "h-7 rounded-[3px] px-2 text-xs font-semibold transition-colors duration-150",
     active ? "bg-hover text-ink-1 shadow-[inset_0_-2px_0_var(--gold)]" : "text-ink-3 hover:text-ink-1",
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-ink-3",
 )
 
 /**
@@ -67,6 +68,8 @@ function LiveMatchControlBarComponent({
     // Paused mid-round is the state the player must notice; between rounds
     // the decision card (or the break card) is the call to action instead.
     const pausedMidRound = inProgress && !isPlaying && !betweenRounds
+    // The final board plays nothing more: its playback settings are inert (MATCHDAY-16).
+    const finished = gameState.status === "FINISHED"
     const momentSpeed = speed * PACING.MOMENT_SPEED
     return (
         <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-line bg-panel px-2 py-1.5" role="toolbar" aria-label={t("dock.aria")}>
@@ -92,7 +95,13 @@ function LiveMatchControlBarComponent({
                         </Button>
                     </ConfirmDialog>
                 )}
-                {inProgress ? (
+                {pausedMidRound ? (
+                    // Paused mid-round: a grey badge, so "LIVE" never shows on a stopped clock (MATCHDAY-16).
+                    <span className="inline-flex items-center gap-1.5 rounded-sm border border-line-strong px-1.5 py-1 text-[11px] font-bold uppercase leading-none tracking-[0.06em] text-ink-2" data-dock-status="paused">
+                        <Pause size={9} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                        {t("dock.paused")}
+                    </span>
+                ) : inProgress ? (
                     <span className="inline-flex items-center gap-1.5 rounded-sm bg-negative/15 px-1.5 py-1 text-[11px] font-bold leading-none tracking-[0.06em] text-negative">
                         <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />
                         {t("dock.live")}
@@ -104,16 +113,18 @@ function LiveMatchControlBarComponent({
                 )}
 
                 {/* Auto tactics switch */}
-                <label className="flex cursor-pointer items-center gap-2">
+                <label className={cn("flex items-center gap-2", finished ? "cursor-not-allowed opacity-50" : "cursor-pointer")}>
                     <span className={cn("text-xs font-semibold", isAutoTactics ? "text-ink-1" : "text-ink-3")}>{t("dock.auto")}</span>
                     <button
+                        type="button"
+                        disabled={finished}
                         onClick={() => setIsAutoTactics(!isAutoTactics)}
                         role="switch"
                         aria-checked={isAutoTactics}
                         aria-label={t("dock.autoAria")}
                         className={cn(
-                            "relative h-5 w-9 rounded-full border transition-colors duration-150",
-                            isAutoTactics ? "border-gold bg-gold/25" : "border-line-strong bg-raised hover:border-ink-3",
+                            "relative h-5 w-9 rounded-full border transition-colors duration-150 disabled:cursor-not-allowed",
+                            isAutoTactics ? "border-gold bg-gold/25" : "border-line-strong bg-raised enabled:hover:border-ink-3",
                         )}
                     >
                         <span className={cn(
@@ -156,6 +167,7 @@ function LiveMatchControlBarComponent({
                             aria-pressed={speed === preset}
                             aria-label={t("dock.speedAria", { preset })}
                             title={pacingMode === "moments" ? t("dock.speedMoments", { preset, speed: preset * PACING.MOMENT_SPEED }) : t("dock.speedReal", { preset })}
+                            disabled={finished}
                             onClick={() => setSpeed(preset)}
                             className={cn(segment(speed === preset), "min-w-8 px-1.5 tabular-nums")}
                         >
@@ -172,6 +184,7 @@ function LiveMatchControlBarComponent({
                             type="button"
                             role="radio"
                             aria-checked={pacingMode === mode}
+                            disabled={finished}
                             onClick={() => setPacingMode(mode)}
                             title={mode === "moments" ? t("dock.momentsTitle") : t("dock.fullTitle")}
                             className={segment(pacingMode === mode)}
@@ -185,6 +198,7 @@ function LiveMatchControlBarComponent({
                 <button
                     type="button"
                     aria-pressed={keyRoundsOnly}
+                    disabled={finished}
                     onClick={() => setKeyRoundsOnly(!keyRoundsOnly)}
                     title={t("dock.keyRoundsTitle")}
                     className={cn(segment(keyRoundsOnly), "rounded border border-line bg-shell")}
