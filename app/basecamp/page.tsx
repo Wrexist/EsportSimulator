@@ -22,7 +22,7 @@ import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { soundManager } from "@/lib/sound-manager"
-import { t } from "@/lib/i18n"
+import { formatDecimal, t } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { Trans } from "@/lib/trans"
 import { GearCatalog } from "./_components/GearCatalog"
@@ -57,7 +57,7 @@ function facilityEffect(type: FacilityType, level: number): string {
 }
 
 const money = (v: number) => formatCurrency(v, "$", false)
-const pct = (v: number) => `+${v.toFixed(v % 1 ? 1 : 0)}%`
+const pct = (v: number) => `+${v % 1 ? formatDecimal(v) : v.toFixed(0)}%`
 
 function LevelPips({ level }: { level: number }) {
   return (
@@ -127,7 +127,7 @@ export default function BasecampPage() {
         aside={
           <KpiStrip>
             <Kpi label={t("common.funds")} value={formatCurrency(team.budget, "$", true)} />
-            <Kpi label={t("fac.kpi.buildings")} value={pct(facilityPct)} hint={built.length > 0 ? t("fac.kpi.avgLevel", { level: avgLevel.toFixed(1) }) : t("fac.kpi.baseCampus")} />
+            <Kpi label={t("fac.kpi.buildings")} value={pct(facilityPct)} hint={built.length > 0 ? t("fac.kpi.avgLevel", { level: formatDecimal(avgLevel) }) : t("fac.kpi.baseCampus")} />
             <Kpi label={t("fac.kpi.gear")} value={pct(gearPct)} hint={t("fac.kpi.gearMax", { pct: gearCap.toFixed(0) })} />
             <Kpi label={t("fac.kpi.upkeep")} value={formatCurrency(upkeep + gearUpkeep, "$", true)} hint={t("fac.kpi.upkeepHint", { buildings: formatCurrency(upkeep, "$", true), gear: formatCurrency(gearUpkeep, "$", true) })} />
           </KpiStrip>

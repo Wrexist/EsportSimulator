@@ -40,7 +40,7 @@ import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
 import { COUNTER_EFFECT, counterSite, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
-import { t } from "@/lib/i18n"
+import { formatDecimal, intlLocale, t } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { stageName } from "@/lib/display-names"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
@@ -564,7 +564,7 @@ export default function TacticalHQPage() {
                         {winChance !== null && (
                             <p
                                 className="mt-2 text-xs text-ink-3"
-                                title={t("prep.winChanceTitle", { format: bestOfLabel(match.format), maps: WIN_ODDS_CHECK.maps.toLocaleString("en-US"), error: WIN_ODDS_CHECK.meanErrorPts })}
+                                title={t("prep.winChanceTitle", { format: bestOfLabel(match.format), maps: WIN_ODDS_CHECK.maps.toLocaleString(intlLocale()), error: WIN_ODDS_CHECK.meanErrorPts })}
                             >
                                 <Trans k="prep.winChance" params={{ pct: Math.round(winChance * 100) }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-1">{v}</span> }} />
                             </p>
@@ -615,7 +615,7 @@ export default function TacticalHQPage() {
                                     ))}
                                 </div>
                                 <p className="mt-1.5 text-[11px] text-ink-3">
-                                    {t("prep.counterExplain", { bonus: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS), penalty: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY), rounds: ROUNDS_PER_STRENGTH_PCT.toFixed(2), points: MAP_POINTS_PER_STRENGTH_PCT.toFixed(2), cap: pct(NON_PLAYER_BONUS_CAP) })}
+                                    {t("prep.counterExplain", { bonus: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS), penalty: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY), rounds: formatDecimal(ROUNDS_PER_STRENGTH_PCT, 2), points: formatDecimal(MAP_POINTS_PER_STRENGTH_PCT, 2), cap: pct(NON_PLAYER_BONUS_CAP) })}
                                 </p>
                             </div>
 

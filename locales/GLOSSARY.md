@@ -17,6 +17,11 @@ General rules for every language:
   (German "du", French "tu", Spanish "tú", Portuguese "você", Russian "ты",
   Polish "ty"), matching how other sports management games speak.
 - Money stays in the game's own format ($1.2M).
+- Other decimals follow the player's language (German "2,5 Jahre", French
+  "0,4 %"): code formats them with `formatDecimal`. Ratings, ADR and K/D stay
+  in HLTV style with a point (1.25), the way every stats site prints them.
+- Also kept in English: Trades, Lurks and callout names (A site, CT spawn,
+  B approach), as players say them in every language.
 - Players can be anyone: avoid past tenses and adjectives that mark the
   player's gender (Polish "zagrałeś", Russian "ты играл", "готов"); rephrase
   around them instead.
@@ -24,8 +29,9 @@ General rules for every language:
 | English | Deutsch | Español | Français | Polski | Português (Brasil) | Русский |
 | --- | --- | --- | --- | --- | --- | --- |
 | Home | Start | Inicio | Accueil | Start | Início | Главная |
-| Squad | Kader | Plantilla | Effectif | Skład | Elenco | Состав |
-| Roster | Kader | Plantilla | Effectif | Skład | Elenco | Состав |
+| Squad (also for "roster"; English screens say Squad) | Kader | Plantilla | Effectif | Skład | Elenco | Состав |
+| Calendar (the season schedule; English screens say Calendar) | Kalender | Calendario | Calendrier | Kalendarz | Calendário | Календарь |
+| Funds (club cash) | Budget | Fondos | Fonds | Fundusze | Fundos | Средства |
 | Starter / starting five | Stammspieler / Startaufstellung | titular / quinteto titular | titulaire / cinq de départ | podstawowy / pierwsza piątka | titular / quinteto titular | основной игрок / основная пятёрка |
 | Bench | Bank | banquillo | banc | ławka | banco | скамейка |
 | Staff | Mitarbeiter | Cuerpo técnico | Staff | Sztab | Comissão técnica | Штаб |

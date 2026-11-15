@@ -1,7 +1,7 @@
 "use client"
 import { Trans } from "@/lib/trans"
 import { countryName } from "@/lib/country"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, t, tn } from "@/lib/i18n"
 
 import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
@@ -77,7 +77,7 @@ function contractTone(weeksLeft: number): string {
 }
 
 function formatWeeks(weeks: number): string {
-    return weeks >= 52 ? t("player.yrs", { n: (weeks / 52).toFixed(1) }) : tn("player.wks", weeks)
+    return weeks >= 52 ? t("player.yrs", { n: formatDecimal(weeks / 52) }) : tn("player.wks", weeks)
 }
 
 function Fact({ label, children, className }: { label: string; children: ReactNode; className?: string }) {

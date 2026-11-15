@@ -1,5 +1,5 @@
 "use client"
-import { t, tn } from "@/lib/i18n"
+import { formatDecimal, t, tn } from "@/lib/i18n"
 import { countryName } from "@/lib/country"
 
 import { LoadChip } from "@/components/squad/LoadChip"
@@ -153,7 +153,7 @@ const RosterRow = memo(function RosterRow({
       <td className="px-3"><Meter value={playerEnergyPercent(player)} label={t("common.energy")} /></td>
       <td className="hidden px-3 2xl:table-cell"><LoadChip player={player} /></td>
       <td className={cn("px-3 text-right text-sm tabular-nums", contractTone(weeksLeft))}>
-        {weeksLeft >= 52 ? t("squad.row.years", { n: (weeksLeft / 52).toFixed(1) }) : t("common.weeksShort", { count: weeksLeft })}
+        {weeksLeft >= 52 ? t("squad.row.years", { n: formatDecimal(weeksLeft / 52) }) : t("common.weeksShort", { count: weeksLeft })}
       </td>
       <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(salary, "$", false)}</td>
       {/* SQUAD-01: the actions stay in view when the table scrolls sideways. */}
@@ -291,7 +291,7 @@ function SquadPageInner() {
   const benchRoster = roster.slice(5)
   const captain = captainId(teamData, id => playerById.get(id))
   const teamOvr = startingFiveOvr(activeRoster.map(p => p.evaluation.overallRating)) ?? 0
-  const avgAge = activeRoster.length > 0 ? (activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length).toFixed(1) : "—"
+  const avgAge = activeRoster.length > 0 ? formatDecimal(activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length) : "—"
   const wageBill = roster.reduce((sum, p) => sum + (contractByPlayerId.get(p.id)?.salaryPerWeek ?? 0), 0)
   const season = Math.ceil(currentWeek / 52)
   // SQUAD-15: the promotion wage is the market's for this player at this club.
