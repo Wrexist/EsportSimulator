@@ -92,49 +92,19 @@ export default function TournamentsPage() {
     const isThisSeason = (q: QualificationStatus) =>
         resolveTournamentIdentity(q.instanceId || q.tournamentId, currentWeek).seasonNumber === currentSeason
 
-    // Get player's team and ranking
+    // Get player's team and ranking: the world ranking the engine hands
+    // invites by (the list on the right), not a separate Elo order.
     const playerTeam = teams.find(t => t.id === playerTeamId)
-    const rankedTeams = useMemo(() => {
-        return [...teams]
-            .sort((a, b) => (b.elo || 1000) - (a.elo || 1000))
-            .map((team, idx) => ({ ...team, worldRanking: idx + 1 }))
-    }, [teams])
-    const playerRanking = rankedTeams.find(t => t.id === playerTeamId)?.worldRanking || 999
+    const playerRanking = playerTeam?.worldRanking || 999
 
     // Use store circuit points
     const circuitPoints = useMemo(() => {
         return (storeCircuitPoints || []) as CircuitPointsEntry[]
     }, [storeCircuitPoints])
 
-    // Use store qualification statuses or generate mock ones
-    const qualificationStatuses: QualificationStatus[] = useMemo(() => {
-        if (tournamentQualifications && tournamentQualifications.length > 0) {
-            return tournamentQualifications
-        }
-        // Mock statuses based on ranking
-        const statuses: QualificationStatus[] = []
-        const currentSeason = getSeasonFromWeek(currentWeek)
-
-        // If player is top 20, they're invited to S-Tier
-        if (playerTeam && playerRanking <= 20) {
-            FULL_TOURNAMENT_CALENDAR
-                .filter(t => t.tier === "S_TIER" && t.entryType === "INVITE" && t.requiredRanking && t.requiredRanking >= playerRanking)
-                .forEach(t => {
-                    const instanceId = buildInstanceId(t.id, currentSeason)
-                    statuses.push({
-                        tournamentId: instanceId,
-                        seriesId: t.id,
-                        instanceId,
-                        seasonNumber: currentSeason,
-                        teamId: playerTeam.id,
-                        status: "QUALIFIED",
-                        qualifiedVia: "Direct Invite"
-                    })
-                })
-        }
-
-        return statuses
-    }, [playerTeam, playerRanking, tournamentQualifications, currentWeek])
+    // The save's entries only: an invite shows once the event office has sent
+    // it, never as a guess from the ranking (COMP-01).
+    const qualificationStatuses: QualificationStatus[] = useMemo(() => tournamentQualifications ?? [], [tournamentQualifications])
 
     // Events announced so far this season (more appear as it goes on).
     const discovered = useMemo(() => getDiscoveredTournaments(currentWeek), [currentWeek])
@@ -220,8 +190,12 @@ export default function TournamentsPage() {
             qs => qs.teamId === playerTeam?.id && qs.status === "REGISTERED" && isQualificationForTournament(qs, instanceId, currentWeek)
         )
         const effectiveStart = liveTournament?.startWeek ?? seasonStartWeek(tournament, currentSeason)
-        const isActive = currentWeek >= effectiveStart && currentWeek < effectiveStart + tournament.duration
-        const isPast = currentWeek >= effectiveStart + tournament.duration || liveTournament?.isCompleted === true
+        // A started event is live until its last match, however long it runs.
+        const isStarted = !!liveTournament && liveTournament.currentStage !== "Registration" && currentWeek >= effectiveStart
+        const isActive = isStarted
+            ? liveTournament?.isCompleted !== true
+            : currentWeek >= effectiveStart && currentWeek < effectiveStart + tournament.duration
+        const isPast = liveTournament?.isCompleted === true || (!isStarted && currentWeek >= effectiveStart + tournament.duration)
         const weeksUntil = effectiveStart - currentWeek
 
         // Check if on schedule (only if player's team has a match)
@@ -277,7 +251,7 @@ export default function TournamentsPage() {
                 className="group h-14 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover"
                 {...pressable(() => router.push(`/tournaments/${displayId}`), { label: t("tm.openEvent", { name }) })}
             >
-                <td className="max-w-[280px] py-2 pl-4 pr-3">
+                <td className="py-2 pl-4 pr-3">
                     <div className="flex min-w-0 items-center gap-3">
                         {/* Locked events dim only the logo and the name: the status and
                             reason text stay at full contrast (CROSSCUT-07). */}
@@ -316,9 +290,11 @@ export default function TournamentsPage() {
                     {liveTournament && teamsEntered > 0 ? `${teamsEntered}/${tournament.slots}` : tournament.slots}
                 </td>
                 <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">
-                    {tournament.tier === "QUALIFIER" || tournament.prizePool === 0
-                        ? <span className="font-sans text-xs font-normal text-ink-3">{t("tm.qualification")}</span>
-                        : formatPrizePool(tournament.prizePool)}
+                    {tournament.prizePool > 0 ? formatPrizePool(tournament.prizePool) : null}
+                    {/* A qualifier hands out places, and often prize money too (COMP-14). */}
+                    {(tournament.tier === "QUALIFIER" || tournament.prizePool === 0) && (
+                        <span className="block font-sans text-xs font-normal text-ink-3">{t("tm.qualification")}</span>
+                    )}
                 </td>
                 <td className="px-3 text-xs text-ink-3">{getEntryTypeLabel(tournament.entryType)}</td>
                 <td className="w-32 pr-4 text-right" onClick={e => e.stopPropagation()}>
