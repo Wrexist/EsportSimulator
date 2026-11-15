@@ -7315,5 +7315,12 @@
  "evn.releg.t": "Spadek",
  "evn.releg.m": "{{team}} kończy sezon na {{rank}}. miejscu na świecie ({{tier}}: miejsca {{band}}) i spada do {{tier}}. Czas na przebudowę!",
  "evn.season.t": "Sezon {{season}} zakończony",
- "evn.season.m": "Sezon {{season}} dobiegł końca. Awanse: {{promoted}}. Spadki: {{relegated}}."
+ "evn.season.m": "Sezon {{season}} dobiegł końca. Awanse: {{promoted}}. Spadki: {{relegated}}.",
+ "topbar.moreHubs": "Więcej sekcji",
+ "settings.uiScaleWindowMax": "Do {{max}}% mieści się w tym oknie.",
+ "nf.bodyCareer": "Ten ekran nie istnieje. Kariera jest nienaruszona; wróć do startu, aby kontynuować.",
+ "teamPage.notFound": "Nie znaleziono klubu",
+ "teamPage.notFoundBody": "Tego klubu nie ma w świecie gry. Mógł zostać rozwiązany albo zmienić nazwę.",
+ "teamPage.backToRankings": "Wróć do rankingu",
+ "tm.notFoundBody": "Tego turnieju nie ma w kalendarzu twojej kariery."
 }

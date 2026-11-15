@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 import { t } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { UI_LANGUAGES } from "@/lib/ui-languages"
-import { effectiveUiScale, stableBaseViewportSize, UI_SCALE_MAX, UI_SCALE_MIN, UI_SCALE_STEP } from "@/lib/ui-scale"
+import { effectiveUiScale, maxUiScaleFor, stableBaseViewportSize, UI_SCALE_MAX, UI_SCALE_MIN, UI_SCALE_STEP } from "@/lib/ui-scale"
 
 // ── Primitives ─────────────────────────────────────────────────────────────
 
@@ -68,6 +68,9 @@ function SettingSlider({ label, value, onChange, min, max, step, suffix = "%", c
     // commitOnRelease: show the value while dragging, apply it on release (the UI scale
     // zooms the page, which would move the slider under the pointer mid-drag).
     const [pending, setPending] = useState<number | null>(null)
+    // A committed value (keyboard step, pointer release, Auto toggle, reset) ends any pending drag value.
+    // Radix calls onValueChange *after* onValueCommit for keyboard steps, so clearing in onValueCommit alone is not enough.
+    useEffect(() => { setPending(null) }, [value])
     const shown = pending ?? value
     return (
         <div className={cn("flex w-52 items-center gap-3", disabled && "opacity-40")}>
@@ -119,7 +122,9 @@ export function DisplaySettings() {
     })))
 
     // While the scale is automatic the slider shows the size in force, which follows the window.
-    const [viewport, setViewport] = useState(() => stableBaseViewportSize())
+    // Read after mount: the server render has no window, and a first client render that
+    // already knew it would not match it (React #418 on windows above 1920x1080, CROSSCUT-15).
+    const [viewport, setViewport] = useState<{ width: number; height: number } | null>(null)
     useEffect(() => {
         const update = () => setViewport(stableBaseViewportSize())
         update()
@@ -127,6 +132,8 @@ export function DisplaySettings() {
         return () => window.removeEventListener("resize", update)
     }, [])
     const shownScale = effectiveUiScale({ uiScale: s.uiScale, uiScaleAuto: s.uiScaleAuto }, viewport)
+    // The largest scale that still fits this window (CROSSCUT-14).
+    const maxScale = maxUiScaleFor(viewport)
 
     // Show the mode the desktop app is actually running in, not a stale stored choice.
     useEffect(() => {
@@ -147,8 +154,8 @@ export function DisplaySettings() {
             <SettingRow id="set-rendering" label={t("settings.rendering")} hint={t("settings.renderingHint")}>
                 <SettingSelect id="set-rendering" label={t("settings.rendering")} value={s.renderingMode} options={RENDERING_MODES()} onChange={s.setRenderingMode} />
             </SettingRow>
-            <SettingRow label={t("settings.uiScale")} hint={t("settings.uiScaleHint")}>
-                <SettingSlider label={t("settings.uiScale")} value={shownScale} onChange={s.setUiScale} commitOnRelease min={UI_SCALE_MIN} max={UI_SCALE_MAX} step={UI_SCALE_STEP} />
+            <SettingRow label={t("settings.uiScale")} hint={maxScale < UI_SCALE_MAX ? `${t("settings.uiScaleHint")} ${t("settings.uiScaleWindowMax", { max: maxScale })}` : t("settings.uiScaleHint")}>
+                <SettingSlider label={t("settings.uiScale")} value={shownScale} onChange={s.setUiScale} commitOnRelease min={UI_SCALE_MIN} max={maxScale} step={UI_SCALE_STEP} />
             </SettingRow>
             <SettingRow id="set-ui-scale-auto" label={t("settings.uiScaleAuto")} hint={t("settings.uiScaleAutoHint")}>
                 <Switch id="set-ui-scale-auto" checked={s.uiScaleAuto}

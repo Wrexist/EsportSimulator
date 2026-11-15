@@ -6865,5 +6865,12 @@
  "evn.releg.t": "Abstieg",
  "evn.releg.m": "{{team}} beendet die Saison auf Platz {{rank}} der Welt ({{tier}}: Plätze {{band}}) und steigt in {{tier}} ab. Zeit für den Neuaufbau!",
  "evn.season.t": "Saison {{season}} beendet",
- "evn.season.m": "Saison {{season}} ist vorbei. Aufsteiger: {{promoted}}. Absteiger: {{relegated}}."
+ "evn.season.m": "Saison {{season}} ist vorbei. Aufsteiger: {{promoted}}. Absteiger: {{relegated}}.",
+ "topbar.moreHubs": "Weitere Bereiche",
+ "settings.uiScaleWindowMax": "Bis {{max}} % passt in dieses Fenster.",
+ "nf.bodyCareer": "Diesen Bildschirm gibt es nicht. Deine Karriere ist unberührt; geh zurück zum Start, um weiterzuspielen.",
+ "teamPage.notFound": "Verein nicht gefunden",
+ "teamPage.notFoundBody": "Diesen Verein gibt es in deiner Spielwelt nicht. Vielleicht wurde er aufgelöst oder umbenannt.",
+ "teamPage.backToRankings": "Zurück zur Rangliste",
+ "tm.notFoundBody": "Dieses Turnier steht nicht im Kalender deiner Karriere."
 }

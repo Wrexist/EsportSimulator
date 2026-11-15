@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const steam = require('./steam');
 const { createCloseHandshake } = require('./close-handshake');
-const { clampWindowSize } = require('./window-bounds');
+const { clampWindowSize, fitBoundsToWorkArea } = require('./window-bounds');
 const { isAllowedAppNavigation, isTrustedMainFrame } = require('./app-origin');
 const { registerTrustedHandler, storageKey, MAX_MOD_BYTES, MOD_FILES } = require('./ipc-policy');
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
@@ -71,7 +71,20 @@ app.on('child-process-gone', (_event, details) => {
     flushDebugLog();
 });
 
-const startNextJSServer = async () => {
+// One Next.js server per process (CROSSCUT-08): a second createWindow() (macOS
+// Dock click) reuses the running server instead of leaking another one.
+let nextServerPromise = null;
+const startNextJSServer = () => {
+    if (!nextServerPromise) {
+        nextServerPromise = startNextJSServerOnce().catch((error) => {
+            nextServerPromise = null;
+            throw error;
+        });
+    }
+    return nextServerPromise;
+};
+
+const startNextJSServerOnce = async () => {
     const SERVER_TIMEOUT_MS = 60000;
 
     const timeoutPromise = new Promise((_, reject) => {
@@ -175,6 +188,11 @@ const showErrorPage = (window, errorMessage, errorStack) => {
 
 let mainWindow;
 let forceQuit = false;
+// After boot, a renderer that is gone closes the window only when the player was
+// already closing it, or the process exited on purpose; otherwise the player is
+// asked (CROSSCUT-06). 'clean-exit' is a normal renderer shutdown, not a crash.
+const shouldCloseAfterRendererGone = ({ closePending: pending, forceQuit: quitting, reason }) =>
+    !!pending || !!quitting || reason === 'clean-exit';
 const closeHandshake = createCloseHandshake(async () => {
     if (!mainWindow || !closePending) return;
     try {
@@ -214,7 +232,13 @@ const DEFAULT_HEIGHT = 720;
 // Validate saved bounds against currently connected displays. If the window's
 // center would land outside every display's work area (monitor unplugged,
 // resolution changed), fall back to a centered default — prevents the window
-// from restoring offscreen.
+// from restoring offscreen. The size is always clamped to the work area of the
+// display it opens on, and a restored position is moved so the whole window
+// is on that display (CROSSCUT-07).
+const WINDOW_LIMITS = { minWidth: MIN_WIDTH, minHeight: MIN_HEIGHT, defaultWidth: DEFAULT_WIDTH, defaultHeight: DEFAULT_HEIGHT };
+const primaryWorkArea = () => {
+    try { return screen.getPrimaryDisplay().workArea; } catch (_) { return null; }
+};
 const resolveInitialBounds = (saved) => {
     const width = Number.isFinite(saved?.width) ? Math.min(16384, Math.max(MIN_WIDTH, Math.floor(saved.width))) : DEFAULT_WIDTH;
     const height = Number.isFinite(saved?.height) ? Math.min(16384, Math.max(MIN_HEIGHT, Math.floor(saved.height))) : DEFAULT_HEIGHT;
@@ -222,7 +246,8 @@ const resolveInitialBounds = (saved) => {
     const y = Number.isFinite(saved?.y) ? Math.floor(saved.y) : null;
 
     if (x === null || y === null) {
-        return { width, height };
+        // Centred by Electron on the primary display: only the size needs to fit it.
+        return fitBoundsToWorkArea({ width, height }, primaryWorkArea(), WINDOW_LIMITS);
     }
 
     const centerX = x + width / 2;
@@ -233,9 +258,11 @@ const resolveInitialBounds = (saved) => {
     });
 
     if (!onDisplay) {
-        return { width, height };
+        return fitBoundsToWorkArea({ width, height }, primaryWorkArea(), WINDOW_LIMITS);
     }
-    return { width, height, x, y };
+    let workArea = null;
+    try { workArea = screen.getDisplayNearestPoint({ x: Math.round(centerX), y: Math.round(centerY) }).workArea; } catch (_) { workArea = null; }
+    return fitBoundsToWorkArea({ width, height, x, y }, workArea, WINDOW_LIMITS);
 };
 
 const resolveWindowIconPath = () => {
@@ -806,6 +833,11 @@ async function createWindow() {
         // toggling; not worth it for the ergonomics gained.
         if (process.platform !== 'darwin') {
             Menu.setApplicationMenu(null);
+        } else {
+            // macOS always shows a menu bar; the default one carries Reload,
+            // Force Reload and Developer Tools (CROSSCUT-08). Keep only the app
+            // menu (Hide, Quit) and Edit (copy and paste in text fields).
+            Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }]));
         }
 
         const initialBounds = resolveInitialBounds(windowState);
@@ -1148,7 +1180,11 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
             }
         });
 
-        // Force close if renderer process crashes while close is pending
+        // A renderer crash while a close is pending finishes the close. Any other
+        // crash after boot (out of memory on a long career, a GPU reset) used to
+        // close the window silently; now the player is told and can reload the
+        // game or quit (CROSSCUT-06).
+        let crashPromptOpen = false;
         mainWindow.webContents.on('render-process-gone', (_event, details) => {
             const reason = details?.reason || 'unknown';
             const exitCode = Number.isInteger(details?.exitCode) ? details.exitCode : 'n/a';
@@ -1159,10 +1195,47 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
                 failBoot('Renderer process crashed', lastBootError);
                 return;
             }
+            const closeNow = () => {
+                closeHandshake.cancel();
+                forceQuit = true;
+                closePending = false;
+                if (mainWindow && !mainWindow.isDestroyed()) mainWindow.close();
+            };
+            if (shouldCloseAfterRendererGone({ closePending, forceQuit, reason })) { closeNow(); return; }
+            if (crashPromptOpen) return;
+            crashPromptOpen = true;
+            // A close requested before the crash can no longer be answered by the page.
             closeHandshake.cancel();
-            forceQuit = true;
             closePending = false;
-            if (mainWindow) mainWindow.close();
+            require('electron').dialog.showMessageBox(mainWindow, {
+                type: 'error',
+                title: 'The game stopped unexpectedly',
+                message: 'The game stopped unexpectedly.',
+                detail: 'Your saved games are safe; progress since the last save may be lost. Reload to continue from the main menu. Details are written to the logs folder.',
+                buttons: ['Reload', 'Quit'],
+                defaultId: 0,
+                cancelId: 1,
+                noLink: true,
+            }).then(({ response }) => {
+                crashPromptOpen = false;
+                if (!mainWindow || mainWindow.isDestroyed()) return;
+                if (response === 0) {
+                    debugLog('[Renderer] Reloading after renderer crash');
+                    flushDebugLog();
+                    mainWindow.loadURL(getCurrentUrl()).catch((err) => {
+                        debugLog(`[Renderer] Reload after crash failed: ${err instanceof Error ? err.message : String(err)}`);
+                        flushDebugLog();
+                        closeNow();
+                    });
+                } else {
+                    closeNow();
+                }
+            }).catch((error) => {
+                crashPromptOpen = false;
+                debugLog(`[Electron] Crash prompt failed: ${error?.message || error}`);
+                flushDebugLog();
+                closeNow();
+            });
         });
 
         mainWindow.on('closed', () => {
@@ -1199,10 +1272,11 @@ app.on('second-instance', () => {
 
 app.on('ready', createWindow);
 
+// A game quits when its only window closes, on every platform (CROSSCUT-08):
+// on macOS the process used to stay alive, so Steam still showed the game as
+// running, and a Dock click started a second window and server.
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+    app.quit();
 });
 
 app.on('activate', () => {

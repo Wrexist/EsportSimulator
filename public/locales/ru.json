@@ -7315,5 +7315,12 @@
  "evn.releg.t": "Понижение",
  "evn.releg.m": "{{team}} завершает сезон на {{rank}}-м месте в мире ({{tier}}: места {{band}}) и опускается в {{tier}}. Пора перестраиваться!",
  "evn.season.t": "Сезон {{season}} завершён",
- "evn.season.m": "Сезон {{season}} окончен. Повышений: {{promoted}}. Понижений: {{relegated}}."
+ "evn.season.m": "Сезон {{season}} окончен. Повышений: {{promoted}}. Понижений: {{relegated}}.",
+ "topbar.moreHubs": "Другие разделы",
+ "settings.uiScaleWindowMax": "В это окно помещается до {{max}}%.",
+ "nf.bodyCareer": "Такого экрана нет. Карьера не пострадала; вернись на главную, чтобы продолжить.",
+ "teamPage.notFound": "Клуб не найден",
+ "teamPage.notFoundBody": "Этого клуба нет в твоём игровом мире. Возможно, он распался или сменил название.",
+ "teamPage.backToRankings": "К рейтингу",
+ "tm.notFoundBody": "Этого турнира нет в календаре твоей карьеры."
 }

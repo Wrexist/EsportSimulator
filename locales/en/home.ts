@@ -325,4 +325,5 @@ export const HOME = {
     "rivalry.intensity.NEUTRAL": "neutral",
     "rivalry.intensity.HEATED": "heated",
     "rivalry.intensity.FIERCE": "fierce",
+    "topbar.moreHubs": "More sections",
 } as const

@@ -7090,5 +7090,12 @@
  "evn.releg.t": "Descenso",
  "evn.releg.m": "{{team}} termina la temporada n.º {{rank}} del mundo ({{tier}}: puestos {{band}}) y desciende a {{tier}}. ¡Toca reconstruir!",
  "evn.season.t": "Temporada {{season}} terminada",
- "evn.season.m": "La temporada {{season}} ha terminado. Equipos que ascienden: {{promoted}}. Equipos que descienden: {{relegated}}."
+ "evn.season.m": "La temporada {{season}} ha terminado. Equipos que ascienden: {{promoted}}. Equipos que descienden: {{relegated}}.",
+ "topbar.moreHubs": "Más secciones",
+ "settings.uiScaleWindowMax": "Hasta un {{max}} % cabe en esta ventana.",
+ "nf.bodyCareer": "Esta pantalla no existe. Tu carrera sigue intacta; vuelve al inicio para continuar.",
+ "teamPage.notFound": "Club no encontrado",
+ "teamPage.notFoundBody": "Este club no está en tu mundo de juego. Puede que haya desaparecido o cambiado de nombre.",
+ "teamPage.backToRankings": "Volver a la clasificación mundial",
+ "tm.notFoundBody": "Este torneo no está en el calendario de tu carrera."
 }

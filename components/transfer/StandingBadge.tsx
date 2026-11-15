@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils"
 const STYLE: Record<MarketStanding, string> = {
     ICON: "border-gold/60 bg-gold/10 text-gold",
     STAR: "border-ink-2/50 bg-ink-1/5 text-ink-1",
-    WONDERKID: "border-side-ct/50 bg-side-ct/10 text-side-ct",
+    // Neutral, not the CT-side blue: gold is the game's only accent (CROSSCUT-13).
+    WONDERKID: "border-line-strong bg-raised text-ink-2",
 }
 const ICON = { ICON: Crown, STAR: Star, WONDERKID: Sparkles } as const
 
@@ -34,5 +35,5 @@ export function StandingBadge({ standing, size = "sm", className }: { standing: 
 export const STANDING_FRAME: Record<MarketStanding, string> = {
     ICON: "border-gold/70 shadow-[0_0_48px_-12px_rgb(242_181_58/0.55)]",
     STAR: "border-ink-2/60 shadow-[0_0_40px_-14px_rgb(242_244_247/0.35)]",
-    WONDERKID: "border-side-ct/60 shadow-[0_0_40px_-14px_rgb(90_169_255/0.45)]",
+    WONDERKID: "border-line-strong shadow-[0_0_40px_-14px_rgb(242_244_247/0.2)]",
 }

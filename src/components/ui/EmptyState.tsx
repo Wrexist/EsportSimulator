@@ -19,6 +19,8 @@ export interface EmptyStateProps {
   children?: ReactNode
   /** Draw a dashed frame. Off for raw-content embedding. */
   framed?: boolean
+  /** Heading level of the title: h1 when the empty state is the whole screen (a not-found page). */
+  titleAs?: "h1" | "h2" | "h3"
   className?: string
 }
 
@@ -33,6 +35,7 @@ export function EmptyState({
   action,
   children,
   framed = true,
+  titleAs: Title = "h3",
   className,
 }: EmptyStateProps) {
   return (
@@ -47,9 +50,9 @@ export function EmptyState({
           <Icon className="h-[18px] w-[18px] text-ink-3" />
         </div>
       )}
-      <h3 className="text-sm font-semibold text-ink-1">
+      <Title className="text-sm font-semibold text-ink-1">
         {title}
-      </h3>
+      </Title>
       {description && (
         <p className="mt-1 max-w-md text-sm leading-relaxed text-ink-3">
           {description}

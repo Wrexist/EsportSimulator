@@ -107,4 +107,7 @@ export const SUPPORT = {
     "demo.ea": "Esports Manager: FPS is in Early Access. What you tell us in reviews and on the forums shapes the next patches.",
     "demo.newCareer": "New demo career",
     "demo.getFull": "Get the full game",
+    "teamPage.notFound": "Club not found",
+    "teamPage.notFoundBody": "This club isn't in your game world. It may have folded or been renamed.",
+    "teamPage.backToRankings": "Back to rankings",
 } as const

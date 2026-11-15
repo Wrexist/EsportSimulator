@@ -31,17 +31,49 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+type AutoFocusHandler = (event: Event) => void
+
+/**
+ * Focus goes back to whatever had it when the dialog opened (CROSSCUT-04).
+ * Radix returns focus to its Trigger, and a dialog opened from a store or a
+ * shortcut has none, so focus fell to <body> and the next Tab started over at
+ * "Skip to main content". The element is read in onOpenAutoFocus, which Radix
+ * runs before it moves focus into the dialog. A caller's own handler wins
+ * (it can preventDefault), and a detached element falls back to Radix.
+ */
+function useReturnFocus(onOpenAutoFocus?: AutoFocusHandler, onCloseAutoFocus?: AutoFocusHandler) {
+  const returnTo = React.useRef<HTMLElement | null>(null)
+  const handleOpen = React.useCallback((event: Event) => {
+    const active = typeof document !== 'undefined' ? document.activeElement : null
+    returnTo.current = active instanceof HTMLElement && active !== document.body ? active : null
+    onOpenAutoFocus?.(event)
+  }, [onOpenAutoFocus])
+  const handleClose = React.useCallback((event: Event) => {
+    onCloseAutoFocus?.(event)
+    const target = returnTo.current
+    returnTo.current = null
+    if (event.defaultPrevented || !target?.isConnected) return
+    event.preventDefault()
+    target.focus({ preventScroll: true })
+  }, [onCloseAutoFocus])
+  return { onOpenAutoFocus: handleOpen, onCloseAutoFocus: handleClose }
+}
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     showCloseButton?: boolean
   }
->(({ className, children, showCloseButton = true, ...props }, ref) => (
+>(({ className, children, showCloseButton = true, onOpenAutoFocus, onCloseAutoFocus, ...props }, ref) => {
+  const returnFocus = useReturnFocus(onOpenAutoFocus, onCloseAutoFocus)
+  return (
   <DialogPortal data-slot="dialog-portal">
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       data-slot="dialog-content"
+      onOpenAutoFocus={returnFocus.onOpenAutoFocus}
+      onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       className={cn(
         'border border-line-strong bg-panel data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-dialog grid w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl p-6 duration-200 sm:max-w-lg',
         className,
@@ -60,7 +92,8 @@ const DialogContent = React.forwardRef<
       )}
     </DialogPrimitive.Content>
   </DialogPortal>
-))
+  )
+})
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -127,4 +160,5 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
+  useReturnFocus,
 }

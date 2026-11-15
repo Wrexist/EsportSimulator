@@ -49,10 +49,27 @@ export function autoUiScale(width: number, height: number = Number.POSITIVE_INFI
     return clampUiScale(Math.floor(raw / UI_SCALE_STEP + 1e-9) * UI_SCALE_STEP)
 }
 
-/** The scale in force: the player's own choice, or the automatic one. */
+/** The smallest window (CSS px at 100%) the interface is laid out for: Electron's minimum window. */
+export const UI_SCALE_MIN_LAYOUT = { width: 1024, height: 640 }
+
+/**
+ * Largest scale that still leaves the page at least the minimum layout size
+ * (CROSSCUT-14, 2026-11-15): page zoom shrinks the CSS viewport, and below
+ * 1024x640 the top bar loses its hubs. 1280x720 -> 110%, 1366x768 -> 120%,
+ * 1920x1080 and up -> 150%. Never below 100%: a window smaller than the
+ * minimum (a browser) keeps the normal size.
+ */
+export function maxUiScaleFor(viewport: { width: number; height: number } | null): number {
+    if (!viewport || !Number.isFinite(viewport.width) || !Number.isFinite(viewport.height) || viewport.width <= 0 || viewport.height <= 0) return UI_SCALE_MAX
+    const room = Math.min(viewport.width / UI_SCALE_MIN_LAYOUT.width, viewport.height / UI_SCALE_MIN_LAYOUT.height)
+    const stepped = Math.floor(room * 100 / UI_SCALE_STEP + 1e-9) * UI_SCALE_STEP
+    return Math.max(UI_SCALE_DEFAULT, Math.min(UI_SCALE_MAX, stepped))
+}
+
+/** The scale in force: the player's own choice (capped to what fits the window), or the automatic one. */
 export function effectiveUiScale(settings: { uiScale: number; uiScaleAuto: boolean }, viewport: { width: number; height: number } | null): number {
-    if (!settings.uiScaleAuto) return clampUiScale(settings.uiScale)
-    return viewport ? autoUiScale(viewport.width, viewport.height) : UI_SCALE_DEFAULT
+    if (!settings.uiScaleAuto) return Math.min(clampUiScale(settings.uiScale), maxUiScaleFor(viewport))
+    return viewport ? Math.min(autoUiScale(viewport.width, viewport.height), maxUiScaleFor(viewport)) : UI_SCALE_DEFAULT
 }
 
 interface DisplayBridge {

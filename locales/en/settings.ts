@@ -174,4 +174,5 @@ export const SETTINGS = {
     "achievements.all": "Everything unlocked.",
     "shortcuts.or": "or",
     "settings.savesAndAchievements": "Saves and achievements",
+    "settings.uiScaleWindowMax": "Up to {{max}}% fits this window.",
 } as const

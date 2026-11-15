@@ -8,13 +8,13 @@ import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { usePathname } from "next/navigation"
 import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { formatGameCalendarDate, formatGameCalendarRange } from "@/lib/game-calendar"
-import { Settings } from "lucide-react"
+import { MoreHorizontal, Settings } from "lucide-react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { AdvanceControl } from "@/components/report/AdvanceControl"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
-import { navHubsFor, navLabel, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
+import { navHubsFor, navLabel, hubForPath, isNavItemActive, settingsItem, type NavHub } from "@/lib/navigation"
 import { NavigationSearch } from "./NavigationSearch"
 import { InboxButton } from "@/components/inbox/InboxButton"
 import { Logotype } from "@/components/brand/Logotype"
@@ -52,6 +52,110 @@ function useHubsFit(navRef: React.RefObject<HTMLElement | null>, measureRef: Rea
         // eslint-disable-next-line react-hooks/exhaustive-deps -- refs are stable; deps re-run on label changes
     }, deps)
     return fit
+}
+
+/**
+ * How many hub icons fit next to a "More" button (CROSSCUT-14). Only used once
+ * the labels have collapsed to icons: at a large UI scale on a small window
+ * even the icon row can be wider than the room left, and clipped hubs could
+ * not be reached. The icons' widths are read from a hidden copy; the room is
+ * the box that holds the hub row and the "More" button, which does not change
+ * size when the button appears, so the count cannot flip-flop.
+ */
+function useFittingHubCount(boxRef: React.RefObject<HTMLElement | null>, measureRef: React.RefObject<HTMLElement | null>, total: number, active: boolean, deps: unknown[]): number {
+    const [count, setCount] = useState(total)
+    useIsomorphicLayoutEffect(() => {
+        const box = boxRef.current
+        const measure = measureRef.current
+        if (!active || !box || !measure) { setCount(total); return }
+        const check = () => {
+            const gap = 4 // gap-1 between hubs
+            const widths = Array.from(measure.children, child => (child as HTMLElement).offsetWidth)
+            const room = box.clientWidth
+            const all = widths.reduce((sum, w) => sum + w, 0) + gap * Math.max(0, widths.length - 1)
+            if (all <= room + 1) { setCount(total); return }
+            // The "More" button is one icon wide.
+            let used = widths[0] ?? 0
+            let fit = 0
+            for (const w of widths) {
+                if (used + gap + w > room + 1) break
+                used += gap + w
+                fit++
+            }
+            setCount(Math.min(total, fit))
+        }
+        check()
+        if (typeof ResizeObserver === "undefined") return
+        const observer = new ResizeObserver(check)
+        observer.observe(box)
+        observer.observe(measure)
+        return () => observer.disconnect()
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- refs are stable; deps re-run on hub changes
+    }, [active, total, ...deps])
+    return count
+}
+
+/** The hubs that did not fit the top bar, behind one button (CROSSCUT-14). */
+function HubOverflowMenu({ hubs, activeHubId }: { hubs: NavHub[]; activeHubId: string | null }) {
+    const [open, setOpen] = useState(false)
+    const ref = useRef<HTMLDivElement>(null)
+    const buttonRef = useRef<HTMLButtonElement>(null)
+    const pathname = usePathname()
+    useEffect(() => { setOpen(false) }, [pathname])
+    useEffect(() => {
+        if (!open) return
+        const onDown = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false) }
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key !== "Escape") return
+            // Closing the menu is all Escape does here (it would otherwise go back a screen).
+            e.preventDefault()
+            setOpen(false)
+            buttonRef.current?.focus()
+        }
+        document.addEventListener("mousedown", onDown)
+        document.addEventListener("keydown", onKey)
+        return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey) }
+    }, [open])
+    const label = t("topbar.moreHubs")
+    const holdsActive = hubs.some(hub => hub.id === activeHubId)
+    return (
+        <div ref={ref} className="relative flex shrink-0 items-stretch">
+            <button
+                ref={buttonRef}
+                type="button"
+                onClick={() => setOpen(o => !o)}
+                aria-label={label}
+                aria-haspopup="menu"
+                aria-expanded={open}
+                title={hubs.map(hub => navLabel(hub)).join(" / ")}
+                className={cn("nav-hub relative flex items-center px-1.5", holdsActive || open ? "text-ink-1" : "text-ink-3 hover:text-ink-1")}
+            >
+                <MoreHorizontal size={18} aria-hidden="true" className={holdsActive ? "text-gold" : undefined} />
+                {holdsActive && <span aria-hidden="true" className="absolute inset-x-1 bottom-0 h-0.5 bg-gold" />}
+            </button>
+            {open && (
+                <div role="menu" aria-label={label} className="absolute left-0 top-[calc(100%+6px)] z-50 w-56 overflow-hidden rounded-lg border border-line-strong bg-panel py-1 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]">
+                    {hubs.map(hub => {
+                        const Icon = hub.icon
+                        const active = hub.id === activeHubId
+                        return (
+                            <Link
+                                key={hub.id}
+                                href={hub.items[0].href}
+                                role="menuitem"
+                                aria-current={active ? "page" : undefined}
+                                onClick={() => setOpen(false)}
+                                className={cn("flex items-center gap-2.5 px-3 py-2 text-sm font-semibold hover:bg-raised", active ? "text-ink-1" : "text-ink-2 hover:text-ink-1")}
+                            >
+                                <Icon size={16} aria-hidden="true" className={active ? "text-gold" : "text-ink-3"} />
+                                {navLabel(hub)}
+                            </Link>
+                        )
+                    })}
+                </div>
+            )}
+        </div>
+    )
 }
 
 /**
@@ -144,6 +248,18 @@ export function TopBar() {
     const measureRef = useRef<HTMLDivElement>(null)
     const hubLabels = hubs.map(hub => navLabel(hub))
     const hubsFit = useHubsFit(navRef, measureRef, [hubLabels.join("|"), hideCareerControls])
+    // CROSSCUT-14: when even the icons do not fit, the rest go behind "More"
+    // (the active hub always stays in the row).
+    const navBoxRef = useRef<HTMLDivElement>(null)
+    const iconMeasureRef = useRef<HTMLDivElement>(null)
+    const fittingHubs = useFittingHubCount(navBoxRef, iconMeasureRef, hubs.length, !hubsFit, [hubs.map(hub => hub.id).join("|"), hideCareerControls])
+    const shownHubs = useMemo(() => {
+        if (hubsFit || fittingHubs >= hubs.length) return hubs
+        const shown = hubs.slice(0, fittingHubs)
+        if (activeHub && shown.length > 0 && !shown.includes(activeHub)) shown[shown.length - 1] = activeHub
+        return hubs.filter(hub => shown.includes(hub))
+    }, [hubs, hubsFit, fittingHubs, activeHub])
+    const overflowHubs = hubs.filter(hub => !shownHubs.includes(hub))
 
 
     return (
@@ -173,6 +289,7 @@ export function TopBar() {
                 )}
 
                 {!hideCareerControls && (
+                    <div ref={navBoxRef} className="flex h-full min-w-0 flex-1 items-stretch gap-1">
                     <nav ref={navRef} aria-label={t("topbar.mainNavigation")} className="relative flex h-full min-w-0 flex-1 items-stretch gap-1 overflow-hidden">
                         {/* Hidden copy of the labels: their natural width decides labels vs icons. */}
                         <div ref={measureRef} aria-hidden="true" className="pointer-events-none invisible absolute left-0 top-0 flex w-max gap-1">
@@ -180,7 +297,14 @@ export function TopBar() {
                                 <span key={hub.id} className="nav-hub whitespace-nowrap px-2 font-display text-[16px] font-semibold uppercase tracking-[0.03em] 2xl:px-3 2xl:text-[17px]">{hubLabels[i]}</span>
                             ))}
                         </div>
-                        {hubs.map((hub, i) => {
+                        {/* Hidden copy of the icons: their width decides how many fit before "More". */}
+                        <div ref={iconMeasureRef} aria-hidden="true" className="pointer-events-none invisible absolute left-0 top-0 flex w-max gap-1">
+                            {hubs.map(hub => (
+                                <span key={hub.id} className="nav-hub flex shrink-0 items-center px-1.5"><hub.icon size={18} /></span>
+                            ))}
+                        </div>
+                        {shownHubs.map(hub => {
+                            const i = hubs.indexOf(hub)
                             const active = activeHub?.id === hub.id
                             const Icon = hub.icon
                             return (
@@ -206,6 +330,8 @@ export function TopBar() {
                             )
                         })}
                     </nav>
+                    {overflowHubs.length > 0 && <HubOverflowMenu hubs={overflowHubs} activeHubId={activeHub?.id ?? null} />}
+                    </div>
                 )}
 
                 <div className="ml-auto flex shrink-0 items-center gap-2 @min-[80rem]/topbar:gap-3">

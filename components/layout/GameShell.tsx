@@ -24,7 +24,7 @@ import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
 import { routeMusicScene } from "@/lib/route-audio"
 import { debouncedStorage } from "@/engine/storage-adapter"
-import { INBOX_OPEN_KEY, INBOX_TOGGLE_KEY, NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
+import { INBOX_OPEN_KEY, INBOX_TOGGLE_KEY, NUMBER_KEY_ROUTES, isSpaceOwnedByFocus } from "@/lib/keyboard-shortcuts"
 import { InboxUrlBridge } from "@/components/inbox/InboxUrlBridge"
 import { useInboxDrawer } from "@/components/inbox/inbox-drawer-store"
 import { logger } from "@/lib/logger"
@@ -179,10 +179,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             if (settings.colorVisionMode !== "off") document.documentElement.classList.add(settings.colorVisionMode)
             applyUiScale(effectiveUiScale(settings, stableBaseViewportSize()))
         }
-        // The automatic UI scale follows the window size until the player picks one.
+        // The automatic UI scale follows the window size until the player picks one;
+        // a picked scale is capped to what fits the window (CROSSCUT-14), so it follows too.
         const applyScaleOnResize = () => {
-            const settings = useSettingsStore.getState()
-            if (settings.uiScaleAuto) applyUiScale(effectiveUiScale(settings, stableBaseViewportSize()))
+            applyUiScale(effectiveUiScale(useSettingsStore.getState(), stableBaseViewportSize()))
         }
         applyPreferences()
         const unsubscribe = useSettingsStore.subscribe(applyPreferences)
@@ -454,6 +454,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
 
             if (e.key === " " && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                // Space on a focused control presses that control (CROSSCUT-03):
+                // it must never also skip days.
+                if (isSpaceOwnedByFocus(e.target)) return
                 // Don't advance on non-gameplay pages
                 const path = window.location.pathname
                 if (path.includes('/match/') || path.includes('/settings') || path.includes('/credits') || path.includes('/load-game')) return

@@ -80,3 +80,18 @@ export const NUMBER_KEY_ROUTES: Record<string, string> = {
 export const INBOX_OPEN_KEY = "2"
 /** Toggles the inbox drawer (case-insensitive, no modifiers). */
 export const INBOX_TOGGLE_KEY = "i"
+
+/** Elements that act on Space themselves: buttons, links, tabs, switches, checkboxes, menus, sliders. */
+const SPACE_OWNER_SELECTOR = 'button, a[href], summary, [role="button"], [role="link"], [role="tab"], [role="switch"], [role="checkbox"], [role="radio"], [role="menuitem"], [role="option"], [role="slider"], [role="combobox"], [tabindex]:not([tabindex="-1"])'
+
+/**
+ * True when Space belongs to the focused element (it presses the button, ticks
+ * the switch, opens the tab) and must not also run the global Continue
+ * (CROSSCUT-03). Nothing focused (the page body) leaves Space to Continue.
+ */
+export function isSpaceOwnedByFocus(target: EventTarget | null): boolean {
+    if (!target || typeof (target as Element).closest !== "function") return false
+    const el = target as Element
+    if (typeof document !== "undefined" && (el === document.body || el === document.documentElement)) return false
+    return el.closest(SPACE_OWNER_SELECTOR) !== null
+}

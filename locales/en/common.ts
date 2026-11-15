@@ -79,4 +79,5 @@ export const COMMON = {
     "common.loadingTeamCreator": "Preparing team creator",
     "common.openingMatchCentre": "Opening match centre…",
     "common.logoAria": "{{name}} logo",
+    "nf.bodyCareer": "This screen doesn't exist. Your career is untouched; head back to Home to carry on.",
 } as const

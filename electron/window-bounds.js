@@ -15,4 +15,24 @@ function clampWindowSize(width, height, workArea, limits) {
     return { width: w, height: h };
 }
 
-module.exports = { clampWindowSize };
+// Saved window bounds restored on another screen (CROSSCUT-07, 2026-11-15): a
+// window saved at 2560x1440 and opened on a 1920x1080 laptop must not hang off
+// the work area. The size is clamped like a chosen resolution, then the
+// position is moved so the whole window lies inside the work area.
+function fitBoundsToWorkArea(bounds, workArea, limits) {
+    const { width, height } = clampWindowSize(bounds && bounds.width, bounds && bounds.height, workArea, limits);
+    const fitted = { width, height };
+    const x = Number(bounds && bounds.x);
+    const y = Number(bounds && bounds.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return fitted;
+    const ax = Math.floor(Number(workArea && workArea.x));
+    const ay = Math.floor(Number(workArea && workArea.y));
+    const aw = Math.floor(Number(workArea && workArea.width));
+    const ah = Math.floor(Number(workArea && workArea.height));
+    if (![ax, ay, aw, ah].every(Number.isFinite) || aw <= 0 || ah <= 0) return { ...fitted, x: Math.floor(x), y: Math.floor(y) };
+    fitted.x = Math.max(ax, Math.min(Math.floor(x), ax + aw - width));
+    fitted.y = Math.max(ay, Math.min(Math.floor(y), ay + ah - height));
+    return fitted;
+}
+
+module.exports = { clampWindowSize, fitBoundsToWorkArea };
