@@ -178,10 +178,9 @@ export function playAutoMatch(
                 : null,
         })
 
-        // Achievement flag detection extracted to
-        // processors/match-achievement-flags.ts (Phase M6). Returns
-        // comeback + underdog flags written onto the completed match.
-        const { comebackWin, underdogWin } = detectAchievementFlags(result, homeTeam, awayTeam)
+        // Achievement flags (processors/match-achievement-flags.ts): set
+        // only when the managed club won the series (MODES-04).
+        const { comebackWin, underdogWin } = detectAchievementFlags(result, homeTeam, awayTeam, playerTeamId)
         if (comebackWin) completedMatch._comebackWin = true
         if (underdogWin) completedMatch._underdogWin = true
 

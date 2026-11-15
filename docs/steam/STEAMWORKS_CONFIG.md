@@ -31,7 +31,7 @@ Steamworks → Stats & Achievements → Achievements. Display name and descripti
 | 19 | `UNDERDOG` | Giant Slayer | Defeat a team ranked 20+ positions above you | No |
 | 20 | `FIRST_MILLION` | Seven Figures | Accumulate $1,000,000 in team budget | No |
 | 21 | `BUDGET_10M` | Empire Builder | Reach $10,000,000 in team budget | No |
-| 22 | `DEVELOP_STAR` | Star Maker | Develop an academy graduate to 90+ skill rating | No |
+| 22 | `DEVELOP_STAR` | Star Maker | Develop an academy graduate to 90+ OVR | No |
 | 23 | `HALL_OF_FAME_INDUCTION` | Immortalized | Have a player inducted into the Hall of Fame | No |
 | 24 | `LOYAL_TEAM` | The Brotherhood | Maintain the same 5-player roster for 3+ years | No |
 | 25 | `PROFIT_MASTER` | Smart Money | Sell a player for more than the original purchase price | No |

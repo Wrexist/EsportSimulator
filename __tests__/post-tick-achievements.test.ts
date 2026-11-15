@@ -16,6 +16,7 @@
 
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 import { SteamService, steamService } from "@/engine/steam-service"
+import { evaluatePlayer } from "@/engine/player-evaluation"
 import type {
     GameSave, TeamSaveData, PlayerSaveData,
     CompletedMatchSaveData, TournamentSaveData,
@@ -454,7 +455,7 @@ describe("evaluatePostTickAchievements — win count", () => {
         try {
             const save = makeSave({
                 currentWeek: 10,
-                completedMatches: [makeMatch({ id: "w", week: 9, home: "ai", away: "player", homeScore: 0, awayScore: 2 })],
+                completedMatches: [makeMatch({ id: "w", week: 9, home: "ai", away: "player", homeScore: 0, awayScore: 2, tournamentId: "league_t" })],
             })
             evaluatePostTickAchievements(save)
             expect(snap.unlocked.has("FIRST_WIN")).toBe(true)
@@ -507,15 +508,15 @@ describe("evaluatePostTickAchievements — COMEBACK + UNDERDOG flag propagation"
         }
     })
 
-    test("comeback flag on a DIFFERENT week's match → COMEBACK_KING does NOT fire this tick", () => {
+    test("comeback flag on an older week's match → COMEBACK_KING does NOT fire this tick", () => {
         const snap = snapshotUnlocks()
         try {
             const save = makeSave({
                 currentWeek: 10,
                 completedMatches: [
-                    // From last week — should be ignored by thisWeekMatches filter.
+                    // Two weeks back: outside the this-week/last-week window.
                     makeMatch({
-                        id: "m_old", week: 9, home: "player", away: "ai",
+                        id: "m_old", week: 8, home: "player", away: "ai",
                         homeScore: 2, awayScore: 1,
                         flags: { comebackWin: true },
                     }),
@@ -610,13 +611,13 @@ describe("evaluatePostTickAchievements — milestone gates", () => {
         }
     })
 
-    test("DEVELOPED_STAR fires when an academy-graduate player hits skill ≥ 90", () => {
+    test("DEVELOPED_STAR fires when an academy graduate is rated 90+ OVR", () => {
         const snap = snapshotUnlocks()
         try {
             const graduate = makePlayer("grad")
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(graduate as any).isAcademyGraduate = true
-            graduate.skill = 92
+            for (const k of ["skill", "rifle", "awp", "pistol", "grenades", "creativity", "clutch", "tactic", "leader", "teamwork", "reaction", "eyesight", "entry", "trading"]) (graduate as any)[k] = 99
             const save = makeSave({
                 players: [graduate],
                 teams: [makeTeam("player", { rosterIds: ["grad"], lastRosterChangeWeek: 1 })],
@@ -628,13 +629,15 @@ describe("evaluatePostTickAchievements — milestone gates", () => {
         }
     })
 
-    test("DEVELOPED_STAR does NOT fire for academy graduate below 90 skill", () => {
+    test("DEVELOPED_STAR does NOT fire for a graduate with skill 90 but an OVR below 90", () => {
         const snap = snapshotUnlocks()
         try {
             const graduate = makePlayer("grad")
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(graduate as any).isAcademyGraduate = true
-            graduate.skill = 89
+            for (const k of ["rifle", "awp", "pistol", "grenades", "creativity", "clutch", "tactic", "leader", "teamwork", "reaction", "eyesight"]) (graduate as any)[k] = 30
+            graduate.skill = 90
+            expect(evaluatePlayer(graduate, undefined, undefined, 60).overallRating).toBeLessThan(90)
             const save = makeSave({
                 players: [graduate],
                 teams: [makeTeam("player", { rosterIds: ["grad"], lastRosterChangeWeek: 1 })],

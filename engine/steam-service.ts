@@ -42,7 +42,7 @@ export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlocked' | 'unlock
     // ── Management Achievements ──
     FIRST_MILLION: { id: "FIRST_MILLION", name: "Seven Figures", description: "Accumulate $1,000,000 in team budget", icon: "dollar", hidden: false },
     BUDGET_10M: { id: "BUDGET_10M", name: "Empire Builder", description: "Reach $10,000,000 in team budget", icon: "gem", hidden: false },
-    DEVELOP_STAR: { id: "DEVELOP_STAR", name: "Star Maker", description: "Develop an academy graduate to 90+ skill rating", icon: "trending", hidden: false },
+    DEVELOP_STAR: { id: "DEVELOP_STAR", name: "Star Maker", description: "Develop an academy graduate to 90+ OVR", icon: "trending", hidden: false },
     HALL_OF_FAME_INDUCTION: { id: "HALL_OF_FAME_INDUCTION", name: "Immortalized", description: "Have a player inducted into the Hall of Fame", icon: "monument", hidden: false },
     LOYAL_TEAM: { id: "LOYAL_TEAM", name: "The Brotherhood", description: "Maintain the same 5-player roster for 3+ years", icon: "heart", hidden: false },
     PROFIT_MASTER: { id: "PROFIT_MASTER", name: "Smart Money", description: "Sell a player for more than the original purchase price", icon: "chart", hidden: false },
