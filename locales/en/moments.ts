@@ -110,7 +110,7 @@ export const MOMENTS = {
     "stop.viewPlayer": "View player",
     "stop.press": "Press conference before the match: {{topic}}",
     "stop.facePress": "Face the press",
-    "stop.needsAnswer": "{{label}} needs an answer",
+    "stop.needsAnswer": "Decision waiting: {{label}}",
     "stop.decide": "Decide",
     "stop.aClub": "A club",
     "stop.yourPlayer": "your player",

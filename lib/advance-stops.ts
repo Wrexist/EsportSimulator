@@ -24,6 +24,7 @@ import { momentHeadline, titleMomentFromCelebration, type Moment } from "@/engin
 import { inboxHref } from "@/lib/navigation"
 import { isTextRef, t, tn, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
+import { getEventSubject } from "@/components/inbox/inbox-model"
 
 export type StopKind =
     | "moment" | "match" | "game-over" | "forfeit" | "injury" | "event" | "offer"
@@ -70,8 +71,20 @@ export function nextMoment(state: Pick<StopSource, "momentQueue" | "pendingCeleb
     return queue.find(m => m.kind !== "season-review") ?? titleMomentFromCelebration(state.pendingCelebration) ?? queue[0] ?? null
 }
 
-/** A readable name for a decision event; some carry no title (fan and sponsor requests). */
-function decisionLabel(e: GameEventSaveData): string {
+/**
+ * A readable name for a decision event, the same subject line Home's
+ * Decisions panel and the inbox show ("3-match win streak", not the event
+ * type "Performance", HOME-03); some carry no title (fan and sponsor requests).
+ */
+function decisionLabel(e: GameEventSaveData, state: StopSource): string {
+    const roster = new Set(state.teams.find(tm => tm.id === state.playerTeamId)?.rosterIds ?? [])
+    const subject = getEventSubject(e, {
+        currentWeek: state.currentWeek,
+        playerTeamId: state.playerTeamId ?? null,
+        rosterIds: roster,
+        playerName: id => state.players.find(p => p.id === id)?.nickname,
+    })
+    if (subject && subject !== t("ib.subj.notification")) return subject
     const title = getEventTitle(e)
     if (title !== "Notification") return storedText(title)
     const data = (e.data ?? {}) as Record<string, unknown>
@@ -162,7 +175,7 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
                 out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.press", { topic: pressTopic(e) }), href: `/match/${data.matchId}/tactics`, actionLabel: t("stop.facePress") })
                 continue
             }
-            out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.needsAnswer", { label: decisionLabel(e) }), href: "/", actionLabel: t("stop.decide") })
+            out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.needsAnswer", { label: decisionLabel(e, state) }), href: "/", actionLabel: t("stop.decide") })
             continue
         }
         const resolved = (e as unknown as { selectedChoiceId?: string }).selectedChoiceId !== undefined
