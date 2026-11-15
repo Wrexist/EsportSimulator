@@ -111,9 +111,11 @@ interface PathTimelineNode {
  * Last week of an event: its calendar length, or later when the saved event
  * says so (its end week, or a match still scheduled after it). The header and
  * the "Path to the event" card both use this, so they show the same weeks.
+ * A saved event's end week is the week after its last one (start + duration);
+ * a later match is counted by lastMatchWeek.
  */
 const eventEndWeek = (startWeek: number, duration: number | undefined, instanceEndWeek: number | undefined, lastMatchWeek: number): number =>
-    Math.max(startWeek + Math.max(1, duration || 1) - 1, instanceEndWeek ?? 0, lastMatchWeek)
+    Math.max(startWeek + Math.max(1, duration || 1) - 1, (instanceEndWeek ?? 1) - 1, lastMatchWeek)
 
 const getTimelineNodeStatus = (startWeek: number, endWeek: number, currentWeek: number): TimelineNodeStatus => {
     if (currentWeek < startWeek) return "UPCOMING"
