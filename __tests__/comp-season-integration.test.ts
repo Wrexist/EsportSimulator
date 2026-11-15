@@ -31,8 +31,17 @@ let save: GameSave
 const ranksAtStart = new Map<string, Map<string, number>>()
 /** World ranking of each invited club on the week its invite appeared ("event|club"). */
 const rankWhenInvited = new Map<string, number>()
+/** World ranking of every club on the week an event's first invites went out. */
+const ranksAtInvite = new Map<string, Map<string, number>>()
 
 beforeAll(async () => {
+    // Some engine paths still draw from Math.random: seed it so every run
+    // simulates the same world.
+    let mathSeed = Number(process.env.COMP_SIM_SEED ?? 1) >>> 0
+    jest.spyOn(Math, "random").mockImplementation(() => {
+        mathSeed = (Math.imul(mathSeed, 1664525) + 1013904223) >>> 0
+        return mathSeed / 4294967296
+    })
     const loader = new SnapshotLoader(path.join(process.cwd(), "public/data/snapshot"))
     const loaded = await loader.loadSnapshot()
     if (!loaded.success) throw Error(loaded.error)
@@ -48,6 +57,8 @@ beforeAll(async () => {
         const rng = new SeededRNG(save.lastRngSeed)
         applyAutoRegistration(save, { playerTeamId: save.playerTeamId!, nextId: nextId as never })
         TournamentManager.simulateWeeklyRegistrationsV2(save, save.currentWeek, rng)
+        // The ranking the tick's invites are sent by (it is updated later in the tick).
+        const ranksBefore = new Map(save.teams.map(c => [c.id, c.worldRanking ?? 999]))
         const before = new Set(save.tournaments.filter(t => t.teamIds.length && t.currentStage !== "Registration").map(t => t.id))
         const r = await computeWeek(save, { playerTeamId: save.playerTeamId!, trainingFocus: new Map([[save.playerTeamId!, { focus: TrainingFocus.AIM, intensity: 5 }]]) }, rng.getState())
         if (!r.result.success) throw Error(r.result.error)
@@ -55,7 +66,8 @@ beforeAll(async () => {
         delete (save as Partial<GameSave>).gameOverReason
         for (const q of save.tournamentQualifications) {
             const key = `${q.tournamentId}|${q.teamId}`
-            if (q.qualifiedVia === "Direct Invite" && !rankWhenInvited.has(key)) rankWhenInvited.set(key, save.teams.find(c => c.id === q.teamId)?.worldRanking ?? 999)
+            if (q.qualifiedVia === "Direct Invite" && !rankWhenInvited.has(key)) rankWhenInvited.set(key, ranksBefore.get(q.teamId) ?? 999)
+            if (q.qualifiedVia === "Direct Invite" && !ranksAtInvite.has(q.tournamentId)) ranksAtInvite.set(q.tournamentId, ranksBefore)
         }
         for (const t of save.tournaments) {
             if (!before.has(t.id) && t.teamIds.length && !ranksAtStart.has(t.id)) ranksAtStart.set(t.id, new Map(save.teams.map(c => [c.id, c.worldRanking ?? 999])))
@@ -134,12 +146,16 @@ describe("a headless season of the qualification path", () => {
     test("the world's top clubs reach the Majors", () => {
         for (const major of FULL_TOURNAMENT_CALENDAR.filter(d => isMajorTournament(`${d.id}_s1`) && hasRankedInvites(d))) {
             const t = s1(major.id)
-            const ranks = ranksAtStart.get(t.id)!
-            const top8 = [...ranks.entries()].sort((a, b) => a[1] - b[1]).slice(0, 8).map(([id]) => id)
-            // The invites go out weeks earlier, so the ranking may have moved a
-            // little: nearly all of the top 8 on the opening week, and every
-            // invite went to a top-16 club on the week it was sent.
-            expect(top8.filter(id => t.teamIds.includes(id)).length).toBeGreaterThanOrEqual(6)
+            const top8 = (ranks: Map<string, number>) => [...ranks.entries()].sort((a, b) => a[1] - b[1]).slice(0, 8).map(([id]) => id)
+            // Invites go out when the RMRs start: the world top 8 of that
+            // week are all at the Major.
+            const invitedTop = top8(ranksAtInvite.get(t.id)!)
+            expect([major.id, invitedTop.filter(id => !t.teamIds.includes(id))]).toEqual([major.id, []])
+            // A club that climbed into the top 8 since then had its chance in
+            // an RMR: none of the opening week's top 8 is missing without one.
+            const rmrEntrants = new Set(feederEvents(major.id).flatMap(f => s1(f.id).teamIds))
+            const lockedOut = top8(ranksAtStart.get(t.id)!).filter(id => !t.teamIds.includes(id) && !rmrEntrants.has(id))
+            expect([major.id, lockedOut]).toEqual([major.id, []])
             const invited = save.tournamentQualifications.filter(q => q.tournamentId === t.id && q.qualifiedVia === "Direct Invite").map(q => q.teamId)
             expect(invited).toHaveLength(major.inviteSlots!)
             for (const id of invited) expect([id, rankWhenInvited.get(`${t.id}|${id}`)! <= 16]).toEqual([id, true])
