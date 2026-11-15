@@ -129,10 +129,11 @@ export function compactPersistentState(save: GameSave): void {
 
     // Drop acknowledgements that reference events the compactor just pruned
     // so the set doesn't accumulate stale IDs across long campaigns.
-    // Career milestones (ms_*) and legacy goals (legacy:*) keep theirs: those
-    // ids are the only record that a once-per-career beat already fired.
+    // Career milestones (ms_*), legacy goals (legacy:*) and one-time inbox
+    // beats (once:*, events-manager) keep theirs: those ids are the only
+    // record that a once-per-career beat already fired.
     const knownEventIds = new Set(save.eventsLog.map(e => e.id))
-    save.acknowledgedEventIds = save.acknowledgedEventIds.filter(id => knownEventIds.has(id) || id.startsWith("ms_") || id.startsWith("legacy:"))
+    save.acknowledgedEventIds = save.acknowledgedEventIds.filter(id => knownEventIds.has(id) || id.startsWith("ms_") || id.startsWith("legacy:") || id.startsWith("once:"))
 
     // Strip per-round detail from completed matches older than the retention
     // window. Player-team matches retain their rounds[] so the match-result

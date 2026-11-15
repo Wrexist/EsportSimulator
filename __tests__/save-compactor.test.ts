@@ -194,10 +194,10 @@ describe("compactPersistentState — acknowledgedEventIds cleanup", () => {
         expect(save.acknowledgedEventIds).not.toContain("ghost_id_for_old_pruned_event")
     })
 
-    test("keeps the once-per-career ids of milestones and legacy goals after their events are pruned", () => {
-        const save = makeSave({ eventsLog: [], acknowledgedEventIds: ["ms_win_1", "legacy:init", "legacy:majors:1", "old_event"] })
+    test("keeps the once-per-career ids of milestones, legacy goals and one-time beats (ENGINE-02) after their events are pruned", () => {
+        const save = makeSave({ eventsLog: [], acknowledgedEventIds: ["ms_win_1", "legacy:init", "legacy:majors:1", "old_event", "once:fan:team_1:10000"] })
         compactPersistentState(save)
-        expect(save.acknowledgedEventIds).toEqual(["ms_win_1", "legacy:init", "legacy:majors:1"])
+        expect(save.acknowledgedEventIds).toEqual(["ms_win_1", "legacy:init", "legacy:majors:1", "once:fan:team_1:10000"])
     })
 })
 

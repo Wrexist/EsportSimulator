@@ -8,6 +8,22 @@ import type { TextRef } from "@/lib/i18n"
 // Fan milestone thresholds (one-time events)
 const FAN_MILESTONES = [10_000, 50_000, 100_000, 250_000, 500_000, 1_000_000]
 
+/**
+ * One-time beats are recorded in acknowledgedEventIds under a "once:" id
+ * (ENGINE-02): the events log is trimmed (save-compactor), so checking it
+ * alone let a milestone fire again, with its reward, once its event was gone.
+ * The compactor keeps "once:" ids.
+ */
+export const onceId = {
+  fan: (teamId: string, threshold: number) => `once:fan:${teamId}:${threshold}`,
+  rivalry: (teamId: string, opponentId: string, meetings: number) => `once:rivalry:${teamId}:${opponentId}:${meetings}`,
+}
+
+function markOnce(save: GameSave, id: string): void {
+  if (!save.acknowledgedEventIds) save.acknowledgedEventIds = []
+  if (!save.acknowledgedEventIds.includes(id)) save.acknowledgedEventIds.push(id)
+}
+
 export class EventsManager {
   /**
    * Modern event generator — pushes to game.eventsLog with seeded RNG.
@@ -72,30 +88,34 @@ export class EventsManager {
 
     // ---------- 2. FAN MILESTONE (threshold-based, one-time per threshold) ----------
     const followers = playerTeam.followers || 0
+    const fired = new Set(save.acknowledgedEventIds ?? [])
     for (const threshold of FAN_MILESTONES) {
-      if (followers >= threshold) {
-        const eventId = `fan_milestone_${threshold}`
-        if (!save.eventsLog.some(e => e.id === eventId)) {
-          const formatted = threshold >= 1_000_000
-            ? `${(threshold / 1_000_000).toFixed(0)}M`
-            : `${(threshold / 1000).toFixed(0)}K`
+      if (followers < threshold) continue
+      // Per club: a new job's club has its own milestones.
+      const eventId = `fan_milestone_${playerTeam.id}_${threshold}`
+      const once = onceId.fan(playerTeam.id, threshold)
+      if (fired.has(once)) continue
+      // Saves from before ENGINE-02 have the club-less id in the log.
+      if (save.eventsLog.some(e => e.id === eventId || e.id === `fan_milestone_${threshold}`)) { markOnce(save, once); continue }
+      markOnce(save, once)
+      const formatted = threshold >= 1_000_000
+        ? `${(threshold / 1_000_000).toFixed(0)}M`
+        : `${(threshold / 1000).toFixed(0)}K`
 
-          save.eventsLog.push({
-            id: eventId,
-            type: EventType.FAN,
-            week,
-            acknowledged: false,
-            data: {
-              ...eventText({ key: "rnd.fans.t", params: { count: formatted } }, { key: "rnd.fans.m", params: { count: formatted } }),
-              severity: "success",
-              followerCount: followers,
-            },
-          })
-          // Reputation bonus for milestone
-          playerTeam.reputation = Math.min(100, playerTeam.reputation + 2)
-          generated++
-        }
-      }
+      save.eventsLog.push({
+        id: eventId,
+        type: EventType.FAN,
+        week,
+        acknowledged: false,
+        data: {
+          ...eventText({ key: "rnd.fans.t", params: { count: formatted } }, { key: "rnd.fans.m", params: { count: formatted } }),
+          severity: "success",
+          followerCount: followers,
+        },
+      })
+      // Reputation bonus for milestone
+      playerTeam.reputation = Math.min(100, playerTeam.reputation + 2)
+      generated++
     }
 
     // ---------- 3. TRANSFER RUMOR (5% chance) ----------
@@ -186,32 +206,34 @@ export class EventsManager {
     for (const [oppId, count] of Object.entries(opponentCounts)) {
       if (count >= 3 && count % 3 === 0) {
         const eventId = `rivalry_${oppId}_${count}`
-        if (!save.eventsLog.some(e => e.id === eventId)) {
-          const rival = save.teams.find(t => t.id === oppId)
-          if (rival) {
-            // Calculate head-to-head
-            const h2h = save.completedMatches.filter(
-              m =>
-                (m.homeTeamId === save.playerTeamId && m.awayTeamId === oppId) ||
-                (m.homeTeamId === oppId && m.awayTeamId === save.playerTeamId)
-            )
-            const wins = h2h.filter(m => m.result.winnerId === save.playerTeamId).length
-            const losses = h2h.length - wins
+        // The capped match list can reach the same meeting count again later.
+        const once = onceId.rivalry(playerTeam.id, oppId, count)
+        if (fired.has(once)) continue
+        if (save.eventsLog.some(e => e.id === eventId)) { markOnce(save, once); continue }
+        const rival = save.teams.find(t => t.id === oppId)
+        if (!rival) continue
+        markOnce(save, once)
+        // Calculate head-to-head
+        const h2h = save.completedMatches.filter(
+          m =>
+            (m.homeTeamId === save.playerTeamId && m.awayTeamId === oppId) ||
+            (m.homeTeamId === oppId && m.awayTeamId === save.playerTeamId)
+        )
+        const wins = h2h.filter(m => m.result.winnerId === save.playerTeamId).length
+        const losses = h2h.length - wins
 
-            save.eventsLog.push({
-              id: eventId,
-              type: EventType.MEDIA,
-              week,
-              acknowledged: false,
-              data: {
-                ...eventText({ key: "rnd.rivalry.t", params: { club: rival.name } }, { key: "rnd.rivalry.m", params: { club: rival.name, count, w: wins, l: losses } }),
-                severity: "info",
-                rivalTeamId: oppId,
-              },
-            })
-            generated++
-          }
-        }
+        save.eventsLog.push({
+          id: eventId,
+          type: EventType.MEDIA,
+          week,
+          acknowledged: false,
+          data: {
+            ...eventText({ key: "rnd.rivalry.t", params: { club: rival.name } }, { key: "rnd.rivalry.m", params: { club: rival.name, count, w: wins, l: losses } }),
+            severity: "info",
+            rivalTeamId: oppId,
+          },
+        })
+        generated++
       }
     }
 
