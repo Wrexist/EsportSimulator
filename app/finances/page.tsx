@@ -19,7 +19,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { MoneyBreakdown } from "@/components/finance/IncomeBreakdown"
 import { CashChart, type CashPoint } from "@/components/finance/CashChart"
 import { EconomyEngine } from "@/engine/economy-engine"
-import { cashRunway, forecastFinances } from "@/engine/finance-forecast"
+import { cashRunway, forecastFinances, settlementsLeft } from "@/engine/finance-forecast"
 import { ECONOMY_CONSTANTS } from "@/lib/constants"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
@@ -97,11 +97,11 @@ export default function FinancesPage() {
     const contractBy = new Map(contracts.map(c => [c.playerId, c]))
     const rows = team.rosterIds.map(id => byId.get(id)).filter(Boolean).map(p => {
       const c = contractBy.get(p!.id)
-      return { player: p!, wage: c?.salaryPerWeek ?? 0, weeksLeft: c ? Math.max(0, c.endWeek - currentWeek) : 0, winBonus: c?.matchWinBonus ?? 0, mvpBonus: c?.mvpBonus ?? 0 }
+      return { player: p!, wage: c?.salaryPerWeek ?? 0, weeksLeft: c ? Math.max(0, c.endWeek - currentWeek) : 0, paymentsLeft: c ? settlementsLeft(c.endWeek, currentWeek) : 0, winBonus: c?.matchWinBonus ?? 0, mvpBonus: c?.mvpBonus ?? 0 }
     })
     const staffRows = staff
       .filter(s => team.staffIds?.includes(s.id) && (s.contractEndWeek === undefined || s.contractEndWeek > currentWeek))
-      .map(s => ({ staff: s, weeksLeft: s.contractEndWeek !== undefined ? Math.max(0, s.contractEndWeek - currentWeek) : null }))
+      .map(s => ({ staff: s, weeksLeft: s.contractEndWeek !== undefined ? Math.max(0, s.contractEndWeek - currentWeek) : null, paymentsLeft: s.contractEndWeek !== undefined ? settlementsLeft(s.contractEndWeek, currentWeek) : null }))
     return { rows, staffRows }
   }, [team, players, contracts, staff, currentWeek])
 
@@ -272,17 +272,17 @@ export default function FinancesPage() {
                             ? [r.winBonus ? t("fin.winBonus", { amount: money(r.winBonus) }) : null, r.mvpBonus ? t("fin.mvpBonus", { amount: money(r.mvpBonus) }) : null].filter(Boolean).join(" · ")
                             : "—"}
                         </td>
-                        <td className="pl-3 pr-4 text-right text-sm tabular-nums text-ink-2">{money(r.wage * r.weeksLeft)}</td>
+                        <td className="pl-3 pr-4 text-right text-sm tabular-nums text-ink-2">{money(r.wage * r.paymentsLeft)}</td>
                       </tr>
                     ))}
-                    {payroll.staffRows.map(({ staff: s, weeksLeft }) => (
+                    {payroll.staffRows.map(({ staff: s, weeksLeft, paymentsLeft }) => (
                       <tr key={s.id} data-slot="table-row" className="h-11 border-b border-line">
                         <td className="pl-4 text-sm font-semibold text-ink-1">{s.name}</td>
                         <td className="px-3 text-xs text-ink-3">{t(`staffRole.${s.role}`)}</td>
                         <td className="px-3 text-right text-sm tabular-nums text-ink-1">{money(s.salaryPerWeek)}</td>
                         <td className={cn("px-3 text-right text-sm tabular-nums", weeksLeft !== null && weeksLeft <= 4 ? "text-negative" : "text-ink-2")}>{weeksLeft === null ? t("fin.rolling") : weeksLabel(weeksLeft)}</td>
                         <td className="px-3 text-xs text-ink-3">—</td>
-                        <td className="pl-3 pr-4 text-right text-sm tabular-nums text-ink-2">{weeksLeft === null ? "—" : money(s.salaryPerWeek * weeksLeft)}</td>
+                        <td className="pl-3 pr-4 text-right text-sm tabular-nums text-ink-2">{paymentsLeft === null ? "—" : money(s.salaryPerWeek * paymentsLeft)}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -17,6 +17,7 @@ import { releaseClauseFee, releaseTriggerChance, type ReleaseClause } from "@/en
 import type { MarketStanding } from "@/engine/transfer-hype"
 import { ContractPaper } from "./ContractPaper"
 import { feeOfferBlock } from "./negotiation-rules"
+import { settlementsLeft } from "@/engine/finance-forecast"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -235,8 +236,8 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
             <dl className="divide-y divide-line">
                 {n.currentTeam && <Row label={t("terms.feeDue")} value={money(n.buyoutOffer)} />}
                 <Row label={t("terms.fundsAfter")} value={money(n.budget - n.buyoutOffer)} tone={n.budget < n.buyoutOffer ? "text-negative" : undefined} />
-                <Row label={t("terms.wagesTerm")} value={money(n.salaryOffer * Math.max(0, n.durationOffer - 1))} />
-                <Row label={n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0 ? t("terms.totalBeforeBonuses", { weeks: n.durationOffer }) : t("terms.total", { weeks: n.durationOffer })} value={money((n.currentTeam ? n.buyoutOffer : 0) + n.salaryOffer * Math.max(0, n.durationOffer - 1))} />
+                <Row label={t("terms.wagesTerm")} value={money(n.salaryOffer * settlementsLeft(n.durationOffer, 0))} />
+                <Row label={n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0 ? t("terms.totalBeforeBonuses", { weeks: n.durationOffer }) : t("terms.total", { weeks: n.durationOffer })} value={money((n.currentTeam ? n.buyoutOffer : 0) + n.salaryOffer * settlementsLeft(n.durationOffer, 0))} />
                 {preview && <Row label={t("terms.weeklyNet")} value={formatCurrency(preview.weeklyNet, "$", false)} tone={preview.weeklyNet < 0 ? "text-negative" : "text-positive"} />}
                 {preview && <Row label={t("terms.runway")} value={preview.runwayWeeks >= 999 ? t("terms.noDeficit") : tn("deal.weeks", preview.runwayWeeks)} tone={preview.runwayWeeks < 12 ? "text-caution" : undefined} />}
             </dl>
