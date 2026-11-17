@@ -42,7 +42,10 @@ export const createDraftCupSlice: SliceCreator<DraftCupActions> = (set, get) => 
         if (!cup) return false
         if (cup.result) {
             // A run settled before MODES-04 may still hold an open decision.
-            if (state.eventsLog.some(isOpenDecision)) set((s) => { closeDraftCupDecisions(s as unknown as GameSave) })
+            if (state.eventsLog.some(isOpenDecision)) {
+                set((s) => { closeDraftCupDecisions(s as unknown as GameSave) })
+                try { await get().saveGame() } catch { /* closed again on the next load */ }
+            }
             return true
         }
         const outcome = draftCupOutcome(state as never)
