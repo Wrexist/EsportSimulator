@@ -8,6 +8,7 @@ import { registerLocale, setLocale } from "@/lib/i18n"
 import { collectStopSignals, nextStop, stopActionText, stopReasonText, type StopSource } from "@/lib/advance-stops"
 import { createAdvanceSlice } from "@/store/slices/advance-slice"
 import { createLaunchFixture } from "@/scripts/launch/fixtures"
+import { storedText } from "@/lib/stored-text"
 import type { GameSave } from "@/engine/save-types"
 
 const locale = (code: string) => JSON.parse(readFileSync(join(__dirname, "..", "public", "locales", `${code}.json`), "utf8")) as Record<string, string>
@@ -69,5 +70,32 @@ describe("I18N-01: the match-day notice follows a language change", () => {
         setLocale("de")
         expect(stopReasonText({ reason: "Old text" })).toBe("Old text")
         expect(stopActionText({ actionLabel: "Go" })).toBe("Go")
+    })
+})
+
+describe("I18N-02 / I18N-04: week-report causes written in English are translated when shown", () => {
+    test("German and Russian, old and new saves alike", () => {
+        setLocale("de")
+        expect(storedText("Natural growth (age 16)")).toBe("Natürliche Entwicklung (16 Jahre)")
+        expect(storedText("Natural growth")).toBe("Natürliche Entwicklung")
+        expect(storedText("Age decline (age 31)")).toBe("Altersabbau (31 Jahre)")
+        expect(storedText("Weekly injury roll (risk rises with fatigue)")).toBe(de["svd.injuryRoll"])
+        expect(storedText("New season")).toBe("Neue Saison")
+        expect(storedText("Medical treatment")).toBe("Medizinische Behandlung")
+        expect(storedText("Transfer offer accepted")).toBe("Transferangebot angenommen")
+        expect(storedText("Released ace")).toBe("ace freigestellt")
+        expect(storedText("Released a player")).toBe("Spieler freigestellt")
+        expect(storedText("Released Academy Prospect")).toBe(de["svd.led.releasedProspect"])
+        expect(storedText("Paid less than ZywOo")).toBe("Verdient weniger als ZywOo")
+        expect(storedText("Benched 3 matches")).toBe("3 Matches auf der Bank")
+        expect(storedText("Natural growth (age 16) · Benched 1 match")).toBe("Natürliche Entwicklung (16 Jahre) · 1 Match auf der Bank")
+        setLocale("ru")
+        expect(storedText("Benched 22 matches")).toBe("22 матча на скамейке")
+        expect(storedText("Benched 5 matches")).toBe("5 матчей на скамейке")
+    })
+
+    test("English stays as the engine wrote it", () => {
+        expect(storedText("Natural growth (age 16)")).toBe("Natural growth (age 16)")
+        expect(storedText("Benched 3 matches")).toBe("Benched 3 matches")
     })
 })

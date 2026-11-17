@@ -132,6 +132,12 @@ const RULES: Rule[] = [
         const kind = m[3] ? t(`common.tier.${m[3]}_TIER`) : m[2] === "League" ? t("svd.league") : t("svd.cmp.qualifier")
         return `${segment(m[1])} (${m[4] ? t("svd.cmp.playoffs", { tier: kind }) : kind})`
     }],
+    // Week causes the engine and store write in English (I18N-02, I18N-04)
+    [/^Natural growth \(age (\d+)\)$/, m => t("svd.p.naturalGrowthAge", { age: m[1] })],
+    [/^Age decline \(age (\d+)\)$/, m => t("svd.p.ageDeclineAge", { age: m[1] })],
+    [/^Released (.+)$/, m => t("svd.p.released", { name: m[1] })],
+    [/^Paid less than (.+)$/, m => t("svd.p.paidLessThan", { name: m[1] })],
+    [/^Benched (\d+) match(?:es)?$/, m => plural(Number(m[1]), "svd.p.benched")],
     // "Unhappy player (ace)": a label with a name in brackets.
     [/^(.+) \(([^()]+)\)$/, m => `${segment(m[1])} (${m[2]})`],
     // "AWP +0.3", "Leader +10%": a label with a signed number.
