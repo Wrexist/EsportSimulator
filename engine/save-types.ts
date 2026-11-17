@@ -959,6 +959,8 @@ export interface ContractSaveData {
     // G13 clauses (engine/contract-clauses.ts)
     /** Fee at which another club may take the player without the owner's say (0 / absent = none). */
     releaseClause?: number
+    /** MARKET-01 (2026-11-17): the tier agreed, which sets how likely the clause is paid (absent on older contracts). */
+    releaseClauseTier?: "low" | "high"
     /** Paid for every official match played. */
     appearanceBonus?: number
     /** A share of the player's next transfer fee owed to a club that sold him. */

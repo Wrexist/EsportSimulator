@@ -458,7 +458,7 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
         const player = save.players.find(p => p.id === contract.playerId)
         if (!player || player.isRetired || !mine.rosterIds.includes(player.id)) continue
         const fee = contract.releaseClause!
-        if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek)) continue
+        if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek, contract.releaseClauseTier)) continue
         const buyer = save.teams
             .filter(t => t.id !== playerTeamId && canPayReleaseClause(save, t, player, fee))
             .sort((a, b) => b.reputation - a.reputation || a.id.localeCompare(b.id))[0]

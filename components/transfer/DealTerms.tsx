@@ -281,7 +281,7 @@ function ClauseTerms({ n }: { n: NegotiationState }) {
                     <p className="text-xs text-ink-3">
                         {n.clauses.release === "none"
                             ? t("terms.releaseNone")
-                            : t("terms.releaseBody", { label: t(`clause.release.${n.clauses.release}`), pct: Math.round(releaseTriggerChance(fee, n.salaryOffer) * 100), fee: money(fee) })}
+                            : t("terms.releaseBody", { label: t(`clause.release.${n.clauses.release}`), pct: Math.round(releaseTriggerChance(fee, n.salaryOffer, n.clauses.release) * 100), fee: money(fee) })}
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
