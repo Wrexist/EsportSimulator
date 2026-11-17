@@ -170,3 +170,15 @@ describe("CROSSCUT-09/10/14/15: shell consistency", () => {
         expect(guard).toBeLessThan(src.indexOf("NUMBER_KEY_ROUTES[e.key]"))
     })
 })
+
+describe("CROSSCUT-11: the loading splash adds no route stylesheet", () => {
+    test("LoadingSplash uses global classes; the brand module keeps only the title hero", () => {
+        const splash = read("components/brand/LoadingSplash.tsx")
+        expect(splash).not.toContain("module.css")
+        for (const cls of ["brand-splash", "brand-splash-track", "brand-splash-shimmer", "brand-splash-shimmer-static"]) {
+            expect(splash).toContain(cls)
+            expect(read("app/globals.css")).toContain(`.${cls}`)
+        }
+        expect(read("components/brand/brand.module.css")).not.toMatch(/\.splash|\.shimmer|\.track/)
+    })
+})

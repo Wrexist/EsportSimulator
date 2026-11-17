@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 import { t } from "@/lib/i18n"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { Logotype } from "./Logotype"
-import styles from "./brand.module.css"
 
 export interface LoadingSplashProps {
     /** Short status under the bar, e.g. "Preparing match". */
@@ -29,12 +28,12 @@ export function LoadingSplash({ label, className }: LoadingSplashProps) {
             role="status"
             aria-live="polite"
             aria-busy="true"
-            className={cn("relative flex min-h-dvh w-full flex-col items-center justify-center bg-ink", styles.splash, className)}
+            className={cn("brand-splash relative flex min-h-dvh w-full flex-col items-center justify-center bg-ink", className)}
         >
             <Logotype size="hero" subtitle="FPS" height={112} decorative />
             <div className="mt-10 w-[220px]">
-                <div className={styles.track}>
-                    <div className={reduced ? styles.shimmerStatic : styles.shimmer} />
+                <div className="brand-splash-track">
+                    <div className={reduced ? "brand-splash-shimmer-static" : "brand-splash-shimmer"} />
                 </div>
             </div>
             <p aria-hidden="true" className="mt-4 h-4 text-xs font-medium uppercase tracking-[0.18em] text-ink-3">{label ?? ""}</p>

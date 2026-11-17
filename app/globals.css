@@ -1081,3 +1081,40 @@
     border-width: revert-layer;
   }
 }
+
+/* Loading splash (components/brand/LoadingSplash.tsx). Global, not in
+   brand.module.css: the loading.tsx files that render it are prefetched with
+   every route link, and the module's stylesheet was preloaded on every screen
+   and never applied ("preloaded but not used" warning, CROSSCUT-11). */
+.brand-splash {
+  animation: brand-splash-in 260ms ease-out 140ms both;
+}
+@keyframes brand-splash-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.brand-splash-track {
+  position: relative;
+  overflow: hidden;
+  height: 2px;
+  border-radius: 1px;
+  background: rgb(255 255 255 / 0.07);
+}
+.brand-splash-shimmer,
+.brand-splash-shimmer-static {
+  position: absolute;
+  inset: 0;
+  width: 38%;
+  background: linear-gradient(90deg, rgb(242 181 58 / 0), rgb(242 181 58 / 0.95) 50%, rgb(242 181 58 / 0));
+  transform: translateX(-100%);
+  animation: brand-splash-shimmer 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.brand-splash-shimmer-static {
+  animation: none;
+  transform: translateX(81%);
+  opacity: 0.6;
+}
+@keyframes brand-splash-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(263%); }
+}
