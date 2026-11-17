@@ -184,8 +184,9 @@ export function AdvanceControl() {
     return (
         <div className="relative shrink-0">
             {control}
-            {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20). */}
-            {advanceStop && !running && !onStopMatch && !stopAnswered && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
+            {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20);
+                a match already being played offers no "Prepare / Sim match" (MATCHDAY-02). */}
+            {advanceStop && !running && !onStopMatch && !stopAnswered && !(advanceStop.kind === "match" && (!pendingMatchId || pendingIsLive)) && <StopNotice />}
         </div>
     )
 }

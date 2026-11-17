@@ -92,3 +92,17 @@ describe("MATCHDAY-15: the radar scrubber's bomb clock turns with the scorebug",
         expect(scrub).toMatch(/if \(\(sec !== lastSecond \|\| label !== lastLabel\) && timeRef\.current\)/)
     })
 })
+
+describe("MATCHDAY-02: the leave dialog and the lock around a paused match agree", () => {
+    test("the dialog says the rest of the game is locked; the lock says the match is paused and resumes it", () => {
+        expect(t("dock.leaveBody")).toMatch(/rest of the game is locked until the match is finished/)
+        expect(t("guard.body")).toMatch(/paused/)
+        expect(t("guard.back")).toBe("Resume match")
+        const guard = src("components/layout/MatchNavigationGuard.tsx")
+        expect(guard).toMatch(/router\.push\(`\/match\/\$\{activeMatchId\}\/live`\)/)
+    })
+    test("the top bar's match-day notice (Prepare / Sim match) is hidden while that match is being played", () => {
+        const ctl = src("components/report/AdvanceControl.tsx")
+        expect(ctl).toMatch(/!\(advanceStop\.kind === "match" && \(!pendingMatchId \|\| pendingIsLive\)\) && <StopNotice \/>/)
+    })
+})

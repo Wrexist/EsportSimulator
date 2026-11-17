@@ -61,8 +61,8 @@ export const SUPPORT = {
     "img.cancel": "Cancel",
 
     "guard.title": "Match in progress",
-    "guard.body": "You can't leave the match while it is being played. Finish the match first.",
-    "guard.back": "Back to the match",
+    "guard.body": "Your match is paused where you left it. The rest of the game opens again once it is finished.",
+    "guard.back": "Resume match",
 
     "search.aria": "Search the game's screens",
     "search.tooltip": "Search screens (Ctrl or Cmd + K)",

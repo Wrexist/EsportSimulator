@@ -391,7 +391,7 @@ export const MATCH = {
     // Match controls
     "dock.aria": "Match controls",
     "dock.leaveTitle": "Leave the live match?",
-    "dock.leaveBody": "The match pauses and is saved exactly where it is. Resume it from the match hub; other fixtures stay locked until it is finished.",
+    "dock.leaveBody": "The match pauses and is saved exactly where it is. Its match hub stays open; the rest of the game is locked until the match is finished.",
     "dock.leaveConfirm": "Go to match hub",
     "dock.stay": "Stay",
     "dock.hubTitle": "Pause and go back to the match hub",
