@@ -138,6 +138,11 @@ const RULES: Rule[] = [
     [/^Released (.+)$/, m => t("svd.p.released", { name: m[1] })],
     [/^Paid less than (.+)$/, m => t("svd.p.paidLessThan", { name: m[1] })],
     [/^Benched (\d+) match(?:es)?$/, m => plural(Number(m[1]), "svd.p.benched")],
+    [/^Mastered (\w+) as secondary role$/, m => t("moment.roleMastered", { role: known(`tr.role.${m[1].toLowerCase()}`, known(`market.role.${m[1]}`, m[1])) })],
+    [/^You told the press, "(.+)"$/, m => t("sl.toldPress", { answer: segment(m[1]) })],
+    [/^Press conference: "(.+)"$/, m => t("svd.p.pressAnswer", { answer: segment(m[1]) })],
+    [/^Your team forfeited against (.+): only (\d) ?\/5 players were available\.$/, m => t("evn.forfeit.lost", { team: m[1], n: m[2] })],
+    [/^(.+) forfeited your match — win by default!$/, m => t("evn.forfeit.won", { team: m[1] })],
     // Budget warnings saved before they carried translation keys (I18N-03)
     [/^Budget is getting tight\. You have (\d+) weeks? of runway remaining\. Consider reducing expenses\.$/, m => plural(Number(m[1]), "evn.budget.TIGHT")],
     [/^Financial warning! Only (\d+) weeks? of runway left\. Cut costs or find new income sources urgently\.$/, m => plural(Number(m[1]), "evn.budget.RISK")],

@@ -277,6 +277,7 @@ export const PLAYER = {
     "moment.legendBody": "Inducted into the league's pantheon. A career that defined an era.",
     "moment.noneYet": "No milestones yet. Titles, MVP awards and clutch records will appear here.",
     "moment.noneStart": "No milestones yet. The story starts with the first official match.",
+    "moment.roleMastered": "Mastered the {{role}} role",
     "recruit.academyProspect": "Academy prospect",
     "recruit.report": "{{level}} report",
     "recruit.level.NONE": "No",

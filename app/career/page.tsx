@@ -24,10 +24,13 @@ import { stripEmoji } from "@/components/inbox/inbox-model"
 import { formatCurrency } from "@/lib/utils-extended"
 import { t, tn, intlLocale, isTextRef, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
+import { DIGEST_TYPE, digestItems } from "@/lib/inbox-digest"
 
 /** A log row in the active language: the saved translation key first (as the inbox reads it), else the stored English through stored-text. */
 function eventText(event: { type: string; data?: unknown }): string {
     const d = (event.data ?? {}) as Record<string, unknown>
+    // The weekly round-up is named as in the inbox (I18N-04), not by its stored English title.
+    if (event.type === DIGEST_TYPE) return tn("ib.subj.digest", digestItems(event as Parameters<typeof digestItems>[0]).length)
     const stored = d.description ?? d.message ?? d.text ?? d.title
     const text = isTextRef(d.messageRef) ? tRef(d.messageRef) : isTextRef(d.titleRef) ? tRef(d.titleRef) : typeof stored === "string" ? storedText(stored) : ""
     // Same plain-text rule as the inbox: no emoji headings in UI text.

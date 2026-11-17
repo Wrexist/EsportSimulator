@@ -52,7 +52,7 @@ export interface Player {
     role: PlayerRole
     secondaryRole?: PlayerRole
     tier: PlayerTier
-    achievements?: { type: string, week: number, description: string }[]
+    achievements?: { type: string, week: number, description: string, ref?: import("@/lib/i18n").TextRef }[]
 
     // ===== TECHNICAL STATS (0-100) =====
     // Core mechanical and game skills

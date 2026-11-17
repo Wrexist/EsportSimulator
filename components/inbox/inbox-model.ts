@@ -363,6 +363,10 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
         case "RETIREMENT": return data.message || t("ib.body.retired", { name: who })
         // Budget warnings saved before they carried a messageRef (I18N-03).
         case "BUDGET_WARNING": return storedText(data.description) || t("ib.body.noDetails")
+        case "MATCH_RESULT":
+            // Forfeit notices saved before they carried a messageRef (I18N-04).
+            if (event.id.startsWith("forfeit_") && data.description) return storedText(data.description)
+            return data.message || data.content || data.text || data.description || t("ib.body.noDetails")
         case DIGEST_TYPE: {
             const items = digestItems(event)
             if (items.length === 0) return t("ib.body.nothingNew")

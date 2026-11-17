@@ -480,4 +480,6 @@ export const NEWS = {
     "evn.budget.CRISIS.one": "CRITICAL: Team finances in crisis! {{count}} week until insolvency. Players are losing morale.",
     "evn.budget.CRISIS.other": "CRITICAL: Team finances in crisis! {{count}} weeks until insolvency. Players are losing morale.",
     "evn.budget.INSOLVENT": "Team is INSOLVENT. This is week {{week}} of 8 consecutive insolvent settlements before the club disbands. Restore a positive balance by a weekly settlement to reset this counter.",
+    "evn.forfeit.lost": "Your team forfeited against {{team}}: only {{n}}/5 players were available.",
+    "evn.forfeit.won": "{{team}} forfeited your match — win by default!",
 } as const

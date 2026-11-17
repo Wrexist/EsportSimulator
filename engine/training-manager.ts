@@ -300,12 +300,14 @@ export class TrainingManager {
     // Morale boost for completing training
     player.morale = Math.min(100, (player.morale || 70) + 10)
 
-    // Career milestone
+    // Career milestone: the trained role is now the primary one (I18N-04: kept as a translation key)
     if (!player.achievements) player.achievements = []
+    const mastered: TextRef = { key: "moment.roleMastered", params: { role: roleRef(session.targetRole) } }
     player.achievements.push({
       type: "ROLE_MASTERY",
       week: game.currentWeek,
-      description: `Mastered ${session.targetRole} as secondary role`
+      description: tRefEn(mastered),
+      ref: mastered,
     })
 
     // Notify (only for player's own team)

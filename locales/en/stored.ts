@@ -376,4 +376,5 @@ export const STORED = {
     "svd.p.paidLessThan": "Paid less than {{name}}",
     "svd.p.benched.one": "Benched {{count}} match",
     "svd.p.benched.other": "Benched {{count}} matches",
+    "svd.p.pressAnswer": "Press conference: \"{{answer}}\"",
 } as const

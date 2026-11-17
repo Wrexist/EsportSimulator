@@ -29,7 +29,7 @@ import { divisionOfTeam, isLeagueMatchId, tablePosition } from "../season/region
 import { biggestRival } from "./arcs/rivalry"
 import { divisionRef, fmtRating, formOver, logBeat, nameOf } from "./common"
 
-import { t, tn, tRefEn, ORDINAL_REF, LIST_REF, type TextRef } from "@/lib/i18n"
+import { t, tn, tRefEn, ORDINAL_REF, LIST_REF, STORED_REF, type TextRef } from "@/lib/i18n"
 import { PRESS_PREFIX, pressDataOf, pressEventId, type PressAnswer, type PressData, type PressQuestion, type PressReason } from "./press-view"
 
 export * from "./press-view"
@@ -376,8 +376,9 @@ export function answerPressConference(target: PressTarget, eventId: string, answ
         if (applyChoiceEffects(target, pseudo, a.effects, { id: () => `fin_${pseudo.id}`, description: `Press conference: "${a.text}"` })) applied++
         // The story keeps the line once (the press may ask again before a later match).
         const arc = q.arcId ? target.storylines?.find(x => x.id === q.arcId) : undefined
-        const line = `${PRESS_LINE}"${a.text}"`
-        if (arc && a.id !== NO_COMMENT_ID && !arc.log.some(l => l.text === line)) logBeat(arc, target.currentWeek, line)
+        // Kept with its translation key (I18N-04); the English copy is unchanged.
+        const line: { text: string; ref: TextRef } = { text: `${PRESS_LINE}"${a.text}"`, ref: { key: "sl.toldPress", params: { answer: a.ref ?? { key: STORED_REF, params: { text: a.text } } } } }
+        if (arc && a.id !== NO_COMMENT_ID && !arc.log.some(l => l.text === line.text)) logBeat(arc, target.currentWeek, line)
     }
     // A bold claim about the match waits for the result (settlePressStakes).
     const stakes = press.questions.map(q => q.answers.find(x => x.id === chosen[q.id])?.afterResult).find(Boolean)

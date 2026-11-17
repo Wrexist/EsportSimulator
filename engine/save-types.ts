@@ -757,7 +757,8 @@ export interface PlayerSaveData {
     role: string
     secondaryRole?: string
     tier: string
-    achievements?: { type: string, week: number, description: string }[]
+    /** `ref`: the description as a translation key (I18N-04); `description` keeps the English. */
+    achievements?: { type: string, week: number, description: string, ref?: import("@/lib/i18n").TextRef }[]
 
     // Phase 55: Energy (0-100)
     energy: number
