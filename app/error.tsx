@@ -2,7 +2,9 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import { RefreshCw, Home } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { CrashCard, crashDetails } from '@/components/ui/crash-card'
 import { errorTracker } from '@/lib/error-tracking'
 import { t } from '@/lib/i18n'
 
@@ -27,39 +29,26 @@ export default function Error({
     }, [error])
 
     return (
-        <div className="flex min-h-[70vh] flex-col items-center justify-center p-8 text-ink-1">
-            <div className="w-full max-w-md rounded-[10px] border border-line-strong bg-panel p-8 text-center">
-                <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-lg border border-negative/40 bg-negative/10">
-                    <AlertTriangle className="text-negative" size={24} aria-hidden="true" />
-                </div>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-negative">{t("rerr.kicker")}</p>
-                <h1 className="mb-3 font-display text-3xl font-bold uppercase leading-none">{t("rerr.title")}</h1>
-                <p className="mb-6 text-sm leading-relaxed text-ink-2">
-                    {t("rerr.body")}
-                </p>
-                {process.env.NODE_ENV !== 'production' && (
-                    <pre className="mb-6 max-h-32 overflow-y-auto whitespace-pre-wrap rounded-md border border-line bg-shell p-4 text-left font-mono text-xs text-negative">
-                        {error.message}
-                    </pre>
-                )}
-                <div className="flex justify-center gap-3">
-                    <button
-                        onClick={reset}
-                        className="flex h-10 items-center gap-2 rounded border border-gold bg-gold px-5 text-sm font-semibold text-gold-on transition-colors hover:border-gold-hover hover:bg-gold-hover"
-                    >
-                        <RefreshCw size={15} aria-hidden="true" />
+        <CrashCard
+            title={t("rerr.title")}
+            body={t("rerr.body")}
+            message={error.message}
+            details={() => crashDetails(error, error.digest ? `Route (digest ${error.digest})` : "Route")}
+            actions={
+                <>
+                    <Button onClick={reset}>
+                        <RefreshCw aria-hidden="true" />
                         {t("eb.retry")}
-                    </button>
+                    </Button>
                     {/* Client navigation keeps the career in memory (a full reload would drop unsaved progress). */}
-                    <Link
-                        href="/main-menu"
-                        className="flex h-10 items-center gap-2 rounded border border-line bg-raised px-5 text-sm font-semibold text-ink-1 transition-colors hover:border-line-strong hover:bg-hover"
-                    >
-                        <Home size={15} aria-hidden="true" />
-                        {t("eb.menu")}
-                    </Link>
-                </div>
-            </div>
-        </div>
+                    <Button asChild variant="outline">
+                        <Link href="/main-menu">
+                            <Home aria-hidden="true" />
+                            {t("eb.menu")}
+                        </Link>
+                    </Button>
+                </>
+            }
+        />
     )
 }
