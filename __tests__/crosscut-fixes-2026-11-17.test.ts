@@ -120,3 +120,11 @@ describe("CROSSCUT-06: one not-found card for every match screen", () => {
         expect(html.match(/<a /g)).toHaveLength(1)
     })
 })
+
+describe("CROSSCUT-07: a locked staff meeting's reason stays readable", () => {
+    test("the row is not dimmed as a whole; the reason is ink-2", () => {
+        const src = read("components/schedule/BookStaffMeetingModal.tsx")
+        expect(src).not.toContain('"opacity-60"')
+        expect(src).toContain('<p className="text-xs leading-snug text-ink-2">{status.reason}</p>')
+    })
+})
