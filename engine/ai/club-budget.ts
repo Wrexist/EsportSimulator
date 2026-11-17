@@ -13,9 +13,9 @@
  *    Savings count too, with a runway check (audit 11-17 ENGINE-05): cash
  *    beyond the runway every club starts with (STARTING_RUNWAY_WEEKS of
  *    running costs) may fund a planned weekly loss of up to that excess /
- *    CUT_RUNWAY_WEEKS. Without it a club with
- *    $7M in the bank could not hire a $1,800 coach, so staff and benches
- *    thinned out over seasons while cash piled up. A loss funded this way
+ *    CUT_RUNWAY_WEEKS. Without it a club with $7M in the bank could not
+ *    hire a $1,800 coach, so staff and benches thinned out over seasons
+ *    while cash piled up. A loss funded this way
  *    always leaves more than CUT_RUNWAY_WEEKS of runway (cost control never
  *    undoes it the next week), and it shrinks as the savings do.
  *  - Cost control: a club running a weekly deficit (or in debt) releases
