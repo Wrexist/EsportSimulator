@@ -57,6 +57,9 @@ function topic(id: string, key: string, category: Category, blocks: () => Block[
 const TIERS = ["newcomer", "contender", "dynasty", "eraDefining", "goat"] as const
 
 export const helpTopics: HelpTopic[] = [
+    topic("first-week", "week1", "gameplay", () => [
+        { p: "help.week1.p1" }, { ul: ["help.week1.l1", "help.week1.l2", "help.week1.l3", "help.week1.l4"] }, { note: "help.week1.note" },
+    ]),
     topic("reading-stats", "stats", "gameplay", () => [
         { p: "help.stats.p1" }, { p: "help.stats.p2" }, { p: "help.stats.p3" }, { p: "help.stats.p4" }, { p: "help.stats.p5" },
     ]),
@@ -91,6 +94,10 @@ export const helpTopics: HelpTopic[] = [
     ]),
     topic("condition", "cond", "gameplay", () => [
         { ul: ["help.cond.l1", "help.cond.l2", "help.cond.l3"] },
+    ]),
+    topic("transfers", "transfers", "management", () => [
+        { p: "help.transfers.p1" }, { ul: ["help.transfers.l1", "help.transfers.l2"] },
+        { h: "help.transfers.h1" }, { ul: ["help.transfers.l3", "help.transfers.l4"] },
     ]),
     topic("board", "board", "management", () => [
         { p: "help.board.p1" }, { ul: ["help.board.l1", "help.board.l2", "help.board.l3"] },

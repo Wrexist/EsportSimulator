@@ -72,7 +72,7 @@ export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => 
       if (guide.status !== 'active') return
       const team = state.teams.find(t => t.id === state.playerTeamId)
       if (!team) return
-      const next = syncFirstSessionProgress(guide, { team, players: state.players, matches: state.scheduledMatches, completed: state.completedMatches, currentWeek: state.currentWeek })
+      const next = syncFirstSessionProgress(guide, { team, players: state.players, matches: state.scheduledMatches, completed: state.completedMatches, currentWeek: state.currentWeek, academy: state.academyPlayers, events: state.eventsLog })
       if (next === guide) return
       state.firstSession = next; changed = true
       if (next.status === 'complete') { state.onboardingCompleted = true; state.tutorialCompleted = true }
@@ -96,7 +96,7 @@ export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => 
       if (state.proCareer || state.draftCup) return
       const team = (state.teams ?? []).find(t => t.id === state.playerTeamId)
       // Baseline = the career now, so replay asks for new actions instead of completing from history.
-      state.firstSession = newFirstSession(team ? captureFirstSessionBaseline({ team, completed: state.completedMatches, currentWeek: state.currentWeek }) : undefined)
+      state.firstSession = newFirstSession(team ? captureFirstSessionBaseline({ team, completed: state.completedMatches, currentWeek: state.currentWeek, academy: state.academyPlayers, events: state.eventsLog }) : undefined)
       state.manualTutorialTrigger = 0
       state.tutorialCompleted = false
       state.onboardingCompleted = false

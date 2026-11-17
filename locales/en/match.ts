@@ -72,8 +72,8 @@ export const MATCH = {
     "prep.aTeam": "A team",
     "prep.mentalFunds": "Not enough money: a mental reset costs {{cost}}.",
     "prep.notFound": "Match not found",
-    "prep.notFoundBody": "This match is no longer on your schedule. It may already have been played or resolved when the week advanced.",
-    "prep.backToSchedule": "Back to schedule",
+    "prep.notFoundBody": "This match is no longer on your calendar. It may already have been played or resolved when the week advanced.",
+    "prep.backToSchedule": "Back to calendar",
     "prep.loading": "Loading match day…",
     "prep.formWon": "Won {{us}}–{{them}} vs {{team}}",
     "prep.formLost": "Lost {{us}}–{{them}} vs {{team}}",
@@ -664,9 +664,9 @@ export const MATCH = {
 
     // Match error screen
     "matchError.resolved": "Match resolved via instant simulation.",
-    "matchError.failed": "Couldn't resolve the match. Try Schedule and replay it.",
+    "matchError.failed": "Couldn't resolve the match. Open the calendar and replay it.",
     "matchError.title": "Match crashed",
-    "matchError.body": "Something went wrong during the match. Your save is safe: simulate the result instantly, or head back to the schedule and try again.",
+    "matchError.body": "Something went wrong during the match. Your save is safe: simulate the result instantly, or head back to the calendar and try again.",
     "matchError.simulate": "Simulate instead",
     "matchError.retry": "Retry",
     "matchError.preparing": "Preparing match",

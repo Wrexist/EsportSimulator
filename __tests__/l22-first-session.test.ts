@@ -150,7 +150,7 @@ describe('skip and replay', () => {
         const h = harness({ ...newFirstSession(), status: 'dismissed' })
         h.set(s => { s.completedMatches.push(playedResult('old', s.playerTeamId!, 'opp') as never); s.currentWeek += 3 })
         h.settings.triggerTutorial()
-        expect(restoreFirstSession(h.read().firstSession).baseline).toEqual({ week: h.read().currentWeek, lastResultId: 'old', rosterIds: h.team().rosterIds })
+        expect(restoreFirstSession(h.read().firstSession).baseline).toMatchObject({ week: h.read().currentWeek, lastResultId: 'old', rosterIds: h.team().rosterIds })
         h.settings.syncFirstSession()
         expect(h.reviewed()).toEqual([])
         h.set(s => { s.currentWeek += 1 })
@@ -218,6 +218,86 @@ describe('guidance stays actionable', () => {
         h.set(s => { s.activeMatchId = 'recover' }); expect(h.next()!.action.href).toBe('/match/recover/live')
         h.set(s => { s.activeMatchId = null; s.teams.find(t => t.id === s.playerTeamId)!.rosterIds.push('p_back'); s.players.push({ id: 'p_back' } as never); s.scheduledMatches = [] })
         expect(h.next()!.detail).toContain('arrange a friendly')
+    })
+})
+
+describe('audit 2026-11-17: guide follows management decisions, retires itself and states facts', () => {
+    const mutateTeam = (h: ReturnType<typeof harness>, fn: (t: ReturnType<ReturnType<typeof harness>['team']>) => void) => h.set(s => { fn(s.teams.find(t => t.id === s.playerTeamId)!) })
+    test.each([
+        ['staff hire', (t: any) => { t.staffIds = [...(t.staffIds ?? []), 'st_new'] }],
+        ['gear', (t: any) => { t.equipment = [...(t.equipment ?? []), { id: 'eq_new' }] }],
+        ['facility upgrade', (t: any) => { t.facilitiesLevel = (t.facilitiesLevel ?? 0) + 1 }],
+        ['academy built', (t: any) => { t.academyFacility = { level: (t.academyFacility?.level ?? 0) + 1 } }],
+        ['drill this week', (t: any) => { t.trainingSlotsUsed = (t.trainingSlotsUsed ?? 0) + 1 }],
+        ['retraining', (t: any) => { t.activeRoleTraining = [...(t.activeRoleTraining ?? []), { playerId: t.rosterIds[0], startWeek: 1 }]; t.trainingSlotsUsed = (t.trainingSlotsUsed ?? 0) + 1 }],
+    ])('SQUAD-63: %s counts as the decision', (_name, change) => {
+        const h = harness()
+        h.settings.syncFirstSession()
+        h.settings.syncFirstSession(); expect(h.reviewed()).toEqual([])
+        mutateTeam(h, change as never)
+        h.settings.syncFirstSession()
+        expect(h.reviewed()).toEqual(['decision'])
+    })
+
+    test('HOME-17: an answered inbox decision counts; an expired one or a lost facility level does not', () => {
+        const h = harness()
+        h.set(s => { s.teams.find(t => t.id === s.playerTeamId)!.facilitiesLevel = 2 })
+        h.settings.syncFirstSession()
+        h.set(s => { s.teams.find(t => t.id === s.playerTeamId)!.facilitiesLevel = 1; s.eventsLog.push({ id: 'ev_x', type: 'X', week: s.currentWeek, data: {}, acknowledged: true, selectedChoiceId: 'expired' } as never) })
+        h.settings.syncFirstSession(); expect(h.reviewed()).toEqual([])
+        h.set(s => { s.eventsLog.push({ id: 'ev_y', type: 'X', week: s.currentWeek, data: {}, acknowledged: true, selectedChoiceId: 'dinner' } as never) })
+        h.settings.syncFirstSession(); expect(h.reviewed()).toEqual(['decision'])
+    })
+
+    test('an academy enrolment counts; the yearly youth intake does not', () => {
+        const h = harness()
+        h.settings.syncFirstSession()
+        h.set(s => { s.academyPlayers = [...(s.academyPlayers ?? []), { id: `academy_yp1_${s.currentWeek}`, playerId: 'yp1', enrolledWeek: s.currentWeek } as never] })
+        h.settings.syncFirstSession(); expect(h.reviewed()).toEqual([])
+        h.set(s => { s.academyPlayers.push({ id: `academy_${s.currentWeek}_abc_yp2`, playerId: 'yp2', enrolledWeek: s.currentWeek } as never) })
+        h.settings.syncFirstSession(); expect(h.reviewed()).toEqual(['decision'])
+    })
+
+    test('HOME-17: a guide unfinished more than four weeks after it started retires itself as complete', () => {
+        const h = harness()
+        h.settings.syncFirstSession()
+        h.set(s => { s.currentWeek += 4 }); h.settings.syncFirstSession()
+        expect(restoreFirstSession(h.read().firstSession).status).toBe('active')
+        h.set(s => { s.currentWeek += 1 }); h.settings.syncFirstSession()
+        expect(restoreFirstSession(h.read().firstSession)).toMatchObject({ status: 'complete', reviewed: [...FIRST_SESSION_STEPS] })
+        expect(h.read().tutorialCompleted).toBe(true)
+    })
+
+    test('a saved baseline without management marks starts watching without counting the past', () => {
+        const h = harness()
+        h.settings.syncFirstSession()
+        h.set(s => { const g = s.firstSession as any; delete g.baseline.managed; s.teams.find(t => t.id === s.playerTeamId)!.staffIds.push('st_old') })
+        h.settings.syncFirstSession(); expect(h.reviewed()).toEqual([])
+        expect(restoreFirstSession(h.read().firstSession).baseline!.managed).toContain('staff:st_old')
+    })
+
+    test('START-56: an empty club is sent to Transfers instead of an empty squad', () => {
+        const h = harness()
+        h.set(s => { s.teams.find(t => t.id === s.playerTeamId)!.rosterIds = [] })
+        const g = h.next()!
+        expect(g.action.href).toBe('/transfers'); expect(g.detail).not.toContain('Look at who you have')
+    })
+
+    test('START-55 / NEWPLAYER-13: the next fixture is named by date and the link says calendar', () => {
+        const h = harness({ ...newFirstSession(), reviewed: ['squad', 'budget', 'decision'] })
+        const g = firstSessionGuidance(restoreFirstSession(h.read().firstSession), { team: h.team(), players: h.read().players, completed: [], currentWeek: 1,
+            matches: [{ id: 'm1', homeTeamId: h.team().id, awayTeamId: 'x', week: 1, day: 3 } as never], gameStartDate: '2026-11-16T00:00:00.000Z' })!
+        expect(g.detail).toMatch(/^Next fixture: Week 1, Thu, Nov 19\./)
+        expect(g.action).toEqual({ href: '/schedule', label: 'Open calendar' })
+    })
+
+    test('NEWPLAYER-25: the budget step states the fee cap, the weekly margin and the cash target', () => {
+        const h = harness({ ...newFirstSession(), reviewed: ['squad'] })
+        const base = { team: h.team(), players: h.read().players, matches: [], completed: [], currentWeek: 1 }
+        const up = firstSessionGuidance(restoreFirstSession(h.read().firstSession), { ...base, budgetFacts: { maxFee: 80000, weeklyNet: 1900, cashTarget: 50000 } })!
+        expect(up.detail).toContain('up to $80k'); expect(up.detail).toContain('$1.9k a week'); expect(up.detail).toContain('Keep $50k')
+        const down = firstSessionGuidance(restoreFirstSession(h.read().firstSession), { ...base, budgetFacts: { maxFee: 40000, weeklyNet: -2500, cashTarget: null } })!
+        expect(down.detail).toContain('loses about $2.5k a week'); expect(down.detail).not.toContain('Keep')
     })
 })
 

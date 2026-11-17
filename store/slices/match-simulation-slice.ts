@@ -629,7 +629,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         if (state.completedMatches.some(m => m.id === matchId)) return true
         const match = state.scheduledMatches.find(m => m.id === matchId)
         if (!match) {
-            get().addToast({ message: 'That match is no longer on your schedule.', type: 'warning' })
+            get().addToast({ message: 'That match is no longer on your calendar.', type: 'warning' })
             return false
         }
         if (!state.playerTeamId) return false
@@ -703,7 +703,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // slice and was spread into the StoreState alongside us.
         get().saveMatchResult(matchId, result)
         if (!get().completedMatches.some(m => m.id === matchId)) {
-            get().addToast({ message: "The match result couldn't be recorded. Your match is still on the schedule.", type: 'error' })
+            get().addToast({ message: "The match result couldn't be recorded. Your match is still on the calendar.", type: 'error' })
             return false
         }
 
