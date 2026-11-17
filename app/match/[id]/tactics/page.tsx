@@ -572,7 +572,8 @@ export default function TacticalHQPage() {
                     <TeamBlock team={myTeam} ovr={avgOvr(myLineup)} rank={myTeam.worldRanking} align="left" />
                     <div className="flex w-[240px] shrink-0 flex-col items-center text-center xl:w-[300px]">
                         <div className="flex items-center gap-2">
-                            {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
+                            {/* MODES-06 (audit 17): the Draft Cup's tier is internal, not a C-Tier event. */}
+                            {isTournament && liveTournament?.seriesId !== "draft_cup" && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
                             {leagueStage && <span className="inline-flex shrink-0 items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("common.league")}</span>}
                             <p className="truncate text-sm font-semibold text-ink-1">{competitionName}</p>
                         </div>

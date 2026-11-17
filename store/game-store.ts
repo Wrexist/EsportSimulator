@@ -1135,7 +1135,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Create new save from snapshot
           // A world the club picker built and previewed is used as it is (START-01/02).
           const previewed = !draftCup && options?.world ? options.world : null
-          const newSave = draftCup ? { ...draftCup.world, saveName }
+          // MODES-03 (audit 17): the manager is the name typed on the Draft Cup setup, not the world's placeholder.
+          const newSave = draftCup ? { ...draftCup.world, saveName, managerDetails: { ...draftCup.world.managerDetails, name: saveName } }
             : previewed ? { ...previewed, saveName, playerTeamId, managerDetails: { ...previewed.managerDetails, name: saveName } }
             : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
 

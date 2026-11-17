@@ -93,6 +93,8 @@ export interface WeekReport {
     /** Phase 5.3: the week's most important storyline beat (it leads the headline). */
     story?: { kind: string; label: string; text: string; ref?: import("@/lib/i18n").TextRef }
     partial?: boolean
+    /** Audit 17 MODES-05: a Draft Cup week: no money to manage, so the headline names none. */
+    moneyless?: true
 }
 
 export interface WeekReportsState {
@@ -144,6 +146,8 @@ export interface ReportStateSource {
     storylines?: StoryArc[]
     /** Earlier reports: the beat that led the previous one does not lead again (HOME-14). */
     weekReports?: { history?: Array<Pick<WeekReport, "week" | "teamId" | "story">> } | null
+    /** Set while a Draft Cup runs (the report then talks no money). */
+    draftCup?: unknown
 }
 
 export interface BuildReportInput {
@@ -273,6 +277,7 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
         ...(unanswered.length ? { unanswered } : {}),
         ...(story ? { story } : {}),
         ...(tracker?.partial || !trackerValid ? { partial: true } : {}),
+        ...(state.draftCup ? { moneyless: true as const } : {}),
     }
     report.headline = weekHeadline(report)
     return report
@@ -336,7 +341,7 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     }
 
     const net = moneyNet(report)
-    if (clauses.length < 3 && Math.abs(net) >= 1) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
+    if (!report.moneyless && clauses.length < 3 && Math.abs(net) >= 1) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
 
     const join = listJoin
     const lowerFirst = (x: string) => x.charAt(0).toLowerCase() + x.slice(1)

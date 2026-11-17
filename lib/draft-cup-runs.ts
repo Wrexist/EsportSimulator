@@ -16,6 +16,8 @@ export interface DraftCupRunRecord {
     finish: DraftCupFinish
     score: number
     at: string
+    /** Audit 17 MODES-10: the sandbox editor was on during the run. */
+    sandbox?: boolean
 }
 
 export function loadDraftCupRuns(): DraftCupRunRecord[] {

@@ -22,6 +22,8 @@ export function competitionLabel(save: Pick<GameSave, "tournaments">, match: Mat
     const tournament = match.tournamentId ? save.tournaments.find(t => t.id === match.tournamentId) : undefined
     const importance = matchImportance(match.tournamentId, tournament?.tier)
     if (importance === "FRIENDLY") return ""
+    // Audit 17 MODES-06: the Draft Cup's tier is internal (C_TIER); on Elite it is played against the world's best.
+    if (tournament?.seriesId === "draft_cup") return ` · ${tournament.name}`
     if (importance === "LEAGUE") {
         const division = String(match.stage ?? "").split(" · ")[0]
         return ` · ${division || "League"} (League)`

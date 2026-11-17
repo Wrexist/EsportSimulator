@@ -138,7 +138,8 @@ export class EventProcessor {
             // One prompt per winning run: the career "momentum" decision
             // (engine/career-decisions.ts) asks the same question (HOME-06).
             const momentumAsked = save.eventsLog.some(e => e.id.startsWith("career_decision_") && e.id.endsWith("_momentum") && e.week > save.currentWeek - 8)
-            if (winStreak === 3 && !momentumAsked) { // Trigger on exactly 3 to avoid spam
+            // Audit 17 MODES-04: a Draft Cup has no club business (money, reputation) to decide.
+            if (winStreak === 3 && !momentumAsked && !save.draftCup) { // Trigger on exactly 3 to avoid spam
                 const eventId = `streak_win_${save.currentWeek}`
                 if (!transaction.generatedEventIds.includes(eventId)) {
                     save.eventsLog.push({
@@ -157,7 +158,7 @@ export class EventProcessor {
                 }
             }
 
-            if (lossStreak === 3) {
+            if (lossStreak === 3 && !save.draftCup) {
                 const eventId = `streak_loss_${save.currentWeek}`
                 if (!transaction.generatedEventIds.includes(eventId)) {
                     save.eventsLog.push({
@@ -177,8 +178,8 @@ export class EventProcessor {
             }
         }
 
-        // 5. Fan Interactions (Phase 21)
-        if (playerTeam && rng.bool(0.15)) {
+        // 5. Fan Interactions (Phase 21). Rolled in a Draft Cup too, so the RNG stream is unchanged.
+        if (playerTeam && rng.bool(0.15) && !save.draftCup) {
             const eventId = `fan_meet_${save.currentWeek}`
             if (!transaction.generatedEventIds.includes(eventId)) {
                 save.eventsLog.push({
@@ -204,7 +205,7 @@ export class EventProcessor {
         // EconomyEngine.calculateSponsorIncome pays deals. The roll comes
         // first so the RNG stream is the same either way.
         const activeDeals = (playerTeam?.sponsors ?? []).filter(sp => sp.remainingWeeks === undefined || sp.remainingWeeks > 0).length
-        if (playerTeam && rng.bool(0.10) && activeDeals > 0) {
+        if (playerTeam && rng.bool(0.10) && activeDeals > 0 && !save.draftCup) {
             const eventId = `sponsor_review_${save.currentWeek}`
             if (!transaction.generatedEventIds.includes(eventId)) {
                 save.eventsLog.push({
