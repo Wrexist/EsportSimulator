@@ -132,6 +132,8 @@ const RULES: Rule[] = [
         const kind = m[3] ? t(`common.tier.${m[3]}_TIER`) : m[2] === "League" ? t("svd.league") : t("svd.cmp.qualifier")
         return `${segment(m[1])} (${m[4] ? t("svd.cmp.playoffs", { tier: kind }) : kind})`
     }],
+    // Swiss rounds carry their record in brackets: the stage name, not the generic bracket rule (I18N-05).
+    [/^Swiss Round \d+ \([^)]+\)$/, m => stageName(m[0])],
     // Week causes the engine and store write in English (I18N-02, I18N-04)
     [/^Natural growth \(age (\d+)\)$/, m => t("svd.p.naturalGrowthAge", { age: m[1] })],
     [/^Age decline \(age (\d+)\)$/, m => t("svd.p.ageDeclineAge", { age: m[1] })],

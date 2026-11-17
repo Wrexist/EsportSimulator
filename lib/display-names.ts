@@ -67,6 +67,8 @@ const FIXED_STAGES: Record<string, string> = {
     "Semi-Finals": "stage.semifinals",
     "Tournament Match": "tm.match",
     "3rd Place Decider": "stage.thirdPlace",
+    // The bracket's column for the decider (TournamentBracket normalizeRound, I18N-06).
+    "3rd Place": "stage.thirdPlace",
     "Group Stage": "stage.groupStage",
     "Practice": "stage.practice",
     "Preseason Friendly": "stage.preseasonFriendly",

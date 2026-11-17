@@ -11,6 +11,7 @@ import { createLaunchFixture } from "@/scripts/launch/fixtures"
 import { storedText } from "@/lib/stored-text"
 import { getEventBody } from "@/components/inbox/inbox-model"
 import { lineText } from "@/lib/news-text"
+import { stageName } from "@/lib/display-names"
 import { EN } from "@/locales/en"
 import type { GameSave } from "@/engine/save-types"
 
@@ -158,5 +159,20 @@ describe("I18N-04: smaller stored-English leaks", () => {
     test("error stop notice", () => {
         setLocale("de")
         expect(tRef({ key: "stop.errorCalendar" })).toBe(de["stop.errorCalendar"])
+    })
+})
+
+describe("I18N-05 / I18N-06: stage names", () => {
+    test("a Swiss round with its record, through stored text", () => {
+        setLocale("de")
+        expect(storedText("Swiss Round 1 (0-0)")).toBe(de["stage.swiss"].replace("{{n}}", "1").replace("{{record}}", "0-0"))
+        expect(tRef({ key: "@stored", params: { text: "Swiss Round 3 (2-0)" } })).toBe(de["stage.swiss"].replace("{{n}}", "3").replace("{{record}}", "2-0"))
+    })
+
+    test("the bracket's 3rd place column", () => {
+        setLocale("ru")
+        expect(stageName("3rd Place")).toBe(ru["stage.thirdPlace"])
+        setLocale("en")
+        expect(stageName("3rd Place")).toBe(stageName("3rd Place Decider"))
     })
 })
