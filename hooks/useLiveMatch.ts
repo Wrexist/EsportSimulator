@@ -124,6 +124,33 @@ interface LiveMatchRuntimeData {
     ctx: LegacySeriesContext
 }
 
+/**
+ * Closing feed divider: "Final: X win 13–8 on Map" (best of one: the round
+ * score and the map, MATCHDAY-15) or the series score and every map score.
+ * Played-out and skipped matches end the same way (MATCHDAY-14).
+ */
+function finalFeedLine(
+    runtime: Pick<LiveMatchRuntimeData, "homeTeam" | "awayTeam" | "canonicalMaps">,
+    maps: MatchResult["maps"],
+    sim: Pick<SimState, "homeSeriesScore" | "awaySeriesScore">,
+): string {
+    const homeWon = sim.homeSeriesScore > sim.awaySeriesScore
+    const playedMaps = maps.filter(m => m.rounds.length > 0)
+    const mapScores = playedMaps
+        .map(m => `${MAP_NAMES[m.map] || m.map} ${m.homeScore ?? 0}-${m.awayScore ?? 0}`)
+        .join(", ")
+    const winnerName = homeWon ? runtime.homeTeam.name : runtime.awayTeam.name
+    const seriesScore = homeWon ? `${sim.homeSeriesScore}-${sim.awaySeriesScore}` : `${sim.awaySeriesScore}-${sim.homeSeriesScore}`
+    const onlyMap = runtime.canonicalMaps.length === 1 && playedMaps.length === 1 ? playedMaps[0] : null
+    return onlyMap
+        ? t("feed.finalMap", {
+            team: winnerName,
+            score: homeWon ? `${onlyMap.homeScore ?? 0}–${onlyMap.awayScore ?? 0}` : `${onlyMap.awayScore ?? 0}–${onlyMap.homeScore ?? 0}`,
+            map: MAP_NAMES[onlyMap.map] || onlyMap.map,
+        })
+        : t("feed.final", { team: winnerName, series: seriesScore, maps: mapScores })
+}
+
 /** Pacing windows and the HP / death / grenade timeline of one round. */
 function makeRoundView(ids: { homePlayerIds: string[]; awayPlayerIds: string[] }, mapIndex: number, round: RoundResult, live: LiveRoundScript | null, events: MatchEvent[], loadouts?: Readonly<Record<string, { utility?: readonly string[]; weapon?: string; hasKit?: boolean } | undefined>>): LiveRoundView {
     const gear: Record<string, { weapon?: string; hasKit?: boolean }> = {}
@@ -953,12 +980,15 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     soundManager.play((playerIsHomeSide ? isHomeWinner : !isHomeWinner) ? "roundWin" : "roundLose")
                 }
 
-                const settle = () => { setRoundTime(ROUND_SECONDS); setIsBombPlanted(false); setBombTime(BOMB_SECONDS) }
+                // The scorebug keeps the round's end time (and bomb timer) until the
+                // next round starts, as the radar does (MATCHDAY-01); startNextRound resets them.
                 runtime.result.homeScore = roundState.homeSeriesScore
                 runtime.result.awayScore = roundState.awaySeriesScore
                 if (transition === "SERIES_END") {
                     runtime.result.winnerId = roundState.homeSeriesScore > roundState.awaySeriesScore ? runtime.homeTeam.id : runtime.awayTeam.id
                     setGameState(prev => ({ ...prev, status: "FINISHED", homeSeriesScore: roundState.homeSeriesScore, awaySeriesScore: roundState.awaySeriesScore }))
+                    // The closing line, as a skipped match has (MATCHDAY-14).
+                    setLogs(prev => [{ type: "SYSTEM", divider: true, message: finalFeedLine(runtime, runtime.result.maps, roundState) }, ...prev])
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     const playerWon = (playerIsHomeSide && roundState.homeSeriesScore > roundState.awaySeriesScore) || (playerIsAwaySide && roundState.awaySeriesScore > roundState.homeSeriesScore)
@@ -969,7 +999,6 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     // The screen (scorebug, rounds, radar, break stats) stays on the
                     // finished map during the break; the next map's first round
                     // moves it on (startNextRound, MATCHDAY-18).
-                    settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.nextMap", { map: MAP_NAMES[nextMapId] || nextMapId }) }, ...prev])
@@ -980,13 +1009,11 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 } else if (transition === "OVERTIME") {
                     setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.overtimeStart") }, ...prev])
                     breakAt("overtime")
-                    settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(true)
                 } else if (transition === "HALFTIME") {
                     setLogs(prev => [{ type: "SYSTEM", divider: true, message: t("feed.halfTime") }, ...prev])
                     breakAt("halftime")
-                    settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     queueRoundStart("PISTOL", ROUND_BEAT_MS + BREAK_CARD_MS)
@@ -994,13 +1021,11 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     const newSet = (roundState.currentRound - 25) % 6 === 0
                     setLogs(prev => [{ type: "SYSTEM", divider: true, message: newSet ? t("feed.overtimeNewSet") : t("feed.overtimeSwitch") }, ...prev])
                     breakAt("overtime-switch")
-                    settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(true)
                 } else {
                     setIsWaitingForStrategy(true)
                     setIsPlaying(false)
-                    settle()
                 }
             }
         })
@@ -1226,22 +1251,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             setHomeRoster(finalRoster(sim.homeEconomy, sim.homeStartsCT))
             setAwayRoster(finalRoster(sim.awayEconomy, !sim.homeStartsCT))
 
-            const mapScores = done.state.maps
-                .filter(m => m.rounds.length > 0)
-                .map(m => `${MAP_NAMES[m.map] || m.map} ${m.homeScore ?? 0}-${m.awayScore ?? 0}`)
-                .join(", ")
-            const winnerName = homeWon ? homeTeam.name : awayTeam.name
-            const seriesScore = homeWon ? `${sim.homeSeriesScore}-${sim.awaySeriesScore}` : `${sim.awaySeriesScore}-${sim.homeSeriesScore}`
-            // A best-of-one names the round score and the map, not "1-0" (MATCHDAY-15).
-            const playedMaps = done.state.maps.filter(m => m.rounds.length > 0)
-            const onlyMap = runtime.canonicalMaps.length === 1 && playedMaps.length === 1 ? playedMaps[0] : null
-            const finalLine = onlyMap
-                ? t("feed.finalMap", {
-                    team: winnerName,
-                    score: homeWon ? `${onlyMap.homeScore ?? 0}–${onlyMap.awayScore ?? 0}` : `${onlyMap.awayScore ?? 0}–${onlyMap.homeScore ?? 0}`,
-                    map: MAP_NAMES[onlyMap.map] || onlyMap.map,
-                })
-                : t("feed.final", { team: winnerName, series: seriesScore, maps: mapScores })
+            const finalLine = finalFeedLine(runtime, done.state.maps, sim)
             setLogs(prev => [
                 { type: "SYSTEM", divider: true, message: finalLine },
                 { type: "SYSTEM", message: tn("feed.skippedEnd", done.roundsPlayed) },

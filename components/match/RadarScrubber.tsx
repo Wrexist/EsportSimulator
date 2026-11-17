@@ -53,6 +53,7 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
     const { registerFrame } = p
     useEffect(() => {
         let lastSecond = -1
+        let lastLabel = ""
         registerFrame((t, liveT) => {
             shownRef.current = t
             liveRef.current = liveT
@@ -60,10 +61,13 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
             const pct = `${Math.max(0, Math.min(100, (t / s) * 100))}%`
             if (headRef.current) headRef.current.style.left = pct
             if (fillRef.current) fillRef.current.style.width = `${Math.max(0, Math.min(100, (liveT / s) * 100))}%`
+            // The bomb timer ticks from the plant's own moment, not on whole round
+            // seconds: follow the label itself so it turns with the scorebug (MATCHDAY-15).
             const sec = Math.floor(t)
-            if (sec !== lastSecond && timeRef.current) {
+            const label = scrubberClock(prepRef.current, t)
+            if ((sec !== lastSecond || label !== lastLabel) && timeRef.current) {
                 lastSecond = sec
-                const label = scrubberClock(prepRef.current, t)
+                lastLabel = label
                 timeRef.current.textContent = label
                 sliderRef.current?.setAttribute("aria-valuenow", String(sec))
                 sliderRef.current?.setAttribute("aria-valuetext", label)

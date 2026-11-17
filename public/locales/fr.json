@@ -1227,7 +1227,7 @@
  "commentary.ROUND_WIN_CT.9": "Les CT en ajoutent un au tableau.",
  "commentary.ROUND_WIN_CT.10": "Le retake paie pour le côté CT.",
  "commentary.ROUND_WIN_CT.11": "La défense gagne cet échange.",
- "feed.roundEnd": "{{line}} (Vainqueur : {{team}})",
+ "feed.roundEnd": "{{team}} · {{line}}",
  "feed.buy": "{{team}} : {{buy}}",
  "feed.regroup": "Regroupement : la pression de la série de défaites retombe sur ce round",
  "feed.plantedAt": "Bombe posée sur {{site}}",
@@ -7113,5 +7113,6 @@
  "stage.ro64": "Trente-deuxièmes de finale",
  "stage.ro16Match": "Huitièmes de finale · match {{n}}",
  "stage.ro32Match": "Seizièmes de finale · match {{n}}",
- "stage.ro64Match": "Trente-deuxièmes de finale · match {{n}}"
+ "stage.ro64Match": "Trente-deuxièmes de finale · match {{n}}",
+ "scoreboard.rndOvertime": "OT {{set}} · RND {{n}} / 6"
 }

@@ -1253,7 +1253,7 @@
  "commentary.ROUND_WIN_CT.9": "CT dopisują kolejną rundę do tablicy.",
  "commentary.ROUND_WIN_CT.10": "Retake opłaca się stronie CT.",
  "commentary.ROUND_WIN_CT.11": "Obrona wygrywa tę wymianę.",
- "feed.roundEnd": "{{line}} (Zwycięzca: {{team}})",
+ "feed.roundEnd": "{{team}} · {{line}}",
  "feed.buy": "{{team}}: {{buy}}",
  "feed.regroup": "Przegrupowanie: presja serii porażek słabnie w tej rundzie",
  "feed.plantedAt": "Bomba podłożona na {{site}}",
@@ -7340,5 +7340,6 @@
  "stage.ro64": "1/32 finału",
  "stage.ro16Match": "1/8 finału · mecz {{n}}",
  "stage.ro32Match": "1/16 finału · mecz {{n}}",
- "stage.ro64Match": "1/32 finału · mecz {{n}}"
+ "stage.ro64Match": "1/32 finału · mecz {{n}}",
+ "scoreboard.rndOvertime": "OT {{set}} · RND {{n}} / 6"
 }

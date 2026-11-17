@@ -735,4 +735,5 @@ export const MATCH = {
     "stage.ro16Match": "Round of 16 · match {{n}}",
     "stage.ro32Match": "Round of 32 · match {{n}}",
     "stage.ro64Match": "Round of 64 · match {{n}}",
+    "scoreboard.rndOvertime": "OT {{set}} · RND {{n}} / 6",
 } as const

@@ -1253,7 +1253,7 @@
  "commentary.ROUND_WIN_CT.9": "CT добавляют ещё один раунд на табло.",
  "commentary.ROUND_WIN_CT.10": "Ретейк окупается для стороны CT.",
  "commentary.ROUND_WIN_CT.11": "Защита выигрывает этот размен.",
- "feed.roundEnd": "{{line}} (Победа: {{team}})",
+ "feed.roundEnd": "{{team}} · {{line}}",
  "feed.buy": "{{team}}: {{buy}}",
  "feed.regroup": "Перегруппировка: давление серии поражений в этом раунде слабее",
  "feed.plantedAt": "Бомба заложена на {{site}}",
@@ -7340,5 +7340,6 @@
  "stage.ro64": "1/32 финала",
  "stage.ro16Match": "1/8 финала · матч {{n}}",
  "stage.ro32Match": "1/16 финала · матч {{n}}",
- "stage.ro64Match": "1/32 финала · матч {{n}}"
+ "stage.ro64Match": "1/32 финала · матч {{n}}",
+ "scoreboard.rndOvertime": "ОТ {{set}} · РАУНД {{n}} / 6"
 }
