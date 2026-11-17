@@ -5,6 +5,7 @@ import { useGameStore } from "@/store/game-store"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { MatchCrashCard } from "@/components/match/MatchCrashCard"
 import { LoadingState } from "@/components/ui/loading"
 import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard, type ScorebugRound } from "@/components/match/LiveMatchScoreboard"
@@ -382,7 +383,8 @@ export default function LiveMatchPage() {
     const feedPanel = <LiveFeedPanel logs={logs} />
 
     return (
-        <ErrorBoundary section="Live Match">
+        // A crash in the live UI offers the match escape ("Simulate instead"), CROSSCUT-13.
+        <ErrorBoundary section="Live Match" fallback={(error, reset) => <MatchCrashCard error={error} reset={reset} section="Live Match" />}>
         <div className="relative flex h-full min-h-0 select-none flex-col gap-2.5 bg-ink font-sans text-ink-1"
             role="main"
             aria-label={t("live.aria", { home: homeTeam?.name ?? "", away: awayTeam?.name ?? "" })}

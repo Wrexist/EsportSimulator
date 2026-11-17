@@ -5906,6 +5906,7 @@
  "guard.title": "Match en cours",
  "guard.body": "Tu ne peux pas quitter le match pendant qu'il se joue. Termine-le d'abord.",
  "guard.back": "Retour au match",
+ "guard.simulate": "Simuler la suite",
  "search.aria": "Rechercher dans les écrans du jeu",
  "search.tooltip": "Rechercher un écran (Ctrl ou Cmd + K)",
  "deal.toSquad": "Voir l'effectif",

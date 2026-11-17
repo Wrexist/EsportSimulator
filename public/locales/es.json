@@ -5906,6 +5906,7 @@
  "guard.title": "Partido en curso",
  "guard.body": "No puedes salir del partido mientras se está jugando. Termínalo primero.",
  "guard.back": "Volver al partido",
+ "guard.simulate": "Simular el resto",
  "search.aria": "Buscar pantallas del juego",
  "search.tooltip": "Buscar pantallas (Ctrl o Cmd + K)",
  "deal.toSquad": "Ir a la plantilla",

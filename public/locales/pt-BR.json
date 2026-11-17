@@ -5906,6 +5906,7 @@
  "guard.title": "Partida em andamento",
  "guard.body": "Você não pode sair da partida enquanto ela está sendo jogada. Termine a partida primeiro.",
  "guard.back": "Voltar à partida",
+ "guard.simulate": "Simular o resto",
  "search.aria": "Buscar telas do jogo",
  "search.tooltip": "Buscar telas (Ctrl ou Cmd + K)",
  "deal.toSquad": "Ir para o elenco",

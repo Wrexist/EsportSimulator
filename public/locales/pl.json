@@ -6063,6 +6063,7 @@
  "guard.title": "Trwa mecz",
  "guard.body": "Nie można opuścić meczu w trakcie gry. Najpierw go dokończ.",
  "guard.back": "Wróć do meczu",
+ "guard.simulate": "Zasymuluj resztę",
  "search.aria": "Szukaj ekranów gry",
  "search.tooltip": "Szukaj ekranów (Ctrl lub Cmd + K)",
  "deal.toSquad": "Przejdź do składu",
