@@ -128,3 +128,20 @@ describe("CROSSCUT-07: a locked staff meeting's reason stays readable", () => {
         expect(src).toContain('<p className="text-xs leading-snug text-ink-2">{status.reason}</p>')
     })
 })
+
+describe("CROSSCUT-08: one name for a club's level and one spelling for tournament tiers", () => {
+    test("the Welcome moment names the club level by world ranking, like New career and the club page", () => {
+        const src = read("components/moments/WelcomeMomentView.tsx")
+        expect(src).toContain("t(`ng.tier.${calculateTeamTier(team.worldRanking)}`)")
+        expect(src).not.toContain("TIER_DISPLAY")
+    })
+    test("tournament tier labels are spelled one way per language", () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { COMMON } = require("@/locales/en/common") as { COMMON: Record<string, string> }
+        for (const tier of ["S", "A", "B", "C"]) expect(COMMON[`common.tier.${tier}_TIER`]).toBe(`${tier}-Tier`)
+        for (const lang of ["de", "es", "fr", "pl", "pt-BR", "ru"]) {
+            const json = JSON.parse(read(`public/locales/${lang}.json`)) as Record<string, string>
+            for (const tier of ["S", "A", "B", "C"]) expect(json[`sr.tier.${tier}_TIER`]).toBe(json[`common.tier.${tier}_TIER`])
+        }
+    })
+})
