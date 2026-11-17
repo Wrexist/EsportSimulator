@@ -1,6 +1,7 @@
 import { t } from "@/lib/i18n"
 import { memo, useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { Bomb, Scissors, Timer, type LucideIcon } from "lucide-react"
 import { scorebugTime, type LiveTimeSource, type ScorebugTime } from "@/lib/live-clock"
 import { LiveGameState, Team, MapId } from "@/types"
 import { cn } from "@/lib/utils"
@@ -87,8 +88,11 @@ const WIN_TYPE_ID: Record<string, string> = {
     BOMB_DEFUSE: "BOMB_DEFUSE", defuse: "BOMB_DEFUSE",
     TIME: "TIME", time: "TIME",
 }
-/** One-letter marks inside the history cells: E(lim), B(omb), D(efuse), T(ime). */
-const WIN_TYPE_MARK: Record<string, string> = { ELIMINATION: "", BOMB_EXPLODED: "B", BOMB_DEFUSE: "D", TIME: "T" }
+/**
+ * Marks inside the history cells: bomb, defuse (wire cutters) and time. Icons, not
+ * letters: they read the same in every language, and "T" no longer looks like the T side (I18N-17).
+ */
+const WIN_TYPE_MARK: Record<string, LucideIcon> = { BOMB_EXPLODED: Bomb, BOMB_DEFUSE: Scissors, TIME: Timer }
 
 function SidePill({ ct }: { ct: boolean }) {
     return (
@@ -118,7 +122,7 @@ function LossBonus({ level, align }: { level?: number; align: "left" | "right" }
 /**
  * Round history: one column per round, the top cell for the home team and the
  * bottom one for the away team, filled in the colour of the side that won it
- * and marked B / D / T for bomb, defuse and time wins. Hover for how it ended.
+ * and marked with a bomb, wire-cutter or timer icon for bomb, defuse and time wins. Hover for how it ended.
  * Regulation is 24 rounds with a gap at the half; overtime extends the strip.
  */
 const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: { rounds: ScorebugRound[]; homeName: string; awayName: string }) {
@@ -130,11 +134,11 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
                 const n = i + 1
                 const r = byRound.get(n)
                 const fill = r ? (r.side === "ct" ? "bg-side-ct text-ink" : "bg-side-t text-ink") : ""
-                const mark = r ? WIN_TYPE_MARK[r.winType ?? ""] ?? "" : ""
                 const winId = r ? WIN_TYPE_ID[r.winType ?? ""] : undefined
+                const Mark = winId ? WIN_TYPE_MARK[winId] : undefined
                 const how = r ? (winId ? t(`live.win.${winId}`) : t("scoreboard.won")) : ""
                 const cell = (mine: boolean) => (
-                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none max-[1279px]:h-3 max-[1279px]:w-3 max-[1279px]:text-[10px]", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
+                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none max-[1279px]:h-3 max-[1279px]:w-3 max-[1279px]:text-[10px]", mine ? fill : "bg-hover")}>{mine && Mark ? <Mark size={9} strokeWidth={2.75} aria-hidden="true" /> : null}</span>
                 )
                 return (
                     <div
