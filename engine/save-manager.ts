@@ -927,7 +927,8 @@ export class SaveManager {
                 // save's length and tail (which holds its integrity hash), so the
                 // menu does not parse and rate every career on each visit.
                 const metaKey = SLOT_META_PREFIX + key.slice(STORAGE_KEYS.SAVE_PREFIX.length)
-                const stamp = `${CURRENT_SAVE_VERSION}:${data.length}:${data.slice(-160)}`
+                // "m2": slot summaries gained the career difficulty (audit 17 MODES-17); older cached ones are rebuilt once.
+                const stamp = `${CURRENT_SAVE_VERSION}:m2:${data.length}:${data.slice(-160)}`
                 const cached = await this.readSlotMeta(metaKey, stamp, key)
                 if (cached) { slots.push(cached); continue }
 
@@ -995,6 +996,10 @@ export class SaveManager {
                     ...(parsed.sandbox ? { sandbox: true } : {}),
                     ...(parsed.proCareer && parsed.proCareer.retiredWeek == null ? { pro: parsed.players?.find((p: { id: string }) => p.id === parsed.proCareer!.playerId)?.nickname ?? "Pro" } : {}),
                     ...(parsed.draftCup ? { draftCup: { difficulty: parsed.draftCup.difficulty, finish: parsed.draftCup.result?.finish, score: parsed.draftCup.result?.score } } : {}),
+                    ...(!parsed.draftCup && !parsed.proCareer && !betweenClubs
+                        ? playerTeam?.customTeamData?.difficulty ? { difficulty: { kind: "created" as const, id: playerTeam.customTeamData.difficulty } }
+                            : parsed.difficulty ? { difficulty: { kind: "club" as const, id: parsed.difficulty } } : {}
+                        : {}),
                     teamLogo: playerTeam?.logoPath,
                     teamPreview: playerTeam ? {
                         id: playerTeam.id,

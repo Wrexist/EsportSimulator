@@ -23,6 +23,12 @@ import { t, tn } from "@/lib/i18n"
 const SB_OWN = new Set(["form", "morale", "fatigue", "potential"])
 const attrName = (k: SandboxAttribute) => SB_OWN.has(k) ? t(`sb.attr.${k}`) : t(`attr.${k}`)
 const GROUP_KEY: Record<string, string> = { Aim: "sb.group.aim", Mind: "sb.group.mind", "Body and condition": "sb.group.body" }
+/**
+ * A typed number; an empty field is NaN, which the editor reads as "leave it"
+ * (Audit 17 MODES-09: Number("") is 0, so a cleared Age made the player 15
+ * and a cleared Money field set the club to $0).
+ */
+const fieldNumber = (v: string) => v.trim() === "" ? Number.NaN : Number(v)
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <label className="block min-w-0">
@@ -134,7 +140,7 @@ export default function SandboxPage() {
                                 <Field label={t("sb.money", { amount: formatCurrency(team?.budget ?? 0, "$", false) })}>
                                     <Input inputMode="numeric" value={money} onChange={e => setMoney(e.target.value)} aria-label={t("sb.clubMoney")} />
                                 </Field>
-                                <Button variant="outline" onClick={() => run({ kind: "money", teamId, budget: Number(money) })}>{t("sb.set")}</Button>
+                                <Button variant="outline" onClick={() => run({ kind: "money", teamId, budget: fieldNumber(money) })}>{t("sb.set")}</Button>
                             </div>
                             <div className="flex items-end gap-2 md:col-span-2">
                                 <Field label={t("sb.clubName")}><Input value={teamName} onChange={e => setTeamName(e.target.value)} maxLength={40} aria-label={t("sb.clubName")} /></Field>
@@ -173,8 +179,8 @@ export default function SandboxPage() {
                                 <div className="flex justify-end">
                                     <Button onClick={() => run({
                                         kind: "player", playerId,
-                                        attributes: Object.fromEntries(Object.entries(attrs).filter(([, v]) => v !== "" && v !== undefined).map(([k, v]) => [k, Number(v)])) as Partial<Record<SandboxAttribute, number>>,
-                                        age: Number(age), nickname, name: realName,
+                                        attributes: Object.fromEntries(Object.entries(attrs).filter(([, v]) => v !== undefined && v.trim() !== "").map(([k, v]) => [k, Number(v)])) as Partial<Record<SandboxAttribute, number>>,
+                                        age: fieldNumber(age), nickname, name: realName,
                                     })}>{t("sb.savePlayer")}</Button>
                                 </div>
                                 <div className="border-t border-line pt-4">
@@ -183,7 +189,7 @@ export default function SandboxPage() {
                                         <div className="flex flex-wrap items-end gap-3">
                                             <div className="w-44"><Field label={t("sb.wage")}><Input inputMode="numeric" value={wage} onChange={e => setWage(e.target.value)} aria-label={t("sb.wage")} /></Field></div>
                                             <div className="w-36"><Field label={t("sb.endsWeek", { week: currentWeek })}><Input inputMode="numeric" value={endWeek} onChange={e => setEndWeek(e.target.value)} aria-label={t("sb.endWeekAria")} /></Field></div>
-                                            <Button variant="outline" onClick={() => run({ kind: "contract", playerId, salaryPerWeek: Number(wage), endWeek: Number(endWeek) })}>{t("sb.saveContract")}</Button>
+                                            <Button variant="outline" onClick={() => run({ kind: "contract", playerId, salaryPerWeek: fieldNumber(wage), endWeek: fieldNumber(endWeek) })}>{t("sb.saveContract")}</Button>
                                         </div>
                                     ) : <p className="text-sm text-ink-3">{t("sb.noContract")}</p>}
                                 </div>
