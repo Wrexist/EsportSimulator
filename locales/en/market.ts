@@ -164,7 +164,7 @@ export const MARKET = {
     "deal.yearsDecimal": "{{n}} years",
     "nego.log.feeAccepted": "{{club}} accepted {{fee}}.",
     "nego.log.theClub": "The club",
-    "nego.log.feeRejected": "{{fee}} rejected. {{club}} would sell for {{counter}}.",
+    "nego.log.feeRejected": "{{fee}} rejected. {{club}}'s counter-offer: {{counter}}.",
     "nego.log.longer": "Wants a longer contract (at least {{length}}).",
     "nego.log.shorter": "Won't commit that long (at most {{length}}).",
     "nego.log.agreed": "Terms agreed. The contract is ready to sign.",
@@ -396,4 +396,6 @@ export const MARKET = {
     "fin.upgradeGain": "Level {{n}} adds about {{gain}}/wk with its new line on sale: it pays for itself in {{payback}}.",
     "fin.upgradeNoGain": "Level {{n}} adds no fan income at your current following.",
     "fin.tipNetOneOff": "Week {{week}}: net {{amount}} from the weekly settlement; {{other}} from transfers and one-off items",
+    "terms.rivalRefusal": "{{club}} won't sell to you before your match against them in week {{week}}. Try again from week {{next}}.",
+    "nego.log.feeOverLimit": "That is more than you can offer ({{max}}).",
 } as const

@@ -153,6 +153,16 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
     const value = n.evaluation.transferValue
     const clubName = n.currentTeam?.name ?? t("nego.theClub")
 
+    // MARKET-05 (2026-11-17): the club won't sell before a match against you (the store refuses it at signing): say so before any offer.
+    if (n.currentTeam && n.refusal) {
+        return (
+            <div role="status" className="flex items-start gap-3 rounded border border-caution/30 bg-caution/5 px-3 py-3">
+                <CircleAlert size={18} className="mt-0.5 shrink-0 text-caution" />
+                <p className="text-xs leading-relaxed text-ink-2">{t("terms.rivalRefusal", { club: clubName, week: n.refusal.week, next: n.refusal.endsWeek })}</p>
+            </div>
+        )
+    }
+
     if (n.stage === "BUYOUT") {
         // MARKET-02: a fee over the board's limit is blocked here like one over the funds.
         const block = feeOfferBlock(n.buyoutOffer, n.budget, n.boardSanction)

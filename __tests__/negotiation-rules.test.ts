@@ -9,7 +9,7 @@
  */
 import {
     ACCEPT_WITHIN, acceptedWage, bandChance, chanceWithCounter, clampFeeOffer, counterOffer, durationWageFactor, FEE_BAND,
-    feeOfferBlock, initialFeeOffer, maxFeeOffer, signingWageAsk, wageChance, wageRange, wageThreshold, WAGE_BAND,
+    feeCounterOffer, feeOfferBlock, initialFeeOffer, maxFeeOffer, signingWageAsk, wageChance, wageRange, wageThreshold, WAGE_BAND,
 } from "@/components/transfer/negotiation-rules"
 import { NO_CLAUSES, type ClauseTerms } from "@/engine/contract-clauses"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
@@ -17,6 +17,7 @@ import { negotiationBaseWage, recruitmentSalary } from "@/engine/recruitment"
 import { compareByScoutedRating } from "@/engine/scouting-system"
 import { SeededRNG } from "@/engine/rng"
 import type { BoardState, PlayerSaveData } from "@/engine/save-types"
+import { strategicRefusalEndsWeek, strategicRefusalWeek } from "@/engine/roster-rules"
 
 describe("MARKET-02: the board's fee limit is enforced at the offer", () => {
     // The audit's repro: $100k funds, board confidence 60 -> 80% cap of $80k.
@@ -216,5 +217,39 @@ describe("MARKET-03 / MARKET-04: opening terms", () => {
         expect(durationWageFactor(pref.idealWeeks, pref)).toBe(0.95)
         // At 104 weeks (the old opening length) he asks a little more than the column.
         expect(durationWageFactor(104, pref)).toBeGreaterThan(0.95)
+    })
+})
+
+describe("MARKET-03 (2026-11-17): the fee counter never sits above a limit the club would accept", () => {
+    test("audit: hidden minimum under the $78,284 limit, the counter read $82,800", () => {
+        const acceptAt = 76_000
+        const old = counterOffer(acceptAt, 90_000, 1.09)
+        expect(old).toBeGreaterThan(78_284)
+        const { counter, reachable } = feeCounterOffer(acceptAt, 90_000, 78_284, 1.09)
+        expect(reachable).toBe(true)
+        expect(counter).toBeLessThanOrEqual(78_284)
+        expect(counter).toBeGreaterThanOrEqual(acceptAt) // still a sure yes
+    })
+
+    test("a club whose lowest price is beyond the limit keeps its counter and is flagged unreachable", () => {
+        const { counter, reachable } = feeCounterOffer(100_000, 120_000, 78_284, 1.05)
+        expect(reachable).toBe(false)
+        expect(counter).toBe(counterOffer(100_000, 120_000, 1.05))
+    })
+})
+
+describe("MARKET-05 (2026-11-17): strategic refusal is known before the offer", () => {
+    const m = (week: number, home: string, away: string) => ({ week, homeTeamId: home, awayTeamId: away })
+    test("a match within three weeks blocks the deal, either side at home", () => {
+        expect(strategicRefusalWeek([m(2, "a", "b")], 1, "a", "b")).toBe(2)
+        expect(strategicRefusalWeek([m(4, "b", "a")], 1, "a", "b")).toBe(4)
+        expect(strategicRefusalWeek([m(5, "a", "b")], 1, "a", "b")).toBeNull()
+        expect(strategicRefusalWeek([m(2, "a", "c")], 1, "a", "b")).toBeNull()
+        expect(strategicRefusalWeek([m(3, "a", "b"), m(2, "b", "a")], 1, "a", "b")).toBe(2)
+    })
+    test("the panel names the first week the refusal is lifted", () => {
+        expect(strategicRefusalEndsWeek([m(2, "a", "b")], 1, "a", "b")).toBe(3)
+        expect(strategicRefusalEndsWeek([m(2, "a", "b"), m(5, "b", "a")], 1, "a", "b")).toBe(6)
+        expect(strategicRefusalEndsWeek([], 1, "a", "b")).toBe(1)
     })
 })

@@ -47,3 +47,31 @@ export function squadFullMessage(rosterSize: number): string {
     const n = departuresToSign(rosterSize)
     return tn("squad.full", n, { size: rosterSize, max: SENIOR_ROSTER_MAX })
 }
+
+/** A club won't sell to (or buy from) a club it plays within this many weeks. */
+export const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
+
+type Fixture = { week: number; homeTeamId: string; awayTeamId: string }
+
+/**
+ * Strategic refusal: the week of the first match between the two clubs in
+ * the next STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS weeks, or null when a deal is
+ * allowed. transferPlayer applies it; MARKET-05 (2026-11-17): the deal panel
+ * says it before any offer is made.
+ */
+export function strategicRefusalWeek(matches: readonly Fixture[], currentWeek: number, fromTeamId: string, toTeamId: string): number | null {
+    let first: number | null = null
+    for (const m of matches) {
+        if (m.week < currentWeek || m.week > currentWeek + STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS) continue
+        if (!((m.homeTeamId === fromTeamId && m.awayTeamId === toTeamId) || (m.homeTeamId === toTeamId && m.awayTeamId === fromTeamId))) continue
+        if (first === null || m.week < first) first = m.week
+    }
+    return first
+}
+
+/** The first week from which the refusal no longer holds (later fixtures between the two clubs counted). */
+export function strategicRefusalEndsWeek(matches: readonly Fixture[], currentWeek: number, fromTeamId: string, toTeamId: string): number {
+    let week = currentWeek
+    for (let guard = 0; guard < 520 && strategicRefusalWeek(matches, week, fromTeamId, toTeamId) !== null; guard++) week++
+    return week
+}

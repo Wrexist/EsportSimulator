@@ -53,11 +53,10 @@ import {
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { CLAUSE_TUNING, sanitizeClauseFields, settleSellOn, type NewContractTerms } from "@/engine/contract-clauses"
-import { releaseSettlement, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN, squadFullMessage } from "@/engine/roster-rules"
+import { releaseSettlement, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN, squadFullMessage, strategicRefusalWeek } from "@/engine/roster-rules"
 import { newsText } from "@/lib/news-ref"
 import { proRunsNoClub, proStaffRunRefusal } from "@/store/utils/pro-guard"
 const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
-const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
 const RENEWAL_RUNWAY_WEEKS = 26
 const RENEWAL_EXTENSION_WEEKS = 52
 const NEWS_FEED_CAP = 50
@@ -228,15 +227,10 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     return
                 }
 
-                // Strategic refusal: won't trade to a team we're playing in the next 3 weeks.
-                const matches = state.scheduledMatches.filter(m =>
-                    m.week >= state.currentWeek &&
-                    m.week <= state.currentWeek + STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS &&
-                    ((m.homeTeamId === fromTeamId && m.awayTeamId === toTeamId)
-                        || (m.homeTeamId === toTeamId && m.awayTeamId === fromTeamId))
-                )
-                if (matches.length > 0) {
-                    const week = matches[0].week
+                // Strategic refusal: won't trade to a team we're playing in the next 3 weeks
+                // (engine/roster-rules.ts; the deal panel states the same rule up front).
+                const week = strategicRefusalWeek(state.scheduledMatches, state.currentWeek, fromTeamId, toTeamId)
+                if (week !== null) {
                     result = {
                         success: false,
                         message: liveText({ key: "lv.rivalReject", params: { week } }),

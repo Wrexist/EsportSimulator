@@ -2292,7 +2292,7 @@
  "deal.yearsDecimal": "{{n}} anos",
  "nego.log.feeAccepted": "{{club}} aceitou {{fee}}.",
  "nego.log.theClub": "O clube",
- "nego.log.feeRejected": "{{fee}} recusado. {{club}} venderia por {{counter}}.",
+ "nego.log.feeRejected": "{{fee}} recusado. Contraproposta de {{club}}: {{counter}}.",
  "nego.log.longer": "Quer um contrato mais longo (pelo menos {{length}}).",
  "nego.log.shorter": "Não se compromete por tanto tempo (no máximo {{length}}).",
  "nego.log.agreed": "Termos acertados. O contrato está pronto para assinar.",
@@ -7113,5 +7113,7 @@
  "stage.ro64": "Fase de 64",
  "stage.ro16Match": "Oitavas de final · partida {{n}}",
  "stage.ro32Match": "Dezesseis-avos de final · partida {{n}}",
- "stage.ro64Match": "Fase de 64 · partida {{n}}"
+ "stage.ro64Match": "Fase de 64 · partida {{n}}",
+ "terms.rivalRefusal": "{{club}} não vai vender ninguém para você antes da partida entre vocês na semana {{week}}. Tente de novo a partir da semana {{next}}.",
+ "nego.log.feeOverLimit": "É mais do que você pode oferecer ({{max}})."
 }

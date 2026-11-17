@@ -33,10 +33,11 @@ import { contractDemandLines, contractLengthFactor, getArchetype } from "@/engin
 import { formatCurrency } from "@/lib/utils-extended"
 import { clauseFields, NO_CLAUSES, wageWithClauses, type ClauseTerms } from "@/engine/contract-clauses"
 import {
-    ACCEPT_WITHIN, bandChance, chanceWithCounter, clampFeeOffer, counterOffer, durationWageFactor, FEE_BAND, feeOfferBlock, initialFeeOffer, maxFeeOffer,
+    ACCEPT_WITHIN, bandChance, chanceWithCounter, clampFeeOffer, counterOffer, durationWageFactor, FEE_BAND, feeCounterOffer, feeOfferBlock, initialFeeOffer, maxFeeOffer,
     wageChance as wageChanceFor, wageRange as wageRangeFor, wageThreshold,
 } from "./negotiation-rules"
 import { rivalFeePremium, rivalInterest } from "@/engine/transfer-hype"
+import { strategicRefusalEndsWeek, strategicRefusalWeek } from "@/engine/roster-rules"
 import type { SigningSignature } from "@/engine/moments"
 
 export type NegotiationStage = "BUYOUT" | "CONTRACT" | "SIGN" | "SUCCESS" | "FAILED"
@@ -78,7 +79,7 @@ export function formatWeeksAsYears(weeks: number): string {
 }
 
 export function useNegotiation(playerId: string | null, active = true) {
-    const { players, teams, contracts, staff, academyCount, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState, queueSigningMoment } = useGameStore(useShallow(state => ({
+    const { players, teams, contracts, staff, academyCount, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState, queueSigningMoment, scheduledMatches } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
         contracts: state.contracts,
@@ -91,6 +92,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         addToast: state.addToast,
         boardState: state.boardState,
         queueSigningMoment: state.queueSigningMoment,
+        scheduledMatches: state.scheduledMatches,
     })))
 
     const playerSave = playerId ? players.find(p => p.id === playerId) : undefined
@@ -100,6 +102,15 @@ export function useNegotiation(playerId: string | null, active = true) {
     const boardSanction = getBoardSanctionedFee(boardState, budget)
     /** MARKET-15: the board's "cash at season end" objective, if it set one. */
     const cashTarget = boardState?.objectives?.find(o => o.id === "finance")?.target ?? null
+    /**
+     * MARKET-05 (2026-11-17): the selling club won't deal with a club it plays
+     * within three weeks (the store's strategic refusal); said before any offer.
+     */
+    const refusal = useMemo(() => {
+        if (!currentTeam || !myTeam || currentTeam.id === myTeam.id) return null
+        const week = strategicRefusalWeek(scheduledMatches, currentWeek, currentTeam.id, myTeam.id)
+        return week === null ? null : { week, endsWeek: strategicRefusalEndsWeek(scheduledMatches, currentWeek, currentTeam.id, myTeam.id) }
+    }, [scheduledMatches, currentWeek, currentTeam, myTeam])
 
     const [stage, setStage] = useState<NegotiationStage>("BUYOUT")
     const [buyoutOffer, setBuyoutOfferRaw] = useState<number>(0)
@@ -271,9 +282,12 @@ export function useNegotiation(playerId: string | null, active = true) {
             setStage("CONTRACT")
         } else {
             // MARKET-07: a counter-offer, never the exact hidden price.
-            const counter = counterOffer(minPrice * ACCEPT_WITHIN, feeRange[1], getNegotiationRng("BUYOUT_COUNTER").range(1.02, 1.1))
+            // MARKET-03 (2026-11-17): never above what you may offer when the club would take that;
+            // when even its lowest price is beyond it, say so.
+            const { counter, reachable } = feeCounterOffer(minPrice * ACCEPT_WITHIN, feeRange[1], feeLimit, getNegotiationRng("BUYOUT_COUNTER").range(1.02, 1.1))
             setFeeCounter(counter)
-            setNegotiationLog(prev => [...prev, t("nego.log.feeRejected", { fee: money(sanitizedBuyoutOffer), club: currentTeam?.name ?? t("nego.log.theClub"), counter: money(counter) })])
+            const line = t("nego.log.feeRejected", { fee: money(sanitizedBuyoutOffer), club: currentTeam?.name ?? t("nego.log.theClub"), counter: money(counter) })
+            setNegotiationLog(prev => [...prev, reachable ? line : `${line} ${t("nego.log.feeOverLimit", { max: money(feeLimit) })}`])
         }
     }
 
@@ -380,6 +394,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         budget,
         boardSanction,
         cashTarget,
+        refusal,
         evaluation,
         rivals,
         feePremium,

@@ -2356,7 +2356,7 @@
  "deal.yearsDecimal": "{{n}} года",
  "nego.log.feeAccepted": "{{club}}: предложение {{fee}} принято.",
  "nego.log.theClub": "Клуб",
- "nego.log.feeRejected": "{{fee}} отклонено. {{club}}: готовы продать за {{counter}}.",
+ "nego.log.feeRejected": "{{fee}} отклонено. Встречное предложение ({{club}}): {{counter}}.",
  "nego.log.longer": "Хочет контракт подольше (не меньше {{length}}).",
  "nego.log.shorter": "Не готов подписываться так надолго (не больше {{length}}).",
  "nego.log.agreed": "Условия согласованы. Контракт готов к подписанию.",
@@ -7340,5 +7340,7 @@
  "stage.ro64": "1/32 финала",
  "stage.ro16Match": "1/8 финала · матч {{n}}",
  "stage.ro32Match": "1/16 финала · матч {{n}}",
- "stage.ro64Match": "1/32 финала · матч {{n}}"
+ "stage.ro64Match": "1/32 финала · матч {{n}}",
+ "terms.rivalRefusal": "{{club}}: никого не продадут тебе до вашего матча на неделе {{week}}. Попробуй снова с недели {{next}}.",
+ "nego.log.feeOverLimit": "Это больше, чем ты можешь предложить ({{max}})."
 }
