@@ -123,9 +123,9 @@ export interface UserClubSeason {
     /** Official series won and lost while managed. */
     wins: number
     losses: number
-    /** Largest winning round difference over a series. */
+    /** Largest winning round difference over a series (only series won with more rounds than the opponent). */
     biggestWin?: RecordEntry
-    /** Largest losing round difference over a series (value is the margin, positive). */
+    /** Largest losing round difference over a series (value is the margin, positive; only series lost on rounds too). */
     worstLoss?: RecordEntry
     /** World-rank tier band move at season end (LeagueEngine.processSeasonEnd). */
     tierMove?: { from: string; to: string; rank: number }

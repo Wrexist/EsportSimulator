@@ -370,9 +370,12 @@ function recordMatch(save: GameSave, match: OfficialMatch, result: MatchResult, 
         const ownMaps = managed === home ? result.homeScore : result.awayScore
         const oppMaps = managed === home ? result.awayScore : result.homeScore
         const score = maps.length === 1 ? `${own}-${opp}` : `${ownMaps}-${oppMaps}`
-        const entry: RecordEntry = { value: Math.abs(own - opp), teamId: managed, opponentId: opponentOf(managed), week: match.week, matchId: match.id, score, ...(maps.length === 1 ? { map: maps[0].map } : {}) }
+        // Signed round margin in the series result's direction (AUDIT17 MATCHENGINE-03): a 2-1
+        // won 28-35 on rounds is no "+7 rounds" biggest win, so it is not offered at all.
+        const margin = ownWon ? own - opp : opp - own
+        const entry: RecordEntry = { value: margin, teamId: managed, opponentId: opponentOf(managed), week: match.week, matchId: match.id, score, ...(maps.length === 1 ? { map: maps[0].map } : {}) }
         const key = ownWon ? "biggestWin" : "worstLoss"
-        if (!(user[key] && user[key]!.value >= entry.value)) user[key] = entry
+        if (margin > 0 && !(user[key] && user[key]!.value >= entry.value)) user[key] = entry
         recordManagedResult(save, ownWon, match.id)
     }
     return true
