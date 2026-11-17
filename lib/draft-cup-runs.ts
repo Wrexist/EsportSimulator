@@ -1,13 +1,18 @@
 /**
  * Best Draft Cup runs on this device (G7), newest score list for the setup
- * and result screens. Browser storage only: a convenience, the save keeps
- * each run's own result.
+ * and result screens. Browser storage (kept in the desktop app's user-data
+ * folder too, so a launch on another port keeps it, CROSSCUT-01): a
+ * convenience, the save keeps each run's own result.
  */
 
 import type { DraftCupDifficulty, DraftCupFinish } from "@/engine/draft-cup"
+import { deviceStorage } from "@/lib/device-storage"
 
 const KEY = "esim_draft_cup_runs_v1"
 const KEEP = 10
+
+// Desktop app: localStorage of this port takes the user-data copy if it differs.
+deviceStorage.track(KEY)
 
 export interface DraftCupRunRecord {
     saveId: string
@@ -33,6 +38,6 @@ export function recordDraftCupRun(run: DraftCupRunRecord): void {
         const runs = loadDraftCupRuns().filter(r => r.saveId !== run.saveId)
         runs.push(run)
         runs.sort((a, b) => b.score - a.score || b.at.localeCompare(a.at))
-        window.localStorage.setItem(KEY, JSON.stringify(runs.slice(0, KEEP)))
+        deviceStorage.setItem(KEY, JSON.stringify(runs.slice(0, KEEP)))
     } catch { /* storage unavailable: the save still has the result */ }
 }
