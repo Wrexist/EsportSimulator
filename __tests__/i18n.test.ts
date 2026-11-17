@@ -13,8 +13,8 @@ test("every navigation label has its English key", () => {
 })
 
 test("English plurals", () => {
-    expect(tn("menu.saves", 1)).toBe("1 save")
-    expect(tn("menu.saves", 4)).toBe("4 saves")
+    expect(tn("menu.saves", 1)).toBe("1 career")
+    expect(tn("menu.saves", 4)).toBe("4 careers")
 })
 
 test("a complete translation is offered and used, plural forms by that language's rules", () => {
@@ -73,8 +73,8 @@ describe("shipped languages", () => {
     test("German file in use: plurals and placeholders", () => {
         registerLocale("de", JSON.parse(fs.readFileSync("public/locales/de.json", "utf8")))
         setLocale("de")
-        expect(tn("menu.saves", 1)).toBe("1 Spielstand")
-        expect(tn("menu.saves", 3)).toBe("3 Spielstände")
+        expect(tn("menu.saves", 1)).toBe("1 Karriere")
+        expect(tn("menu.saves", 3)).toBe("3 Karrieren")
         expect(t("match.round", { n: 7 })).toBe("Runde 7")
     })
 })

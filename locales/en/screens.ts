@@ -34,7 +34,7 @@ export const SCREENS = {
     "rb.skip": "Skip for now",
     "rb.signMore.one": "Sign {{count}} more to field a team",
     "rb.signMore.other": "Sign {{count}} more to field a team",
-    "rb.enter": "Enter headquarters",
+    "rb.enter": "To the dashboard",
     "rb.toast.overWage": "Over the wage limit",
     "rb.toast.overWageBody": "This wage would take the roster past its weekly limit.",
     "rb.toast.noFunds": "Not enough funds",
