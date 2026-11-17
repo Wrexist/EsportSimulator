@@ -449,12 +449,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 return
             }
 
-            // Inbox drawer: I toggles, 2 opens (it replaced the /desktop route).
-            // While the drawer is open it handles I itself (dialog guard above).
+            // Inbox drawer: I or 2 toggles it (it replaced the /desktop route; START-62).
+            // While the drawer is open it handles I and 2 itself (dialog guard above).
             if (!mod && !e.altKey && !hideChrome && (e.key.toLowerCase() === INBOX_TOGGLE_KEY || (!e.shiftKey && e.key === INBOX_OPEN_KEY))) {
                 e.preventDefault()
-                if (e.key === INBOX_OPEN_KEY) useInboxDrawer.getState().openInbox()
-                else useInboxDrawer.getState().toggle()
+                useInboxDrawer.getState().toggle()
                 return
             }
 

@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { useGameStore } from "@/store/game-store"
 import { INBOX_TABS, type InboxTab } from "@/lib/navigation"
-import { INBOX_TOGGLE_KEY } from "@/lib/keyboard-shortcuts"
+import { INBOX_OPEN_KEY, INBOX_TOGGLE_KEY } from "@/lib/keyboard-shortcuts"
 import { cn } from "@/lib/utils"
 import { buildInboxItems, countInbox, itemsForTab, type InboxItem } from "./inbox-model"
 import { selectInboxContext } from "./inbox-store-bindings"
@@ -81,9 +81,9 @@ export function InboxDrawer() {
         if (item.event && !item.event.acknowledged) acknowledgeEvent(item.event.id)
     }
 
-    // `I` closes from inside (the shell's shortcut handler stands down while a dialog is open).
+    // `I` or `2` closes from inside (the shell's shortcut handler stands down while a dialog is open).
     const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-        if (e.key.toLowerCase() !== INBOX_TOGGLE_KEY || e.ctrlKey || e.metaKey || e.altKey) return
+        if ((e.key.toLowerCase() !== INBOX_TOGGLE_KEY && (e.key !== INBOX_OPEN_KEY || e.shiftKey)) || e.ctrlKey || e.metaKey || e.altKey) return
         const target = e.target as HTMLElement
         if (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return
         e.preventDefault()
