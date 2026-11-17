@@ -145,6 +145,13 @@ const RULES: Rule[] = [
     [/^Press conference: "(.+)"$/, m => t("svd.p.pressAnswer", { answer: segment(m[1]) })],
     [/^Your team forfeited against (.+): only (\d) ?\/5 players were available\.$/, m => t("evn.forfeit.lost", { team: m[1], n: m[2] })],
     [/^(.+) forfeited your match — win by default!$/, m => t("evn.forfeit.won", { team: m[1] })],
+    // Legend achievement lines (engine/legendary-players-data.ts, I18N-07); one-offs are exact svd.legend.* entries
+    [/^(?:(\d+)x )?Major [Cc]hampion$/, m => tn("moment.major", Number(m[1] ?? 1))],
+    [/^(\d+)x Player of the Year$/, m => plural(Number(m[1]), "svd.p.legend.poty")],
+    [/^(\d+)x Major MVP$/, m => plural(Number(m[1]), "svd.p.legend.majorMvp")],
+    [/^Major [Cc]hampion (\d{4})$/, m => t("svd.p.legend.majorYear", { year: m[1] })],
+    [/^Best Player (\d{4}(?:-\d{4})?)$/, m => t("svd.p.legend.bestPlayer", { year: m[1] })],
+    [/^Best AWPER (\d{4})$/, m => t("svd.p.legend.bestAwper", { year: m[1] })],
     // Budget warnings saved before they carried translation keys (I18N-03)
     [/^Budget is getting tight\. You have (\d+) weeks? of runway remaining\. Consider reducing expenses\.$/, m => plural(Number(m[1]), "evn.budget.TIGHT")],
     [/^Financial warning! Only (\d+) weeks? of runway left\. Cut costs or find new income sources urgently\.$/, m => plural(Number(m[1]), "evn.budget.RISK")],

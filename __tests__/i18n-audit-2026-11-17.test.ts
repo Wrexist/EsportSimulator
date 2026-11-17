@@ -176,3 +176,22 @@ describe("I18N-05 / I18N-06: stage names", () => {
         expect(stageName("3rd Place")).toBe(stageName("3rd Place Decider"))
     })
 })
+
+describe("I18N-07: legend achievements in the legend pick", () => {
+    test("every line of every legend is translated in Russian (only the play name Olofpass stays)", () => {
+        const { LEGENDARY_PLAYERS } = jest.requireActual("@/engine/legendary-players-data") as { LEGENDARY_PLAYERS?: Array<{ legendaryAchievements?: string[] }> }
+        const lines = [...new Set((LEGENDARY_PLAYERS ?? []).flatMap(p => p.legendaryAchievements ?? []))]
+        expect(lines.length).toBeGreaterThan(50)
+        setLocale("ru")
+        const untranslated = lines.filter(l => storedText(l) === l && l !== "Olofpass")
+        expect(untranslated).toEqual([])
+    })
+
+    test("counted and dated lines", () => {
+        setLocale("de")
+        expect(storedText("2x Major Champion")).toBe(de["moment.major.other"].replace("{{count}}", "2"))
+        expect(storedText("4x Player of the Year")).toBe("4× Spieler des Jahres")
+        expect(storedText("Major champion 2020")).toBe("Major-Sieg 2020")
+        expect(storedText("Best Player 2013-2014")).toBe("Bester Spieler 2013-2014")
+    })
+})
