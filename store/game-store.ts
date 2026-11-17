@@ -36,7 +36,6 @@ import {
   TournamentManager,
   QualificationStatus,
   CircuitPointsEntry,
-  SynergyCalculator,
   type SaveErrorCode
 } from "@/engine"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
@@ -1159,10 +1158,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
 
           newSave.teams.forEach((t: any) => {
-            {
-              const roster = newSave.players.filter((p: any) => t.rosterIds.includes(p.id))
-              t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
-            }
             if (!t.facilities) t.facilities = [
               { id: "room_train", type: "TRAINING", level: 1, description: "Basic training setup", monthlyCost: 1000 },
               { id: "room_rec", type: "RECOVERY", level: 1, description: "Rest area", monthlyCost: 500 }
@@ -1260,6 +1255,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           } else {
             queueWelcomeMoment(newSave, playerTeamId)
           }
+
+          // Synergy from the final rosters and reconciled roles, as loadGame
+          // computes it, so a save -> load does not change it (ENGINE-01).
+          recalculateAllSynergy(newSave.teams, newSave.players)
 
           // Initial Save
           newSave.firstSession = get().showTutorialOnNewGame && !draftCup ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
@@ -1451,12 +1450,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (p.availableSkillPoints === undefined) p.availableSkillPoints = 2
           })
 
-          // Calculate synergy matrix and recalculate budgets for ALL teams
+          // Recalculate budgets for ALL teams (synergy: once rosters and roles are final, below)
           newSave.teams.forEach((t: any) => {
-            {
-              const roster = newSave.players.filter((p: any) => t.rosterIds.includes(p.id))
-              t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
-            }
             if (!t.facilities) t.facilities = [
               { id: "room_train", type: "TRAINING", level: 1, description: "Basic training setup", monthlyCost: 1000 },
               { id: "room_rec", type: "RECOVERY", level: 1, description: "Rest area", monthlyCost: 500 }
@@ -1570,6 +1565,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               severity: "success"
             }
           })
+
+          // Synergy from the final rosters and reconciled roles (ENGINE-01).
+          recalculateAllSynergy(newSave.teams, newSave.players)
 
           // Do not open a career whose first durable write failed.
           newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
@@ -1704,10 +1702,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           applyPlayerFieldDefaults(hydratedSave.players)
 
           hydratedSave.teams.forEach(t => {
-            {
-              const roster = hydratedSave.players.filter(p => t.rosterIds.includes(p.id))
-              t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
-            }
             if (!t.facilities) t.facilities = [
               { id: "room_train", type: "TRAINING", level: 1, description: "Basic training setup", monthlyCost: 1000 },
               { id: "room_rec", type: "RECOVERY", level: 1, description: "Rest area", monthlyCost: 500 }
@@ -1735,6 +1729,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // SQUAD-10: older careers still carry the snapshot's placeholder attributes.
           spreadPlaceholderAttributes(hydratedSave.players)
           reconcileAllRoles(hydratedSave.teams, hydratedSave.players)
+          // Synergy after roles and attributes are settled, as the week tick
+          // leaves it (ENGINE-01).
+          recalculateAllSynergy(hydratedSave.teams, hydratedSave.players)
           // Older saves hold open requests without a deadline (and stacked
           // repeats): give each its deadline and default, merge repeats (Phase 4.9).
           normalizeDecisions(hydratedSave, { arrivals: false })
@@ -2177,15 +2174,17 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // defaults loadGame applies; otherwise a reload changes them.
             applyPlayerFieldDefaults(committed.players)
 
-            // Recalculate synergy for all teams (AI transfers may have
-            // changed rosters). Uses the indexed O(roster) pass from
-            // engine/processors/team-synergy-recalc.ts.
-            recalculateAllSynergy(committed.teams, committed.players)
-
             // Keep roles reconciled after AI roster moves, as loadGame and
             // new careers do. Without this a save/reload re-assigned roles
             // and the reloaded career diverged from the uninterrupted one.
             reconcileAllRoles(committed.teams, committed.players)
+
+            // Recalculate synergy for all teams (AI transfers may have
+            // changed rosters), after the roles: complementary roles score
+            // +8, so a matrix built before the reconcile changed on reload
+            // (ENGINE-01). Uses the indexed O(roster) pass from
+            // engine/processors/team-synergy-recalc.ts.
+            recalculateAllSynergy(committed.teams, committed.players)
             // ENGINE-03: freeze what Immer would freeze in the next producer
             // anyway (it cannot be skipped: an unfrozen career makes every
             // later store update walk all of it), about 4x faster than Immer.
