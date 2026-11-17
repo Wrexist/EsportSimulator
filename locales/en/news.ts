@@ -472,4 +472,12 @@ export const NEWS = {
     "evn.releg.m": "{{team}} finished the season #{{rank}} in the world ({{tier}}: ranks {{band}}) and has been relegated to {{tier}}. Time to rebuild!",
     "evn.season.t": "Season {{season}} complete",
     "evn.season.m": "Season {{season}} has concluded. Teams promoted: {{promoted}}. Teams relegated: {{relegated}}.",
+    "evn.budget.t": "Budget warning",
+    "evn.budget.TIGHT.one": "Budget is getting tight. You have {{count}} week of runway remaining. Consider reducing expenses.",
+    "evn.budget.TIGHT.other": "Budget is getting tight. You have {{count}} weeks of runway remaining. Consider reducing expenses.",
+    "evn.budget.RISK.one": "Financial warning! Only {{count}} week of runway left. Cut costs or find new income sources urgently.",
+    "evn.budget.RISK.other": "Financial warning! Only {{count}} weeks of runway left. Cut costs or find new income sources urgently.",
+    "evn.budget.CRISIS.one": "CRITICAL: Team finances in crisis! {{count}} week until insolvency. Players are losing morale.",
+    "evn.budget.CRISIS.other": "CRITICAL: Team finances in crisis! {{count}} weeks until insolvency. Players are losing morale.",
+    "evn.budget.INSOLVENT": "Team is INSOLVENT. This is week {{week}} of 8 consecutive insolvent settlements before the club disbands. Restore a positive balance by a weekly settlement to reset this counter.",
 } as const

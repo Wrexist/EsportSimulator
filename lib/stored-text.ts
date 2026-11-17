@@ -138,6 +138,11 @@ const RULES: Rule[] = [
     [/^Released (.+)$/, m => t("svd.p.released", { name: m[1] })],
     [/^Paid less than (.+)$/, m => t("svd.p.paidLessThan", { name: m[1] })],
     [/^Benched (\d+) match(?:es)?$/, m => plural(Number(m[1]), "svd.p.benched")],
+    // Budget warnings saved before they carried translation keys (I18N-03)
+    [/^Budget is getting tight\. You have (\d+) weeks? of runway remaining\. Consider reducing expenses\.$/, m => plural(Number(m[1]), "evn.budget.TIGHT")],
+    [/^Financial warning! Only (\d+) weeks? of runway left\. Cut costs or find new income sources urgently\.$/, m => plural(Number(m[1]), "evn.budget.RISK")],
+    [/^CRITICAL: Team finances in crisis! (\d+) weeks? until insolvency\. Players are losing morale\.$/, m => plural(Number(m[1]), "evn.budget.CRISIS")],
+    [/^Team is INSOLVENT\. This is week (\d+) of 8 consecutive insolvent settlements before the club disbands\. Restore a positive balance by a weekly settlement to reset this counter\.$/, m => t("evn.budget.INSOLVENT", { week: m[1] })],
     // "Unhappy player (ace)": a label with a name in brackets.
     [/^(.+) \(([^()]+)\)$/, m => `${segment(m[1])} (${m[2]})`],
     // "AWP +0.3", "Leader +10%": a label with a signed number.

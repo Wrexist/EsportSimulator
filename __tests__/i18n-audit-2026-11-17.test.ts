@@ -4,11 +4,12 @@
  */
 import { readFileSync } from "fs"
 import { join } from "path"
-import { registerLocale, setLocale } from "@/lib/i18n"
+import { registerLocale, setLocale, tRef } from "@/lib/i18n"
 import { collectStopSignals, nextStop, stopActionText, stopReasonText, type StopSource } from "@/lib/advance-stops"
 import { createAdvanceSlice } from "@/store/slices/advance-slice"
 import { createLaunchFixture } from "@/scripts/launch/fixtures"
 import { storedText } from "@/lib/stored-text"
+import { getEventBody } from "@/components/inbox/inbox-model"
 import type { GameSave } from "@/engine/save-types"
 
 const locale = (code: string) => JSON.parse(readFileSync(join(__dirname, "..", "public", "locales", `${code}.json`), "utf8")) as Record<string, string>
@@ -97,5 +98,28 @@ describe("I18N-02 / I18N-04: week-report causes written in English are translate
     test("English stays as the engine wrote it", () => {
         expect(storedText("Natural growth (age 16)")).toBe("Natural growth (age 16)")
         expect(storedText("Benched 3 matches")).toBe("Benched 3 matches")
+    })
+})
+
+describe("I18N-03: budget warnings are translated (new events by key, older saves by their English)", () => {
+    test("older saves: the four English sentences", () => {
+        setLocale("de")
+        expect(storedText("Budget is getting tight. You have 3 weeks of runway remaining. Consider reducing expenses.")).toBe(de["evn.budget.TIGHT.other"].replace("{{count}}", "3"))
+        expect(storedText("Financial warning! Only 1 week of runway left. Cut costs or find new income sources urgently.")).toBe(de["evn.budget.RISK.one"].replace("{{count}}", "1"))
+        expect(storedText("CRITICAL: Team finances in crisis! 2 weeks until insolvency. Players are losing morale.")).toBe(de["evn.budget.CRISIS.other"].replace("{{count}}", "2"))
+        setLocale("ru")
+        expect(storedText("Team is INSOLVENT. This is week 4 of 8 consecutive insolvent settlements before the club disbands. Restore a positive balance by a weekly settlement to reset this counter.")).toBe(ru["evn.budget.INSOLVENT"].replace("{{week}}", "4"))
+    })
+
+    test("the English keys reproduce the old English text exactly", () => {
+        setLocale("en")
+        expect(tRef({ key: "evn.budget.TIGHT", count: 1 })).toBe("Budget is getting tight. You have 1 week of runway remaining. Consider reducing expenses.")
+        expect(tRef({ key: "evn.budget.CRISIS", count: 5 })).toBe("CRITICAL: Team finances in crisis! 5 weeks until insolvency. Players are losing morale.")
+    })
+
+    test("the inbox body of an older warning follows the language", () => {
+        setLocale("de")
+        const event = { id: "budget_warning_5_RISK", type: "BUDGET_WARNING", week: 5, acknowledged: false, data: { description: "Financial warning! Only 2 weeks of runway left. Cut costs or find new income sources urgently." } }
+        expect(getEventBody(event as never, { currentWeek: 5, playerTeamId: "t", rosterIds: new Set() } as never)).toBe(de["evn.budget.RISK.other"].replace("{{count}}", "2"))
     })
 })

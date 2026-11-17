@@ -2,7 +2,8 @@ import { GameSave, FinanceLedgerEntry } from "../save-types"
 import { EconomyEngine } from "../economy-engine" // You might need to check this path relative to processors
 import { SeededRNG } from "../rng"
 import { EventType } from "@/types"
-import { plural } from "@/lib/plural"
+import { eventText } from "@/lib/news-ref"
+import type { TextRef } from "@/lib/i18n"
 
 export interface FinanceProcessorResult {
     income: number
@@ -136,20 +137,22 @@ export class FinanceProcessor {
                 const prevState = team._prevFinancialState
                 if (report.state !== "STABLE" && report.state !== prevState) {
                     const runway = Math.round(report.runwayWeeks);
-                    const messages: Record<string, { desc: string; importance: string }> = {
-                        TIGHT: { desc: `Budget is getting tight. You have ${plural(runway, "week")} of runway remaining. Consider reducing expenses.`, importance: "MEDIUM" },
-                        RISK: { desc: `Financial warning! Only ${plural(runway, "week")} of runway left. Cut costs or find new income sources urgently.`, importance: "HIGH" },
-                        CRISIS: { desc: `CRITICAL: Team finances in crisis! ${plural(runway, "week")} until insolvency. Players are losing morale.`, importance: "HIGH" },
-                        INSOLVENT: { desc: `Team is INSOLVENT. This is week ${team.consecutiveInsolventWeeks ?? 1} of 8 consecutive insolvent settlements before the club disbands. Restore a positive balance by a weekly settlement to reset this counter.`, importance: "HIGH" },
+                    // Kept as translation keys (I18N-03); the English stays in `description`.
+                    const messages: Record<string, { ref: TextRef; importance: string }> = {
+                        TIGHT: { ref: { key: "evn.budget.TIGHT", count: runway }, importance: "MEDIUM" },
+                        RISK: { ref: { key: "evn.budget.RISK", count: runway }, importance: "HIGH" },
+                        CRISIS: { ref: { key: "evn.budget.CRISIS", count: runway }, importance: "HIGH" },
+                        INSOLVENT: { ref: { key: "evn.budget.INSOLVENT", params: { week: team.consecutiveInsolventWeeks ?? 1 } }, importance: "HIGH" },
                     }
                     const msg = messages[report.state]
                     const warnId = `budget_warning_${save.currentWeek}_${report.state}`
                     if (msg && !eventIds.has(warnId)) {
+                        const text = eventText({ key: "evn.budget.t" }, msg.ref)
                         save.eventsLog.unshift({
                             id: warnId,
                             week: save.currentWeek,
                             type: "BUDGET_WARNING",
-                            data: { description: msg.desc, importance: msg.importance },
+                            data: { description: text.message, importance: msg.importance, title: text.title, titleRef: text.titleRef, messageRef: text.messageRef },
                             acknowledged: false,
                         })
                         eventIds.add(warnId)
