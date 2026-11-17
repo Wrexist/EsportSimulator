@@ -14,7 +14,7 @@ import { ArrowLeft, Check, Loader2, RefreshCw } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-career-draft"
 import { buildDraftCupWorld } from "@/lib/draft-cup-world"
-import { clearDraftCupBoard, dealFitsWorld, loadDraftCupBoard, saveDraftCupBoard } from "@/lib/draft-cup-board"
+import { clearDraftCupBoard, dealFitsWorld, loadDraftCupBoard, saveDraftCupBoard, type DraftCupDeal } from "@/lib/draft-cup-board"
 import {
     buildDraftPool, clubStrength, draftSpent, pickCupField,
     DRAFT_BUDGET, DRAFT_CUP_DIFFICULTIES, DRAFT_CUP_DIFFICULTY, DRAFT_REROLLS, DRAFT_ROLES,
@@ -38,6 +38,17 @@ import { goBackOr } from "@/lib/navigation-back"
 const SWATCHES = PRESET_COLORS.slice(0, 8)
 
 type Picks = Partial<Record<DraftRole, DraftOption>>
+
+/** A stored deal's picks, as the options they name. */
+const picksOf = (deal: DraftCupDeal): Picks => {
+    const picked: Picks = {}
+    for (const role of DRAFT_ROLES) {
+        const option = deal.pool[role].find(o => o.playerId === deal.picks[role])
+        if (option) picked[role] = option
+    }
+    return picked
+}
+const pickIds = (picks: Picks) => Object.fromEntries(DRAFT_ROLES.filter(r => picks[r]).map(r => [r, picks[r]!.playerId]))
 
 export default function DraftCupPage() {
     const router = useRouter()
@@ -88,17 +99,17 @@ export default function DraftCupPage() {
         buildDraftCupWorld(board.worldSeed).then(w => {
             if (cancelled) return
             setWorld(w)
-            if (dealFitsWorld(stored, new Set(w.players.map(p => p.id)), new Set(w.teams.map(tm => tm.id)))) {
-                const picked: Picks = {}
-                for (const role of DRAFT_ROLES) {
-                    const option = stored.pool[role].find(o => o.playerId === stored.picks[role])
-                    if (option) picked[role] = option
-                }
+            const playerIds = new Set(w.players.map(p => p.id)), teamIds = new Set(w.teams.map(tm => tm.id))
+            if (dealFitsWorld(stored, playerIds, teamIds)) {
                 setOpponentIds(stored.opponentIds)
                 setPool(stored.pool)
-                setPicks(picked)
+                setPicks(picksOf(stored))
                 setDealtFor(stored.difficulty)
                 setStep(board.step)
+                // MODES-01 (audit 17): the other difficulties' deals come back too.
+                for (const other of Object.values(board.otherDeals ?? {})) {
+                    if (other && dealFitsWorld(other, playerIds, teamIds)) dealsRef.current[other.difficulty] = { opponentIds: other.opponentIds, pool: other.pool, picks: picksOf(other) }
+                }
             }
         }).catch(err => {
             debug.error("Draft Cup world failed:", err)
@@ -112,9 +123,15 @@ export default function DraftCupPage() {
 
     useEffect(() => {
         if (!restored || startingRef.current) return
+        // dealsRef is updated before the state that triggers this save (startDraft).
+        const otherDeals = Object.fromEntries(DRAFT_CUP_DIFFICULTIES.filter(d => d !== dealtFor && dealsRef.current[d]).map(d => {
+            const other = dealsRef.current[d]!
+            return [d, { difficulty: d, opponentIds: other.opponentIds, pool: other.pool, picks: pickIds(other.picks) }]
+        }))
         saveDraftCupBoard({
             version: 1, step, worldSeed, managerName, teamName, shortName, swatch, difficulty, rerolls,
-            ...(pool && dealtFor ? { deal: { difficulty: dealtFor, opponentIds, pool, picks: Object.fromEntries(DRAFT_ROLES.filter(r => picks[r]).map(r => [r, picks[r]!.playerId])) } } : {}),
+            ...(pool && dealtFor ? { deal: { difficulty: dealtFor, opponentIds, pool, picks: pickIds(picks) } } : {}),
+            ...(Object.keys(otherDeals).length ? { otherDeals } : {}),
         })
     }, [restored, step, worldSeed, managerName, teamName, shortName, swatch, difficulty, rerolls, pool, dealtFor, opponentIds, picks])
 
@@ -213,8 +230,9 @@ export default function DraftCupPage() {
     if (step === "setup") {
         return (
             <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8 [@media(max-height:800px)]:gap-4 [@media(max-height:800px)]:py-6">
-                {/* START-40: back to where the player came from (main menu or New career), never out of the app. */}
-                <button type="button" onClick={() => { saveCareerDraft({ step: "welcome" }); clearDraftCupBoard(); goBackOr(router, "/main-menu") }} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
+                {/* START-40: back to where the player came from (main menu or New career), never out of the app.
+                    MODES-01 (audit 17): the board is kept, so coming back is not a fresh pool. */}
+                <button type="button" onClick={() => { saveCareerDraft({ step: "welcome" }); goBackOr(router, "/main-menu") }} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                     <ArrowLeft size={16} /> {t("ng.back")}
                 </button>
                 <ScreenHeader eyebrow={t("dc.step1")} title={t("dc.title")}
@@ -343,7 +361,8 @@ export default function DraftCupPage() {
                     ))}
                 </div>
 
-                {/* START-41: the opponents keep about four rows; on a short window the column scrolls. */}
+                {/* START-41 / MODES-02 (audit 17): only the opponents list scrolls, so the budget and
+                    Start the cup stay on screen down to 1024x640. */}
                 <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto">
                     <Panel className="shrink-0" title={teamName} actions={<span className="text-xs text-ink-3">{shortName}</span>}>
                         <div>
@@ -370,7 +389,7 @@ export default function DraftCupPage() {
                         </p>
                     </Panel>
 
-                    <Panel title={t("dc.opponents")} padded={false} className="min-h-[200px] flex-1 overflow-hidden" bodyClassName="max-h-full overflow-y-auto">
+                    <Panel title={t("dc.opponents")} padded={false} className="flex min-h-0 flex-1 flex-col overflow-hidden" bodyClassName="min-h-0 flex-1 overflow-y-auto">
                         <ul>
                             {opponentIds.map(id => {
                                 const club = teamsById.get(id)
