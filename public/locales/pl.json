@@ -7286,6 +7286,7 @@
  "svd.p.legend.majorMvp.few": "{{count}}× MVP Majora",
  "svd.p.legend.majorMvp.many": "{{count}}× MVP Majora",
  "svd.p.legend.majorMvp.other": "{{count}}× MVP Majora",
+ "svd.p.answered": "{{title}}: {{choice}}",
  "sl.bp.standing.trophyCount.one": "trofea: {{count}} przy celu {{target}}",
  "sl.bp.standing.trophyCount.few": "trofea: {{count}} przy celu {{target}}",
  "sl.bp.standing.trophyCount.many": "trofea: {{count}} przy celu {{target}}",

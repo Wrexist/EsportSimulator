@@ -7070,6 +7070,7 @@
  "svd.p.legend.majorMvp.one": "{{count}}× MVP de Major",
  "svd.p.legend.majorMvp.many": "{{count}}× MVP de Major",
  "svd.p.legend.majorMvp.other": "{{count}}× MVP de Major",
+ "svd.p.answered": "{{title}}: {{choice}}",
  "sl.bp.standing.trophyCount.one": "{{count}} troféu, com meta de {{target}}",
  "sl.bp.standing.trophyCount.many": "{{count}} troféus, com meta de {{target}}",
  "sl.bp.standing.trophyCount.other": "{{count}} troféus, com meta de {{target}}",

@@ -416,4 +416,5 @@ export const STORED = {
     "svd.p.legend.poty.other": "{{count}}x Player of the Year",
     "svd.p.legend.majorMvp.one": "{{count}}x Major MVP",
     "svd.p.legend.majorMvp.other": "{{count}}x Major MVP",
+    "svd.p.answered": "{{title}}: {{choice}}",
 } as const

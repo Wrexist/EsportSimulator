@@ -7286,6 +7286,7 @@
  "svd.p.legend.majorMvp.few": "{{count}}× MVP мейджора",
  "svd.p.legend.majorMvp.many": "{{count}}× MVP мейджора",
  "svd.p.legend.majorMvp.other": "{{count}}× MVP мейджора",
+ "svd.p.answered": "{{title}}: {{choice}}",
  "sl.bp.standing.trophyCount.one": "трофеев: {{count}} при цели {{target}}",
  "sl.bp.standing.trophyCount.few": "трофеев: {{count}} при цели {{target}}",
  "sl.bp.standing.trophyCount.many": "трофеев: {{count}} при цели {{target}}",

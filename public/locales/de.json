@@ -6854,6 +6854,7 @@
  "svd.p.legend.poty.other": "{{count}}× Spieler des Jahres",
  "svd.p.legend.majorMvp.one": "{{count}}× Major-MVP",
  "svd.p.legend.majorMvp.other": "{{count}}× Major-MVP",
+ "svd.p.answered": "{{title}}: {{choice}}",
  "sl.bp.standing.trophyCount.one": "bei {{count}} Titel, Ziel sind {{target}}",
  "sl.bp.standing.trophyCount.other": "bei {{count}} Titeln, Ziel sind {{target}}",
  "nw.power.t": "Power-Ranking: {{team}} an der Spitze",
