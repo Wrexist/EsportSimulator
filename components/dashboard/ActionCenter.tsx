@@ -58,7 +58,8 @@ function PromptRow({ href, icon, title, detail }: { href?: string; icon: ReactNo
 }
 
 export function ActionCenter({ children, className }: { children?: ReactNode; className?: string }) {
-    const { eventsLog, teams, playerTeamId, selectedWeeklyActivity, resolveEventChoice, ctx } = useGameStore(useShallow(s => ({
+    const { eventsLog, teams, playerTeamId, selectedWeeklyActivity, resolveEventChoice, ctx, draftCup } = useGameStore(useShallow(s => ({
+        draftCup: !!s.draftCup,
         eventsLog: s.eventsLog,
         teams: s.teams,
         playerTeamId: s.playerTeamId,
@@ -74,10 +75,13 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
     // inbox — surfaced here as a count + link.
     const { choices: decisions, offers: offerCount } = useMemo(() => homeDecisions(eventsLog ?? [], ctx), [eventsLog, ctx])
 
-    const freeTrainingSlots = playerTeam
+    // Audit 17 MODES-21: in a pro career the staff run the drills and plan the
+    // club's week; MODES-04: a three-week Draft Cup books no week plan.
+    const pro = !!ctx.proPlayerId
+    const freeTrainingSlots = playerTeam && !pro
         ? Math.max(0, (playerTeam.maxTrainingSlots ?? DEFAULT_MAX_TRAINING_SLOTS) - (playerTeam.trainingSlotsUsed ?? 0))
         : 0
-    const focusNotSet = !selectedWeeklyActivity
+    const focusNotSet = !selectedWeeklyActivity && !pro && !draftCup
 
     // The badge counts what needs an answer, the same number the inbox shows
     // as decisions waiting; the training / week-plan rows are reminders (HOME-13).

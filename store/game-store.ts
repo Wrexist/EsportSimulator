@@ -517,7 +517,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Equipment Shop
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   // Squad Management
-  swapRosterPositions: (teamId: string, index1: number, index2: number) => void
+  swapRosterPositions: (teamId: string, index1: number, index2: number) => boolean
   promotePlayer: (playerId: string) => void
   // Dressing room (Phase 5.2)
   setCaptain: (playerId: string | null) => { success: boolean; message: string }

@@ -45,7 +45,8 @@ export interface TeamSettingsActions {
     setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
     /** G1: replace the club's playbook (invalid entries are dropped; empty clears it). */
     setPlaybook: (teamId: string, playbook: Playbook) => void
-    swapRosterPositions: (teamId: string, index1: number, index2: number) => void
+    /** True when the two places were swapped (refused during a match, in a pro career or for bad indexes). */
+    swapRosterPositions: (teamId: string, index1: number, index2: number) => boolean
     updateTeamBudget: (teamId: string, amount: number, description?: string) => void
     treatInjury: (playerId: string) => void
 }
@@ -102,6 +103,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
     },
 
     swapRosterPositions: (teamId, index1, index2) => {
+        let swapped = false
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
             if (!team || teamId !== state.playerTeamId || state.activeMatchId) return
@@ -114,7 +116,9 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
             const temp = team.rosterIds[index1]
             team.rosterIds[index1] = team.rosterIds[index2]
             team.rosterIds[index2] = temp
+            swapped = true
         })
+        return swapped
     },
 
     updateTeamBudget: (teamId, amount, description) => {

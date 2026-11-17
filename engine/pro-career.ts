@@ -21,6 +21,8 @@ import { fillAIRosterToFive } from "./ai/club-budget"
 import { DELEGATION_AREAS } from "./delegation"
 import { isOpenDecision } from "./decision-deadlines"
 import { bestAILineup } from "./ai/lineup"
+import { ensureBoardState } from "./board-expectations"
+import { queueMoment } from "./moments"
 
 export interface ProCareerState {
     playerId: string
@@ -220,7 +222,10 @@ export function startProCareer(save: GameSave, input: ProStartInput): PlayerSave
     const rng = new SeededRNG(deriveSeed(save.saveId, "pro-start", input.nickname))
     const identity = generateProspect("LOCAL", input.nationality, rng)
     const base = prospectToPlayerData(identity, save.currentWeek, rng) as unknown as PlayerSaveData
-    const starters = team.rosterIds.slice(0, 5).map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p)
+    // Audit 17 MODES-20: "just behind their starters" means the five the coach
+    // would field (coachLineup), not the first five in roster order.
+    const squad = team.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p)
+    const starters = bestAILineup(squad, save.currentWeek).five
     const weakest = starters.length ? Math.min(...starters.map(p => ovrOf(p, save.currentWeek))) : 45
     const nickname = input.nickname.trim().slice(0, 24) || identity.nickname
     const shaped = tuneToOverall({
@@ -271,6 +276,11 @@ export function findOfferingClub(save: GameSave): TeamSaveData | undefined {
         if (starters.length < 5) continue
         const weakest = Math.min(...starters.map(p => ovrOf(p, save.currentWeek)))
         if (ovr < weakest + PRO_TUNING.OFFER_MARGIN) continue
+        // Audit 17 MODES-11: the offer promises a starting place, so the club's
+        // coach must field him: he joins a copy of the squad and has to be in
+        // the role-balanced five the coach would pick (coachLineup).
+        const squad = t.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p && p.id !== player.id)
+        if (!bestAILineup([...squad, player], save.currentWeek).five.some(p => p.id === player.id)) continue
         if (!best || t.reputation > best.reputation || (t.reputation === best.reputation && t.id < best.id)) best = t
     }
     return best
@@ -318,6 +328,16 @@ export function retirePro(save: GameSave): boolean {
     }
     save.contracts = save.contracts.filter(c => c.playerId !== player.id)
     save.proCareer.retiredWeek = save.currentWeek
+    // Audit 17 MODES-22: the manager's tenure starts now: his own chores (the
+    // staff's delegation was the pro career's), a new board with its grace
+    // period instead of the confidence the staff ran down, and the board brief.
+    save.delegation = {}
+    if (team) {
+        save.boardState = undefined
+        save.managerDetails.tenureStartWeek = save.currentWeek + 1
+        ensureBoardState(save)
+        queueMoment(save, { key: `welcome:${save.saveId}:retired`, kind: "welcome", week: save.currentWeek, teamId: team.id })
+    }
     save.eventsLog.unshift({
         id: `pro_retired_${save.currentWeek}`, type: EventType.RETIREMENT, week: save.currentWeek, acknowledged: false,
         data: { playerId: player.id, playerName: player.nickname, teamId: team?.id, ...eventText({ key: "pcr.retired.t", params: { name: player.nickname } }, { key: "pcr.retired.m", params: { name: player.nickname, age: player.age, clubs: { key: "pcr.clubs", count: save.proCareer.clubs.length }, club: team?.name ?? "the club" } }) },

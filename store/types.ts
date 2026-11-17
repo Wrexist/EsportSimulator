@@ -216,7 +216,7 @@ export interface EntitiesActions {
   transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: import("@/engine/contract-clauses").NewContractTerms) => { success: boolean; message?: string }
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
   updateTeamBudget: (teamId: string, amount: number, description?: string) => void
-  swapRosterPositions: (teamId: string, index1: number, index2: number) => void
+  swapRosterPositions: (teamId: string, index1: number, index2: number) => boolean
   promotePlayer: (playerId: string) => void
   setCaptain: (playerId: string | null) => { success: boolean; message: string }
   assignMentor: (mentorId: string, menteeId: string) => { success: boolean; message: string }
