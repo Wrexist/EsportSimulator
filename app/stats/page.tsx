@@ -415,7 +415,9 @@ function roundTitle(n: number, weWon: boolean, winType: unknown): string {
 }
 
 function MatchBreakdown({ match, teamId }: { match: CompletedMatchSaveData; teamId: string | null }) {
-    const firstMap = match.result.maps?.[0]
+    // Every played map's round strip (MATCHENGINE-09: a BO3 showed map 1 only under a series summary).
+    const home = ourSide(match, teamId)
+    const played = (match.result.maps ?? []).filter(map => map.rounds?.length)
     return (
         <div className="space-y-4">
             {match.analysis ? (
@@ -435,22 +437,26 @@ function MatchBreakdown({ match, teamId }: { match: CompletedMatchSaveData; team
                 </div>
             ) : <p className="text-sm text-ink-3">{t("sx.noAnalysis")}</p>}
 
-            {firstMap?.rounds?.length ? (
-                <div>
-                    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sx.rounds", { map: String(firstMap.map) })}</p>
-                    <div className="flex flex-wrap gap-0.5" aria-label={t("sx.roundsAria")}>
-                        {firstMap.rounds.map((round, i) => {
-                            // The round stores the winning side and that round's side assignment.
-                            const winnerId = round.winningTeamId ?? (round.winner === "ct" ? round.ctTeam : round.tTeam)
-                            const weWon = winnerId === teamId
-                            return (
-                                <span key={i} title={roundTitle(i + 1, weWon, round.winType)}
-                                    className={cn("h-5 w-2.5 rounded-sm", weWon ? "bg-positive/70" : "bg-hover")} />
-                            )
-                        })}
+            {played.map((map, mapIndex) => {
+                const s = mapScore(map)
+                const label = `${String(map.map)} ${home ? s.home : s.away}–${home ? s.away : s.home}`
+                return (
+                    <div key={mapIndex}>
+                        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sx.rounds", { map: label })}</p>
+                        <div className="flex flex-wrap gap-0.5" aria-label={t("sx.roundsAria", { map: label })}>
+                            {map.rounds.map((round, i) => {
+                                // The round stores the winning side and that round's side assignment.
+                                const winnerId = round.winningTeamId ?? (round.winner === "ct" ? round.ctTeam : round.tTeam)
+                                const weWon = winnerId === teamId
+                                return (
+                                    <span key={i} title={roundTitle(i + 1, weWon, round.winType)}
+                                        className={cn("h-5 w-2.5 rounded-sm", weWon ? "bg-positive/70" : "bg-hover")} />
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
-            ) : null}
+                )
+            })}
         </div>
     )
 }
