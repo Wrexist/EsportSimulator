@@ -96,3 +96,27 @@ describe("CROSSCUT-05: the window minimum never exceeds a small work area", () =
         expect(ctor).not.toMatch(/minWidth: MIN_WIDTH/)
     })
 })
+
+describe("CROSSCUT-06: one not-found card for every match screen", () => {
+    test("prep, veto and live render the shared card", () => {
+        for (const file of ["app/match/[id]/tactics/page.tsx", "app/match/[id]/veto/page.tsx", "app/match/[id]/live/page.tsx"]) {
+            const src = read(file)
+            expect(src).toContain('import { MatchNotFound } from "@/components/match/MatchNotFound"')
+            expect(src).toMatch(/return <MatchNotFound \/>/)
+        }
+        // The veto page's odd exit to Home is gone.
+        expect(read("app/match/[id]/veto/page.tsx")).not.toContain('router.push("/")')
+    })
+    test("the card has an h1 and one way back to the schedule", () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const React = require("react") as typeof import("react")
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { renderToStaticMarkup } = require("react-dom/server") as typeof import("react-dom/server")
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { MatchNotFound } = require("@/components/match/MatchNotFound") as typeof import("@/components/match/MatchNotFound")
+        const html = renderToStaticMarkup(React.createElement(MatchNotFound))
+        expect(html).toMatch(/<h1[^>]*>Match not found<\/h1>/)
+        expect(html).toContain('href="/schedule"')
+        expect(html.match(/<a /g)).toHaveLength(1)
+    })
+})

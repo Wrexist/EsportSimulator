@@ -6,6 +6,7 @@ import { useGameStore } from "@/store/game-store"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { MatchCrashCard } from "@/components/match/MatchCrashCard"
+import { MatchNotFound } from "@/components/match/MatchNotFound"
 import { LoadingState } from "@/components/ui/loading"
 import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard, type ScorebugRound } from "@/components/match/LiveMatchScoreboard"
@@ -284,15 +285,7 @@ export default function LiveMatchPage() {
     const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])
 
     if (!matchData.current || !simState) {
-        if (matchMissing && !matchRecorded) {
-            return (
-                <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
-                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{t("prep.notFound")}</p>
-                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">{t("prep.notFoundBody")}</p>
-                    <Button onClick={() => router.push("/schedule")}>{t("prep.backToSchedule")}</Button>
-                </div>
-            )
-        }
+        if (matchMissing && !matchRecorded) return <MatchNotFound />
         return <LoadingState message={t("live.loading")} size="lg" fullScreen />
     }
 

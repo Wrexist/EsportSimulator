@@ -8,7 +8,6 @@ import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { Button } from "@/components/ui/button"
 import { Ban, Check, ArrowLeft } from "lucide-react"
 import { MapId } from "@/types/enums" // Fixed import
 import { Player } from "@/types"
@@ -34,6 +33,7 @@ import { matchEventName } from "@/lib/tournament-instances"
 import { LoadingState } from "@/components/ui/loading"
 import { fixtureNotDueYet } from "@/lib/playable-match"
 import { liveMatchInProgress } from "@/app/match/match-centre"
+import { MatchNotFound } from "@/components/match/MatchNotFound"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -417,22 +417,10 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     if (leaving) return <LoadingState message={t("veto.initializing")} size="lg" />
 
     if (!match || !homeTeam || !awayTeam) {
-        return (
-            <div className="flex min-h-[70vh] items-center justify-center p-8">
-                <div className="w-full max-w-md space-y-5 text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg border border-line bg-panel">
-                        <Ban className="h-6 w-6 text-ink-3" />
-                    </div>
-                    <div>
-                        <h2 className="font-display text-3xl font-bold uppercase text-ink-1">{t("veto.unavailable")}</h2>
-                        <p className="mt-1 text-sm text-ink-3">{status || t("veto.unavailableBody")}</p>
-                    </div>
-                    <Button variant="outline" onClick={() => router.push("/")}>
-                        <ArrowLeft size={16} /> {t("veto.backToDashboard")}
-                    </Button>
-                </div>
-            </div>
-        )
+        // Same not-found card as match prep, live and result (CROSSCUT-06).
+        if (teams.length > 0 && !scheduledMatches.some(m => m.id === id)) return <MatchNotFound />
+        if (!match) return <LoadingState message={t("veto.initializing")} size="lg" />
+        return <MatchNotFound title={t("veto.unavailable")} body={t("veto.unavailableBody")} />
     }
 
     const turnIndex = Math.min(vetoHistory.length, vetoSequence.length - 1)

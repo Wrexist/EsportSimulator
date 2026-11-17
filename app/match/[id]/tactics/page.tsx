@@ -9,6 +9,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
+import { MatchNotFound } from "@/components/match/MatchNotFound"
 import { LoadingState } from "@/components/ui/loading"
 import { ArrowLeft, Brain, Check, ChevronRight, Crosshair, Lock, Video, Zap } from "lucide-react"
 import Image from "next/image"
@@ -421,15 +422,7 @@ export default function TacticalHQPage() {
         // A loaded career without this fixture (stale link, already resolved,
         // removed by a week tick): explain and offer a way back instead of an
         // endless loading screen.
-        if (teams.length > 0 && !match) {
-            return (
-                <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
-                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{t("prep.notFound")}</p>
-                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">{t("prep.notFoundBody")}</p>
-                    <Button onClick={() => router.push("/schedule")}>{t("prep.backToSchedule")}</Button>
-                </div>
-            )
-        }
+        if (teams.length > 0 && !match) return <MatchNotFound />
         return (
             <LoadingState message={t("prep.loading")} size="lg" fullScreen />
         )
