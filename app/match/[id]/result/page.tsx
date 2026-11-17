@@ -1,7 +1,7 @@
 "use client"
 import { stageName } from "@/lib/display-names"
 import { Trans } from "@/lib/trans"
-import { formatPercent, t, tn } from "@/lib/i18n"
+import { formatPercent, intlLocale, t, tn } from "@/lib/i18n"
 import { winTypeText } from "@/lib/live-match-roster"
 import { buyShortLabel } from "@/lib/live-match-decision"
 
@@ -524,7 +524,7 @@ export default function MatchResultPage() {
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2.5">
                                     <dt className="text-ink-3">{t("result.playerXp")}</dt>
-                                    <dd className="font-semibold tabular-nums text-ink-1">+{xpEarned.toLocaleString("en-US")}</dd>
+                                    <dd className="font-semibold tabular-nums text-ink-1">+{xpEarned.toLocaleString(intlLocale())}</dd>
                                 </div>
                                 <div className="px-4 py-2.5">
                                     <div className="flex items-center justify-between">
