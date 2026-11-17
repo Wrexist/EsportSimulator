@@ -40,7 +40,7 @@ import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
 import { COUNTER_EFFECT, counterSite, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
-import { formatDecimal, intlLocale, t } from "@/lib/i18n"
+import { formatDecimal, formatPercent, intlLocale, t } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { stageName } from "@/lib/display-names"
 import { matchEventName } from "@/lib/tournament-instances"
@@ -52,7 +52,7 @@ import { liveMatchInProgress } from "@/app/match/match-centre"
 // each key beats its value; "default" is neutral against everything.
 const PLAYSTYLE_BEATS: Record<string, string> = { aggressive: "structured", structured: "balanced", balanced: "aggressive" }
 const playstyleLabel = (style: string) => ["aggressive", "structured", "balanced", "default"].includes(style) ? t(`playstyle.${style}`) : style
-const pct = (n: number) => `${Math.round(n * 100)}%`
+const pct = (n: number) => formatPercent(n * 100)
 
 // Real effects, read from the constants the match engine (script-v1,
 // engine/match/round-sim) applies. "Team strength" is its non-player edge:

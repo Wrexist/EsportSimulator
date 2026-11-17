@@ -1,7 +1,7 @@
 "use client"
 import { stageName } from "@/lib/display-names"
 import { Trans } from "@/lib/trans"
-import { t, tn } from "@/lib/i18n"
+import { formatPercent, t, tn } from "@/lib/i18n"
 import { winTypeText } from "@/lib/live-match-roster"
 import { buyShortLabel } from "@/lib/live-match-decision"
 
@@ -662,7 +662,7 @@ export default function MatchResultPage() {
                                     {insights.economy.buys.map(b => (
                                         <li key={b.buy} className="flex justify-between gap-3">
                                             <span>{t("result.buysOf", { buy: buyShortLabel(b.buy) })}</span>
-                                            <span className="tabular-nums">{t("result.wonOf", { won: b.won, played: b.played })} <span className="text-ink-3">({buyWinRate(b)}%)</span></span>
+                                            <span className="tabular-nums">{t("result.wonOf", { won: b.won, played: b.played })} <span className="text-ink-3">({formatPercent(buyWinRate(b))})</span></span>
                                         </li>
                                     ))}
                                     <li className="flex justify-between gap-3 border-t border-line pt-1.5">
@@ -797,7 +797,7 @@ export default function MatchResultPage() {
                                                         <div className="h-1.5 overflow-hidden rounded-full bg-hover">
                                                             <div className={cn("h-full rounded-full", fk > fd ? "bg-positive" : fk < fd ? "bg-ink-3" : "bg-ink-2")} style={{ width: `${Math.max(pctWon, 4)}%` }} />
                                                         </div>
-                                                        <span className="text-right text-xs tabular-nums text-ink-2">{fk} / {fd} <span className="text-ink-3">({pctWon}%)</span></span>
+                                                        <span className="text-right text-xs tabular-nums text-ink-2">{fk} / {fd} <span className="text-ink-3">({formatPercent(pctWon)})</span></span>
                                                     </div>
                                                 )
                                             })}
@@ -829,7 +829,7 @@ export default function MatchResultPage() {
                                                         <div className="h-1.5 overflow-hidden rounded-full bg-hover">
                                                             <div className={cn("h-full rounded-full", kast >= 75 ? "bg-positive" : "bg-ink-2")} style={{ width: `${kast}%` }} />
                                                         </div>
-                                                        <span className="text-right text-xs tabular-nums text-ink-2">{Math.round(kast)}%</span>
+                                                        <span className="text-right text-xs tabular-nums text-ink-2">{formatPercent(kast)}</span>
                                                         <span className="text-right text-xs text-ink-3">{clutches > 0 ? tn("result.clutches", clutches) : ""}</span>
                                                     </div>
                                                 )
@@ -934,7 +934,7 @@ function MvpCard({ label, stat, player, isMatchMvp }: { label: string; stat: Pla
                 </p>
                 <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1"><PlayerLink id={player?.id}>{player?.nickname ?? t("result.formerPlayer")}</PlayerLink></p>
                 <p className="text-xs tabular-nums text-ink-3">
-                    {stat.kills}–{stat.deaths} · {Math.round(stat.adr)} ADR{typeof stat.kast === "number" ? ` · ${Math.round(stat.kast)}% KAST` : ""}
+                    {stat.kills}–{stat.deaths} · {Math.round(stat.adr)} ADR{typeof stat.kast === "number" ? ` · ${formatPercent(stat.kast)} KAST` : ""}
                 </p>
             </div>
             <div className="text-right">
@@ -999,7 +999,7 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
                             <td className="px-2 text-right text-sm tabular-nums text-ink-2">{stat.assists}</td>
                             <td className={cn("px-2 text-right text-sm tabular-nums", diff > 0 ? "text-positive" : diff < 0 ? "text-ink-3" : "text-ink-2")}>{diff > 0 ? "+" : ""}{diff}</td>
                             <td className="px-2 text-right text-sm tabular-nums text-ink-2">{Math.round(stat.adr)}</td>
-                            <td className="px-2 text-right text-sm tabular-nums text-ink-2">{typeof stat.kast === "number" ? `${Math.round(stat.kast)}%` : "—"}</td>
+                            <td className="px-2 text-right text-sm tabular-nums text-ink-2">{typeof stat.kast === "number" ? formatPercent(stat.kast) : "—"}</td>
                             <td className="px-2 text-right text-xs tabular-nums text-ink-3">+{result.xpGains?.[stat.playerId] || 0}</td>
                             <td className={cn("pr-4 text-right font-display text-lg font-bold tabular-nums", matchRatingTone(stat.rating))}>{stat.rating.toFixed(2)}</td>
                         </tr>

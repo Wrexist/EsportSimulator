@@ -1,5 +1,5 @@
 "use client"
-import { formatDecimal, t, tn } from "@/lib/i18n"
+import { formatDecimal, formatPercent, t, tn } from "@/lib/i18n"
 import { countryName } from "@/lib/country"
 
 import { LoadChip } from "@/components/squad/LoadChip"
@@ -350,7 +350,7 @@ function SquadPageInner() {
           <KpiStrip>
             <Kpi label={t("common.teamOvr")} value={<RatingChip value={teamOvr} size="lg" bare />} />
             <Kpi label={t("squad.kpi.avgAge")} value={avgAge} />
-            <Kpi label={t("squad.kpi.chemistry")} value={`${Math.round(teamData.chemistry ?? 0)}%`} />
+            <Kpi label={t("squad.kpi.chemistry")} value={formatPercent(teamData.chemistry ?? 0)} />
             <Kpi label={t("squad.kpi.wages")} value={formatCurrency(wageBill, "$", false)} />
           </KpiStrip>
         }

@@ -22,7 +22,7 @@ import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { soundManager } from "@/lib/sound-manager"
-import { formatDecimal, t } from "@/lib/i18n"
+import { formatDecimal, formatPercent, t } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { Trans } from "@/lib/trans"
 import { GearCatalog } from "./_components/GearCatalog"
@@ -57,7 +57,7 @@ function facilityEffect(type: FacilityType, level: number): string {
 }
 
 const money = (v: number) => formatCurrency(v, "$", false)
-const pct = (v: number) => `+${v % 1 ? formatDecimal(v) : v.toFixed(0)}%`
+const pct = (v: number) => `+${formatPercent(v, v % 1 ? 1 : 0)}`
 
 function LevelPips({ level }: { level: number }) {
   return (

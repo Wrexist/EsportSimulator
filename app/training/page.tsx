@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { formatDecimal, t, tn } from "@/lib/i18n"
+import { formatDecimal, formatPercent, t, tn } from "@/lib/i18n"
 
 import { LoadChip } from "@/components/squad/LoadChip"
 import React, { useCallback, useMemo, useState } from "react"
@@ -141,7 +141,7 @@ export default function TrainingPage() {
                 aside={
                     <KpiStrip>
                         <Kpi label={t("tr.kpi.slots")} value={slotsLeft} hint={t("tr.kpi.slotsOf", { n: slotsMax })} />
-                        <Kpi label={t("tr.kpi.bonus")} value={`+${gainPct}%`} hint={t("tr.kpi.bonusHint")} />
+                        <Kpi label={t("tr.kpi.bonus")} value={`+${formatPercent(gainPct)}`} hint={t("tr.kpi.bonusHint")} />
                         <Kpi label={t("tr.kpi.retraining")} value={roleTraining.length} hint={roleTraining.length ? t("tr.perWeek", { amount: formatCurrency(roleTraining.reduce((s, rt) => s + (rt.weeklyCost || 0), 0), "$", false) }) : t("tr.kpi.noOne")} />
                     </KpiStrip>
                 }

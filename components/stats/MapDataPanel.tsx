@@ -1,5 +1,5 @@
 "use client"
-import { t, tn } from "@/lib/i18n"
+import { formatPercent, t, tn } from "@/lib/i18n"
 
 import { useMemo, useState } from "react"
 import { useShallow } from "zustand/react/shallow"
@@ -19,7 +19,7 @@ const SMALL_SAMPLE = 8
 
 const pct = (won: number, n: number) => {
     const r = rate(won, n)
-    return r === null ? "—" : `${r}%`
+    return r === null ? "—" : formatPercent(r)
 }
 
 function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange: (v: T) => void; label: string }) {
@@ -49,7 +49,7 @@ function RateBars({ title, cells, labels, unit = "rounds" }: { title: string; ce
                             <li key={key} className={cn("text-sm", small && "opacity-60")} title={small ? tn(unit === "maps" ? "md.fewMaps" : "md.fewRounds", c.n) : undefined}>
                                 <div className="flex items-baseline justify-between gap-2">
                                     <span className="truncate text-ink-2">{labels[key] ?? key}</span>
-                                    <span className="shrink-0 tabular-nums text-ink-1">{r}% <span className="text-xs text-ink-3">{t("md.of", { n: c.n })}</span></span>
+                                    <span className="shrink-0 tabular-nums text-ink-1">{formatPercent(r)} <span className="text-xs text-ink-3">{t("md.of", { n: c.n })}</span></span>
                                 </div>
                                 <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-raised" aria-hidden="true">
                                     <div className={cn("h-full rounded-full", r >= 50 ? "bg-positive" : "bg-negative")} style={{ width: `${r}%` }} />

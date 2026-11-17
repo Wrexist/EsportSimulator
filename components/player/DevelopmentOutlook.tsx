@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { formatDecimal, intlLocale, t, tn } from "@/lib/i18n"
+import { formatDecimal, formatPercent, intlLocale, t, tn } from "@/lib/i18n"
 
 import { AGE_CURVE, lastsLonger } from "@/engine/development-rates"
 import { useMemo } from "react"
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
 
 function pct(m: number) {
     const v = Math.round((m - 1) * 100)
-    return v === 0 ? "±0%" : `${v > 0 ? "+" : "−"}${Math.abs(v)}%`
+    return `${v === 0 ? "±" : v > 0 ? "+" : "−"}${formatPercent(Math.abs(v))}`
 }
 
 /**

@@ -4,7 +4,7 @@
  */
 import { readFileSync } from "fs"
 import { join } from "path"
-import { registerLocale, setLocale, tRef } from "@/lib/i18n"
+import { formatPercent, registerLocale, setLocale, tRef } from "@/lib/i18n"
 import { collectStopSignals, nextStop, stopActionText, stopReasonText, type StopSource } from "@/lib/advance-stops"
 import { createAdvanceSlice } from "@/store/slices/advance-slice"
 import { createLaunchFixture } from "@/scripts/launch/fixtures"
@@ -221,5 +221,28 @@ describe("I18N-08: sandbox editor results and log follow the language", () => {
         const refused = applySandboxEdit({ ...target(), contracts: [] , sandbox: { enabledWeek: 1, edits: 0, log: [] } }, { kind: "contract", playerId: "p", salaryPerWeek: 1 })
         expect(!refused.ok && tRef(refused.reasonRef)).toBe(de["sb.noContract"])
         expect(!refused.ok && refused.reason).not.toMatch(/\bHe\b/)
+    })
+})
+
+describe("I18N-09: percentages follow the language's spacing", () => {
+    test("formatPercent", () => {
+        expect(formatPercent(23)).toBe("23%")
+        expect(formatPercent(14.5)).toBe("15%")
+        expect(formatPercent(4.25, 1)).toBe("4.3%")
+        setLocale("de")
+        expect(formatPercent(23).replace(/\s/g, " ")).toBe("23 %")
+        expect(formatPercent(4.25, 1).replace(/\s/g, " ")).toBe("4,3 %")
+        setLocale("ru")
+        expect(formatPercent(82).replace(/\s/g, " ")).toBe("82 %")
+    })
+
+    test("no hand-built percentages left at the audited call sites", () => {
+        const files = ["app/match/[id]/tactics/page.tsx", "app/training/page.tsx", "app/trophies/page.tsx", "app/staff/page.tsx", "app/squad/page.tsx", "app/basecamp/page.tsx", "components/stats/MapDataPanel.tsx", "components/player/DevelopmentOutlook.tsx", "app/match/[id]/veto/page.tsx"]
+        for (const f of files) {
+            const src = readFileSync(join(__dirname, "..", f), "utf8")
+            // A number followed by a literal % sign in text (CSS widths and positions are fine).
+            const hits = src.split("\n").filter(l => !/^\s*(\/\/|\*)/.test(l) && /(\}|\d)%(`|<|\)|"\s*\}|\s)/.test(l) && !/(width|left|top|height|translate)/.test(l))
+            expect({ f, hits }).toEqual({ f, hits: [] })
+        }
     })
 })
