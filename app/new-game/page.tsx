@@ -527,8 +527,7 @@ export default function TeamSelectionPage() {
                                     <th data-slot="table-head" className="hidden w-36 px-3 xl:table-cell">{t("ng.col.region")}</th>
                                     <th data-slot="table-head" className="w-24 px-3">{t("ng.col.tier")}</th>
                                     <th data-slot="table-head" className="w-16 px-3 text-center">{t("common.ovr")}</th>
-                                    <th data-slot="table-head" className="w-28 px-3 text-right">{t("ng.col.budget")}</th>
-                                    <th data-slot="table-head" className="w-28 pr-4 text-right"><span className="sr-only">{t("ng.col.access")}</span></th>
+                                    <th data-slot="table-head" className="w-24 pl-3 pr-4 text-right">{t("ng.col.budget")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -556,7 +555,7 @@ export default function TeamSelectionPage() {
                                                     <div className="min-w-0">
                                                         <div className="flex min-w-0 items-baseline gap-3">
                                                             <h3 className={cn("truncate text-sm font-semibold", selected ? "text-gold" : "text-ink-1")}>{team.name}</h3>
-                                                            <span className="hidden shrink-0 text-xs text-ink-3 xl:inline">{team.shortName}</span>
+                                                            <span className="hidden shrink-0 text-xs text-ink-3 2xl:inline">{team.shortName}</span>
                                                         </div>
                                                         {/* Below 1280 px the Region column is hidden; the region shows here. */}
                                                         <p className="truncate text-xs text-ink-3 xl:hidden">{team.shortName} · {clubRegionName(team.region)}</p>
@@ -564,19 +563,20 @@ export default function TeamSelectionPage() {
                                                 </div>
                                             </td>
                                             <td className="hidden truncate whitespace-nowrap px-3 text-xs font-semibold text-ink-2 xl:table-cell">{clubRegionName(team.region)}</td>
-                                            <td className="truncate px-3 text-sm text-ink-2">{t(`ng.tier.${team.calculatedTier}`)}</td>
-                                            <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
-                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(budgetFor(team.id))}</td>
-                                            <td className="pr-4 text-right text-xs text-ink-3">
+                                            {/* START-45: the level lock sits under the tier, so no column stays empty for open clubs. */}
+                                            <td className="px-3 text-sm text-ink-2">
+                                                <span className="block truncate">{t(`ng.tier.${team.calculatedTier}`)}</span>
                                                 {locked && (
-                                                    <span className="inline-flex items-center gap-1"><Lock size={12} /> {t("ng.levelLock", { n: ManagerProgression.getRequiredLevel(team.reputation) })}</span>
+                                                    <span className="flex items-center gap-1 truncate text-xs text-ink-3"><Lock size={12} className="shrink-0" /> {t("ng.levelLock", { n: ManagerProgression.getRequiredLevel(team.reputation) })}</span>
                                                 )}
                                             </td>
+                                            <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
+                                            <td className="pl-3 pr-4 text-right text-sm tabular-nums text-ink-2">{formatCurrency(budgetFor(team.id))}</td>
                                         </tr>
                                     )
                                 })}
                                 {filteredTeams.length === 0 && (
-                                    <tr><td colSpan={7} className="px-4 py-6 text-sm text-ink-3">{t("ng.noMatch", { term: searchTerm })}</td></tr>
+                                    <tr><td colSpan={6} className="px-4 py-6 text-sm text-ink-3">{t("ng.noMatch", { term: searchTerm })}</td></tr>
                                 )}
                             </tbody>
                         </table>
