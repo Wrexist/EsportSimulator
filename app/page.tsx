@@ -385,7 +385,8 @@ export default function Page() {
   const cupWins = cupBracket.filter(m => m.isCompleted && m.winnerId === draftCup?.teamId).length
 
   return (
-    <div className="space-y-5 pb-12">
+    // Same content width as every other screen (CROSSCUT-09).
+    <div className="mx-auto max-w-[1600px] space-y-5 pb-12">
       {rosterBuilderOpen && playerTeam && (
         <RosterBuilderModal
           isOpen

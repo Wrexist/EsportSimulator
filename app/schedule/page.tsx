@@ -279,7 +279,8 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="space-y-4 pb-10">
+    // Same content width as every other screen (CROSSCUT-09).
+    <div className="mx-auto max-w-[1600px] space-y-4 pb-10">
       <ScreenHeader
         eyebrow={`${t("lg.seasonWeek", { season: currentYear, week: currentWeekInYear })}${daily ? ` · ${dayLabel(currentWeek, currentDay)}` : ""}`}
         title={t("sch.title")}

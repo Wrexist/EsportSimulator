@@ -145,3 +145,28 @@ describe("CROSSCUT-08: one name for a club's level and one spelling for tourname
         }
     })
 })
+
+describe("CROSSCUT-09/10/14/15: shell consistency", () => {
+    test("09: Home and Calendar share the 1600 px content width of the other screens", () => {
+        expect(read("app/page.tsx")).toContain('<div className="mx-auto max-w-[1600px] space-y-5 pb-12">')
+        expect(read("app/schedule/page.tsx")).toContain('<div className="mx-auto max-w-[1600px] space-y-4 pb-10">')
+    })
+    test("10: the top-bar date uses the same numeric day as every other date", () => {
+        const src = read("components/layout/TopBar.tsx")
+        expect(src).not.toContain('day: "2-digit"')
+        expect(src).toContain('formatGameCalendarDate(currentDate, { weekday: "short", day: "numeric", month: "short", year: "numeric" })')
+    })
+    test("14: programmatic focus targets (tabindex -1) get no ring; controls keep the gold one", () => {
+        const css = read("app/globals.css")
+        expect(css).toContain('[tabindex]:not([tabindex="-1"]):focus-visible {')
+        expect(css).not.toMatch(/^\s*\[tabindex\]:focus-visible \{/m)
+        const rule = css.slice(css.indexOf('[role="dialog"][tabindex="-1"]:focus-visible'))
+        expect(rule.slice(0, rule.indexOf("}"))).toContain("outline: none;")
+    })
+    test("15: number keys do nothing while a dialog, menu or list is open", () => {
+        const src = read("components/layout/GameShell.tsx")
+        const guard = src.indexOf(`document.querySelector('[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]')`)
+        expect(guard).toBeGreaterThan(-1)
+        expect(guard).toBeLessThan(src.indexOf("NUMBER_KEY_ROUTES[e.key]"))
+    })
+})

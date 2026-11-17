@@ -810,7 +810,7 @@
   [role="menuitem"]:focus-visible,
   [role="option"]:focus-visible,
   [role="tab"]:focus-visible,
-  [tabindex]:focus-visible {
+  [tabindex]:not([tabindex="-1"]):focus-visible {
     outline: 2px solid var(--gold, #f2b53a);
     outline-offset: 2px;
   }
@@ -820,6 +820,16 @@
      and rows used to get their grey or green text colour as the ring). */
   :focus-visible {
     outline-color: var(--gold, #f2b53a) !important;
+  }
+
+  /* Programmatic focus targets (tabindex="-1"): a dialog container or the skip
+     link's <main> takes focus so the next Tab starts inside it. It is not a
+     control, so no ring: it drew a gold frame around the whole dialog that
+     looked like a selection (CROSSCUT-14, 2026-11-17). Controls keep theirs. */
+  [role="dialog"][tabindex="-1"]:focus-visible,
+  [role="alertdialog"][tabindex="-1"]:focus-visible,
+  [tabindex="-1"]:not(a, button, input, select, textarea, summary, [role]):focus-visible {
+    outline: none;
   }
 
   /* Heavier focus ring inside dialogs/modals/popovers: the Steam Deck's small
