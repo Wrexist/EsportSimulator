@@ -1,0 +1,11 @@
+"lang"
+{
+	"language"	"brazilian"
+	"tokens"
+	{
+		"#Status_Managing"	"Comanda %team% - Temporada %season%, semana %week%"
+		"#Status_Ranked"	"Comanda %team% (ranking mundial #%rank%) - Temporada %season%, semana %week%"
+		"#Status_Menu"	"No menu principal"
+		"#Status_Match"	"Jogando uma partida: %team% x %opponent%"
+	}
+}

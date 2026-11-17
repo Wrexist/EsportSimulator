@@ -182,3 +182,11 @@ describe("CROSSCUT-11: the loading splash adds no route stylesheet", () => {
         expect(read("components/brand/brand.module.css")).not.toMatch(/\.splash|\.shimmer|\.track/)
     })
 })
+
+describe("CROSSCUT-12: Rich Presence follows the screen", () => {
+    test("the sync is mounted once at the root and covers menu, career and live match", () => {
+        expect(read("app/layout.tsx")).toContain("<SteamPresenceSync />")
+        const sync = read("components/layout/SteamPresenceSync.tsx")
+        for (const fn of ["buildMenuPresence()", "buildMatchPresence(", "buildRichPresence(", "steamService.setPresence(presence)"]) expect(sync).toContain(fn)
+    })
+})
