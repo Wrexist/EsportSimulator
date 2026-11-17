@@ -1,6 +1,7 @@
 "use client"
 
 import { MAP_COMFORT_STEPS, mapComfort, mapComfortLabel } from "@/engine/match/map-comfort"
+import { pickStrengths } from "@/engine/match/map-veto"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getActivePlayersByRosterOrder } from "@/lib/live-match-builders"
 import { RatingChip } from "@/src/components/ui/RatingChip"
@@ -329,10 +330,10 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         let targetStrengths = strengths
         const opponentPlayers = (side === "home" ? awayTeam : homeTeam).rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
 
-        if (action === "BAN") {
-            // Calculate opponent strengths to ban their best
-            targetStrengths = simulationEngineV2.calculateMapStrengths(opponentPlayers, (side === "home" ? awayTeam : homeTeam).id)
-        }
+        const opponentStrengths = simulationEngineV2.calculateMapStrengths(opponentPlayers, (side === "home" ? awayTeam : homeTeam).id)
+        // Ban their best; pick the map we lead by most (MATCHENGINE-11), not one they are even better on.
+        if (action === "BAN") targetStrengths = opponentStrengths
+        else if (action === "PICK") targetStrengths = pickStrengths(strengths, opponentStrengths)
 
         const selectedMap = simulationEngineV2.selectMapForVeto(
             aiTurnRng,

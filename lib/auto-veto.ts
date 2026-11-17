@@ -1,11 +1,12 @@
 /**
  * The engine's veto for a match nobody vetoes by hand (Quick sim veto, the
  * coach's delegated veto, one-click "Sim match"): each club bans the other's
- * strongest maps and picks its own, from the season's pool (C6), seeded by the
+ * strongest maps and picks the maps it leads by most, from the season's pool (C6), seeded by the
  * fixture so the same match always gets the same maps.
  */
 
 import { simulationEngineV2, SeededRNG } from "@/engine"
+import { pickStrengths } from "@/engine/match/map-veto"
 import { ACTIVE_MAP_POOL } from "@/data/map-pool"
 import { deterministicSeed } from "@/lib/utils"
 import type { MapId } from "@/types/enums"
@@ -27,12 +28,14 @@ export function autoVetoMaps(match: VetoFixture, homePlayers: Player[], awayPlay
     const side = (team: "home" | "away") => team === "home"
         ? { chooser: homePlayers, enemy: awayPlayers, chooserId: match.homeTeamId, enemyId: match.awayTeamId }
         : { chooser: awayPlayers, enemy: homePlayers, chooserId: match.awayTeamId, enemyId: match.homeTeamId }
-    // Banning looks at the enemy's strengths (ban their best), picking at your own.
+    // Banning looks at the enemy's strengths (ban their best), picking at your
+    // edge over them (MATCHENGINE-11: not a map they are even better on).
     const select = (team: "home" | "away", pool: MapId[], action: "BAN" | "PICK") => {
         const s = side(team)
+        const enemy = simulationEngineV2.calculateMapStrengths(s.enemy, s.enemyId)
         const strengths = action === "BAN"
-            ? simulationEngineV2.calculateMapStrengths(s.enemy, s.enemyId)
-            : simulationEngineV2.calculateMapStrengths(s.chooser, s.chooserId)
+            ? enemy
+            : pickStrengths(simulationEngineV2.calculateMapStrengths(s.chooser, s.chooserId), enemy)
         return simulationEngineV2.selectMapForVeto(rng, pool, strengths, action, 3) as MapId
     }
     const runBan = (team: "home" | "away") => { const ban = select(team, currentPool, "BAN"); currentPool = currentPool.filter(m => m !== ban) }

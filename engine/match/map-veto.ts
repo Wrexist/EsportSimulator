@@ -78,8 +78,8 @@ export function legacyMapStrengths(players: Player[], teamId?: string): Map<MapI
 }
 
 /**
- * Select the best map to BAN (opponent's strongest) or PICK (own
- * strongest) given a strength table. Higher analyst level reduces the
+ * Select the best map to BAN (opponent's strongest) or PICK (own biggest
+ * edge, pickStrengths) given a strength table. Higher analyst level reduces the
  * noise added to scoring — at level 5 the analyst always picks the
  * strict best, at level 1 noise can flip the choice.
  */
@@ -107,9 +107,21 @@ export function selectMapForVeto(
 }
 
 /**
+ * What a PICK ranks (AUDIT17 MATCHENGINE-11): the picker's edge on each map,
+ * own strength minus the opponent's (+50 keeps the 0-100 scale the analyst
+ * noise is sized for). The engine plays the difference of the two clubs' map
+ * comfort, so a map the picker likes but the opponent likes more is no pick.
+ */
+export function pickStrengths(own: Map<MapId, number>, opponent: Map<MapId, number>): Map<MapId, number> {
+    const net = new Map<MapId, number>()
+    for (const [map, value] of own) net.set(map, 50 + value - (opponent.get(map) ?? 50))
+    return net
+}
+
+/**
  * Run a 5-step BO3 veto: ban / ban / pick / pick / decider.
- * Home bans away's best, away bans home's best, home picks its best,
- * away picks its best, system random-picks from the remainder.
+ * Home bans away's best, away bans home's best, home picks the map it
+ * leads by most, then away does, system random-picks from the remainder.
  *
  * Returns the veto event log + the three maps the match will play.
  */
@@ -134,6 +146,8 @@ export function simulateMapVeto(
 
     const homeMapStrengths = cachedHomeMapStrengths || calculateMapStrengths(homePlayers, homeTeamId)
     const awayMapStrengths = cachedAwayMapStrengths || calculateMapStrengths(awayPlayers, awayTeamId)
+    const homePickStrengths = pickStrengths(homeMapStrengths, awayMapStrengths)
+    const awayPickStrengths = pickStrengths(awayMapStrengths, homeMapStrengths)
 
     if (format === 'BO1') {
         while (availableMaps.length > 1) {
@@ -158,7 +172,7 @@ export function simulateMapVeto(
         }
         for (let i = 0; i < 4; i++) {
             const home = i % 2 === 0
-            const map = selectMapForVeto(rng, availableMaps, home ? homeMapStrengths : awayMapStrengths, 'PICK', home ? homeVetoSkill : awayVetoSkill)
+            const map = selectMapForVeto(rng, availableMaps, home ? homePickStrengths : awayPickStrengths, 'PICK', home ? homeVetoSkill : awayVetoSkill)
             veto.push({ teamId: home ? homeTeamId : awayTeamId, action: 'PICK', map, order: veto.length + 1 })
             selectedMaps.push(map)
             availableMaps = availableMaps.filter(candidate => candidate !== map)
@@ -179,21 +193,21 @@ export function simulateMapVeto(
     veto.push({ teamId: awayTeamId, action: "BAN", map: awayBan, order: 2 })
     availableMaps = availableMaps.filter(m => m !== awayBan)
 
-    // Home picks its best remaining.
-    const homePick = selectMapForVeto(rng, availableMaps, homeMapStrengths, "PICK", homeVetoSkill)
+    // Home picks the remaining map it leads by most.
+    const homePick = selectMapForVeto(rng, availableMaps, homePickStrengths, "PICK", homeVetoSkill)
     veto.push({ teamId: homeTeamId, action: "PICK", map: homePick, order: 3 })
     selectedMaps.push(homePick)
     availableMaps = availableMaps.filter(m => m !== homePick)
 
-    // Away picks its best remaining.
-    const awayPick = selectMapForVeto(rng, availableMaps, awayMapStrengths, "PICK", awayVetoSkill)
+    // Away picks the remaining map it leads by most.
+    const awayPick = selectMapForVeto(rng, availableMaps, awayPickStrengths, "PICK", awayVetoSkill)
     veto.push({ teamId: awayTeamId, action: "PICK", map: awayPick, order: 4 })
     selectedMaps.push(awayPick)
     availableMaps = availableMaps.filter(m => m !== awayPick)
 
     if (format === 'BO5') {
         for (const home of [true, false]) {
-            const map = selectMapForVeto(rng, availableMaps, home ? homeMapStrengths : awayMapStrengths, 'PICK', home ? homeVetoSkill : awayVetoSkill)
+            const map = selectMapForVeto(rng, availableMaps, home ? homePickStrengths : awayPickStrengths, 'PICK', home ? homeVetoSkill : awayVetoSkill)
             veto.push({ teamId: home ? homeTeamId : awayTeamId, action: 'PICK', map, order: veto.length + 1 })
             selectedMaps.push(map)
             availableMaps = availableMaps.filter(candidate => candidate !== map)
