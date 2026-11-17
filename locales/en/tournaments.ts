@@ -216,4 +216,8 @@ export const TOURNAMENTS: Record<string, string> = {
     "tm.adv.advancing": "Advancing",
     "tm.adv.click": "Click anywhere to continue",
     "tm.notFoundBody": "This tournament isn't on your career's calendar.",
+    "tm.yourUpcoming": "Upcoming",
+    "tm.yourResults": "Results",
+    "tm.col.date": "Date",
+    "tm.openPrep": "Open match prep vs {{team}}",
 }

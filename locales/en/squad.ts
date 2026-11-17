@@ -141,4 +141,5 @@ export const SQUAD = {
     "dressing.promises": "Promises",
     "dressing.promiseDue": "by week {{week}} · {{left}}",
     "dressing.promiseRules": "Kept: morale +{{keptMorale}}, loyalty +{{keptLoyalty}}. Broken: morale {{brokenMorale}}, loyalty {{brokenLoyalty}}.",
+    "load.chip": "{{band}} · {{risk}} injury risk",
 } as const

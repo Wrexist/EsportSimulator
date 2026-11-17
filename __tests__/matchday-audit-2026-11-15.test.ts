@@ -52,7 +52,8 @@ describe("match prep page (MATCHDAY-02, CROSSCUT-11, CROSSCUT-17)", () => {
         expect(prep).toMatch(/isMatchWeek \? \(fixtureNotDueYet\(\{ currentWeek, currentDay, timeMode \}, match\) \? formatGameCalendarDate\(matchDate, \{ weekday: "long" \}\) : t\("home\.matchDay"\)\)/)
     })
     test("CROSSCUT-17: a played match's panel says Played with the final score, not 'ready to play'", () => {
-        expect(prep).toMatch(/isCompleted \? t\("prep\.played"\) : mapsLocked \? t\("prep\.ready"\)/)
+        // 11-17 MATCHDAY-23: "Ready" also waits for the fixture's day.
+        expect(prep).toMatch(/isCompleted \? t\("prep\.played"\) : mapsLocked && !notDue \? t\("prep\.ready"\)/)
         expect(prep).toMatch(/: finalLine !== null \? finalLine/)
     })
     test("CROSSCUT-11: the club name wraps (two lines at most) instead of being cut, labels stay on one line", () => {
