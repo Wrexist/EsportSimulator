@@ -12,6 +12,7 @@ import { storedText } from "@/lib/stored-text"
 import { getEventBody } from "@/components/inbox/inbox-model"
 import { lineText } from "@/lib/news-text"
 import { stageName } from "@/lib/display-names"
+import { applySandboxEdit, enableSandbox, type SandboxTarget } from "@/engine/sandbox"
 import { EN } from "@/locales/en"
 import type { GameSave } from "@/engine/save-types"
 
@@ -193,5 +194,32 @@ describe("I18N-07: legend achievements in the legend pick", () => {
         expect(storedText("4x Player of the Year")).toBe("4× Spieler des Jahres")
         expect(storedText("Major champion 2020")).toBe("Major-Sieg 2020")
         expect(storedText("Best Player 2013-2014")).toBe("Bester Spieler 2013-2014")
+    })
+})
+
+describe("I18N-08: sandbox editor results and log follow the language", () => {
+    const target = (): SandboxTarget => ({
+        currentWeek: 20,
+        teams: [{ id: "t", name: "Club", shortName: "CLB", budget: 100000 } as never],
+        players: [{ id: "p", nickname: "ace", name: "A Person", age: 19, skill: 60 } as never],
+        contracts: [{ playerId: "p", teamId: "t", salaryPerWeek: 1500, startWeek: 1, endWeek: 40, buyout: 0 }],
+    })
+
+    test("English text unchanged; German from the refs (digit grouping, labels, no 'He')", () => {
+        const t = target()
+        enableSandbox(t)
+        const money = applySandboxEdit(t, { kind: "money", teamId: "t", budget: 500000 })
+        expect(money.ok && money.what).toBe("Club: money 100,000 → 500,000")
+        const player = applySandboxEdit(t, { kind: "player", playerId: "p", age: 20, nickname: "zed" })
+        expect(player.ok && player.what).toBe("zed: age 19 → 20, nickname → zed")
+        const contract = applySandboxEdit(t, { kind: "contract", playerId: "p", salaryPerWeek: 2000, endWeek: 60 })
+        expect(contract.ok && contract.what).toBe("zed's contract: wage 1,500 → 2,000/wk, ends week 40 → 60")
+        setLocale("de")
+        expect(money.ok && tRef(money.whatRef)).toBe("Club: Geld 100.000 → 500.000")
+        expect(player.ok && tRef(player.whatRef)).toBe("zed: Alter 19 → 20, Nickname → zed")
+        expect(tRef(t.sandbox!.log[0].whatRef!)).toBe("Vertrag von zed: Gehalt 1.500 → 2.000/Woche, Vertragsende Woche 40 → 60")
+        const refused = applySandboxEdit({ ...target(), contracts: [] , sandbox: { enabledWeek: 1, edits: 0, log: [] } }, { kind: "contract", playerId: "p", salaryPerWeek: 1 })
+        expect(!refused.ok && tRef(refused.reasonRef)).toBe(de["sb.noContract"])
+        expect(!refused.ok && refused.reason).not.toMatch(/\bHe\b/)
     })
 })

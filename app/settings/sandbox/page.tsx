@@ -17,11 +17,10 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/lib/toast"
 import { formatCurrency } from "@/lib/utils-extended"
-import { SANDBOX_ATTRIBUTES, type SandboxAttribute, type SandboxEdit } from "@/engine/sandbox"
-import { t, tn } from "@/lib/i18n"
+import { SANDBOX_ATTRIBUTES, sandboxAttrKey, type SandboxAttribute, type SandboxEdit } from "@/engine/sandbox"
+import { t, tn, tRef } from "@/lib/i18n"
 
-const SB_OWN = new Set(["form", "morale", "fatigue", "potential"])
-const attrName = (k: SandboxAttribute) => SB_OWN.has(k) ? t(`sb.attr.${k}`) : t(`attr.${k}`)
+const attrName = (k: SandboxAttribute) => t(sandboxAttrKey(k))
 const GROUP_KEY: Record<string, string> = { Aim: "sb.group.aim", Mind: "sb.group.mind", "Body and condition": "sb.group.body" }
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -78,8 +77,8 @@ export default function SandboxPage() {
 
     const run = (edit: SandboxEdit) => {
         const r = sandboxEdit(edit)
-        if (r.ok) toast({ title: t("sb.saved"), description: r.what })
-        else toast({ title: t("sb.notChanged"), description: r.reason, variant: "destructive" })
+        if (r.ok) toast({ title: t("sb.saved"), description: tRef(r.whatRef) })
+        else toast({ title: t("sb.notChanged"), description: tRef(r.reasonRef), variant: "destructive" })
     }
 
     // START-21: with no career loaded there is nothing to turn on yet.
@@ -195,7 +194,7 @@ export default function SandboxPage() {
                 <Panel title={t("sb.log")} padded={false}>
                     {sandbox.log.length ? (
                         <ul className="divide-y divide-line" data-testid="sandbox-log">
-                            {sandbox.log.map((l, i) => <li key={i} className="px-4 py-2 text-xs text-ink-2"><span className="tabular-nums text-ink-3">{t("common.weekShort", { n: l.week })}</span> · {l.what}</li>)}
+                            {sandbox.log.map((l, i) => <li key={i} className="px-4 py-2 text-xs text-ink-2"><span className="tabular-nums text-ink-3">{t("common.weekShort", { n: l.week })}</span> · {l.whatRef ? tRef(l.whatRef) : l.what}</li>)}
                         </ul>
                     ) : <p className="px-4 py-6 text-sm text-ink-3">{t("sb.logEmpty")}</p>}
                 </Panel>

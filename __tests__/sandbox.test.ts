@@ -28,7 +28,7 @@ describe('C9: sandbox editor', () => {
         expect(t.teams[0]).toMatchObject({ name: 'New Name', shortName: 'NN' })
         expect(t.sandbox?.edits).toBe(4)
         expect(t.sandbox?.log[0].what).toMatch(/New Name/)
-        expect(applySandboxEdit(t, { kind: 'team', teamId: 't', name: 'New Name' })).toEqual({ ok: false, reason: 'Nothing changed' })
+        expect(applySandboxEdit(t, { kind: 'team', teamId: 't', name: 'New Name' })).toEqual({ ok: false, reason: 'Nothing changed', reasonRef: { key: 'sb.err.nothing' } })
     })
 
     it('blocks achievements for a sandbox save', async () => {
