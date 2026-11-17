@@ -95,21 +95,36 @@ const withIncome = (team: TeamSaveData, weekly: number) => {
 }
 
 describe("AI budget rule", () => {
-    test("a new recurring cost must leave the surplus in hand; cash alone is not enough", () => {
+    test("a new recurring cost must leave the surplus in hand; savings fund a bounded loss", () => {
         const save = world()
         const team = save.teams[20]
         withIncome(team, 20_000)
+        // The runway a club starts with is its reserve: nothing to draw on.
+        team.budget = 0
+        const tight = aiClubBudget(save, team)
+        expect(tight.reserveDraw).toBe(0)
+        team.budget = CLUB_ECONOMY_TUNING.STARTING_RUNWAY_WEEKS * tight.costs
         const budget = aiClubBudget(save, team)
+        expect(budget.reserveDraw).toBe(0)
         expect(budget.headroom).toBeGreaterThan(0)
         expect(budget.margin).toBe(Math.round(AI_ECONOMY_TUNING.SURPLUS_SHARE * budget.income))
         expect(budget.headroom).toBe(budget.net - budget.margin)
         expect(aiCanCommit(team, budget, Math.max(0, budget.headroom))).toBe(true)
         expect(aiCanCommit(team, budget, budget.headroom + 1)).toBe(false)
-        // A fortune in the bank does not fund a structural deficit...
+        // ENGINE-05: savings beyond that reserve count, spread over a season
+        // (CUT_RUNWAY_WEEKS), so a rich club can carry staff or a bench at a
+        // planned loss; the loss is bounded and leaves a season of runway.
         team.budget = 50_000_000
-        expect(aiCanCommit(team, budget, budget.headroom + 1)).toBe(false)
+        const rich = aiClubBudget(save, team)
+        expect(rich.reserveDraw).toBe(Math.floor((50_000_000 - CLUB_ECONOMY_TUNING.STARTING_RUNWAY_WEEKS * rich.costs) / AI_ECONOMY_TUNING.CUT_RUNWAY_WEEKS))
+        expect(rich.headroom).toBe(rich.net - rich.margin + rich.reserveDraw)
+        expect(aiCanCommit(team, rich, rich.headroom)).toBe(true)
+        expect(aiCanCommit(team, rich, rich.headroom + 1)).toBe(false)
+        const loss = -(rich.net - rich.headroom)
+        expect(team.budget / loss).toBeGreaterThan(AI_ECONOMY_TUNING.CUT_RUNWAY_WEEKS)
         // ...and a club in debt takes on nothing optional.
         team.budget = -1
+        expect(aiClubBudget(save, team).reserveDraw).toBe(0)
         expect(aiCanCommit(team, budget, 0)).toBe(false)
         // A fee keeps FEE_RESERVE_WEEKS of running costs in the bank.
         team.budget = budget.costs * AI_ECONOMY_TUNING.FEE_RESERVE_WEEKS + 10_000
@@ -174,6 +189,43 @@ describe("AI cost control", () => {
         indebted.budget = -10_000
         expect(aiClubBudget(save, indebted).net).toBeGreaterThan(0)
         expect(aiCostControl(save, indebted)).toBe("staff")
+    })
+
+    test("ENGINE-05: a loss the savings fund keeps the bench and staff; cost control resumes once the savings no longer cover it", () => {
+        const save = world()
+        const team = save.teams[15]
+        save.players.push(player("bench_a", 50))
+        team.rosterIds.push("bench_a")
+        save.contracts.push({ playerId: "bench_a", teamId: team.id, salaryPerWeek: 2_000, startWeek: 1, endWeek: 200, buyout: 0 })
+        save.staff.push({ id: "st_c", teamId: team.id, name: "Coach", role: "coach", salaryPerWeek: 1_800 } as never)
+        team.staffIds = ["st_c"]
+        const costs = aiClubBudget(save, team).costs
+        expect(aiClubBudget(save, team).net).toBeLessThan(0)
+        team.budget = 200 * costs
+        const budget = aiClubBudget(save, team)
+        expect(budget.net + budget.reserveDraw).toBeGreaterThanOrEqual(0)
+        expect(aiCostControl(save, team)).toBeNull()
+        expect(team.rosterIds).toContain("bench_a")
+        expect(team.staffIds).toEqual(["st_c"])
+        // Savings down to the reserve: the deficit is a deficit again.
+        team.budget = CLUB_ECONOMY_TUNING.STARTING_RUNWAY_WEEKS * costs
+        expect(aiCostControl(save, team)).toBe("bench")
+    })
+
+    test("ENGINE-05: a rich club with no surplus can hire a coach; a club at its reserve cannot", () => {
+        const save = world()
+        const team = save.teams[30]
+        const coach = 1_800
+        const base = aiClubBudget(save, team)
+        team.budget = CLUB_ECONOMY_TUNING.STARTING_RUNWAY_WEEKS * base.costs + coach * 2
+        const atReserve = aiClubBudget(save, team)
+        // No weekly surplus for a coach (the audit's typical club)...
+        expect(atReserve.net - atReserve.margin).toBeLessThan(coach)
+        expect(atReserve.reserveDraw).toBeLessThan(coach)
+        expect(aiCanCommit(team, atReserve, coach, coach * 2)).toBe(false)
+        // ...but with $7M in the bank it can carry one.
+        team.budget = 7_000_000
+        expect(aiCanCommit(team, aiClubBudget(save, team), coach, coach * 2)).toBe(true)
     })
 
     test("a profitable club changes nothing", () => {

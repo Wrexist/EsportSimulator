@@ -10,6 +10,14 @@
  *    income in hand. Before, signings only needed 26 weeks of cash against
  *    the deficit they created, so clubs knowingly signed into a deficit and
  *    ran out of money in season 2.
+ *    Savings count too, with a runway check (audit 11-17 ENGINE-05): cash
+ *    beyond the runway every club starts with (STARTING_RUNWAY_WEEKS of
+ *    running costs) may fund a planned weekly loss of up to that excess /
+ *    CUT_RUNWAY_WEEKS. Without it a club with
+ *    $7M in the bank could not hire a $1,800 coach, so staff and benches
+ *    thinned out over seasons while cash piled up. A loss funded this way
+ *    always leaves more than CUT_RUNWAY_WEEKS of runway (cost control never
+ *    undoes it the next week), and it shrinks as the savings do.
  *  - Cost control: a club running a weekly deficit (or in debt) releases
  *    its highest-paid bench player (one a week, as the competent managed
  *    policy does), then, while its runway is under a season, lets staff go,
@@ -26,7 +34,7 @@
 
 import type { GameSave, PlayerSaveData, TeamSaveData } from "../save-types"
 import { EconomyEngine } from "../economy-engine"
-import { AI_ECONOMY_TUNING } from "@/lib/balance-tuning"
+import { AI_ECONOMY_TUNING, CLUB_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { academyHeldPlayerIds, recruitmentRole, recruitmentSalary, MIN_ASKING_WAGE } from "../recruitment"
 import { applyRosterChangePenalty } from "../chemistry-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
@@ -42,7 +50,9 @@ export interface AIClubBudget {
     net: number
     /** Surplus kept in hand before taking on a new recurring cost. */
     margin: number
-    /** Recurring cost the club can still add per week: net - margin (negative = over budget). */
+    /** Weekly loss its savings may fund: (cash - STARTING_RUNWAY_WEEKS of costs) / CUT_RUNWAY_WEEKS, never negative. */
+    reserveDraw: number
+    /** Recurring cost the club can still add per week: net - margin + reserveDraw (negative = over budget). */
     headroom: number
 }
 
@@ -54,12 +64,15 @@ export function aiClubBudget(save: Pick<GameSave, "players" | "contracts" | "sta
     const income = report.income.total
     const costs = report.expenses.total + training
     const margin = Math.round(AI_ECONOMY_TUNING.SURPLUS_SHARE * Math.max(0, income))
-    return { income, costs, net: income - costs, margin, headroom: income - costs - margin }
+    const savings = Number.isFinite(team.budget) ? team.budget - CLUB_ECONOMY_TUNING.STARTING_RUNWAY_WEEKS * Math.max(0, costs) : 0
+    const reserveDraw = Math.max(0, Math.floor(savings / AI_ECONOMY_TUNING.CUT_RUNWAY_WEEKS))
+    return { income, costs, net: income - costs, margin, reserveDraw, headroom: income - costs - margin + reserveDraw }
 }
 
 /**
  * Can an AI club take on `weekly` more recurring cost and pay `fee` now?
- * Optional spending needs cash in hand, the surplus kept after the new cost,
+ * Optional spending needs cash in hand, the surplus kept after the new cost
+ * (savings beyond the reserve count, spread over a season: reserveDraw),
  * and a fee may not eat into AI_ECONOMY_TUNING.FEE_RESERVE_WEEKS of costs.
  */
 export function aiCanCommit(team: TeamSaveData, budget: AIClubBudget, weekly: number, fee = 0): boolean {
@@ -160,8 +173,8 @@ export function signAIPlayer(team: TeamSaveData, save: GameSave, player: PlayerS
 // ---------------------------------------------------------------- cost control
 
 /**
- * Weekly cost control for an AI club running a deficit, or in debt. One step
- * a week:
+ * Weekly cost control for an AI club running a deficit its savings do not
+ * cover (net + reserveDraw < 0), or in debt. One step a week:
  *   1. release the highest-paid bench player (beyond five);
  *   2. while the runway is short, let the highest-paid staff member go;
  *   3. while the runway is short, close a level of its costliest facility
@@ -174,7 +187,9 @@ export function signAIPlayer(team: TeamSaveData, save: GameSave, player: PlayerS
 export function aiCostControl(save: GameSave, team: TeamSaveData, pool?: () => PlayerSaveData[]): "bench" | "staff" | "facility" | "swap" | null {
     const budget = aiClubBudget(save, team)
     const inDebt = team.budget < 0
-    if (budget.net >= 0 && !inDebt) return null
+    // A planned loss its savings fund (aiClubBudget.reserveDraw) is not a
+    // deficit to cut: it is what the club took on the bench or staff for.
+    if (budget.net + budget.reserveDraw >= 0 && !inDebt) return null
     // 1. Bench beyond five, highest wage first.
     if (team.rosterIds.length > 5) {
         const players = playersById(save, team.rosterIds)
