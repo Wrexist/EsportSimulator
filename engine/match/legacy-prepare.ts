@@ -12,6 +12,7 @@ import type { CustomTactics, Match, Player, Team, MatchManagementRecord, MatchRe
 import { simulationEngineV2 } from '../match-simulation'
 import { buildMatchStaff } from './live-staff-adapter'
 import type { LegacySeriesContext } from './legacy-series'
+import { NON_PLAYER_BONUS_CAP, staffStrengthBonus } from './team-strength'
 
 interface StaffSource { id: string; name: string; level: number; salaryPerWeek: number; role: string; unlockedTalentIds?: string[] }
 interface TeamLike { id: string; staffIds?: string[] }
@@ -69,6 +70,10 @@ export function buildManagementRecord(args: {
     const mine = own.team.playstyle, theirs = opponent.team.playstyle
     const counter = !mine || mine === 'default' || !theirs || theirs === 'default' || mine === theirs ? 'neutral'
         : counters[mine] === theirs ? 'advantage' : counters[theirs] === mine ? 'disadvantage' : 'neutral'
+    // The counter shares NON_PLAYER_BONUS_CAP with staff (team-edge.ts, team-strength.ts):
+    // record what it really changed, so the result screen never claims +4% that the cap absorbed.
+    const staffBonus = staffStrengthBonus(own.staff)
+    const counterEdge = Math.round((Math.min(NON_PLAYER_BONUS_CAP, staffBonus + ((own.counterMod ?? 1) - 1)) - Math.min(NON_PLAYER_BONUS_CAP, staffBonus)) * 10000) / 10000
     return {
         teamId: own.team.id,
         playstyle: mine ?? 'default',
@@ -77,7 +82,7 @@ export function buildManagementRecord(args: {
         mentalPrep: !!args.match.mentalPrep && (args.match.mentalPrepTeamId ?? ctx.home.team.id) === own.team.id,
         ...(own.team.targetPlayerId ? { targetPlayerId: own.team.targetPlayerId } : {}),
         opponentScouted: scouted,
-        ...(scouted ? { counter } : {}),
+        ...(scouted ? { counter, counterEdge } : {}),
         timeoutsUsed: Math.max(0, Math.min(2, args.timeoutsUsed)),
         strategyCalls: args.maps.reduce((n, m) => n + m.rounds.filter(r => r.managerCall?.strategy).length, 0),
         mode: args.mode,
