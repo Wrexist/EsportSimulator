@@ -6258,6 +6258,8 @@
  "stop.grp.contract.few": "{{count}} контракта истекают в ближайшие {{weeks}} нед.",
  "stop.grp.contract.many": "{{count}} контрактов истекают в ближайшие {{weeks}} нед.",
  "stop.grp.contract.other": "{{count}} контракта истекают в ближайшие {{weeks}} нед.",
+ "stop.errorWeek": "Не удалось перейти к следующей неделе: {{error}}",
+ "stop.errorCalendar": "Не удалось сдвинуть календарь",
  "share.announce": "Объявить в Discord",
  "share.posting": "Публикация…",
  "share.retry": "Попробовать снова",

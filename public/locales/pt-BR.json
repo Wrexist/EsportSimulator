@@ -6089,6 +6089,8 @@
  "stop.grp.contract.one": "{{count}} contrato termina em até {{weeks}} semanas",
  "stop.grp.contract.many": "{{count}} contratos terminam em até {{weeks}} semanas",
  "stop.grp.contract.other": "{{count}} contratos terminam em até {{weeks}} semanas",
+ "stop.errorWeek": "Não foi possível avançar a semana: {{error}}",
+ "stop.errorCalendar": "Não foi possível avançar o calendário",
  "share.announce": "Anunciar no Discord",
  "share.posting": "Publicando…",
  "share.retry": "Tentar de novo",

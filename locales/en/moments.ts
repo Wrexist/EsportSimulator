@@ -136,6 +136,8 @@ export const MOMENTS = {
     "stop.grp.injury.other": "{{count}} players are injured",
     "stop.grp.contract.one": "{{count}} contract ends within {{weeks}} weeks",
     "stop.grp.contract.other": "{{count}} contracts end within {{weeks}} weeks",
+    "stop.errorWeek": "The week could not advance: {{error}}",
+    "stop.errorCalendar": "The calendar could not advance",
 
     "share.announce": "Announce in Discord",
     "share.posting": "Posting…",

@@ -6258,6 +6258,8 @@
  "stop.grp.contract.few": "{{count}} kontrakty kończą się w ciągu {{weeks}} tygodni",
  "stop.grp.contract.many": "{{count}} kontraktów kończy się w ciągu {{weeks}} tygodni",
  "stop.grp.contract.other": "{{count}} kontraktu kończy się w ciągu {{weeks}} tygodni",
+ "stop.errorWeek": "Nie udało się przejść do kolejnego tygodnia: {{error}}",
+ "stop.errorCalendar": "Nie udało się przesunąć kalendarza",
  "share.announce": "Ogłoś na Discordzie",
  "share.posting": "Publikowanie…",
  "share.retry": "Spróbuj ponownie",

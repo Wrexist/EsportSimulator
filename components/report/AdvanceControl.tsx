@@ -17,7 +17,7 @@ import { useShallow } from "zustand/react/shallow"
 import { ArrowRight, ChevronDown, Loader2, Play, Swords, X } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { selectPlayableMatchId } from "@/lib/playable-match"
-import { advanceStopStillOpen, forfeitStops, type StopSource } from "@/lib/advance-stops"
+import { advanceStopStillOpen, forfeitStops, stopActionText, stopReasonText, type StopSource } from "@/lib/advance-stops"
 import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -253,7 +253,7 @@ function StopNotice() {
             <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                     <p className={cn("text-[11px] font-semibold uppercase tracking-[0.08em]", stop.kind === "match" ? "text-gold" : "text-ink-3")}>{headline}</p>
-                    <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{stop.kind === "cancelled" ? t("advance.youPaused") : stop.reason}</p>
+                    <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{stop.kind === "cancelled" ? t("advance.youPaused") : stopReasonText(stop)}</p>
                 </div>
                 <button type="button" onClick={dismiss} aria-label={t("advance.dismiss")} className="-mr-1 -mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1">
                     <X size={14} />
@@ -266,7 +266,7 @@ function StopNotice() {
                     onClick={dismiss}
                     className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline"
                 >
-                    {stop.actionLabel} <ArrowRight size={12} />
+                    {stopActionText(stop)} <ArrowRight size={12} />
                 </Link>
             )}
         </div>

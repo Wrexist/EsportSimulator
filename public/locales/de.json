@@ -5920,6 +5920,8 @@
  "stop.grp.injury.other": "{{count}} Spieler sind verletzt",
  "stop.grp.contract.one": "{{count}} Vertrag endet innerhalb von {{weeks}} Wochen",
  "stop.grp.contract.other": "{{count}} Verträge enden innerhalb von {{weeks}} Wochen",
+ "stop.errorWeek": "Die Woche konnte nicht weiterlaufen: {{error}}",
+ "stop.errorCalendar": "Der Kalender konnte nicht weiterlaufen",
  "share.announce": "Auf Discord verkünden",
  "share.posting": "Wird gepostet …",
  "share.retry": "Erneut versuchen",
