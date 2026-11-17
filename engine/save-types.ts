@@ -1364,7 +1364,7 @@ export interface SaveSlotMetadata {
     /** The career has no club right now (job market open); teamName holds a label. */
     betweenClubs?: boolean
     /** G7: a Draft Cup run (its difficulty, and the finish and score once settled). */
-    draftCup?: { difficulty: string; finish?: string; score?: number }
+    draftCup?: { difficulty: string; finish?: string; score?: number; round?: "quarter" | "semi" | "final" }
     /** C9: the sandbox editor is on for this save (no achievements). */
     sandbox?: boolean
     /** C10: a pro career; the pro's nickname. */
@@ -1374,6 +1374,8 @@ export interface SaveSlotMetadata {
     // surfaced (rather than silently dropped) so the player can see it and
     // attempt recovery.
     isCorrupted?: boolean
+    /** START-58: a corrupted save with no backup or cloud copy, so Recover cannot help. */
+    noBackup?: boolean
 
     // Phase 2 Upgrade: Rich Metadata
     teamLogo?: string

@@ -160,6 +160,7 @@ export const SETTINGS = {
     "settings.toast.loadFailed": "Unable to load current save.",
     "settings.toast.exported": "Save exported",
     "settings.toast.exportedBody": "Your save file has been downloaded.",
+    "settings.toast.alreadyImported": "This career is already on this device. Load it from the Load game screen.",
     "common.unknownError": "Unknown error",
 
     "achievements.loading": "Loading achievements…",

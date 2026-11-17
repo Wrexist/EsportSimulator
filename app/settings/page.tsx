@@ -110,11 +110,16 @@ export default function SettingsPage() {
   const handleImportSave = async (file: File) => {
     try {
       const text = await file.text()
-      const { save, error, errorCode } = saveManager.importSave(text)
+      const { save, error, errorCode, source } = saveManager.importSave(text)
       if (!save || error) {
         // START-30: plain words for the player, the schema detail for the log.
         if (error) debug.error("Import failed:", error)
         toast({ title: t("settings.toast.importFailed"), description: errorCode === "NEWER_VERSION" ? t("lg.err.newerBody") : t("settings.toast.invalidSave"), variant: "destructive" })
+        return
+      }
+      // START-59: the same file twice would list two identical careers.
+      if (await saveManager.isDuplicateImport(save, source)) {
+        toast({ title: t("settings.toast.importFailed"), description: t("settings.toast.alreadyImported") })
         return
       }
       const result = await saveManager.saveGame(save)
@@ -122,7 +127,10 @@ export default function SettingsPage() {
         toast({ title: t("settings.toast.importFailed"), description: result.error || t("settings.toast.persistFailed"), variant: "destructive" })
         return
       }
-      toast({ title: t("settings.toast.imported"), description: t("settings.toast.importedBody", { name: save.saveName }) })
+      // Load game titles careers by club, so the toast names the club too.
+      const club = save.teams.find(team => team.id === save.playerTeamId)?.name
+      const name = club && club !== save.saveName ? `${club} (${save.saveName})` : save.saveName
+      toast({ title: t("settings.toast.imported"), description: t("settings.toast.importedBody", { name }) })
     } catch (e) {
       debug.error("Import failed:", e)
       toast({ title: t("settings.toast.importFailed"), description: t("settings.toast.invalidSave"), variant: "destructive" })

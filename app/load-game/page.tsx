@@ -31,6 +31,25 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { SaveSlotMetadata } from "@/engine"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
+/** START-57: a running cup's round ("Semi-finals"), or its finish once settled. */
+const DC_ROUND_KEY = { quarter: "stage.quarterfinals", semi: "stage.semifinals", final: "stage.grandFinal" } as const
+function draftCupProgress(cup: NonNullable<SaveSlotMetadata["draftCup"]>): string {
+    if (cup.finish && ["champion", "final", "semi", "quarter"].includes(cup.finish)) return t(`dc.finish.${cup.finish}`)
+    return cup.round ? t(DC_ROUND_KEY[cup.round]) : t("lg.inProgress")
+}
+
+/** START-58: saves whose recovery found no usable backup, kept for this session. */
+const NO_BACKUP_KEY = "esports_no_backup_ids"
+function readNoBackupIds(): Set<string> {
+    try {
+        const raw = sessionStorage.getItem(NO_BACKUP_KEY)
+        const ids: unknown = raw ? JSON.parse(raw) : []
+        return new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : [])
+    } catch {
+        return new Set()
+    }
+}
+
 /** G7: "Draft Cup · Pro · Semi-finalists · 455" (or "in progress"). */
 function draftCupSlotLabel(cup: { difficulty: string; finish?: string; score?: number }): string {
     const difficulty = DRAFT_CUP_DIFFICULTIES.includes(cup.difficulty as DraftCupDifficulty) ? t(`dc.diff.${cup.difficulty}`) : cup.difficulty
@@ -98,7 +117,9 @@ function LoadGamePageInner() {
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     // START-36: a save whose recovery found no backup can only fail again.
+    // START-58: kept for the session, so leaving the page does not offer it again.
     const [noBackupIds, setNoBackupIds] = useState<ReadonlySet<string>>(new Set())
+    useEffect(() => { setNoBackupIds(readNoBackupIds()) }, [])
 
     // useCallback keeps the effect dep stable.
     const refreshSlots = useCallback(async () => {
@@ -139,7 +160,11 @@ function LoadGamePageInner() {
         setRecoveringSlotId(id)
         try {
             if (await attemptSaveRecovery(id)) router.push("/")
-            else if (useGameStore.getState().lastLoadError?.errorCode === "RECOVERY_FAILED") setNoBackupIds(prev => new Set(prev).add(id))
+            else if (useGameStore.getState().lastLoadError?.errorCode === "RECOVERY_FAILED") {
+                const next = new Set(noBackupIds).add(id)
+                setNoBackupIds(next)
+                try { sessionStorage.setItem(NO_BACKUP_KEY, JSON.stringify([...next])) } catch { /* the hint is optional */ }
+            }
         } finally {
             setRecoveringSlotId(null)
         }
@@ -174,6 +199,8 @@ function LoadGamePageInner() {
         const isCorrupted = code === "CORRUPTED" || code === "INTEGRITY_FAILED"
         const isCloudConflict = code === "CLOUD_CONFLICT"
         const recoveryFailed = code === "RECOVERY_FAILED"
+        // START-58: a corrupted save with no backup left gets Delete, not a Recover that can only fail.
+        const noRecovery = !!slot.noBackup || (!!slot.saveId && noBackupIds.has(slot.saveId))
         const heading = isCloudConflict ? t("lg.err.cloud") : isNewerVersion
             ? t("lg.err.newer")
             : recoveryFailed ? t("lg.err.noBackup")
@@ -212,7 +239,7 @@ function LoadGamePageInner() {
                                     <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "cloud")}>{t("lg.useCloud")}</Button>
                                     <Button size="sm" variant="ghost" onClick={clearLoadError}>{t("ng.cancel")}</Button>
                                 </>
-                            ) : recoveryFailed ? (
+                            ) : recoveryFailed || (isCorrupted && noRecovery) ? (
                                 <>
                                     <Button size="sm" variant="outline" className="text-negative!" disabled={isDeleting} onClick={() => slot.saveId && setDeleteTarget(slot.saveId)}>{t("lg.deleteSave")}</Button>
                                     <Button size="sm" variant="ghost" onClick={clearLoadError}>{t("lg.dismiss")}</Button>
@@ -292,7 +319,7 @@ function LoadGamePageInner() {
                                                     <div className="min-w-0">
                                                         <h3 className="truncate text-[15px] font-semibold text-ink-1">{slot.teamName || slot.saveName || t("lg.unnamed")}</h3>
                                                         <p className="truncate text-xs text-ink-3">
-                                                            {corrupted ? t("lg.unreadable") : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
+                                                            {corrupted ? t("lg.unreadable") : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.pro ? `${t("ng.path.pro")} · ${slot.pro}` : slot.saveName || "—"}
                                                             {isActive && <span className="ml-2 font-semibold text-gold">{t("lg.loaded")}</span>}
                                                             {slot.sandbox && <span className="ml-2 rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution" title={t("lg.sandboxTip")}>{t("ng.sandbox")}</span>}
                                                             {slot.saveId?.startsWith("imported_") && <span className="ml-2 rounded-sm bg-raised px-1.5 py-0.5 text-[11px] font-semibold text-ink-2">{t("lg.imported")}</span>}
@@ -300,7 +327,7 @@ function LoadGamePageInner() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-3 text-sm text-ink-2">{slot.currentWeek ? seasonWeek(slot.currentWeek) : "—"}</td>
+                                            <td className="px-3 text-sm text-ink-2">{slot.draftCup ? draftCupProgress(slot.draftCup) : slot.currentWeek ? seasonWeek(slot.currentWeek) : "—"}</td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.stats ? `${slot.stats.wins}–${slot.stats.losses}` : "—"}</td>
                                             <td className="px-3">
                                                 <div className="flex items-center justify-end gap-2">
@@ -308,12 +335,12 @@ function LoadGamePageInner() {
                                                     <span className="text-sm tabular-nums text-ink-2">{slot.stats ? slot.stats.tournamentsWon : "—"}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.budget !== undefined ? formatCurrency(slot.budget) : "—"}</td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.budget !== undefined && !slot.draftCup && !slot.pro ? formatCurrency(slot.budget) : "—"}</td>
                                             <td className="px-3 text-sm text-ink-3">{formatDate(slot.updatedAt)}</td>
                                             <td className="w-44 pr-4">
                                                 <div className="flex items-center justify-end gap-1.5">
                                                     {corrupted ? (
-                                                        !(slot.saveId && noBackupIds.has(slot.saveId)) && (
+                                                        !slot.noBackup && !(slot.saveId && noBackupIds.has(slot.saveId)) && (
                                                             <Button size="sm" variant="outline" disabled={recoveringSlotId === slot.saveId} onClick={() => slot.saveId && handleRecover(slot.saveId)}>
                                                                 {recoveringSlotId === slot.saveId ? t("lg.recovering") : t("lg.recover")}
                                                             </Button>
