@@ -325,11 +325,13 @@ describe('round script builder', () => {
         expect(new Set(scripts.map(s => s.script.plan.ctSetup)).size).toBeGreaterThanOrEqual(3)
     })
 
-    // Target is ~1-2 ms per round (measured by the calibration harness's
-    // ms_per_map). The test guards against order-of-magnitude regressions
-    // only: the median ignores GC spikes, and the 3x headroom keeps it from
-    // failing when the full suite runs in parallel on a busy machine.
-    it('builds a round fast (median under 6 ms, walk graph warm)', () => {
+    // The test guards against order-of-magnitude regressions only: the
+    // median ignores GC spikes, and 3x headroom keeps it from failing when
+    // the full suite runs in parallel on a busy machine. Measured 2026-11-18
+    // on the 4-core dev box, run alone: median 5.0-5.6 ms on main f7bb5498
+    // and the same after the audit merges, so the old 6 ms limit (from a
+    // ~1-2 ms estimate) had ~15% headroom and failed under the full suite.
+    it('builds a round fast (median under 15 ms, walk graph warm)', () => {
         const times: number[] = []
         for (const { played } of scripts) {
             const t0 = performance.now()
@@ -337,7 +339,7 @@ describe('round script builder', () => {
             times.push(performance.now() - t0)
         }
         times.sort((a, b) => a - b)
-        expect(times[Math.floor(times.length / 2)]).toBeLessThan(6)
+        expect(times[Math.floor(times.length / 2)]).toBeLessThan(15)
     })
 })
 
