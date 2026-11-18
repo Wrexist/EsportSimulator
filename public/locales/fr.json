@@ -1131,6 +1131,7 @@
  "matchError.simulate": "Simuler à la place",
  "matchError.retry": "Réessayer",
  "matchError.preparing": "Préparation du match",
+ "matchGuard.finished": "Match terminé : {{home}} {{homeScore}}–{{awayScore}} {{away}}",
  "playbook.situation.pistol": "Round pistolet",
  "playbook.situation.force": "Force / half buy",
  "playbook.situation.full": "Full buy",

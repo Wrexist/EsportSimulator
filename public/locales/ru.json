@@ -1156,6 +1156,7 @@
  "matchError.simulate": "Симулировать вместо этого",
  "matchError.retry": "Попробовать снова",
  "matchError.preparing": "Подготовка матча",
+ "matchGuard.finished": "Матч завершён: {{home}} {{homeScore}}–{{awayScore}} {{away}}",
  "playbook.situation.pistol": "Пистолетный раунд",
  "playbook.situation.force": "Форс / полузакуп",
  "playbook.situation.full": "Фулл-бай",
