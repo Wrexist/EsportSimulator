@@ -7101,8 +7101,8 @@
     },
     {
       "path": "data/tournaments.json",
-      "sha256": "0303cac8e674c7914b035fbd99ada21dbf38fc76023a43d0a60f42735839b4b7",
-      "bytes": 30269,
+      "sha256": "ba9620946d28204ebc2573abcc735e28687fe3ba1e70e3859bdb21a5180e5916",
+      "bytes": 30243,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -7141,6 +7141,11 @@
           "date": "2026-11-18",
           "previousSha256": "9bccd6195ca7d1ced8c799504d799b1c605cb0fe8b3121f82c8921c291b59b51",
           "change": "Audit 2026-11-17 fixes: event descriptions match the real formats (COMP-20). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "0303cac8e674c7914b035fbd99ada21dbf38fc76023a43d0a60f42735839b4b7",
+          "change": "Audit 2026-11-17 smoke-test fixes: repaired mangled Cologne qualifier short names and one description word left by the branding transform (SMOKE-B-06). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
@@ -91993,8 +91998,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "845431407b51e02c088d03d33fe5fd25d34d491cd20cf88c429f50f66484baa4",
-      "bytes": 429606,
+      "sha256": "d2b41cee4ece0b1d5ef9472f24d5fa3e3cbc16624501d1ba8ef4ca21ac6296cd",
+      "bytes": 430398,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92169,13 +92174,18 @@
           "date": "2026-11-18",
           "previousSha256": "f743b989796364ddb7d025f400cf0ac9f770bbb873e7c318d51611d902f66133",
           "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "845431407b51e02c088d03d33fe5fd25d34d491cd20cf88c429f50f66484baa4",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "022a33eadb309381f509e19758581f27a6125d5d8c28e3042dca04856905b4ec",
-      "bytes": 452771,
+      "sha256": "cd7c1d57f8e3c0742f9d24f4576f8c89c6f5d9d05f41025134fae61cc86e4540",
+      "bytes": 453552,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92345,13 +92355,18 @@
           "date": "2026-11-18",
           "previousSha256": "4dac3c5e156d9cd162f1332c346767937681a9872747d604aa1047b89356e5cc",
           "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "022a33eadb309381f509e19758581f27a6125d5d8c28e3042dca04856905b4ec",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "90fb51d834c511915ea36caa8a1a485e1062901e2ee22c1e8a322e6258db2718",
-      "bytes": 461772,
+      "sha256": "25f0cff6527cabc1d99462888a7dd0ce8b729695fdfc1fb6431b99648032e7f9",
+      "bytes": 462545,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92521,13 +92536,18 @@
           "date": "2026-11-18",
           "previousSha256": "321bb4cad3a8e9a0cf4423d4918c05ec97f6634241f23134f00ebfa0ab8d1eec",
           "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "90fb51d834c511915ea36caa8a1a485e1062901e2ee22c1e8a322e6258db2718",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "0d9b970f6970705dff49ac64c4cf9ea3814bd585e3cb7d235cead3b87da19a43",
-      "bytes": 461400,
+      "sha256": "44ddd63f597883d25c29a3ee1095522c3635bbc660836badbce45b1ec38d1cb6",
+      "bytes": 462173,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92692,13 +92712,18 @@
           "date": "2026-11-18",
           "previousSha256": "a81cd0acc4351b9276de8db6d6f1c48868740a03b83048b75bb449b1026d52ed",
           "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "0d9b970f6970705dff49ac64c4cf9ea3814bd585e3cb7d235cead3b87da19a43",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "cfd8fcbc3c178135399c44b6dfb750b10ad0c3f3470a9e26e7d5735643349c0b",
-      "bytes": 446361,
+      "sha256": "1fa5ca1ba975d0cda46e902ee1098d453eda2a1dab2a7b296e83ad4e9030cbc0",
+      "bytes": 447150,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92863,13 +92888,18 @@
           "date": "2026-11-18",
           "previousSha256": "9f8da58afc15206d788da836af55f01a521a2a0e515684f15c7a741e2f00e2ca",
           "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "cfd8fcbc3c178135399c44b6dfb750b10ad0c3f3470a9e26e7d5735643349c0b",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "f2b3eb8c2ed3ca7eccc2ba787531cf53540349384fae164670063693e4302b59",
-      "bytes": 630791,
+      "sha256": "80c85997e52ae314716f4f5ff49ef7bb68b0b2e2c7bdcf2219234dd40a94bc1e",
+      "bytes": 631921,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -93034,6 +93064,11 @@
           "date": "2026-11-18",
           "previousSha256": "6fb2c57ea2efe8f8c6d5d6b8a92de3dd91fe97f0e1b3530babe9315cec4549ee",
           "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "f2b3eb8c2ed3ca7eccc2ba787531cf53540349384fae164670063693e4302b59",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
