@@ -269,6 +269,10 @@ export function updateStandings(
 ): void {
     save.tournaments.forEach(tournament => {
         if (onlyTournamentId && tournament.id !== onlyTournamentId) return
+        // A settled event's table is final (COMP-06): its matches later fall
+        // out of the capped completedMatches list, and a rebuild from what is
+        // left would zero the table and reorder the places.
+        if (tournament.rewardsGranted) return
         const seen = new Set<string>()
         const tournamentMatches = save.completedMatches.filter(m => {
             if (m.tournamentId !== tournament.id || seen.has(m.id)) return false
@@ -278,7 +282,6 @@ export function updateStandings(
 
         recomputeStandings(tournament, tournamentMatches)
 
-        if (tournament.rewardsGranted) return
         const winnerTeamId = terminalTournamentWinner(save, tournament)
         if (!winnerTeamId) return
         tournament.isCompleted = true
