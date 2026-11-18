@@ -100,7 +100,7 @@ describe("HOME-08: the top-10 clash item", () => {
     test("a first meeting says so instead of a 0 - 0 record", () => {
         const item = clash(0)
         expect(item.content).not.toMatch(/0 ?[-–] ?0/)
-        expect(item.content).toContain("never played each other")
+        expect(item.content).toContain("first meeting between")
         expect(item.contentRef?.key).toBe("nw.rivalry.first")
         expect(item.titleRef?.key).toBe("nw.rivalry.t")
     })

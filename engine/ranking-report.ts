@@ -10,6 +10,7 @@
 
 import type { CompletedMatchSaveData, GameSave } from "./save-types"
 import type { ChangeCause, ChangeEntry } from "@/lib/week-changes"
+import { eventDisplayName } from "@/lib/tournament-instances"
 import { IMPORTANCE_LABEL, isPlayoffStage, matchImportance, rankMovement, type RankMovement } from "./world-ranking"
 
 type MatchRef = Pick<CompletedMatchSaveData, "tournamentId" | "stage">
@@ -27,7 +28,7 @@ export function competitionLabel(save: Pick<GameSave, "tournaments">, match: Mat
         return ` · ${division || "League"} (League)`
     }
     const playoff = isPlayoffStage(match.stage) ? " playoffs" : ""
-    return ` · ${tournament?.name ?? "Event"} (${IMPORTANCE_LABEL[importance]}${playoff})`
+    return ` · ${tournament?.name ? eventDisplayName(tournament.name) : "Event"} (${IMPORTANCE_LABEL[importance]}${playoff})`
 }
 
 const signed = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : "±"}${Math.abs(Math.round(n))}`

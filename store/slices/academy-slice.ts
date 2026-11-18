@@ -157,7 +157,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 ),
                 category: "FACILITY",
                 teamId: team.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
 
@@ -215,7 +215,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 ),
                 category: "FACILITY",
                 teamId: team.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
 
@@ -536,7 +536,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 category: "TRANSFER",
                 teamId: team.id,
                 playerId: player.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
 
@@ -784,7 +784,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 const assigned = employedScout(state.staff.filter(s => s.id === mission.scoutId), team, state.currentWeek)
                 if (!assigned) {
                     mission.weeksRemaining = 0
-                    state.newsFeed.unshift({ id: nextDeterministicId(state, "academy_scout_cancel", mission.id), ...newsText({ key: "nw.scoutCancel.t" }, { key: "nw.scoutCancel.c" }), category: "STAFF", week: state.currentWeek, teamId: team.id })
+                    state.newsFeed.unshift({ id: nextDeterministicId(state, "academy_scout_cancel", mission.id), ...newsText({ key: "nw.scoutCancel.t" }, { key: "nw.scoutCancel.c" }), category: "STAFF", week: state.currentWeek, day: state.currentDay, teamId: team.id })
                     return
                 }
                 mission.weeksRemaining--
@@ -828,7 +828,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                             { key: "nw.scoutDone.c", params: { name: playerData.nickname, age: playerData.age } },
                         )),
                     category: "STAFF",
-                    week: state.currentWeek,
+                    week: state.currentWeek, day: state.currentDay,
                     teamId: team.id,
                 })
             })

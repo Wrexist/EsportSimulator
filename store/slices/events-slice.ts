@@ -219,7 +219,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => {
         state.newsFeed.unshift({
             ...item,
             id,
-            week: state.currentWeek,
+            week: state.currentWeek, day: state.currentDay,
         })
         // Bound the feed so long campaigns don't bloat the save.
         if (state.newsFeed.length > NEWS_FEED_CAP) {

@@ -45,6 +45,14 @@ export function instanceName(definition: Pick<TournamentDefinition, "name" | "st
 }
 
 /**
+ * An instance name for text the player reads (HOME-23): the " S2" season
+ * marker stays in the stored name (trophies, ledger) but not in a sentence.
+ */
+export function eventDisplayName(name: string): string {
+    return name.replace(/\s+S\d+$/, "")
+}
+
+/**
  * This season's instance of a calendar event, if it has been created yet.
  * Never falls back to last season's instance: that one's status and teams
  * belong to a different event.

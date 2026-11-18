@@ -261,7 +261,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                     ),
                     category: "TOURNAMENT",
                     teamId: teamId,
-                    week: state.currentWeek,
+                    week: state.currentWeek, day: state.currentDay,
                 })
                 if (state.newsFeed.length > 50) state.newsFeed.pop()
             }

@@ -8,7 +8,7 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { t } from "@/lib/i18n"
 import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
-import { newsContent, newsTitle } from "@/lib/news-text"
+import { newsContent, newsDay, newsTitle, sortNewsByDate } from "@/lib/news-text"
 
 // Hoisted: built once at module load instead of per item per render.
 const CATEGORY_ICON_MAP: Record<string, ReactNode> = {
@@ -45,12 +45,10 @@ export function NewsFeed({ limit }: { limit?: number }) {
         return m
     }, [teams])
 
-    // Newest week first. Items of one week keep their stored order (newest
-    // first): the week tick and match results add to the feed at different
-    // times, so the stored array can jump back and forth in time (HOME-07).
-    const sorted = useMemo(() => (newsFeed ?? []).map((item, i) => ({ item, i })).sort((a, b) => b.item.week - a.item.week || a.i - b.i).map(x => x.item), [newsFeed])
     // Match day of a result item: stored on newer items, else from the match.
     const dayByMatchId = useMemo(() => new Map(completedMatches.map(m => [m.id, m.day])), [completedMatches])
+    // Newest first by week and day (HOME-07, NEWPLAYER-16).
+    const sorted = useMemo(() => sortNewsByDate(newsFeed ?? [], dayByMatchId), [newsFeed, dayByMatchId])
 
     if (!newsFeed || newsFeed.length === 0) {
         return (
@@ -78,7 +76,7 @@ export function NewsFeed({ limit }: { limit?: number }) {
                 // The day it happened (a match result: its match day), else the week's first day.
                 let dateStr = ""
                 try {
-                    const day = item.day ?? (item.matchId ? dayByMatchId.get(item.matchId) : undefined) ?? 0
+                    const day = newsDay(item, dayByMatchId)
                     const d = gameStartDate ? gameCalendarDate(gameStartDate, item.week, day) : null
                     if (d && !isNaN(d.getTime())) dateStr = formatGameCalendarDate(d, { month: "short", day: "numeric" })
                 } catch {

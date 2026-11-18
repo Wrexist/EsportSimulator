@@ -228,7 +228,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
                 contentRef: hiredBody,
                 category: "STAFF",
                 teamId: team.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
                 engagement: {
                     likes: nextRandomInt(state, 200, 1199),
                     views: nextRandomInt(state, 1000, 10999),
@@ -340,7 +340,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
                 contentRef: leftBody,
                 category: "STAFF",
                 teamId: team?.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
                 engagement: {
                     likes: nextRandomInt(state, 20, 219),
                     views: nextRandomInt(state, 200, 2199),
