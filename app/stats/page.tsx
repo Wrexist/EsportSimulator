@@ -95,9 +95,11 @@ export default function StatsPage() {
         .map(({ m }) => m),
     [completedMatches, playerTeamId])
 
+    // Official matches only: scrims never count toward a record, as on Home (SMOKE-A-08).
     const record = useMemo(() => {
+        const official = teamMatches.filter(m => !m.isScrim)
         let w = 0, mapW = 0, mapL = 0
-        for (const m of teamMatches) {
+        for (const m of official) {
             if (won(m, playerTeamId)) w++
             const home = ourSide(m, playerTeamId)
             for (const map of m.result.maps || []) {
@@ -106,7 +108,7 @@ export default function StatsPage() {
                 if (mapWon) mapW++; else mapL++
             }
         }
-        return { w, l: teamMatches.length - w, mapW, mapL, rate: teamMatches.length ? Math.round((w / teamMatches.length) * 100) : 0 }
+        return { w, l: official.length - w, mapW, mapL, rate: official.length ? Math.round((w / official.length) * 100) : 0 }
     }, [teamMatches, playerTeamId])
 
     // Per-player lines from this club's matches only (oldest → newest for the trend).
