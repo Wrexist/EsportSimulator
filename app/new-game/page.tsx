@@ -107,7 +107,8 @@ export default function TeamSelectionPage() {
     const [managerLevel, setManagerLevel] = useState(1)
     const [sandboxMode, setSandboxMode] = useState(false)
     // G14: new players and rosters shuffled between clubs of the same tier.
-    const [randomWorld, setRandomWorld] = useState(false)
+    // NEWPLAYER-09: on by default, so every new career starts in a freshly shuffled world.
+    const [randomWorld, setRandomWorld] = useState(true)
     const [difficulty, setDifficulty] = useState<CareerDifficulty>("normal")
 
     useEffect(() => {
@@ -123,7 +124,7 @@ export default function TeamSelectionPage() {
         if (draft) {
             setManagerName(draft.managerName)
             setSandboxMode(!!draft.sandbox)
-            setRandomWorld(!!draft.randomWorld)
+            setRandomWorld(draft.randomWorld ?? true)
             if (draft.difficulty) setDifficulty(draft.difficulty)
             // Reopen the club list only when the player left from there (START-07).
             if (draft.step === 'team-select' && draft.managerName.trim().length >= 2) setCurrentStep('team-select')
@@ -637,9 +638,8 @@ export default function TeamSelectionPage() {
                                             {selectedRoster.length} / 5{selectedRoster.length < 5 ? ` · ${t("ng.rosterSign", { n: 5 - selectedRoster.length })}` : ""}
                                         </span>
                                     </div>
-                                    {randomWorld ? (
-                                        <p className="border-t border-line px-5 py-3 text-sm text-ink-2">{t("ng.randomRoster")}</p>
-                                    ) : (
+                                    {/* The previewed world is the one the career gets, so the shuffled roster is shown as it will be. */}
+                                    {randomWorld && <p className="border-t border-line px-5 py-3 text-sm text-ink-2">{t("ng.randomRoster")}</p>}
                                     <table data-slot="table" className="w-full border-collapse text-left">
                                         <tbody>
                                             {selectedRoster.map(({ player, ovr }) => (
@@ -663,7 +663,6 @@ export default function TeamSelectionPage() {
                                             ))}
                                         </tbody>
                                     </table>
-                                    )}
                                 </section>
 
                                 {challenge && (

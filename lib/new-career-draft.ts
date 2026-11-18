@@ -22,7 +22,8 @@ export function normalizeCareerDraft(raw: unknown): NewCareerDraft | null {
     const result: NewCareerDraft = { version: 1, managerName: v.managerName.slice(0, 40), sandbox: v.sandbox === true }
     if (typeof v.teamId === 'string' && v.teamId.length < 120) result.teamId = v.teamId
     if (typeof v.difficulty === 'string' && Object.hasOwn(CAREER_DIFFICULTY, v.difficulty)) result.difficulty = v.difficulty
-    if (v.randomWorld === true) result.randomWorld = true
+    // NEWPLAYER-09: the switch starts on, so a player's "off" has to be kept too.
+    if (typeof v.randomWorld === 'boolean') result.randomWorld = v.randomWorld
     if (v.step === 'welcome' || v.step === 'team-select') result.step = v.step
     if (typeof v.ctStep === 'string' && (CREATE_TEAM_STEPS as readonly string[]).includes(v.ctStep)) result.ctStep = v.ctStep
     if (typeof v.createdSaveId === 'string' && v.createdSaveId.length > 0 && v.createdSaveId.length < 200) result.createdSaveId = v.createdSaveId
