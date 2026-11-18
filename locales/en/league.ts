@@ -46,4 +46,5 @@ export const LEAGUE = {
     "leagueCard.away": "A",
     "leagueCard.noFixtures": "No league fixtures left this split.",
     "leagueCard.outcomeNext": "{{outcome}} {{draw}}.",
+    "leagueCard.noPosition": "No position until the first league match",
 } as const

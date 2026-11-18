@@ -309,6 +309,13 @@ export function moneyNet(report: Pick<WeekReport, "changes">): number {
     return report.changes.filter(e => e.kind === "money").reduce((s, e) => s + e.delta, 0)
 }
 
+/** Smallest attribute gain the headline names (HOME-09). */
+export const HEADLINE_MIN_GROWTH = 1
+/** Money causes that are news on their own, unlike the weekly settlement (HOME-09). */
+const ONE_OFF_MONEY = new Set(["prize", "transfer", "board"])
+/** English words that start a beat and are not names, so they read lower case after "Label:" (HOME-14). */
+const PLAIN_FIRST_WORD = /^(You|The|A|An|His|Her|Their|No|Your)\b/
+
 /** One sentence built from the week's biggest real changes, in the active language. */
 export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     const en = getLocale() === "en"
@@ -333,21 +340,27 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     const injuries = report.changes.filter(e => e.kind === "injury" && e.delta > 0 && !e.label.startsWith("Recovered"))
     for (const inj of injuries.slice(0, 1)) clauses.push(tn("wr.h.injured", inj.delta, { name: report.names[inj.subjectId] ?? t("wr.aPlayer") }))
 
-    // Biggest single attribute gain with its cause.
-    const growth = report.changes.filter(e => e.kind === "attribute" && e.delta > 0).sort((a, b) => b.delta - a.delta)[0]
+    // Biggest single attribute gain with its cause. HOME-09: only a gain of a
+    // whole point is headline news; the weekly +0.2 from the regimen is not.
+    const growth = report.changes.filter(e => e.kind === "attribute" && e.delta >= HEADLINE_MIN_GROWTH).sort((a, b) => b.delta - a.delta)[0]
     if (growth && clauses.length < 3) {
         const cause = storedText(growth.cause.label.split(" · ")[0])
         clauses.push(t("wr.h.growth", { name: report.names[growth.subjectId] ?? t("wr.aPlayer"), attr: storedText(growth.label), n: fmtDelta(growth.delta), cause: en ? cause.toLowerCase() : cause }))
     }
 
+    // HOME-09: the same weekly settlement is not news; a loss or a one-off
+    // (prize money, a transfer, a board grant) is.
     const net = moneyNet(report)
-    if (!report.moneyless && clauses.length < 3 && Math.abs(net) >= 1) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
+    const oneOff = report.changes.some(e => e.kind === "money" && ONE_OFF_MONEY.has(e.cause.type))
+    if (!report.moneyless && clauses.length < 3 && Math.abs(net) >= 1 && (net < 0 || oneOff)) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
 
     const join = listJoin
     const lowerFirst = (x: string) => x.charAt(0).toLowerCase() + x.slice(1)
     // Phase 5.3: a storyline beat leads ("Slump: …"), then the week's top clause.
     if (report.story) {
-        const story = t("wr.h.story", { label: storyKindName(report.story.kind as StoryArcKind), text: lineText(report.story).replace(/[.。]$/, "") })
+        // HOME-14: after "Label:" a plain first word reads lower case ("Rising star: you promised …"); a name keeps its case.
+        const beat = lineText(report.story).replace(/[.。]$/, "")
+        const story = t("wr.h.story", { label: storyKindName(report.story.kind as StoryArcKind), text: en && PLAIN_FIRST_WORD.test(beat) ? lowerFirst(beat) : beat })
         const first = clauses[0] && matches.length > 0 && en ? lowerFirst(clauses[0]) : clauses[0]
         return first ? t("wr.h.storyAnd", { story, clause: first }) : t("wr.h.storyOnly", { story })
     }

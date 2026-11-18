@@ -10,6 +10,7 @@ import { t } from "@/lib/i18n"
 import { useLocale } from "@/lib/use-locale"
 import { useGameStore } from "@/store/game-store"
 import { screenSearchFilter } from "@/lib/search-filter"
+import { weekOfSeason } from "@/lib/season-week"
 
 export function NavigationSearch({ compact = false, disabled, pro = false, draftCup = false, betweenClubs = false }: { compact?: boolean; disabled: boolean; pro?: boolean; draftCup?: boolean; betweenClubs?: boolean }) {
     useLocale() // re-render on a language change
@@ -82,7 +83,7 @@ export function NavigationSearch({ compact = false, disabled, pro = false, draft
                         {reportWeek != null && (
                             <CommandGroup heading={t("lastWeek.title")}>
                                 <CommandItem
-                                    value={`${t("wr.toastTitle", { week: reportWeek })} · ${t("lastWeek.title")}`}
+                                    value={`${t("wr.toastTitle", { week: weekOfSeason(reportWeek) })} · ${t("lastWeek.title")}`}
                                     keywords={["weekly", "report", "summary", "results"]}
                                     onSelect={() => {
                                         if (disabled) return
@@ -92,7 +93,7 @@ export function NavigationSearch({ compact = false, disabled, pro = false, draft
                                         window.setTimeout(() => openWeekReport(reportWeek), 0)
                                     }}
                                     className="gap-3 rounded px-3 py-2.5 text-ink-2 data-[selected=true]:bg-hover data-[selected=true]:text-ink-1"
-                                ><FileText size={16} /><span className="flex-1">{t("wr.toastTitle", { week: reportWeek })}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>
+                                ><FileText size={16} /><span className="flex-1">{t("wr.toastTitle", { week: weekOfSeason(reportWeek) })}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>
                             </CommandGroup>
                         )}
                     </CommandList>

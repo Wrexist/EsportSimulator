@@ -74,6 +74,13 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
         const opponentName = involvesPlayer
             ? opponent?.name || t("common.unknown")
             : `${opponent?.name || t("common.tbd")} ${t("common.vsLower")} ${teams.find(tm => tm.id === match.awayTeamId)?.name || t("common.tbd")}`
+        const trailing = score ? (
+            <span className={cn("font-display text-sm font-bold tabular-nums", !involvesPlayer ? "text-ink-1" : won ? "text-positive" : "text-negative")}>{score}</span>
+        ) : isLocked ? (
+            <Lock size={12} className="text-ink-3" aria-hidden="true" />
+        ) : (
+            <span className="text-[11px] font-semibold text-ink-3">{match.format}</span>
+        )
 
         return (
             <div
@@ -91,18 +98,14 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                     isLocked && "cursor-default hover:bg-raised",
                 )}
             >
-                <TeamLogoDisplay team={opponent} size={18} className="shrink-0" />
+                {/* HOME-25: below 1440px a calendar card drops the crest and puts the score under the name, so the name gets the width. */}
+                <TeamLogoDisplay team={opponent} size={18} className={cn("shrink-0", compact && "hidden min-[90rem]:flex")} />
                 <span className="min-w-0 flex-1">
                     <span className={cn("block truncate text-xs font-semibold leading-tight", isScrim ? "text-ink-2" : "text-ink-1")}>{opponentName}</span>
                     <span className={cn("truncate text-[11px] leading-tight text-ink-3", compact ? "hidden min-[90rem]:block" : "block")}>{label}</span>
+                    {compact && <span className="block min-[90rem]:hidden">{trailing}</span>}
                 </span>
-                {score ? (
-                    <span className={cn("shrink-0 font-display text-sm font-bold tabular-nums", !involvesPlayer ? "text-ink-1" : won ? "text-positive" : "text-negative")}>{score}</span>
-                ) : isLocked ? (
-                    <Lock size={12} className="shrink-0 text-ink-3" aria-hidden="true" />
-                ) : (
-                    <span className="shrink-0 text-[11px] font-semibold text-ink-3">{match.format}</span>
-                )}
+                <span className={cn("flex shrink-0", compact && "hidden min-[90rem]:flex")}>{trailing}</span>
             </div>
         )
     }
@@ -113,11 +116,11 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
                 title={`${projected.tournamentName} · ${stageName(projected.stage)} · ${t("sch.card.notDrawn")}`}
                 className="flex w-full min-w-0 items-center gap-2 rounded-sm border border-dashed border-line-strong px-2 py-1.5 text-left"
             >
+                {/* HOME-25: the narrow week column wraps the event and stage instead of cutting them. */}
                 <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs font-semibold leading-tight text-ink-2">{projected.tournamentName}</span>
-                    <span className="block truncate text-[11px] leading-tight text-ink-3">{stageName(projected.stage)} · {t("common.tbd")}</span>
+                    <span className="line-clamp-2 break-words text-xs font-semibold leading-tight text-ink-2">{projected.tournamentName}</span>
+                    <span className="line-clamp-2 break-words text-[11px] leading-tight text-ink-3">{stageName(projected.stage)} · {t("common.tbd")}{projected.reason ? ` · ${projected.reason}` : ""}</span>
                 </span>
-                {projected.reason && <span className="shrink-0 text-[11px] text-ink-3">{projected.reason}</span>}
             </div>
         )
     }

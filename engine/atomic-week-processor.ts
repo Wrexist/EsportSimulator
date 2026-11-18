@@ -74,7 +74,7 @@ import { closeStint } from "./manager-timeline"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { buildEventField } from "./tournament/event-field"
 import { hasRankedInvites, inviteLeadWeeks, withdrawFromQualifiers } from "./tournament/qualification-path"
-import { instanceName, seasonStartWeek } from "@/lib/tournament-instances"
+import { eventDisplayName, instanceName, seasonStartWeek } from "@/lib/tournament-instances"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
 import { ManagerProgression } from "./manager-progression"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
@@ -1135,7 +1135,7 @@ export class AtomicWeekProcessor {
                     week: save.currentWeek,
                     acknowledged: false,
                     data: {
-                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: tournament.name } }),
+                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: eventDisplayName(tournament.name) } }),
                         severity: "info",
                         tournamentId: definition.id
                     }

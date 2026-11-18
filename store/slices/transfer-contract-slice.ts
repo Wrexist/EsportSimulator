@@ -403,7 +403,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     category: "TRANSFER",
                     playerId,
                     teamId: toTeamId,
-                    week: state.currentWeek,
+                    week: state.currentWeek, day: state.currentDay,
                 })
                 if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
             }

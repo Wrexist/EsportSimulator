@@ -22,6 +22,7 @@ import type { GameEventSaveData, GameSave } from "./save-types"
 import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "./event-choice"
 import { isPendingDecisionEvent, isTransferRumor } from "@/lib/event-format"
 import { isTextRef, STORED_REF, type TextRef } from "@/lib/i18n"
+import { weekOfSeason } from "@/lib/season-week"
 
 export interface DecisionRule {
     /** Dedup and cooldown key, together with the subject. */
@@ -196,16 +197,20 @@ function playerName(e: EventLike, save: NameSource): string | null {
     return save.players.find(p => p.id === String(id))?.nickname || (typeof dataOf(e).playerName === "string" ? dataOf(e).playerName : null)
 }
 
-/** "If you don't answer by Week 9, the club skips the meetup …". */
+/**
+ * "If you don't answer by Week 9, the club skips the meetup …". The note shows
+ * only while the decision is open (a week or two), so it names the season's
+ * week, never the career's absolute week (HOME-22).
+ */
 export function unansweredNote(r: DecisionRule, deadline: number, name: string | null): string {
-    return `If you don't answer by Week ${deadline}, ${r.you ? "you" : "the club"} ${r.consequence.replace("{name}", name ?? "the player")}.`
+    return `If you don't answer by Week ${weekOfSeason(deadline)}, ${r.you ? "you" : "the club"} ${r.consequence.replace("{name}", name ?? "the player")}.`
 }
 
 /** The same note as a translation key, so it shows in the active language. */
 export function unansweredNoteRef(r: DecisionRule, deadline: number, name: string | null): TextRef | undefined {
     if (!r.consequenceRef) return undefined
     const consequence: TextRef = { ...r.consequenceRef, params: { ...r.consequenceRef.params, name: name ?? { key: "dl.thePlayer" } } }
-    return { key: r.you ? "dl.noteYou" : "dl.note", params: { week: deadline, consequence } }
+    return { key: r.you ? "dl.noteYou" : "dl.note", params: { week: weekOfSeason(deadline), consequence } }
 }
 
 /** Report label for an unanswered decision: "Unhappy player (ace)". */
@@ -213,7 +218,8 @@ function reportLabel(r: DecisionRule, e: EventLike, save: NameSource): string {
     if (r === JOB_OFFER_RULE) return `Job offer from ${dataOf(e).offeringTeamName ?? "another club"}`
     if (r === BID_RULE) return `Bid for ${playerName(e, save) ?? "your player"}`
     const name = playerName(e, save)
-    return name && r.consequence.includes("{name}") ? `${r.label} (${name})` : r.label
+    // A storyline's label already names him ("Slump (k1ncu)"): never twice (HOME-24).
+    return name && r.consequence.includes("{name}") && !r.label.includes(name) ? `${r.label} (${name})` : r.label
 }
 
 export interface NormalizeResult {

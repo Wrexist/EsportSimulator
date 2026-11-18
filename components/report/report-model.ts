@@ -47,6 +47,9 @@ function causeParts(entries: ChangeEntry[], withDelta: boolean, max = 3): string
     return shown.join(" · ") + (parts.length > max ? ` · ${t("wr.more", { n: parts.length - max })}` : "")
 }
 
+/** Smallest stat move the report lists on its own row (NEWPLAYER-23). */
+export const REPORT_MIN_STAT_CHANGE = 0.5
+
 export function playerGroups(report: WeekReport): PlayerGroup[] {
     const byPlayer = new Map<string, ChangeEntry[]>()
     for (const e of report.changes) {
@@ -70,8 +73,11 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
             rows.push({ change: storedText(e.label), cause: storedText(e.cause.label), tone: e.delta < 0 ? "down" : "up" })
         }
         // Attributes: one row per cause, listing every stat it moved.
+        // NEWPLAYER-23: moves under REPORT_MIN_STAT_CHANGE are counted, not listed.
         const attrByCause = new Map<string, ChangeEntry[]>()
-        for (const e of entries.filter(x => x.kind === "attribute")) {
+        const attributes = entries.filter(x => x.kind === "attribute")
+        const smallStats = attributes.filter(x => Math.abs(x.delta) < REPORT_MIN_STAT_CHANGE).length
+        for (const e of attributes.filter(x => Math.abs(x.delta) >= REPORT_MIN_STAT_CHANGE)) {
             const list = attrByCause.get(e.cause.label) ?? []
             list.push(e)
             attrByCause.set(e.cause.label, list)
@@ -102,6 +108,7 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
             }
         }
         rows.push(...conditionRows)
+        if (smallStats > 0) rows.push({ change: tn("wr.smallStats", smallStats), cause: t("wr.smallStatsCause"), tone: "neutral" })
         if (rows.length) groups.push({ id, name: report.names[id] ?? t("wr.player"), rows })
     }
     return groups

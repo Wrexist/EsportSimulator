@@ -28,6 +28,7 @@ import { captainId } from "../personality"
 import { divisionOfTeam, isLeagueMatchId, tablePosition } from "../season/regional-league"
 import { biggestRival } from "./arcs/rivalry"
 import { divisionRef, fmtRating, formOver, logBeat, nameOf } from "./common"
+import { weekRef } from "@/lib/season-week"
 
 import { t, tn, tRefEn, ORDINAL_REF, LIST_REF, type TextRef } from "@/lib/i18n"
 import { PRESS_PREFIX, pressDataOf, pressEventId, type PressAnswer, type PressData, type PressQuestion, type PressReason } from "./press-view"
@@ -151,7 +152,7 @@ function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryA
                 if (!p) continue
                 return {
                     id: "story", topic: "STORY", arcId: arc.id,
-                    ...said("press.q.contract", { name: n, week: String(arc.facts.endWeek) }),
+                    ...said("press.q.contract", { name: n, week: weekRef(Number(arc.facts.endWeek)) }),
                     answers: [
                         answer("want", "contract.want", { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE, S.PRESS_PLAYER_STAY_LOYALTY) }),
                         answer("bigger", "contract.bigger", { players: playerFx(p.id, n, S.PRESS_PLAYER_CRITICISE_MORALE), board: S.PRESS_PLAYER_CRITICISE_BOARD }),

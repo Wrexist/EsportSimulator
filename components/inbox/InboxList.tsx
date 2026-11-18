@@ -6,6 +6,7 @@ import { EmptyState } from "@/src/components/ui/EmptyState"
 import { cn } from "@/lib/utils"
 import { answerByWeek, weekLabel, type InboxItem } from "./inbox-model"
 import { t } from "@/lib/i18n"
+import { weekNumberText } from "@/lib/season-week"
 
 
 function Row({ item, selected, currentWeek, onSelect }: {
@@ -42,7 +43,7 @@ function Row({ item, selected, currentWeek, onSelect }: {
                     {item.decision && (
                         <span className="mt-1.5 flex items-center gap-2 text-[11px] font-semibold">
                             <span className="rounded-sm bg-caution/15 px-1.5 py-0.5 uppercase tracking-[0.06em] text-caution">{t(`ib.tag.${item.decision}`)}</span>
-                            {deadline != null && <span className="text-ink-3">{deadline <= currentWeek ? t("ib.answerThisWeek") : t("ib.byWeek", { week: deadline })}</span>}
+                            {deadline != null && <span className="text-ink-3">{deadline <= currentWeek ? t("ib.answerThisWeek") : t("ib.byWeek", { week: weekNumberText(deadline, currentWeek) })}</span>}
                         </span>
                     )}
                 </span>

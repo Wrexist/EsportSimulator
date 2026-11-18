@@ -20,7 +20,7 @@ export const HOME = {
     "advance.stopped": "Stopped",
     "advance.youPaused": "You paused advancing.",
     "advance.dismiss": "Dismiss",
-    "advance.prepare": "Prepare",
+    "advance.prepare": "Prepare match",
     "advance.simMatch": "Sim match",
     "advance.simulating": "Simulating…",
     "advance.simTitle": "Plays it now: the engine's veto, plus the anti-strat counters if you reviewed their demos",
@@ -40,7 +40,7 @@ export const HOME = {
     "home.whenWeek": "· Week {{week}}",
     "home.whenWeekDate": "· Week {{week}}, {{date}}",
     "home.findPlayer": "Find a player",
-    "home.goToMatch": "Go to match",
+    "home.goToMatch": "Prepare match",
     "home.prepareLineup": "Prepare lineup",
     "home.matchFootnote": "Veto, tactics and quick sim are on the match screen.",
     "home.draftedSide": "Drafted side",
@@ -326,4 +326,5 @@ export const HOME = {
     "rivalry.intensity.HEATED": "heated",
     "rivalry.intensity.FIERCE": "fierce",
     "topbar.moreHubs": "More sections",
+    "decisions.offerDetailOne": "Answer it in your inbox",
 } as const

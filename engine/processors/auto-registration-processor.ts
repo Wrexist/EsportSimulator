@@ -28,7 +28,7 @@ import { seniorRosterEligibility } from "../recruitment"
 import { QUALIFIER_REGION, qualifierEntryBlock } from "../tournament/qualification-path"
 import { QualificationEngine } from "../tournament-qualification"
 import { logger } from "@/lib/logger"
-import { instanceName } from "@/lib/tournament-instances"
+import { eventDisplayName, instanceName } from "@/lib/tournament-instances"
 
 const LOOKAHEAD_WEEKS = 4
 
@@ -126,7 +126,7 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
             )
             if (!eligibility.canRegister) return
 
-            const eventName = instanceName(tournamentDef, t.seasonNumber || getSeasonFromWeek(t.startWeek || save.currentWeek), save.gameStartDate)
+            const eventName = eventDisplayName(instanceName(tournamentDef, t.seasonNumber || getSeasonFromWeek(t.startWeek || save.currentWeek), save.gameStartDate))
             save.tournamentQualifications.push(normalizeQualificationStatus({
                 tournamentId: t.id,
                 seriesId: tournamentSeriesId,

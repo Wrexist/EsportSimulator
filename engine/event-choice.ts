@@ -54,9 +54,9 @@ export interface ChoiceEffects {
     /**
      * C5: rest the event player this week: fatigue down by `fatigue` (not the
      * ±10 answer clamp), morale up, and out of the starting five when a fit
-     * substitute is free (he stays in if there is none).
+     * substitute is free (he stays in if there is none; `noSub` says so on the answer).
      */
-    rest?: { fatigue: number; morale?: number }
+    rest?: { fatigue: number; morale?: number; noSub?: boolean }
     /**
      * C5: play the event player through a minor knock: the injury clears,
      * form moves by `form`, and the next injury check worsens it into a

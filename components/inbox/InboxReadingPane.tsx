@@ -21,6 +21,7 @@ import { StoryContext } from "@/components/storylines/StoryContext"
 import { pressDataOf } from "@/engine/storylines/press-view"
 import { intlLocale, t } from "@/lib/i18n"
 import { newsContent } from "@/lib/news-text"
+import { weekNumberText } from "@/lib/season-week"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
 type AnyData = Record<string, any>
@@ -64,14 +65,14 @@ function PlayerStrip({ playerId, linkLabel }: { playerId: string; linkLabel: str
     )
 }
 
-function ResolvedNote({ event }: { event: GameEventSaveData }) {
+function ResolvedNote({ event, currentWeek }: { event: GameEventSaveData; currentWeek: number }) {
     const data = (event.data ?? {}) as AnyData
     if (data.isWithdrawn && !event.selectedChoiceId) return <p className="text-xs font-medium text-ink-3">{t("ib.noLongerOpen")}</p>
     if (!event.selectedChoiceId || event.selectedChoiceId === "dismiss") return null
     const choice = ((event as { choices?: ChoiceLike[] }).choices ?? []).find(c => c.id === event.selectedChoiceId)
     // Settled by its stated default when the deadline passed (Phase 4.9).
     const unanswered = data.unanswered as { week?: number } | undefined
-    const text = unanswered ? (choice ? t("ib.res.defaulted", { choice: choiceLabel(choice), week: unanswered.week ?? "" }) : t("ib.res.lapsed", { week: unanswered.week ?? "" }))
+    const text = unanswered ? (choice ? t("ib.res.defaulted", { choice: choiceLabel(choice), week: unanswered.week != null ? weekNumberText(unanswered.week, currentWeek) : "" }) : t("ib.res.lapsed", { week: unanswered.week != null ? weekNumberText(unanswered.week, currentWeek) : "" }))
         : event.selectedChoiceId === "expired" ? t("ib.res.expired")
         : event.selectedChoiceId === "sold" ? t("ib.res.soldElsewhere", { club: data.soldToTeamName || t("ib.aClub") })
         : choice ? t("ib.res.chose", { choice: choiceLabel(choice) })
@@ -168,7 +169,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
     if (!event) return null
     const data = (event.data ?? {}) as AnyData
     const deadline = item.decision ? answerByWeek(event) : null
-    const meta = [weekLabel(event.week, ctx.currentWeek), deadline != null ? t("ib.answerBy", { week: deadline }) : null].filter(Boolean).join(" · ")
+    const meta = [weekLabel(event.week, ctx.currentWeek), deadline != null ? t("ib.answerBy", { week: weekNumberText(deadline, ctx.currentWeek) }) : null].filter(Boolean).join(" · ")
     const playerId = data.playerId != null && ctx.rosterIds.has(String(data.playerId)) ? String(data.playerId) : null
     // The awards replay from the season's stored honours (kept for the last seasons only).
     const awardsSeason = event.type === "MEDIA" && isRealAwards(data.proAwards) && recordBook?.honours.some(h => h.season === data.proAwards.year) ? data.proAwards.year as number : null
@@ -200,7 +201,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
                 {!item.decision && pressDataOf(event) && <PressConferenceRecord event={event} />}
                 {item.decision === "transfer_offer" && <TransferOfferDecision event={event} ctx={ctx} />}
                 {item.decision === "job_offer" && <JobOfferDecision event={event} />}
-                {!item.decision && !pressDataOf(event) && <ResolvedNote event={event} />}
+                {!item.decision && !pressDataOf(event) && <ResolvedNote event={event} currentWeek={ctx.currentWeek} />}
                 {awardsSeason != null && (
                     <Button variant="outline" onClick={() => onOpenAwards(awardsSeason)}>{t("ib.openAwards")}</Button>
                 )}

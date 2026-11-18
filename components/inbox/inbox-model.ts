@@ -27,6 +27,8 @@ import { PERSONALITY_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
 import { intlLocale, isTextRef, t, tn, tRef, type TextRef } from "@/lib/i18n"
 import { newsContent, newsTitle } from "@/lib/news-text"
 import { storedText } from "@/lib/stored-text"
+import { clubRegionName } from "@/lib/display-names"
+import { weekLabel as seasonWeekLabel, weekNumberText, weekOfSeason } from "@/lib/season-week"
 
 export type InboxKind = "decision" | "message" | "news"
 export type DecisionKind = "choice" | "job_offer" | "transfer_offer"
@@ -190,7 +192,8 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
     const data = dataOf(event)
     switch (event.type as string) {
         case "CONTRACT": return t("ib.from.contracts")
-        case "MORALE": return data.playerId ? playerLabel(data, ctx) : t("ib.from.dressingRoom")
+        // HOME-24: a birthday is the club office's note, not a message from the player.
+        case "MORALE": return event.id.startsWith("birthday_") ? t("ib.from.clubOffice") : data.playerId ? playerLabel(data, ctx) : t("ib.from.dressingRoom")
         case "INJURY":
         case "RECOVERY": return t("ib.from.medical")
         case "FINANCE":
@@ -200,7 +203,11 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
         case "TRANSFER_OFFER": return data.teamName || t("ib.from.transferOffice")
         case "JOB_OFFER": return data.offeringTeamName || t("ib.from.board")
         // MODES-09: a club offer to the pro comes from that club, not the board.
-        case "CAREER_UPDATE": return event.id.startsWith("pro_offer_") ? data.offeringTeamName || t("ib.from.transferOffice") : t("ib.from.board")
+        case "CAREER_UPDATE":
+            if (event.id.startsWith("pro_offer_")) return data.offeringTeamName || t("ib.from.transferOffice")
+            // HOME-24: the squad talks (engine/career-decisions.ts) come from the staff who raise them, not the board.
+            if (event.id.startsWith("career_decision_")) return event.id.endsWith("_recovery") ? t("ib.from.medical") : t("ib.from.assistantManager")
+            return t("ib.from.board")
         case "TOURNAMENT":
         case "TOURNAMENT_UPDATE": return data.tournamentName || t("ib.from.tournamentOffice")
         case "MEDIA": return data.outlet || (data.proAwards ? t("ib.from.proAwards") : t("ib.from.press"))
@@ -242,8 +249,10 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
     const data = dataOf(event)
     // English titles stored by older code show in the active language where a match exists.
     const title = typeof data.title === "string" && data.title ? storedText(data.title) : undefined
-    if (isTextRef(data.titleRef)) return stripEmoji(getEventTitle(event)).trim()
     const who = playerLabel(data, ctx)
+    // HOME-08: the stored title is a bare "Player recovered"; the subject names him.
+    if (event.type === "INJURY" && event.id.startsWith("recovery_")) return t("ib.subj.fit", { name: who })
+    if (isTextRef(data.titleRef)) return stripEmoji(getEventTitle(event)).trim()
     switch (event.type as string) {
         case "CONTRACT":
             return num(data.weeksLeft) != null ? tn("ib.subj.contractEnds", data.weeksLeft, { name: who }) : title || t("ib.subj.contract", { name: who })
@@ -272,7 +281,10 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
         case DIGEST_TYPE: {
             const items = digestItems(event)
             const weeks = [...new Set(items.map(i => i.week))].sort((a, b) => a - b)
-            const span = weeks.length > 1 ? t("ib.weeksSpan", { from: weeks[0], to: weeks[weeks.length - 1] }) : weeks.length ? t("ib.weekOne", { n: weeks[0] }) : ""
+            // A round-up covers the last week or two: season weeks, never the career's absolute week (HOME-22).
+            const span = weeks.length > 1
+                ? t("ib.weeksSpan", { from: weekOfSeason(weeks[0]), to: weekOfSeason(weeks[weeks.length - 1]) })
+                : weeks.length ? t("ib.weekOne", { n: weekOfSeason(weeks[0]) }) : ""
             return span ? tn("ib.subj.digestSpan", items.length, { span }) : tn("ib.subj.digest", items.length)
         }
         default: {
@@ -293,6 +305,19 @@ export function getEventBody(event: GameEventSaveData, ctx: InboxContext): strin
     return typeof note === "string" && event.selectedChoiceId === undefined && !dataOf(event).isWithdrawn ? `${body}\n\n${note}` : body
 }
 
+/**
+ * A round-up line is read in the reading pane, not a list row: it keeps up to
+ * DIGEST_LINE_MAX characters and is cut at a sentence end where one is close (HOME-24).
+ */
+const DIGEST_LINE_MAX = 240
+export function clipAtSentence(line: string, max: number): string {
+    if (line.length <= max) return line
+    const head = line.slice(0, max)
+    const end = Math.max(head.lastIndexOf(". "), head.lastIndexOf("! "), head.lastIndexOf("? "))
+    if (end >= max / 2) return head.slice(0, end + 1)
+    return `${line.slice(0, max - 1).trimEnd()}…`
+}
+
 /** One line per folded notice: the saved translation key first, else the stored English in the active language. */
 export function digestLine(item: DigestItem, ctx: InboxContext): string {
     const d = item.data as AnyData
@@ -310,7 +335,7 @@ export function digestLine(item: DigestItem, ctx: InboxContext): string {
         case "INJURY": return getEventSubject(asEvent(), ctx)
         default: {
             const line = ref(d.messageRef) || ref(d.titleRef) || text(d.description) || text(d.message) || text(d.title) || getEventSubject(asEvent(), ctx)
-            return line.length > 160 ? `${line.slice(0, 157)}...` : line
+            return clipAtSentence(line, DIGEST_LINE_MAX)
         }
     }
 }
@@ -348,11 +373,12 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
                 : t("ib.body.bidUndisclosed", { club, name: who })
         }
         case "JOB_OFFER": {
-            const where = [data.offeringTeamRegion, data.offeringTeamRank ? t("ib.worldRank", { rank: data.offeringTeamRank }) : null].filter(Boolean).join(", ")
+            // HOME-11: the region by name ("South America"), as the club picker shows it, not its code.
+            const where = [data.offeringTeamRegion ? clubRegionName(String(data.offeringTeamRegion)) : null, data.offeringTeamRank ? t("ib.worldRank", { rank: data.offeringTeamRank }) : null].filter(Boolean).join(", ")
             const deadline = num(data.deadlineWeek)
             const club = data.offeringTeamName || t("ib.aClub")
             const head = where ? t("ib.body.jobWhere", { club, where }) : t("ib.body.job", { club })
-            return deadline != null ? `${head} ${t("ib.body.jobDeadline", { week: deadline })}` : head
+            return deadline != null ? `${head} ${t("ib.body.jobDeadline", { week: weekNumberText(deadline, ctx.currentWeek) })}` : head
         }
         case "AI_SIGNING": return t("ib.body.aiSigning", { club: data.teamName || t("ib.aClub"), name: data.playerName || t("ib.aPlayerLower") })
         case "AI_TRANSFER": {
@@ -366,7 +392,7 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
             if (items.length === 0) return t("ib.body.nothingNew")
             const blocks: string[] = [t("ib.body.digestIntro")]
             for (const week of [...new Set(items.map(i => i.week))]) {
-                blocks.push([t("ib.body.digestWeek", { n: week }).toUpperCase(), ...items.filter(i => i.week === week).map(i => `• ${digestLine(i, ctx)}`)].join("\n"))
+                blocks.push([t("ib.body.digestWeek", { n: weekOfSeason(week) }).toUpperCase(), ...items.filter(i => i.week === week).map(i => `• ${digestLine(i, ctx)}`)].join("\n"))
             }
             return blocks.join("\n\n")
         }
@@ -515,11 +541,12 @@ export function describeChoice(event: GameEventSaveData, choice: ChoiceLike, bud
     const mentor = fx.mentor as { name?: unknown } | undefined
     if (mentor) chips.push({ label: t("ib.fx.mentor", { name: typeof mentor.name === "string" ? mentor.name : t("ib.aTeammate"), pct: Math.round((PERSONALITY_TUNING.MENTOR_TRAINING - 1) * 100) }), tone: "positive" })
     // C5 (engine/workload.ts): rest week, play through a knock.
-    const rest = fx.rest as { fatigue?: unknown; morale?: unknown } | undefined
+    const rest = fx.rest as { fatigue?: unknown; morale?: unknown; noSub?: unknown } | undefined
     if (rest && num(rest.fatigue)) {
         chips.push({ label: t("ib.fx.fatigue", { n: `-${Math.abs(rest.fatigue as number)}` }), tone: "positive" })
         if (num(rest.morale)) chips.push({ label: t("ib.fx.morale", { n: signed(rest.morale as number) }), tone: "positive" })
-        chips.push({ label: t("ib.fx.sitsOut"), tone: "neutral" })
+        // HOME-21: with no fit substitute he cannot sit out, and the answer says so.
+        chips.push({ label: rest.noSub === true ? t("ib.fx.noSub") : t("ib.fx.sitsOut"), tone: "neutral" })
     }
     const through = fx.playThrough as { escalateChance?: unknown; form?: unknown } | undefined
     if (through && num(through.escalateChance) != null) {
@@ -626,16 +653,16 @@ export function countInbox(eventsLog: readonly GameEventSaveData[], ctx: InboxCo
  * left, an expired or withdrawn offer, or a rumour is not listed (SQUAD-07),
  * and choices + offers always equal the inbox's decision count (HOME-13).
  */
-export function homeDecisions(eventsLog: readonly GameEventSaveData[], ctx: InboxContext): { choices: GameEventSaveData[]; offers: number } {
+export function homeDecisions(eventsLog: readonly GameEventSaveData[], ctx: InboxContext): { choices: GameEventSaveData[]; offers: number; offerEvents: GameEventSaveData[] } {
     const choices: GameEventSaveData[] = []
-    let offers = 0
+    const offerEvents: GameEventSaveData[] = []
     for (const event of eventsLog) {
         if (isFolded(event)) continue
         const kind = getDecisionKind(event, ctx)
         if (kind === "choice") choices.push(event)
-        else if (kind) offers++
+        else if (kind) offerEvents.push(event)
     }
-    return { choices, offers }
+    return { choices, offers: offerEvents.length, offerEvents }
 }
 
 /** Top-bar badge: what needs the manager — open decisions plus unread messages. */
@@ -646,5 +673,6 @@ export function inboxBadgeCount(counts: InboxCounts): number {
 export function weekLabel(week: number, currentWeek: number): string {
     if (week === currentWeek) return t("ib.thisWeek")
     if (week === currentWeek - 1) return t("ib.lastWeek")
-    return t("common.week", { n: week })
+    // HOME-22: the season's week ("Week 4"), with the season when it is another one.
+    return seasonWeekLabel(week, currentWeek)
 }

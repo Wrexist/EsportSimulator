@@ -176,7 +176,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                     ),
                     category: "FACILITY",
                     teamId: team.id,
-                    week: state.currentWeek,
+                    week: state.currentWeek, day: state.currentDay,
                     engagement: {
                         likes: nextRandomInt(state, 100, 599),
                         views: nextRandomInt(state, 1000, 5999),
@@ -221,7 +221,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 ),
                 category: "FACILITY",
                 teamId: team.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
                 engagement: {
                     likes: nextRandomInt(state, 50, 349),
                     views: nextRandomInt(state, 500, 3499),

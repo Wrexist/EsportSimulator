@@ -8,6 +8,7 @@ import { ordinalLabel, t } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
 import { cn } from "@/lib/utils"
+import { weekOfSeason } from "@/lib/season-week"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { Panel } from "@/src/components/ui/Panel"
 import {
@@ -67,7 +68,7 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
     const when = next
         ? (gameStartDate && day !== undefined
             ? formatGameCalendarDate(gameCalendarDate(gameStartDate, next.fixture.week, day), { weekday: "short", month: "short", day: "numeric" })
-            : t("common.week", { n: ((next.fixture.week - 1) % 52) + 1 }))
+            : t("common.week", { n: weekOfSeason(next.fixture.week) }))
         : null
     const outcome = split.completed ? previousSplitOutcome(league, playerTeamId) : null
 
@@ -76,7 +77,10 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
             <div className="flex items-center gap-5">
                 <p className="shrink-0 font-display text-[40px] font-bold leading-none tabular-nums text-ink-1">
                     {/* Cardinal before "/10": an ordinal reads "7./10" in German (I18N-26). */}
-                    {me && started ? me.position : "—"}<span className="text-lg text-ink-3">/{rows.length}</span>
+                    {/* HOME-06: before the first match a plain dash, not a big "—/9". */}
+                    {me && started
+                        ? <>{me.position}<span className="text-lg text-ink-3">/{rows.length}</span></>
+                        : <span className="text-xl text-ink-3" title={t("leagueCard.noPosition")}>—</span>}
                 </p>
                 <dl className="grid min-w-0 flex-1 grid-cols-3 gap-3">
                     <div>
@@ -95,7 +99,7 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
             </div>
             <p className="mt-2 text-xs text-ink-3">
                 {situation && <span className={cn("font-semibold", TONE_TEXT[situation.tone])}>{situation.text}</span>}
-                {situation && " · "}{splitProgressLabel(split, own)}
+                {situation && " · "}<span className="whitespace-nowrap">{splitProgressLabel(split, own)}</span>
             </p>
             <div className="mt-3 flex min-h-9 items-center gap-2.5 border-t border-line pt-3">
                 {next ? (
@@ -105,7 +109,7 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">
                             {opp?.name ?? t("common.tbd")}{oppPos ? <span className="font-normal text-ink-3"> · {ordinalLabel(oppPos)}</span> : null}
                         </span>
-                        <span className="shrink-0 text-xs tabular-nums text-ink-3">{next.home ? t("leagueCard.home") : t("leagueCard.away")} · {when}</span>
+                        <span className="shrink-0 text-xs tabular-nums text-ink-3">{next.home ? t("lgp.home") : t("lgp.away")} · {when}</span>
                     </>
                 ) : (
                     <span className="text-sm text-ink-3">

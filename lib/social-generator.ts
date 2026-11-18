@@ -2,6 +2,7 @@ import { PlayerSaveData, TeamSaveData, CompletedMatchSaveData, StaffSaveData, Ma
 import { SeededRNG } from "@/engine/rng"
 import type { SocialPost } from "@/engine/save-types"
 import { sideScore } from "@/lib/week-changes"
+import { weekOfSeason } from "@/lib/season-week"
 
 export type { SocialPost } from "@/engine/save-types"
 
@@ -276,7 +277,7 @@ export function generateSocialPosts(input: SocialFeedInput): SocialPost[] {
                 id: `sp_preview_${nextMatch.id}`,
                 user: { name: caster.name, handle: caster.handle, avatar: caster.avatar, isVerified: caster.verified },
                 content: drawTemplate(rng, CASTER_PREVIEW, usedTemplates)
-                    .replace(/{week}/g, String(nextMatch.week))
+                    .replace(/{week}/g, String(weekOfSeason(nextMatch.week))) // the season's week, as the calendar shows it (HOME-22)
                     .replace(/{home}/g, home.name)
                     .replace(/{away}/g, away.name),
                 timestamp: "8h",
