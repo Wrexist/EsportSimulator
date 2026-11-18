@@ -13,6 +13,7 @@
 
 import { matchEngine } from "@/engine/match-engine"
 import { SeededRNG } from "@/engine/rng"
+import { SCRIPT_RATING_FLOOR } from "@/engine/match/match-stats"
 import type { MatchSaveData, TeamSaveData, PlayerSaveData } from "@/engine/save-types"
 
 function makeMatch(overrides: Partial<MatchSaveData> = {}): MatchSaveData {
@@ -143,7 +144,11 @@ describe("round-outcome generator (integration via simulateMatch)", () => {
         })
     })
 
-    test("Pro-style rating stays bounded [0.3, 2.0] for every player", () => {
+    // simulateMatch runs the script engine, whose HLTV 2.0-style rating is
+    // floored at SCRIPT_RATING_FLOOR (0.05) and capped at 3; [0.3, 2.0] was the
+    // legacy model's clamp. Since MATCHENGINE-08 (2026-11-17) spreads the
+    // cleanup kills of a won round, seed 8 has a real 0.19 line.
+    test("Pro-style rating stays bounded [SCRIPT_RATING_FLOOR, 3] for every player", () => {
         const home = makeRoster("home")
         const away = makeRoster("away")
 
@@ -155,8 +160,8 @@ describe("round-outcome generator (integration via simulateMatch)", () => {
         )
 
         Object.values(result.playerStats || {}).forEach(s => {
-            expect(s.rating).toBeGreaterThanOrEqual(0.3)
-            expect(s.rating).toBeLessThanOrEqual(2.0)
+            expect(s.rating).toBeGreaterThanOrEqual(SCRIPT_RATING_FLOOR)
+            expect(s.rating).toBeLessThanOrEqual(3)
         })
     })
 
