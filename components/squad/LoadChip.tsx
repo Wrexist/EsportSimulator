@@ -26,7 +26,7 @@ function riskText(risk: number): string {
 export function LoadChip({ player, className, showRisk = true }: { player: Pick<PlayerSaveData, "fatigue" | "health" | "age"> & Partial<Pick<PlayerSaveData, "injury" | "knock">>; className?: string; showRisk?: boolean }) {
     if (player.injury) return <span className={cn("text-xs text-ink-3", className)}>{t("load.injured")}</span>
     const w = workloadOf(player)
-    const title = t("load.title", { load: w.load, risk: riskText(w.risk) }) + (player.knock ? " " + t("load.knockTitle", { knock: player.knock.name, pct: Math.round(player.knock.escalateChance * 100) }) : "")
+    const title = t("load.title", { load: w.load, risk: riskText(w.risk) }) + (player.knock ? " " + t("load.knockTitle", { knock: player.knock.name, pct: formatPercent(Math.round(player.knock.escalateChance * 100)) }) : "")
     return (
         <span title={title} className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-1.5 py-0.5 text-[11px] font-semibold tabular-nums", TONE[w.tone], className)} data-testid="load-chip">
             {/* "Fresh · <risk> injury risk": the chip names what the percentage is and

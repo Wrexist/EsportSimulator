@@ -8,6 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { LOSS_XP_BASE, WIN_XP_BASE } from '@/engine/processors/match-manager-xp'
 import { t } from '@/lib/i18n'
 import { Trans } from '@/lib/trans'
+import { formatCurrency } from '@/lib/utils-extended'
+
+/** A scouting mission's fee (store/slices/scouting-slice.ts SCOUTING_COST_BASIC), in the game's money format (SMOKE-B-13). */
+const SCOUTING_MISSION_COST = 3000
 
 type Category = 'gameplay' | 'management' | 'tactics' | 'progression' | 'competition'
 
@@ -97,7 +101,7 @@ export const helpTopics: HelpTopic[] = [
     ]),
     topic("transfers", "transfers", "management", () => [
         { p: "help.transfers.p1" }, { ul: ["help.transfers.l1", "help.transfers.l2"] },
-        { h: "help.transfers.h1" }, { ul: ["help.transfers.l3", "help.transfers.l4"] },
+        { h: "help.transfers.h1" }, { ul: [["help.transfers.l3", { cost: formatCurrency(SCOUTING_MISSION_COST, "$", false) }], "help.transfers.l4"] },
     ]),
     topic("board", "board", "management", () => [
         { p: "help.board.p1" }, { ul: ["help.board.l1", "help.board.l2", "help.board.l3"] },

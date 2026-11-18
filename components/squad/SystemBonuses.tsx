@@ -1,4 +1,4 @@
-import { t } from "@/lib/i18n"
+import { formatPercent, t } from "@/lib/i18n"
 import React, { useMemo, memo } from "react"
 import { PlayerRole } from "@/types"
 import { PlayerSaveData } from "@/engine/save-types"
@@ -48,13 +48,13 @@ const SystemBonusesInner: React.FC<SystemBonusesProps> = ({ players, className }
             actions={
                 <span className="text-xs text-ink-3">
                     <span className="font-semibold tabular-nums text-ink-1">{t("squad.roles.count", { covered })}</span> · {penalty > 0
-                        ? <span className="font-semibold tabular-nums text-caution">{t("squad.roles.penalty", { pct: penalty })}</span>
+                        ? <span className="font-semibold tabular-nums text-caution">{t("squad.roles.penalty", { pct: formatPercent(penalty) })}</span>
                         : <span className="font-semibold text-positive">{t("squad.roles.noPenalty")}</span>}
                 </span>
             }
         >
             <p className="mb-3 text-xs text-ink-3">
-                {t("squad.roles.body", { pct: PER_MISSING_ROLE })}
+                {t("squad.roles.body", { pct: formatPercent(PER_MISSING_ROLE) })}
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                 {ROLES.map(r => {
