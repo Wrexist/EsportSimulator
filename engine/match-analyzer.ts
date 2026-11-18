@@ -88,12 +88,21 @@ export class MatchAnalyzer {
         // Trade kills from the recorded KILL events (MATCHENGINE-03).
         let homeTrades = 0
         let awayTrades = 0
+        // Rounds 2-3 and 14-15 of each map: the "snowball" after each pistol (MATCHENGINE-10).
+        let homeFollowUps = 0
+        let followUps = 0
 
         result.maps.forEach(map => {
             // Map round 1
             if (map.rounds.length > 0) processPistol(map.rounds[0])
             // Map round 13 (second half pistol in MR12)
             if (map.rounds.length > 12) processPistol(map.rounds[12])
+            for (const index of [1, 2, 13, 14]) {
+                const round = map.rounds[index]
+                if (!round) continue
+                followUps++
+                if (winnerOf(round) === match.homeTeamId) homeFollowUps++
+            }
             for (const round of map.rounds) {
                 for (const e of round.events ?? []) {
                     if (e.type !== "KILL" || !e.isTrade) continue
@@ -105,13 +114,15 @@ export class MatchAnalyzer {
             }
         })
 
-        function processPistol(round: RoundResult) {
+        function winnerOf(round: RoundResult) {
             // round.winner is "ct" or "t"
             // We use team IDs stored in round to verify
             const r = round as RoundResult & { ctTeam?: string; ctTeamId?: string; tTeam?: string; tTeamId?: string }
-            const winnerId = r.winner === "ct" ? (r.ctTeam || r.ctTeamId) : (r.tTeam || r.tTeamId)
+            return r.winner === "ct" ? (r.ctTeam || r.ctTeamId) : (r.tTeam || r.tTeamId)
+        }
 
-            if (winnerId === match.homeTeamId) homePistolsWon++
+        function processPistol(round: RoundResult) {
+            if (winnerOf(round) === match.homeTeamId) homePistolsWon++
             else awayPistolsWon++
         }
 
@@ -120,6 +131,9 @@ export class MatchAnalyzer {
             awayPistolsWon,
             homeTrades,
             awayTrades,
+            homeFollowUps,
+            awayFollowUps: followUps - homeFollowUps,
+            followUps,
         }
     }
 
@@ -149,10 +163,14 @@ export class MatchAnalyzer {
             theme = `${winnerStats.clutches} clutch wins`
         }
         // 2. Check Pistol/Economy: the winner took more pistols in a game
-        // that was not a rout (needs the maps' round scores)
+        // that was not a rout (needs the maps' round scores) and converted
+        // them: at least 3 of each map's 4 follow-up rounds (2-3, 14-15).
+        // Without that it was no snowball (MATCHENGINE-10).
         else if (
             (homeWon ? roundAnalysis.homePistolsWon > roundAnalysis.awayPistolsWon : roundAnalysis.awayPistolsWon > roundAnalysis.homePistolsWon) &&
-            margin.known && margin.perMap <= 8
+            margin.known && margin.perMap <= 8 &&
+            roundAnalysis.followUps > 0 &&
+            (homeWon ? roundAnalysis.homeFollowUps : roundAnalysis.awayFollowUps) >= roundAnalysis.followUps * 0.75
         ) {
             primaryFactor = "ECONOMY"
             winningReason = "Snowballed from pistol round victories"

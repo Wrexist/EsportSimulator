@@ -199,7 +199,7 @@ export const CLUB: Record<string, string> = {
     "sx.losing": "Losing factor",
     "sx.noAnalysis": "No written analysis for this match.",
     "sx.rounds": "Rounds · {{map}}",
-    "sx.roundsAria": "Round results, first map",
+    "sx.roundsAria": "Round results, {{map}}",
     "sx.roundWon": "Round {{n}}: won",
     "sx.roundLost": "Round {{n}}: lost",
     "sx.roundHow": "{{text}} ({{how}})",
