@@ -297,17 +297,21 @@ describe("Competition owner decision 3: an invite that clashes with another even
         const { SeededRNG } = require("../engine/rng") as typeof import("../engine/rng")
         const teams = Array.from({ length: 40 }, (_, i) => ({ id: `t${i + 1}`, name: `T${i + 1}`, region: "EU", worldRanking: i + 1, rosterIds: [], elo: 1500 }))
         // Week 30: the Shanghai Major's invites go out; the club already has its Thunderpick invite.
-        const s = {
-            currentWeek: 30, currentDay: 0, gameStartDate: "2026-01-05", teams, players: [], contracts: [], staff: [], tournaments: [],
+        const world = (currentWeek: number, rows: object[]) => ({
+            currentWeek, currentDay: 0, gameStartDate: "2026-01-05", teams, players: [], contracts: [], staff: [], tournaments: [],
             scheduledMatches: [], completedMatches: [], eventsLog: [], leagues: [], circuitPoints: [], financeLedger: [], newsFeed: [],
-            tournamentQualifications: [invite("t1", "thunderpick_wc")],
-        } as unknown as import("../engine/save-types").GameSave
+            tournamentQualifications: rows,
+        }) as unknown as import("../engine/save-types").GameSave
+        const s = world(30, [invite("t1", "thunderpick_wc")])
         atomicWeekProcessor.processTournaments(s, "t1", new SeededRNG(5))
         const major = s.eventsLog.find(e => e.id === "invite_notif_major_shanghai_s1")!
         expect(major.data).toMatchObject({ severity: "warning", skipInstanceId: "thunderpick_wc_s1", messageRef: { key: "evn.invite.clashM" } })
         expect(major.choices?.map(c => c.id)).toEqual(["both", "skip"])
-        const plain = s.eventsLog.filter(e => e.id.startsWith("invite_notif_") && e !== major)
-        expect(plain.length).toBeGreaterThan(0)
+        // Week 1: the Spring Showdown (week 3 since the final calendar fix) clashes with nothing.
+        const quiet = world(1, [])
+        atomicWeekProcessor.processTournaments(quiet, "t1", new SeededRNG(5))
+        const plain = [...s.eventsLog, ...quiet.eventsLog].filter(e => e.id.startsWith("invite_notif_") && e !== major)
+        expect(plain.map(e => e.id)).toContain("invite_notif_blast_spring_showdown_s1")
         for (const e of plain) expect([e.id, e.choices]).toEqual([e.id, undefined])
     })
 
