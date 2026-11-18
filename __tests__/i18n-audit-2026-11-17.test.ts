@@ -246,3 +246,41 @@ describe("I18N-09: percentages follow the language's spacing", () => {
         }
     })
 })
+
+describe("I18N-10: native Electron dialogs follow the game's language", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { STRINGS, UI_LANGUAGES, pickUiLanguage } = require("../electron/ui-strings")
+    test("every shipped language has every dialog string", () => {
+        const keys = Object.keys(STRINGS.en).sort()
+        expect(UI_LANGUAGES.sort()).toEqual(["de", "en", "es", "fr", "pl", "pt-BR", "ru"])
+        for (const lang of UI_LANGUAGES) {
+            expect(Object.keys(STRINGS[lang]).sort()).toEqual(keys)
+            for (const k of keys) expect(STRINGS[lang][k].trim().length).toBeGreaterThan(0)
+        }
+        expect(pickUiLanguage("de-AT")).toBe("de")
+        expect(pickUiLanguage("pt_PT")).toBe("pt-BR")
+        expect(pickUiLanguage("ja")).toBeNull()
+    })
+    test("the renderer's language reaches the main process over the gated channel", async () => {
+        const fs = await import("node:fs")
+        const os = await import("node:os")
+        const path = await import("node:path")
+        const vm = await import("node:vm")
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { loadHandlers } = require("../scripts/launch/electron-handler-harness.cjs")
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), "esim-ipc-test-"))
+        try {
+            const harness = loadHandlers({ directory })
+            const main = harness.contexts["main.js"]
+            expect(await harness.invoke("app-set-ui-language", "ru")).toBe(true)
+            expect(vm.runInContext("ui('closeWithoutSaving')", main)).toBe("Закрыть без сохранения")
+            expect(await harness.invoke("app-set-ui-language", "xx")).toBe(false)
+            expect(await harness.invoke("app-set-ui-language", "de", "extra")).toBe(false)
+            expect(vm.runInContext("ui('quit')", main)).toBe("Выйти")
+            expect(await harness.invoke("app-set-ui-language", "de")).toBe(true)
+            expect(vm.runInContext("ui('quit')", main)).toBe("Beenden")
+        } finally {
+            fs.rmSync(directory, { recursive: true, force: true })
+        }
+    })
+})

@@ -55,6 +55,8 @@ contextBridge.exposeInMainWorld('electron', {
     },
     app: {
         getUserDataPath: () => ipcRenderer.invoke('app-get-user-data-path'),
+        // Active UI language, so native dialogs (exit, crash, launch error) match it.
+        setUiLanguage: (code) => ipcRenderer.invoke('app-set-ui-language', code),
     },
     gpu: {
         getMode: () => ipcRenderer.invoke('gpu-get-mode'),
