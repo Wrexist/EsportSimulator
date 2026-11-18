@@ -182,7 +182,7 @@ describe("contract standoff", () => {
         expect(c).toMatchObject({ salaryPerWeek: ask, endWeek: 20 + 52 })
         nextWeek(save)
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "RENEWED" })
-        expect(save.newsFeed[0].content).toContain(`$${ask.toLocaleString("en-US")} a week, running to Week 72`)
+        expect(save.newsFeed[0].content).toContain(`$${ask.toLocaleString("en-US")} a week, running to Week 20, season 2`) // HOME-22: week 72 is season 2, week 20
     })
 
     test("the offer is refused when the club cannot hold the raise; waiting ends in a transfer request in the stated week", () => {
@@ -203,7 +203,7 @@ describe("contract standoff", () => {
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "REQUEST" })
         const request = save.eventsLog.find(x => x.id.startsWith("transfer_request_p0_"))!
         expect(request.data).toMatchObject({ reason: "CONTRACT" })
-        expect(String(request.data.message)).toContain("His contract ends in Week 20 and no new deal was offered.")
+        expect(String(request.data.message)).toContain("His contract ends in Week 20, season 1 and no new deal was offered.")
     })
 
     test("a Quiet player, a deal outside its final year, or a bench player is not a standoff", () => {
@@ -243,7 +243,7 @@ describe("contract standoff", () => {
         const e = eventOf(save, arc)!
         expect(answer(save, e, "wait")).toBe(true)
         expect(Number(arc.facts.requestWeek)).toBe(11 + S.STANDOFF_PATIENCE_WEEKS)
-        expect(String(e.data.message)).toContain(`If his deal is still unrenewed in Week ${11 + S.STANDOFF_PATIENCE_WEEKS}, he hands in a transfer request.`)
+        expect(String(e.data.message)).toContain(`If his deal is still unrenewed in Week ${11 + S.STANDOFF_PATIENCE_WEEKS}, season 1, he hands in a transfer request.`)
         while (save.currentWeek < 11 + S.STANDOFF_PATIENCE_WEEKS) nextWeek(save)
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "REQUEST" })
     })
