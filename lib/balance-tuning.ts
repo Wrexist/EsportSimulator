@@ -861,7 +861,7 @@ export const MATCH_FATIGUE_TUNING = {
 } as const
 
 /** Fatigue one match adds to each player who played it (both the week tick and the managed club's match). */
-export function matchFatigueCost(format: string | undefined, stage?: string): number {
+export function matchFatigueCost(format: string | undefined, stage?: string | null): number {
     const f = (format || "BO1").toUpperCase()
     if (f === "BO5") return MATCH_FATIGUE_TUNING.BO5
     if (f === "BO3") return MATCH_FATIGUE_TUNING.BO3
