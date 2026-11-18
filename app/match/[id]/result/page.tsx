@@ -457,7 +457,8 @@ export default function MatchResultPage() {
             <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-labelledby="result-headline">
                 <div className="flex items-center justify-between gap-4 border-b border-line bg-shell px-8 py-2.5 text-xs text-ink-3">
                     <span className="flex items-center gap-2">
-                        {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
+                        {/* The Draft Cup's tier is internal, not a C-Tier event (as on the prep screen, MODES-06). */}
+                        {isTournament && liveTournament?.seriesId !== "draft_cup" && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
                         {leagueStage && <span className="inline-flex items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("result.league")}</span>}
                         <span className="font-semibold text-ink-2">{competitionName}</span>
                         {match.stage && !leagueStage && <><span aria-hidden="true">·</span><span>{stageName(match.stage)}</span></>}
