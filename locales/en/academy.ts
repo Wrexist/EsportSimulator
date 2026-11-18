@@ -61,7 +61,7 @@ export const ACADEMY = {
     "ac.confirm.buildTitle": "Build the academy?",
     "ac.confirm.upgradeTitle": "Upgrade the academy to level {{n}}?",
     "ac.confirm.body": "Costs {{cost}} now, and the weekly upkeep becomes {{upkeep}}. Funds after: {{after}}. The academy can't be sold or refunded.",
-    "ac.subtitle": "{{name}}. Drills run at the weekly update; prospects who reach {{progress}} progress and the minimums can be promoted on a wage that matches their rating.",
+    "ac.subtitle": "{{name}}. Drills run at the weekly update. Once a prospect has {{progress}} progress and meets the minimum ratings, you can promote him on a wage that matches his rating.",
     "ac.kpi.prospects": "Prospects",
     "ac.kpi.ready": "Ready",
     "ac.kpi.canPromote": "Can be promoted",
@@ -158,4 +158,8 @@ export const ACADEMY = {
     "ac.releaseBody": "Costs a {{fee}} termination fee. Released prospects leave the game for good.",
     "ac.release": "Release",
     "ac.scoutNote": "Every mission searches worldwide; the wider tiers find stronger prospects.",
+    "ac.confirm.scoutTitle": "Send a scout ({{tier}})?",
+    "ac.confirm.scoutBody": "Costs {{cost}} now ({{mission}}). Funds after: {{after}}.",
+    "ac.pendingWaiting.one": "No prospects enrolled yet. {{count}} scouted prospect is waiting for your review.",
+    "ac.pendingWaiting.other": "No prospects enrolled yet. {{count}} scouted prospects are waiting for your review.",
 } as const

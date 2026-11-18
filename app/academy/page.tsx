@@ -183,7 +183,13 @@ export default function AcademyPage() {
                 <div className="min-w-0 space-y-4">
                     <Panel title={t("ac.prospects")} actions={<span className="text-xs text-ink-3">{t("ac.benchShare", { pct: Math.round(BENCH_XP_SHARE * 100) })}</span>} padded={false}>
                         {rows.length === 0 ? (
-                            <p className="px-4 py-5 text-sm text-ink-3">{t("ac.noProspects")}</p>
+                            // SQUAD-50: a scouted prospect waiting for review is not "no prospects".
+                            pending.length > 0 ? (
+                                <p className="px-4 py-5 text-sm text-ink-2">
+                                    {tn("ac.pendingWaiting", pending.length)}{" "}
+                                    <a href="#academy-awaiting" className="font-semibold text-ink-1 underline underline-offset-2">{t("ac.awaiting")}</a>
+                                </p>
+                            ) : <p className="px-4 py-5 text-sm text-ink-3">{t("ac.noProspects")}</p>
                         ) : (
                             <ProspectsTable
                                 rows={rows}
@@ -235,7 +241,8 @@ export default function AcademyPage() {
                                 )
                             })}
                         </div>
-                        <p className="mt-3 text-xs text-ink-3">
+                        {/* SQUAD-51: an all-rest week trains nothing; the note says so in the caution tone while prospects wait. */}
+                        <p className={cn("mt-3 text-xs", weeklyXp === 0 && rows.length > 0 ? "text-caution" : "text-ink-3")}>
                             {t("ac.drillsNote", { starter: ENERGY_CONFIG.starterRecovery, bench: ENERGY_CONFIG.benchRecovery })}
                             {reportShown ? t("ac.lastWeekNote", { week: seasonWeek(report.week - 1) }) : ""}
                         </p>
@@ -294,17 +301,29 @@ export default function AcademyPage() {
                                             <p className="text-sm font-semibold text-ink-1">{t(`ac.tier.${tier}`)}</p>
                                             <p className="text-xs text-ink-3">{active ? tn("ac.backIn", active.weeksRemaining) : block ?? tn("ac.mission", SCOUTING_DURATIONS[tier])}</p>
                                         </div>
-                                        <Button size="sm" variant="outline" className="h-8 w-24 px-3 text-xs" disabled={!!block || !!active}
-                                            onClick={() => run(s.scoutProspect(tier), t("ac.scoutSent"))}>
-                                            {active ? t("ac.out") : formatCurrency(cost, "$", false)}
-                                        </Button>
+                                        {/* SQUAD-49: a mission spends money, so confirm it like every other spend here. */}
+                                        {block || active ? (
+                                            <Button size="sm" variant="outline" className="h-8 w-24 px-3 text-xs" disabled>
+                                                {active ? t("ac.out") : formatCurrency(cost, "$", false)}
+                                            </Button>
+                                        ) : (
+                                            <ConfirmDialog
+                                                title={t("ac.confirm.scoutTitle", { tier: t(`ac.tier.${tier}`) })}
+                                                description={t("ac.confirm.scoutBody", { cost: formatCurrency(cost, "$", false), mission: tn("ac.mission", SCOUTING_DURATIONS[tier]), after: formatCurrency(team.budget - cost, "$", false) })}
+                                                confirmText={formatCurrency(cost, "$", false)}
+                                                icon="warning"
+                                                onConfirm={() => run(s.scoutProspect(tier), t("ac.scoutSent"))}
+                                            >
+                                                <Button size="sm" variant="outline" className="h-8 w-24 px-3 text-xs">{formatCurrency(cost, "$", false)}</Button>
+                                            </ConfirmDialog>
+                                        )}
                                     </li>
                                 )
                             })}
                         </ul>
                         {pending.length > 0 && (
                             <>
-                                <p className="border-t border-line px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ac.awaiting")}</p>
+                                <p id="academy-awaiting" className="scroll-mt-20 border-t border-line px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ac.awaiting")}</p>
                                 <ul className="divide-y divide-line">
                                     {pending.map(p => (
                                         <li key={p.id} className="flex items-center gap-3 px-4 py-2.5">

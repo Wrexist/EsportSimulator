@@ -91,6 +91,22 @@ const POTENTIAL_REVEAL_WEEKS: Record<number, number> = {
 }
 const PROMOTION_BUYOUT_MULTIPLIER = 20
 const NEWS_FEED_CAP = 50
+/**
+ * SQUAD-51: the week a new academy starts with (day 0-6 -> level-1 drill),
+ * so prospects train from the first update instead of a week of rest days.
+ * Two drills cost 22 energy, under a starter's 25 weekly recovery.
+ */
+export const DEFAULT_ACADEMY_WEEK: Readonly<Record<number, string>> = { 0: "aim_intensive", 3: "util_expert" }
+const ACADEMY_LINEUP_SLOTS = ["IGL", "Entry", "AWPer", "Support", "Rifler"] as const
+/** The academy lineup slot that matches a player's role (anything else plays Rifler). */
+function lineupSlotForRole(role: unknown): (typeof ACADEMY_LINEUP_SLOTS)[number] {
+    const r = String(role ?? "").toUpperCase()
+    if (r === "IGL") return "IGL"
+    if (r.includes("ENTRY")) return "Entry"
+    if (r.includes("AWP")) return "AWPer"
+    if (r.includes("SUPPORT")) return "Support"
+    return "Rifler"
+}
 
 export interface AcademyActions {
     buildAcademy: (teamId: string) => { success: boolean; message: string }
@@ -135,6 +151,9 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             team.budget -= cost
             team.academyFacility = { level: 1, builtWeek: state.currentWeek }
+            // SQUAD-51: a schedule with no drill would train nothing; start from a sensible week.
+            const schedule = state.academyTrainingSchedule ?? (state.academyTrainingSchedule = {})
+            if (!Object.values(schedule).some(Boolean)) Object.assign(schedule, DEFAULT_ACADEMY_WEEK)
 
             // Economy invariant #5: academy spend must hit the finance ledger
             // (it was silently leaving the books).
@@ -363,6 +382,12 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             state.academyPlayers.push(academyPlayer)
+            // SQUAD-51: start him in a free lineup slot (his role's, else any): the bench trains at a quarter rate.
+            const roster = state.academyRoster ?? (state.academyRoster = {})
+            const taken = (slot: string) => !!roster[slot] && state.academyPlayers.some(ap => ap.id === roster[slot])
+            const preferred = lineupSlotForRole(player.role)
+            const slot = !taken(preferred) ? preferred : ACADEMY_LINEUP_SLOTS.find(r => !taken(r))
+            if (slot) roster[slot] = academyPlayer.id
             result = { success: true, message: liveText({ key: "lv.enrolled", params: { name: player.nickname } }) }
         })
         return result
