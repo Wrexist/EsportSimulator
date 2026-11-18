@@ -52,7 +52,8 @@ describe("match prep page (MATCHDAY-02, CROSSCUT-11, CROSSCUT-17)", () => {
         expect(prep).toMatch(/isMatchWeek \? \(fixtureNotDueYet\(\{ currentWeek, currentDay, timeMode \}, match\) \? formatGameCalendarDate\(matchDate, \{ weekday: "long" \}\) : t\("home\.matchDay"\)\)/)
     })
     test("CROSSCUT-17: a played match's panel says Played with the final score, not 'ready to play'", () => {
-        expect(prep).toMatch(/isCompleted \? t\("prep\.played"\) : mapsLocked \? t\("prep\.ready"\)/)
+        // 11-17 MATCHDAY-23: "Ready" also waits for the fixture's day.
+        expect(prep).toMatch(/isCompleted \? t\("prep\.played"\) : mapsLocked && !notDue \? t\("prep\.ready"\)/)
         expect(prep).toMatch(/: finalLine !== null \? finalLine/)
     })
     test("CROSSCUT-11: the club name wraps (two lines at most) instead of being cut, labels stay on one line", () => {
@@ -101,7 +102,8 @@ describe("MATCHDAY-15: feed section breaks are dividers, not dashed text", () =>
         for (const k of ["feed.halfTime", "feed.nextMap", "feed.overtimeStart", "feed.overtimeNewSet", "feed.overtimeSwitch", "feed.final"]) expect(t(k)).not.toMatch(/---/)
         expect(t("feed.finalMap", { team: "Trock Drivers", score: "13–8", map: "Overpass" })).toBe("Final: Trock Drivers win 13–8 on Overpass")
         const hook = src("hooks/useLiveMatch.ts")
-        expect(hook.match(/type: "SYSTEM", divider: true/g)?.length).toBe(5)
+        // 6 since 2026-11-17: a played-out match gets the Final line too (MATCHDAY-14).
+        expect(hook.match(/type: "SYSTEM", divider: true/g)?.length).toBe(6)
         expect(hook).toMatch(/runtime\.canonicalMaps\.length === 1 && playedMaps\.length === 1/)
     })
 })
@@ -119,7 +121,8 @@ describe("MATCHDAY-16: the dock says Paused and goes inert on the final board", 
 describe("MATCHDAY-17/19/20: live and veto layout contracts", () => {
     test("MATCHDAY-17: killer and victim keep a minimum width; the location drops first on a narrow feed", () => {
         const feed = src("components/match/live/LiveFeed.tsx")
-        expect(feed.match(/min-w-\[3ch\] shrink truncate font-semibold/g)?.length).toBe(2)
+        // 7ch since 2026-11-17 (MATCHDAY-12): 3ch left two letters and the ellipsis.
+        expect(feed.match(/min-w-\[7ch\] shrink truncate font-semibold/g)?.length).toBe(2)
         expect(feed).toMatch(/@max-\[26rem\]:hidden" data-kill-location/)
         expect(feed).toMatch(/<section className="@container /)
     })

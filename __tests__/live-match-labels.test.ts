@@ -35,7 +35,9 @@ describe('live match labels', () => {
     })
 
     it('keeps the result hand-off', () => {
-        expect(page).toContain('live.toResults')
+        // 11-17 MATCHDAY-10: the button moved from the radar overlay into the dock.
+        expect(page).toContain('onFinish=')
+        expect(read('components/match/LiveMatchControlBar.tsx')).toContain('live.toResults')
         expect(en).toContain('"live.toResults": "Continue to results"')
         expect(en).toContain('"scoreboard.rnd": "RND {{n}} / 24"')
     })

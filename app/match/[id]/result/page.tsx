@@ -325,6 +325,13 @@ export default function MatchResultPage() {
     const ownStats = isPlayerAway ? awayStats : homeStats
     const otherStats = isPlayerAway ? homeStats : awayStats
     const winnerTeam = homeWon ? homeTeam : awayTeam
+    // NEWPLAYER-07: the manager's club is always on the left / on top, its
+    // score first; a neutral match keeps home / away order.
+    const flip = isPlayerAway
+    const leftTeam = flip ? awayTeam : homeTeam
+    const rightTeam = flip ? homeTeam : awayTeam
+    const leftWon = flip ? !homeWon : homeWon
+    const ordered = <T,>(home: T, away: T): [T, T] => (flip ? [away, home] : [home, away])
 
     // Next scheduled player match — surface a forward CTA so the loop self-propels
     // instead of dead-ending on the result screen. The match just finished is already
@@ -344,8 +351,10 @@ export default function MatchResultPage() {
     // Score shown in the headline: rounds for a single map, maps for a series.
     const playedMaps = result.maps.filter(m => m.finalScore.team1 + m.finalScore.team2 > 0)
     const isBO1 = (String(match.format).toUpperCase() === "BO1" || (result.homeScore + result.awayScore === 1 && result.maps.length === 1)) && result.maps.length > 0
-    const hScore = isBO1 ? result.maps[0].finalScore.team1 : result.homeScore
-    const aScore = isBO1 ? result.maps[0].finalScore.team2 : result.awayScore
+    const [hScore, aScore] = ordered(
+        isBO1 ? result.maps[0].finalScore.team1 : result.homeScore,
+        isBO1 ? result.maps[0].finalScore.team2 : result.awayScore,
+    )
 
     // Competition framing and tournament outcome.
     // A league fixture is named by its stage ("Europe Division 3 · Round 5").
@@ -387,15 +396,18 @@ export default function MatchResultPage() {
     const ownMvp = best(isPlayerMatch ? ownStats : homeStats)
     const otherMvp = best(isPlayerMatch ? otherStats : awayStats)
 
+    // Below 1280 px the name is smaller and may take two lines instead of
+    // being cut to "TROCK…" (MATCHDAY-09, as on the prep header).
     const crest = (team: typeof homeTeam, align: "left" | "right", won: boolean) => (
-        <div className={cn("flex min-w-0 flex-1 items-center gap-5", align === "right" && "flex-row-reverse text-right")}>
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
+        <div className={cn("flex min-w-0 flex-1 items-center gap-3 xl:gap-5", align === "right" && "flex-row-reverse text-right")}>
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-line bg-raised xl:h-20 xl:w-20">
                 <TeamLogoImage src={team?.logoPath} alt={team?.name || ""} size={60} team={team} />
             </div>
             <div className="min-w-0">
-                <p className={cn("truncate font-display text-[36px] font-bold uppercase leading-none", won ? "text-ink-1" : "text-ink-2")}><TeamLink id={team?.id}>{team?.name}</TeamLink></p>
+                <p className={cn("line-clamp-2 font-display text-[28px] font-bold uppercase leading-none [overflow-wrap:anywhere] xl:text-[36px]", won ? "text-ink-1" : "text-ink-2")} title={team?.name}><TeamLink id={team?.id}>{team?.name}</TeamLink></p>
                 <p className={cn("mt-2 flex items-center gap-2 text-sm text-ink-3", align === "right" && "justify-end")}>
                     {t("intro.world")} <span className="font-semibold tabular-nums text-ink-2">#{team?.worldRanking || "—"}</span>
+                    {isPlayerMatch && <span className="text-xs uppercase tracking-[0.06em]">· {team?.id === match.homeTeamId ? t("result.home") : t("result.away")}</span>}
                 </p>
             </div>
         </div>
@@ -404,7 +416,7 @@ export default function MatchResultPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-4 pb-16">
             {/* Every screen has an h1; here it is for screen readers only (CROSSCUT-11). */}
-            {homeTeam && awayTeam && <h1 className="sr-only">{t("prep.versus", { a: homeTeam.name, b: awayTeam.name })}</h1>}
+            {leftTeam && rightTeam && <h1 className="sr-only">{t("prep.versus", { a: leftTeam.name, b: rightTeam.name })}</h1>}
             {/* Actions */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1">
@@ -450,15 +462,15 @@ export default function MatchResultPage() {
                     </span>
                     <span className="flex items-center gap-1.5"><Calendar size={12} aria-hidden="true" />{formatGameCalendarDate(matchDate, { month: "short", day: "numeric", year: "numeric" })}</span>
                 </div>
-                <div className="flex items-center gap-8 px-8 py-8">
-                    {crest(homeTeam, "left", homeWon)}
-                    <div className="flex w-[420px] shrink-0 flex-col items-center text-center">
+                <div className="flex items-center gap-5 px-6 py-8 xl:gap-8 xl:px-8">
+                    {crest(leftTeam, "left", leftWon)}
+                    <div className="flex w-[300px] shrink-0 flex-col items-center text-center xl:w-[420px]">
                         <motion.h1
                             id="result-headline"
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.35, ease: "easeOut" }}
-                            className={cn("font-display text-[88px] font-extrabold uppercase leading-[0.85]", headlineTone)}
+                            className={cn("font-display text-[64px] font-extrabold uppercase leading-[0.85] xl:text-[88px]", headlineTone)}
                         >
                             {headline}
                         </motion.h1>
@@ -476,13 +488,13 @@ export default function MatchResultPage() {
                             {playedMaps.map((m, idx) => (
                                 <span key={idx} className="inline-flex items-center gap-2 rounded-sm border border-line px-2 py-1 text-xs">
                                     <span className="font-semibold uppercase tracking-[0.06em] text-ink-2">{MAP_NAMES[m.map] ?? m.map}</span>
-                                    <span className="tabular-nums text-ink-1">{m.finalScore.team1}–{m.finalScore.team2}</span>
+                                    <span className="tabular-nums text-ink-1">{ordered(m.finalScore.team1, m.finalScore.team2).join("–")}</span>
                                 </span>
                             ))}
                         </div>
                         {tournamentLine && <p className={cn("mt-3 text-sm font-semibold", tournamentTone)}>{tournamentLine}</p>}
                     </div>
-                    {crest(awayTeam, "right", !homeWon)}
+                    {crest(rightTeam, "right", !leftWon)}
                 </div>
             </section>
 
@@ -495,7 +507,7 @@ export default function MatchResultPage() {
             {/* Beat 2: who did what */}
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
                 <Panel title={t("result.scoreboard")} padded={false} className="overflow-hidden" actions={<span className="text-xs text-ink-3">{t("result.sortedByRating")}</span>}>
-                    {[{ team: homeTeam, stats: homeStats, won: homeWon }, { team: awayTeam, stats: awayStats, won: !homeWon }].map(({ team, stats, won }) => (
+                    {ordered({ team: homeTeam, stats: homeStats, won: homeWon }, { team: awayTeam, stats: awayStats, won: !homeWon }).map(({ team, stats, won }) => (
                         <PlayerStatsTable key={team?.id ?? String(won)} team={team} won={won} stats={stats} playersById={playersById} result={result} mvpId={result.mvpPlayerId} />
                     ))}
                 </Panel>
@@ -503,25 +515,32 @@ export default function MatchResultPage() {
                 <aside className="min-w-0 space-y-4">
                     <Panel title={t("result.standouts")} padded={false}>
                         <div className="divide-y divide-line">
-                            {ownMvp && <MvpCard label={isPlayerMatch ? t("result.yourMvp") : t("result.teamMvp", { team: homeTeam?.name ?? "" })} stat={ownMvp} player={getPlayer(ownMvp.playerId)} isMatchMvp={ownMvp.playerId === result.mvpPlayerId} />}
-                            {otherMvp && <MvpCard label={isPlayerMatch ? t("result.opponentMvp") : t("result.teamMvp", { team: awayTeam?.name ?? "" })} stat={otherMvp} player={getPlayer(otherMvp.playerId)} isMatchMvp={otherMvp.playerId === result.mvpPlayerId} />}
+                            {ownMvp && <MvpCard label={isPlayerMatch ? t("result.yourMvp") : t("result.teamMvp", { team: homeTeam?.name ?? "" })} stat={ownMvp} player={getPlayer(ownMvp.playerId)} isMatchMvp={ownMvp.playerId === result.mvpPlayerId} outrated={!!otherMvp && otherMvp.rating > ownMvp.rating} />}
+                            {otherMvp && <MvpCard label={isPlayerMatch ? t("result.opponentMvp") : t("result.teamMvp", { team: awayTeam?.name ?? "" })} stat={otherMvp} player={getPlayer(otherMvp.playerId)} isMatchMvp={otherMvp.playerId === result.mvpPlayerId} outrated={!!ownMvp && ownMvp.rating > otherMvp.rating} />}
                         </div>
                     </Panel>
 
                     {isPlayerMatch && (
                         <Panel title={t("result.rewards")} padded={false}>
                             <dl className="divide-y divide-line text-sm">
-                                <div className="flex items-center justify-between px-4 py-2.5">
-                                    <dt className="text-ink-3">Elo</dt>
-                                    <dd className={cn("font-semibold tabular-nums", elo == null || elo === 0 ? "text-ink-3" : elo > 0 ? "text-positive" : "text-negative")}>{elo == null ? "—" : `${elo > 0 ? "+" : ""}${elo}`}</dd>
-                                </div>
-                                <div className="flex items-center justify-between px-4 py-2.5">
-                                    <dt className="text-ink-3">{t("result.worldRanking")}</dt>
-                                    <dd className="flex items-center gap-2 tabular-nums">
-                                        <span className="font-semibold text-ink-1">#{ownTeam?.worldRanking || "—"}</span>
-                                        {!!rankDelta && <span className={rankDelta > 0 ? "text-positive" : "text-negative"}>{rankDelta > 0 ? "▲" : "▼"}{Math.abs(rankDelta)}</span>}
-                                    </dd>
-                                </div>
+                                {/* NEWPLAYER-18: the same words as the rest of the game; a scrim says it counts for nothing. */}
+                                {match.tournamentId === "SCRIM" ? (
+                                    <div className="px-4 py-2.5 text-ink-3" data-testid="practice-no-ranking">{t("result.practiceNoRanking")}</div>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center justify-between px-4 py-2.5">
+                                            <dt className="text-ink-3">{t("result.rankingPoints")}</dt>
+                                            <dd className={cn("font-semibold tabular-nums", elo == null || elo === 0 ? "text-ink-3" : elo > 0 ? "text-positive" : "text-negative")}>{elo == null ? "—" : `${elo > 0 ? "+" : ""}${elo}`}</dd>
+                                        </div>
+                                        <div className="flex items-center justify-between px-4 py-2.5">
+                                            <dt className="text-ink-3">{t("result.worldRanking")}</dt>
+                                            <dd className="flex items-center gap-2 tabular-nums">
+                                                <span className="font-semibold text-ink-1">#{ownTeam?.worldRanking || "—"}</span>
+                                                {!!rankDelta && <span className={rankDelta > 0 ? "text-positive" : "text-negative"}>{rankDelta > 0 ? "▲" : "▼"}{Math.abs(rankDelta)}</span>}
+                                            </dd>
+                                        </div>
+                                    </>
+                                )}
                                 <div className="flex items-center justify-between px-4 py-2.5">
                                     <dt className="text-ink-3">{t("result.playerXp")}</dt>
                                     <dd className="font-semibold tabular-nums text-ink-1">+{xpEarned.toLocaleString(intlLocale())}</dd>
@@ -707,8 +726,7 @@ export default function MatchResultPage() {
                     {playedMaps.map((mapResult, mapIndex) => {
                         let runHome = 0
                         let runAway = 0
-                        const mHome = mapResult.homeScore ?? mapResult.finalScore.team1
-                        const mAway = mapResult.awayScore ?? mapResult.finalScore.team2
+                        const [mHome, mAway] = ordered(mapResult.homeScore ?? mapResult.finalScore.team1, mapResult.awayScore ?? mapResult.finalScore.team2)
                         return (
                             <Panel
                                 key={mapIndex}
@@ -719,7 +737,8 @@ export default function MatchResultPage() {
                                     {mapResult.rounds.map((round) => {
                                         let homeWonLegacy = false
                                         if (!round.winningTeamId) homeWonLegacy = round.roundNumber <= 12 ? round.winner === "ct" : round.winner === "t"
-                                        const homeWin = round.winningTeamId ? round.winningTeamId === match.homeTeamId : homeWonLegacy
+                                        // Top row = the left club (the manager's), NEWPLAYER-07.
+                                        const homeWin = (round.winningTeamId ? round.winningTeamId === match.homeTeamId : homeWonLegacy) !== flip
                                         if (homeWin) runHome++
                                         else runAway++
                                         const sideFill = round.winner === "ct" ? "bg-side-ct" : "bg-side-t"
@@ -727,7 +746,7 @@ export default function MatchResultPage() {
                                             <div
                                                 key={round.roundNumber}
                                                 className={cn("flex flex-col items-center gap-[3px]", (round.roundNumber === 13 || (round.roundNumber > 24 && (round.roundNumber - 25) % 6 === 0)) && "ml-2")}
-                                                title={`${t("live.roundN", { n: round.roundNumber })}: ${homeWin ? homeTeam?.name : awayTeam?.name} (${round.winner.toUpperCase()}, ${winTypeText(String(round.winType)).toLowerCase()}) · ${runHome}–${runAway}`}
+                                                title={`${t("live.roundN", { n: round.roundNumber })}: ${homeWin ? leftTeam?.name : rightTeam?.name} (${round.winner.toUpperCase()}, ${winTypeText(String(round.winType)).toLowerCase()}) · ${runHome}–${runAway}`}
                                             >
                                                 <span className={cn("h-3 w-3.5 rounded-[2px]", homeWin ? sideFill : "bg-hover")} />
                                                 <span className={cn("h-3 w-3.5 rounded-[2px]", !homeWin ? sideFill : "bg-hover")} />
@@ -737,12 +756,12 @@ export default function MatchResultPage() {
                                     })}
                                 </div>
                                 <div className="mt-3 flex justify-between border-t border-line pt-2 text-xs text-ink-3">
-                                    <span>{t("result.topRow", { team: homeTeam?.name || t("result.home") })}</span>
+                                    <span>{t("result.topRow", { team: leftTeam?.name || t("result.home") })}</span>
                                     <span className="flex items-center gap-3">
                                         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-ct" />{t("result.ctWin")}</span>
                                         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-t" />{t("result.tWin")}</span>
                                     </span>
-                                    <span>{t("result.bottomRow", { team: awayTeam?.name || t("result.away") })}</span>
+                                    <span>{t("result.bottomRow", { team: rightTeam?.name || t("result.away") })}</span>
                                 </div>
                             </Panel>
                         )
@@ -753,29 +772,10 @@ export default function MatchResultPage() {
             {/* ANALYSIS TAB */}
             {activeTab === "analysis" && (
                 <div className="space-y-4">
-                    {/* Map Selector (for multi-map matches) */}
-                    {result.maps.length > 1 && (
-                        <div className="flex gap-2">
-                            {result.maps.map((m: MapResult, i: number) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setSelectedMapIndex(i)}
-                                    aria-pressed={selectedMapIndex === i}
-                                    className={cn(
-                                        "rounded-[4px] border px-3 py-1.5 text-sm font-semibold transition-colors duration-150",
-                                        selectedMapIndex === i ? "border-gold bg-gold/[0.06] text-ink-1" : "border-line bg-raised text-ink-3 hover:text-ink-1",
-                                    )}
-                                >
-                                    {MAP_NAMES[m.map] ?? m.map} <span className="tabular-nums">{m.finalScore?.team1}–{m.finalScore?.team2}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         {/* Opening Duels */}
-                        <Panel title={t("result.openingDuels")} actions={<span className="text-xs text-ink-3">{t("result.openingDuelsNote")}</span>}>
-                            {[homeTeam, awayTeam].map((team, teamIdx) => {
+                        <Panel title={result.maps.length > 1 ? `${t("result.openingDuels")} · ${t("result.allMaps")}` : t("result.openingDuels")} actions={<span className="text-xs text-ink-3">{t("result.openingDuelsNote")}</span>}>
+                            {[leftTeam, rightTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
                                     .filter((s: any) => resultLineup(result, team.id, team.rosterIds).includes(s.playerId))
@@ -808,8 +808,8 @@ export default function MatchResultPage() {
                         </Panel>
 
                         {/* KAST & Clutches */}
-                        <Panel title={t("result.kast")} actions={<span className="text-xs text-ink-3">{t("result.kastNote")}</span>}>
-                            {[homeTeam, awayTeam].map((team, teamIdx) => {
+                        <Panel title={result.maps.length > 1 ? `${t("result.kast")} · ${t("result.allMaps")}` : t("result.kast")} actions={<span className="text-xs text-ink-3">{t("result.kastNote")}</span>}>
+                            {[leftTeam, rightTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
                                     .filter((s: any) => resultLineup(result, team.id, team.rosterIds).includes(s.playerId))
@@ -840,6 +840,26 @@ export default function MatchResultPage() {
                             })}
                         </Panel>
                     </div>
+
+                    {/* Map Selector (for multi-map matches): it picks the economy chart's map
+                        only, so it sits right above it (MATCHDAY-18). */}
+                    {result.maps.length > 1 && (
+                        <div className="flex gap-2" data-testid="economy-map-selector">
+                            {result.maps.map((m: MapResult, i: number) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setSelectedMapIndex(i)}
+                                    aria-pressed={selectedMapIndex === i}
+                                    className={cn(
+                                        "rounded-[4px] border px-3 py-1.5 text-sm font-semibold transition-colors duration-150",
+                                        selectedMapIndex === i ? "border-gold bg-gold/[0.06] text-ink-1" : "border-line bg-raised text-ink-3 hover:text-ink-1",
+                                    )}
+                                >
+                                    {MAP_NAMES[m.map] ?? m.map} <span className="tabular-nums">{ordered(m.finalScore?.team1, m.finalScore?.team2).join("–")}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Economy Per Round */}
                     {(() => {
@@ -886,16 +906,16 @@ export default function MatchResultPage() {
                         return (
                             <Panel title={`${t("result.roundEconomy")} · ${MAP_NAMES[selectedMap.map] ?? selectedMap.map}`} actions={<span className="text-xs text-ink-3">{t("result.roundEconomyNote")}</span>}>
                                 <div className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-3">
-                                    <p className={cn(rowLabel, "self-end pb-0.5")} title={homeTeam?.name}>{homeTeam?.name}</p>
-                                    {bars(match.homeTeamId, false)}
+                                    <p className={cn(rowLabel, "self-end pb-0.5")} title={leftTeam?.name}>{leftTeam?.name}</p>
+                                    {bars(leftTeam?.id ?? match.homeTeamId, false)}
                                     <p className="self-center truncate text-[11px] tabular-nums text-ink-3" title={t("buy.full")}>{t("buy.full")} <span className="text-ink-2">{formatCurrency(ROUND_ECONOMY_TUNING.FULL_MIN_AVG_CASH, "$", false)}</span> <span aria-hidden="true">┄</span></p>
                                     <div className="my-1 flex gap-[3px]">
                                         {rounds.map((_: any, i: number) => (
                                             <span key={i} className={cn("flex-1 text-center text-[11px] tabular-nums text-ink-3", gapCls(i), resetBefore(i + 1) && "font-semibold text-ink-2")} title={resetBefore(i + 1) ? (i + 1 === 13 ? t("live.halftime") : t("live.overtime")) : undefined}>{(i + 1) % 3 === 1 || resetBefore(i + 1) ? i + 1 : ""}</span>
                                         ))}
                                     </div>
-                                    <p className={cn(rowLabel, "self-start pt-0.5")} title={awayTeam?.name}>{awayTeam?.name}</p>
-                                    {bars(match.awayTeamId, true)}
+                                    <p className={cn(rowLabel, "self-start pt-0.5")} title={rightTeam?.name}>{rightTeam?.name}</p>
+                                    {bars(rightTeam?.id ?? match.awayTeamId, true)}
                                 </div>
                             </Panel>
                         )
@@ -920,7 +940,7 @@ export default function MatchResultPage() {
     )
 }
 
-function MvpCard({ label, stat, player, isMatchMvp }: { label: string; stat: PlayerMatchStats; player?: PlayerSaveData; isMatchMvp: boolean }) {
+function MvpCard({ label, stat, player, isMatchMvp, outrated }: { label: string; stat: PlayerMatchStats; player?: PlayerSaveData; isMatchMvp: boolean; outrated?: boolean }) {
     return (
         <div className="flex items-center gap-4 p-4">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-raised">
@@ -930,9 +950,10 @@ function MvpCard({ label, stat, player, isMatchMvp }: { label: string; stat: Pla
                 {/* Each label stays on one line; the Match MVP badge moves under the label when the column is narrow (MATCHDAY-14). */}
                 <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                     <span className="whitespace-nowrap">{label}</span>
-                    {isMatchMvp && <span className="inline-flex items-center gap-1 whitespace-nowrap text-gold"><Trophy size={11} aria-hidden="true" /> {t("endBeat.matchMvp")}</span>}
+                    {/* The match MVP is the winners' best; when the other card rated higher, the badge says so (MATCHDAY-20). */}
+                    {isMatchMvp && <span className="inline-flex items-center gap-1 whitespace-nowrap text-gold" title={t("result.mvpTitle")}><Trophy size={11} aria-hidden="true" /> {outrated ? t("result.mvpWinningSide") : t("endBeat.matchMvp")}</span>}
                 </p>
-                <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1"><PlayerLink id={player?.id}>{player?.nickname ?? t("result.formerPlayer")}</PlayerLink></p>
+                <p className="truncate font-display text-[26px] font-bold leading-tight text-ink-1"><PlayerLink id={player?.id}>{player?.nickname ?? t("result.formerPlayer")}</PlayerLink></p>
                 <p className="text-xs tabular-nums text-ink-3">
                     {stat.kills}–{stat.deaths} · {Math.round(stat.adr)} ADR{typeof stat.kast === "number" ? ` · ${formatPercent(stat.kast)} KAST` : ""}
                 </p>
@@ -957,7 +978,13 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
     mvpId: string
 }) {
     return (
-        <table data-slot="table" className="w-full border-collapse text-left">
+        // Fixed layout with set stat widths, so both teams' columns line up (MATCHDAY-22).
+        <table data-slot="table" className="w-full table-fixed border-collapse text-left">
+            <colgroup>
+                <col />
+                {[0, 1, 2, 3, 4, 5, 6].map(i => <col key={i} className="w-14" />)}
+                <col className="w-20" />
+            </colgroup>
             <thead data-slot="table-header">
                 <tr className="border-y border-line first:border-t-0">
                     <th data-slot="table-head" className="pl-4">

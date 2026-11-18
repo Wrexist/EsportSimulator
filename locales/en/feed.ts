@@ -48,7 +48,7 @@ export const FEED = {
     "commentary.ROUND_WIN_CT.10": "The retake pays off for the CT side.",
     "commentary.ROUND_WIN_CT.11": "Defense wins this exchange.",
 
-    "feed.roundEnd": "{{line}} (Winner: {{team}})",
+    "feed.roundEnd": "{{team}} · {{line}}",
     "feed.buy": "{{team}}: {{buy}}",
     "feed.regroup": "Regroup: losing-streak pressure eased this round",
     "feed.plantedAt": "Bomb planted at {{site}}",

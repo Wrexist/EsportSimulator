@@ -49,6 +49,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { getDynamicTournamentName, formatCurrency } from "@/lib/utils-extended"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoImage } from "@/components/ui/asset-images"
@@ -211,6 +212,7 @@ export default function TournamentDetailPage() {
     })))
 
     const gameStartDate = useGameStore(state => state.gameStartDate)
+    const getDateForWeek = useGameStore(state => state.getDateForWeek)
     const rawId = (Array.isArray(id) ? id[0] : id) || ""
 
     const [activeTab, setActiveTab] = useState<"overview" | "groups" | "playoffs" | "schedule" | "history" | "stats">("overview")
@@ -1014,12 +1016,63 @@ export default function TournamentDetailPage() {
                 )}
 
                 {activeTab === "history" && (() => {
+                    const isOwn = (m: { tournamentId?: string | null; homeTeamId: string; awayTeamId: string }) =>
+                        isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
                     const playerMatches = completedMatches
-                        .filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
+                        .filter(isOwn)
                         .sort((a, b) => b.week - a.week)
-                    if (playerMatches.length === 0) return emptyBlock(History, t("common.noMatchesYet"), t("tm.noResultsBody"))
+                    // Drawn fixtures come first, with their day and format (NEWPLAYER-14).
+                    const upcomingMatches = scheduledMatches
+                        .filter(m => isOwn(m) && !completedMatches.some(c => c.id === m.id))
+                        .sort((a, b) => (a.week - b.week) || ((a.day ?? 6) - (b.day ?? 6)))
+                    if (playerMatches.length === 0 && upcomingMatches.length === 0) return emptyBlock(History, t("common.noMatchesYet"), t("tm.noResultsBody"))
+                    const fixtureDate = (m: { week: number; day?: number }) => {
+                        const d = getDateForWeek(m.week)
+                        d.setUTCDate(d.getUTCDate() + (m.day ?? 0))
+                        return formatGameCalendarDate(d, { weekday: "short", month: "short", day: "numeric" })
+                    }
                     return (
-                        <Panel title={t("tm.tab.yours")} padded={false}>
+                        <div className="space-y-4">
+                        {upcomingMatches.length > 0 && (
+                            <Panel title={t("tm.yourUpcoming")} padded={false}>
+                                <table data-slot="table" className="w-full border-collapse text-left">
+                                    <thead data-slot="table-header">
+                                        <tr className="border-b border-line">
+                                            <th data-slot="table-head" className="pl-4">{t("tm.col.date")}</th>
+                                            <th data-slot="table-head">{t("sx.col.opponent")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("tm.stage")}</th>
+                                            <th data-slot="table-head" className="pr-4 text-right">{t("tm.format")}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {upcomingMatches.map(match => {
+                                            const opponent = teamsById.get(match.homeTeamId === playerTeamId ? match.awayTeamId : match.homeTeamId)
+                                            return (
+                                                <tr
+                                                    key={match.id}
+                                                    data-slot="table-row"
+                                                    className="h-11 cursor-pointer border-b border-line last:border-b-0"
+                                                    {...pressable(() => router.push(`/match/${match.id}/tactics`), { label: t("tm.openPrep", { team: opponent?.name || t("common.tbd") }) })}
+                                                >
+                                                    <td className="whitespace-nowrap pl-4 text-sm tabular-nums text-ink-2">{fixtureDate(match)}</td>
+                                                    <td>
+                                                        <span className="flex items-center gap-2.5">
+                                                            <TeamLogoImage src={opponent?.logoPath} alt="" size={22} team={opponent} />
+                                                            <span className="text-sm font-semibold text-ink-1">{opponent?.name || t("common.tbd")}</span>
+                                                            <span className="text-xs tabular-nums text-ink-3">#{opponent?.worldRanking || "—"}</span>
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-3 text-sm text-ink-2">{match.stage ? stageName(match.stage) : t("tm.match")}</td>
+                                                    <td className="pr-4 text-right text-sm font-semibold tabular-nums text-ink-1">{(match.format || "BO3").toUpperCase()}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            </Panel>
+                        )}
+                        {playerMatches.length > 0 && (
+                        <Panel title={upcomingMatches.length > 0 ? t("tm.yourResults") : t("tm.tab.yours")} padded={false}>
                             <table data-slot="table" className="w-full border-collapse text-left">
                                 <thead data-slot="table-header">
                                     <tr className="border-b border-line">
@@ -1061,6 +1114,8 @@ export default function TournamentDetailPage() {
                                 </tbody>
                             </table>
                         </Panel>
+                        )}
+                        </div>
                     )
                 })()}
 

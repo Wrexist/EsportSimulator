@@ -97,9 +97,11 @@ export function MatchNavigationGuard() {
         }
     }, [activeMatchId, pathname, completedMatches, scheduledMatches, currentWeek, setActiveMatch, isInitialized])
 
+    // "Resume match": straight back to the live screen, where the paused match
+    // resumes (a match that cannot start yet is sent on to its prep page there).
     const handleReturnToMatch = () => {
         if (activeMatchId) {
-            router.push(`/match/${activeMatchId}/tactics`) // Return to tactics page to resume match setup
+            router.push(`/match/${activeMatchId}/live`)
         }
     }
 

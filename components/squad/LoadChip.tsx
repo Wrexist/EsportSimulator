@@ -29,7 +29,10 @@ export function LoadChip({ player, className, showRisk = true }: { player: Pick<
     const title = t("load.title", { load: w.load, risk: riskText(w.risk) }) + (player.knock ? " " + t("load.knockTitle", { knock: player.knock.name, pct: Math.round(player.knock.escalateChance * 100) }) : "")
     return (
         <span title={title} className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-1.5 py-0.5 text-[11px] font-semibold tabular-nums", TONE[w.tone], className)} data-testid="load-chip">
-            {t(`load.band.${w.band}`)}{showRisk ? ` · ${riskText(w.risk)}` : ""}{player.knock ? ` · ${t("load.knock")}` : ""}
+            {/* "Fresh · <risk> injury risk": the chip names what the percentage is and
+                floors it at a tenth of a percent instead of showing "under 0.1"; the
+                title keeps the exact figure (NEWPLAYER-10). showRisk={false} keeps only the band. */}
+            {showRisk ? t("load.chip", { band: t(`load.band.${w.band}`), risk: riskText(Math.max(w.risk, 0.001)) }) : t(`load.band.${w.band}`)}{player.knock ? ` · ${t("load.knock")}` : ""}
         </span>
     )
 }

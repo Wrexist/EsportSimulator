@@ -1,7 +1,8 @@
 "use client"
 
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
-import { bestOfLabel, playerWinChance } from '@/lib/match-win-chance'
+import { bestOfLabel, playerWinFactors } from '@/lib/match-win-chance'
+import { mapComfortLabel } from '@/engine/match/map-comfort'
 import { WIN_ODDS_CHECK } from '@/engine/match/win-odds'
 import { fixtureBlockReason, fixtureNotDueYet } from '@/lib/playable-match'
 import { useEffect, useRef, useState, useMemo, type ReactNode } from "react"
@@ -11,7 +12,7 @@ import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { MatchNotFound } from "@/components/match/MatchNotFound"
 import { LoadingState } from "@/components/ui/loading"
-import { ArrowLeft, Brain, Check, ChevronRight, Crosshair, Lock, Video, Zap } from "lucide-react"
+import { ArrowLeft, Brain, Check, ChevronRight, Crosshair, Info, Lock, Video, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -30,7 +31,7 @@ import { getStakes } from "@/lib/match-stakes"
 import { leagueMatchContext, leagueStageLabel } from "@/components/league/league-view"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { playerEnergyPercent } from "@/lib/player-energy"
-import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
 // Engine Imports for Auto-Veto
 import { Player } from "@/types"
 import { getMapAssetName, MAP_NAMES } from "@/data/map-pool"
@@ -41,10 +42,10 @@ import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
 import { COUNTER_EFFECT, counterSite, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
-import { formatDecimal, formatPercent, intlLocale, t } from "@/lib/i18n"
+import { formatDecimal, formatPercent, intlLocale, t, tn } from "@/lib/i18n"
 import { Trans } from "@/lib/trans"
 import { stageName } from "@/lib/display-names"
-import { matchEventName } from "@/lib/tournament-instances"
+import { instanceName, instanceSeason, matchEventName } from "@/lib/tournament-instances"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { autoVetoMaps } from "@/lib/auto-veto"
 import { liveMatchInProgress } from "@/app/match/match-centre"
@@ -295,12 +296,14 @@ export default function TacticalHQPage() {
 
     // Calibrated win chance from the context the match will be played with
     // (engine/match/win-odds.ts). Recomputed when prep changes the teams.
-    const winChance = useMemo(() => {
+    // The factors behind it feed the header's "Why?" (NEWPLAYER-08).
+    const winFactors = useMemo(() => {
         if (!match || !playerTeamId || completedMatches.some(m => m.id === match.id)) return null
         const home = teamsById.get(match.homeTeamId), away = teamsById.get(match.awayTeamId)
         if (!home || !away) return null
-        return playerWinChance({ match, home, away, players, playersById, staff: useGameStore.getState().staff, playerTeamId })
+        return playerWinFactors({ match, home, away, players, playersById, staff: useGameStore.getState().staff, playerTeamId })
     }, [match, teamsById, players, playersById, playerTeamId, completedMatches])
+    const winChance = winFactors?.chance ?? null
 
     // Every match-prep lever (VOD review, playstyle, economy, anti-strat,
     // mental reset) is available from the first match. Facilities keep their
@@ -315,8 +318,24 @@ export default function TacticalHQPage() {
         : PLAYSTYLE_BEATS[myStyle] === opponentStyle ? "advantage"
         : PLAYSTYLE_BEATS[opponentStyle] === myStyle ? "disadvantage" : "neutral"
 
+    // MATCHDAY-23: a fixture later this week (daily mode) or in a later week
+    // can't be vetoed, started or quick-simmed yet; say on which day it plays.
+    const notDue = !!match && fixtureNotDueYet({ currentWeek, currentDay, timeMode }, match)
+    const playsOn = () => {
+        if (!match) return ""
+        const d = getDateForWeek(match.week)
+        d.setUTCDate(d.getUTCDate() + (match.day ?? 0))
+        return formatGameCalendarDate(d, { weekday: "long", month: "short", day: "numeric" })
+    }
+    const refuseNotDue = () => {
+        if (!notDue) return false
+        addToast({ type: "warning", message: t("prep.unlocksOn", { date: playsOn() }) })
+        return true
+    }
+
     const handleQuickSim = async () => {
         if (!match || !myTeam || !opponent) return
+        if (refuseNotDue()) return
         setIsQuickSimulating(true)
 
         // 1. Auto Veto if needed
@@ -335,6 +354,7 @@ export default function TacticalHQPage() {
 
     const handleAutoVeto = async () => {
         if (!match || !myTeam || !opponent) return
+        if (refuseNotDue()) return
         setIsSimulatingVeto(true)
         const homeTeam = match.homeTeamId === myTeam.id ? myTeam : opponent
         const awayTeam = match.homeTeamId === myTeam.id ? opponent : myTeam
@@ -356,7 +376,7 @@ export default function TacticalHQPage() {
     const vetoDelegated = useGameStore(state => !!state.delegation?.veto)
     const autoVetoStarted = useRef(false)
     const canAutoVeto = !!match && !!myTeam && !!opponent && vetoDelegated && !match.vetoComplete && match.week === currentWeek
-        && !completedMatches.some(m => m.id === match.id)
+        && !notDue && !completedMatches.some(m => m.id === match.id)
     useEffect(() => {
         if (!canAutoVeto || autoVetoStarted.current) return
         autoVetoStarted.current = true
@@ -368,14 +388,8 @@ export default function TacticalHQPage() {
         if (!match || !match.maps || !myTeam || !opponent) return
         // HYBRID_DAILY day pacing: a current-week match whose scheduled day hasn't
         // arrived can't be played out of order (mirrors the dashboard's isMatchLive
-        // gate and the store-level guards). Refuse with a clear reason.
-        if (timeMode === "HYBRID_DAILY" && match.week === currentWeek && (match.day ?? 6) > currentDay) {
-            addToast({
-                type: "warning",
-                message: t("prep.unlocksLater"),
-            })
-            return
-        }
+        // gate and the store-level guards). Refuse with a clear reason and the day.
+        if (refuseNotDue()) return
         // Both teams must field 5 players — otherwise the live screen can't
         // initialize (mirrors the quick-sim guard). Advancing the week forfeits
         // an understrength match properly, so refuse here with a clear reason
@@ -547,7 +561,64 @@ export default function TacticalHQPage() {
         : finalLine !== null ? finalLine
         : isSimulatingVeto
         ? t("prep.status.veto")
+        : notDue ? t("prep.playsOn", { date: playsOn() })
         : mapsLocked ? t("prep.status.locked") : t("prep.status.vetoFirst")
+
+    // MATCHDAY-25: a played match shows its score and outcome in the header
+    // instead of the stakes, own side first (same lines as the result page).
+    const played = recorded ? (() => {
+        const home = recorded.homeTeamId === myTeam.id
+        const r = recorded.result
+        const won = home ? r.homeScore > r.awayScore : r.awayScore > r.homeScore
+        const own = (a: number, b: number) => (home ? [a, b] : [b, a])
+        const single = r.maps.length === 1 ? r.maps[0] : undefined
+        const [us, them] = single ? own(single.finalScore.team1, single.finalScore.team2) : own(r.homeScore, r.awayScore)
+        const maps = single ? [] : r.maps
+            .filter(m => m.finalScore.team1 + m.finalScore.team2 > 0)
+            .map(m => `${MAP_NAMES[m.map] ?? m.map} ${own(m.finalScore.team1, m.finalScore.team2).join("–")}`)
+        const bracketMatch = liveTournament?.playoffBracket?.find(m => m.id === match.id)
+        const next = liveTournament?.playoffBracket?.find(m => m.sourceMatchIds?.includes(match.id))
+        const stageLower = bracketMatch?.stage?.toLowerCase() || ""
+        const isFinal = stageLower.includes("final") && !stageLower.includes("semi") && !stageLower.includes("quarter")
+        const outcome = leagueStage ? (won ? t("result.leaguePoints") : t("result.noLeaguePoints"))
+            : bracketMatch && won && isFinal ? t("result.champions")
+            : bracketMatch && won && next ? (next.stage ? t("result.advancedTo", { stage: stageName(next.stage) }) : t("result.advancedNext"))
+            : bracketMatch && !won && tournamentDef?.format === "bracket" ? t("result.eliminated")
+            : won ? t("endBeat.victory") : t("endBeat.defeat")
+        return { won, score: `${us} – ${them}`, maps, outcome }
+    })() : null
+
+    // NEWPLAYER-08: the factors behind the win chance, from the manager's side.
+    const whyLines = winFactors ? (() => {
+        const lines: string[] = []
+        const gap = Math.abs(winFactors.ratingGap)
+        lines.push(gap < 0.05 ? t("prep.why.ratingEven") : t(winFactors.ratingGap > 0 ? "prep.why.ratingUp" : "prep.why.ratingDown", { n: formatDecimal(gap, 1) }))
+        const edge = Math.abs(winFactors.edgeGap) * 100
+        lines.push(edge < 0.05 ? t("prep.why.edgeEven") : t(winFactors.edgeGap > 0 ? "prep.why.edgeUp" : "prep.why.edgeDown", { pct: formatDecimal(edge, 1) }))
+        const top = [...myLineup.map(p => ({ p, team: myTeam })), ...theirLineup.map(p => ({ p, team: opponent }))]
+            .reduce<{ p: LineupPlayer; team: typeof myTeam } | null>((best, x) => (!best || x.p.ovr > best.p.ovr ? x : best), null)
+        if (top) lines.push(t("prep.why.best", { name: top.p.nickname, ovr: top.p.ovr, team: top.team.name }))
+        if (mapsLocked) {
+            for (const m of winFactors.maps) {
+                lines.push(t("prep.why.map", { map: MAP_NAMES[m.map] ?? m.map, pct: Math.round(m.chance * 100), own: mapComfortLabel(m.ownComfort), their: mapComfortLabel(m.theirComfort) }))
+            }
+        } else lines.push(t("prep.why.noMaps"))
+        return lines
+    })() : null
+
+    // NEWPLAYER-14: in a qualifier's bracket, how many wins from here reach the
+    // event it qualifies for (places that go through by the rule the engine
+    // uses, as on the tournament page).
+    const qualPath = (() => {
+        if (!isTournament || isCompleted || !tournamentDef?.qualifierFor || !liveTournament?.playoffBracket || !match.stage) return null
+        const dest = getTournamentById(tournamentDef.qualifierFor)
+        if (!dest) return null
+        const k = Math.min(tournamentDef.qualifierSlots || ((tournamentDef.slots || 16) <= 8 ? 2 : 4), Math.max(1, dest.slots || 1))
+        const teamsInStage = 2 * liveTournament.playoffBracket.filter(m => m.stage === match.stage).length
+        const wins = Math.log2(teamsInStage / k)
+        if (!Number.isInteger(wins) || wins < 1) return null
+        return tn("prep.qualPath", wins, { event: instanceName(dest, instanceSeason(liveTournament), gameStartDate), k })
+    })()
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-4 pb-16">
@@ -582,6 +653,12 @@ export default function TacticalHQPage() {
                         </div>
                         <p className="mt-1 text-xs text-ink-3">{competitionDetail}</p>
                         <p className="mt-2 font-display text-[56px] font-bold leading-none tabular-nums text-ink-1">{(match.format || "BO3").toUpperCase()}</p>
+                        {played && (
+                            <Link href={`/match/${match.id}/result`} className="mt-2 text-center hover:opacity-80" data-testid="prep-played-score">
+                                <span className="block font-display text-3xl font-bold leading-none tabular-nums text-ink-1">{played.score}</span>
+                                {played.maps.length > 0 && <span className="mt-1 block text-xs tabular-nums text-ink-3">{played.maps.join(", ")}</span>}
+                            </Link>
+                        )}
                         <p className="mt-2 text-xs text-ink-3">{t("prep.dateWeek", { date: dateLabel, week: match.week })}</p>
                         {winChance !== null && (
                             <p
@@ -591,14 +668,32 @@ export default function TacticalHQPage() {
                                 <Trans k="prep.winChance" params={{ pct: Math.round(winChance * 100) }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-1">{v}</span> }} />
                             </p>
                         )}
+                        {whyLines && (
+                            <details className="mt-1 w-full text-xs text-ink-3" data-testid="win-why">
+                                <summary className="cursor-pointer select-none font-semibold text-ink-2 hover:text-ink-1">{t("prep.why")}</summary>
+                                <ul className="mt-1.5 space-y-1 text-left leading-snug">
+                                    {whyLines.map(line => <li key={line}>{line}</li>)}
+                                </ul>
+                            </details>
+                        )}
                     </div>
                     <TeamBlock team={opponent} ovr={avgOvr(theirLineup)} rank={opponent.worldRanking} align="right" />
                 </div>
-                {stakes && (
-                    <div className="grid grid-cols-2 divide-x divide-line border-t border-line bg-shell text-sm">
-                        <p className="px-8 py-2.5 text-ink-2"><span className={cn(overline, "mr-2")}>{t("prep.ifWin")}</span>{stakes.win}</p>
-                        <p className="px-8 py-2.5 text-right text-ink-2"><span className={cn(overline, "mr-2")}>{t("prep.ifLose")}</span>{stakes.loss}</p>
+                {played ? (
+                    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-t border-line bg-shell px-8 py-2.5 text-sm" data-testid="prep-played-outcome">
+                        <p className={cn("font-semibold", played.won ? "text-positive" : "text-negative")}>{played.outcome}</p>
+                        <Link href={`/match/${match.id}/result`} className="inline-flex items-center gap-1 font-semibold text-ink-2 hover:text-ink-1">
+                            {t("prep.viewResult")} <ChevronRight size={15} aria-hidden="true" />
+                        </Link>
                     </div>
+                ) : stakes && (
+                    <>
+                        <div className="grid grid-cols-2 divide-x divide-line border-t border-line bg-shell text-sm">
+                            <p className="px-8 py-2.5 text-ink-2"><span className={cn(overline, "mr-2")}>{t("prep.ifWin")}</span>{stakes.win}</p>
+                            <p className="px-8 py-2.5 text-right text-ink-2"><span className={cn(overline, "mr-2")}>{t("prep.ifLose")}</span>{stakes.loss}</p>
+                        </div>
+                        {qualPath && <p className="border-t border-line bg-shell px-8 py-2 text-xs text-ink-3" data-testid="prep-qual-path">{qualPath}</p>}
+                    </>
                 )}
             </section>
 
@@ -650,9 +745,15 @@ export default function TacticalHQPage() {
                                         />
                                     ))}
                                 </div>
-                                <p className="mt-1.5 text-[11px] text-ink-3">
-                                    {t("prep.counterExplain", { bonus: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS), penalty: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY), rounds: formatDecimal(ROUNDS_PER_STRENGTH_PCT, 2), points: formatDecimal(MAP_POINTS_PER_STRENGTH_PCT, 2), cap: pct(NON_PLAYER_BONUS_CAP) })}
-                                </p>
+                                {/* The numbers stay one click away for those who want them (NEWPLAYER-10). */}
+                                <details className="mt-1.5 text-[11px] text-ink-3" data-testid="counter-math">
+                                    <summary className="inline-flex cursor-pointer select-none items-center gap-1 font-semibold text-ink-2 hover:text-ink-1">
+                                        <Info size={12} aria-hidden="true" /> {t("prep.worthIt")}
+                                    </summary>
+                                    <p className="mt-1">
+                                        {t("prep.counterExplain", { bonus: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS), penalty: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY), rounds: formatDecimal(ROUNDS_PER_STRENGTH_PCT, 2), points: formatDecimal(MAP_POINTS_PER_STRENGTH_PCT, 2), cap: pct(NON_PLAYER_BONUS_CAP) })}
+                                    </p>
+                                </details>
                             </div>
 
                             {/* Economy Style (B12) — read by the sim (getTeamStrategy). */}
@@ -756,9 +857,11 @@ export default function TacticalHQPage() {
                     {mapsLocked && !isCompleted && <PlaybookEditor maps={[...new Set(match.maps ?? [])]} />}
                 </div>
 
-                <aside className="min-w-0 space-y-4">
+                {/* One column (below 1280 px): the aside's panels join the grid and the
+                    primary action comes first, right under the header (MATCHDAY-03). */}
+                <aside className="contents min-w-0 xl:block xl:space-y-4">
                     {/* Primary action */}
-                    <Panel title={liveProgress ? t("tm.inProgress") : isCompleted ? t("prep.played") : mapsLocked ? t("prep.ready") : t("prep.nextStep")} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
+                    <Panel className="order-first xl:order-none" title={liveProgress ? t("tm.inProgress") : isCompleted ? t("prep.played") : mapsLocked && !notDue ? t("prep.ready") : t("prep.nextStep")} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
                         <div className="space-y-3">
                             {mapsLocked && (
                                 <ul className="space-y-2">
@@ -806,6 +909,10 @@ export default function TacticalHQPage() {
                                 </Button>
                             ) : isPast ? (
                                 <Button disabled variant="outline" className="h-12 w-full">{t("prep.matchExpired")}</Button>
+                            ) : notDue ? (
+                                <Button disabled variant="outline" className="h-12 w-full" data-testid="prep-plays-on">
+                                    <Lock size={16} aria-hidden="true" /> {t("prep.playsOn", { date: playsOn() })}
+                                </Button>
                             ) : mapsLocked ? (
                                 <div className="flex gap-2">
                                     <Button onClick={handleStartMatch} className="h-12 flex-1 text-base">

@@ -142,4 +142,5 @@ export const SQUAD = {
     "dressing.promiseDue": "by week {{week}} · {{left}}",
     "dressing.promiseRules": "Kept: morale +{{keptMorale}}, loyalty +{{keptLoyalty}}. Broken: morale {{brokenMorale}}, loyalty {{brokenLoyalty}}.",
     "squad.coachPicks": "The coach picks the five",
+    "load.chip": "{{band}} · {{risk}} injury risk",
 } as const
