@@ -2,7 +2,7 @@
 import { Trans } from "@/lib/trans"
 import { t, tn } from "@/lib/i18n"
 
-import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
+import { gameCalendarDate, formatGameCalendarDate, formatGameCalendarRange } from "@/lib/game-calendar"
 
 import React, { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -24,6 +24,7 @@ import { BookStaffMeetingModal } from "@/components/schedule/BookStaffMeetingMod
 import { ActivityPickerModal } from "@/components/schedule/ActivityPickerModal"
 import { TournamentDetailsModal } from "@/components/schedule/TournamentDetailsModal"
 import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
+import { projectedMatchesFor } from "@/components/schedule/projected-matches"
 import { ScheduleActivityCard } from "@/components/schedule/ScheduleActivityCard"
 import { TeamMatchPopup } from "@/components/schedule/TeamMatchPopup"
 import { leagueStageLabel } from "@/components/league/league-view"
@@ -37,16 +38,6 @@ const VISIBLE_WEEKS = 6
 /** Prev/next jump; keeps two rows of overlap for context. */
 const PAGE_STEP = 4
 
-
-// Helper for projected matches type
-interface ProjectedMatch {
-  id: string
-  week: number
-  stage: string
-  tournamentName: string
-  tournamentId: string
-  reason?: string
-}
 
 /** First visible week index: the previous week stays in view for context. */
 const defaultOffset = (currentWeek: number) => Math.max(0, currentWeek - 2)
@@ -152,90 +143,13 @@ export default function SchedulePage() {
 
   const playerTeam = teams.find(t => t.id === playerTeamId)
 
-  // --- PROJECTED MATCH LOGIC ---
-  const getProjectedMatches = (): ProjectedMatch[] => {
-    if (!playerTeamId) return []
-    const projected: ProjectedMatch[] = []
-
-    const pushed = new Set<string>()
-    const scheduledIds = new Set(scheduledMatches.map(m => m.id))
-    const completedIds = new Set(completedMatches.map(m => m.id))
-
-    const liveInstances = tournaments.filter(t =>
-      !t.isCompleted &&
-      t.teamIds?.includes(playerTeamId)
-    )
-
-    liveInstances.forEach(instance => {
-      const definition = FULL_TOURNAMENT_CALENDAR.find(def =>
-        def.id === (instance.seriesId || instance.id.replace(/_s\d+$/, ""))
-      )
-
-      const forecastedBracketMatches = (instance.playoffBracket || [])
-        .filter((m: any) => !m.isCompleted)
-        .filter((m: any) => {
-          const involvesPlayer = m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId
-          const unresolvedFutureSlot = !m.homeTeamId || !m.awayTeamId
-          return involvesPlayer || unresolvedFutureSlot
-        })
-        .filter((m: any) => !scheduledIds.has(m.id) && !completedIds.has(m.id))
-        .filter((m: any) => m.week >= currentWeek)
-        .sort((a: any, b: any) => {
-          if ((a.week || 0) !== (b.week || 0)) return (a.week || 0) - (b.week || 0)
-          return (a.id || "").localeCompare(b.id || "")
-        })
-
-      forecastedBracketMatches.forEach((match: any) => {
-        const key = `${instance.id}:${match.id}`
-        if (pushed.has(key)) return
-        pushed.add(key)
-        projected.push({
-          id: `proj_${instance.id}_${match.id}`,
-          week: match.week,
-          tournamentId: instance.id,
-          tournamentName: definition?.shortName || instance.shortName || instance.name,
-          stage: match.stage || instance.currentStage || t("tm.nextStageShort"),
-          reason: t("sch.forecast")
-        })
-      })
-
-      if (forecastedBracketMatches.length > 0) return
-
-      // Stage window fallback when bracket rounds are not generated yet.
-      const startWeek = Math.max(currentWeek, instance.startWeek)
-      const endWeek = Math.max(startWeek, instance.endWeek)
-      for (let week = startWeek; week <= endWeek; week++) {
-        const hasPlayerMatch = scheduledMatches.some(m =>
-          m.week === week
-          && m.tournamentId === instance.id
-          && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-        )
-        if (hasPlayerMatch) continue
-
-        const key = `${instance.id}:stage:${week}`
-        if (pushed.has(key)) continue
-        pushed.add(key)
-        projected.push({
-          id: `proj_${instance.id}_${week}`,
-          week,
-          tournamentId: instance.id,
-          tournamentName: definition?.shortName || instance.shortName || instance.name,
-          stage: instance.currentStage || t("sch.upcomingStage"),
-          reason: t("sch.forecast")
-        })
-      }
-    })
-
-    return projected
-      .sort((a, b) => (a.week - b.week) || a.id.localeCompare(b.id))
-      .slice(0, 60)
-  }
-
-  // Memoize the projected-match build — it scans tournaments, brackets and stage windows.
+  // --- PROJECTED MATCHES --- (components/schedule/projected-matches.ts; HOME-01: none for an event the club is out of)
   const projectedMatches = useMemo(
-    () => getProjectedMatches(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scheduledMatches, completedMatches, tournaments, currentWeek, playerTeamId],
+    () => projectedMatchesFor(
+      { playerTeamId, currentWeek, tournaments, tournamentQualifications, scheduledMatches, completedMatches },
+      { nextStage: t("tm.nextStageShort"), upcomingStage: t("sch.upcomingStage"), forecast: t("sch.forecast") },
+    ),
+    [scheduledMatches, completedMatches, tournaments, tournamentQualifications, currentWeek, playerTeamId],
   )
 
   const completedIdSet = useMemo(
@@ -269,8 +183,9 @@ export default function SchedulePage() {
   const visibleWeeks = Array.from({ length: VISIBLE_WEEKS }, (_, i) => viewOffset + i + 1).filter(w => w <= TOTAL_WEEKS_TO_RENDER)
   const firstVisible = visibleWeeks[0]
   const lastVisible = visibleWeeks[visibleWeeks.length - 1]
+  // HOME-03: the start keeps its year when the span crosses New Year ("Dec 8, 2026 – Jan 18, 2027").
   const rangeLabel = firstVisible && lastVisible
-    ? `${formatGameCalendarDate(dateFor(firstVisible, 0), { month: "short", day: "numeric" })} – ${formatGameCalendarDate(dateFor(lastVisible, 6), { month: "short", day: "numeric", year: "numeric" })}`
+    ? formatGameCalendarRange(dateFor(firstVisible, 0), dateFor(lastVisible, 6), { month: "short", day: "numeric", year: "numeric" })
     : ""
 
   // The store rehydrates after a full load; don't draw a week-0 calendar meanwhile.
@@ -398,18 +313,24 @@ export default function SchedulePage() {
                       <span className="text-xs text-ink-3">{isCurrent ? t("sch.thisWeek") : t("sch.seasonShort", { n: displayYear })}</span>
                     </div>
                     <div className="mt-2 space-y-1">
-                      {participatingTournaments.slice(0, 1).map(ev => (
-                        <button
-                          key={ev.id}
-                          type="button"
-                          onClick={() => setSelectedTournamentId(ev.id)}
-                          className="flex w-full items-center gap-1.5 rounded-sm bg-raised px-2 py-1 text-left text-xs transition-colors hover:bg-hover"
-                        >
-                          <Trophy size={12} className="shrink-0 text-gold" />
-                          <span className="truncate font-semibold text-ink-1">{getDynamicTournamentName(ev.shortName || ev.name, seasonStartWeek(ev, getSeasonFromWeek(weekNum)), gameStartDate, ev.duration)}</span>
-                          <span className="ml-auto shrink-0 text-[11px] text-ink-3">{ev.tier === "QUALIFIER" ? t("common.tier.QUALIFIER") : t(`common.tier.${ev.tier}`)}</span>
-                        </button>
-                      ))}
+                      {/* HOME-02: every event the club is in this week (two can overlap); HOME-25: names wrap, with the full name as the tooltip. */}
+                      {participatingTournaments.map(ev => {
+                        const evName = getDynamicTournamentName(ev.shortName || ev.name, seasonStartWeek(ev, getSeasonFromWeek(weekNum)), gameStartDate, ev.duration)
+                        const tier = ev.tier === "QUALIFIER" ? t("common.tier.QUALIFIER") : t(`common.tier.${ev.tier}`)
+                        return (
+                          <button
+                            key={ev.id}
+                            type="button"
+                            onClick={() => setSelectedTournamentId(ev.id)}
+                            title={`${evName} · ${tier}`}
+                            className="flex w-full items-start gap-1.5 rounded-sm bg-raised px-2 py-1 text-left text-xs transition-colors hover:bg-hover"
+                          >
+                            <Trophy size={12} className="mt-px shrink-0 text-gold" />
+                            <span className="line-clamp-2 min-w-0 flex-1 break-words font-semibold text-ink-1">{evName}</span>
+                            <span className="shrink-0 text-[11px] text-ink-3">{tier}</span>
+                          </button>
+                        )
+                      })}
                       {upcomingIndicator && (
                         <button
                           type="button"
@@ -417,7 +338,7 @@ export default function SchedulePage() {
                           className="flex w-full items-center gap-1.5 rounded-sm border border-dashed border-line-strong px-2 py-1 text-left text-xs text-ink-3 transition-colors hover:text-ink-1"
                         >
                           <Trophy size={12} className="shrink-0" />
-                          <span className="truncate">{upcomingIndicator.shortName} · {tn("tm.inWeeks", upcomingIndicator.startWeek - calendarWeek)}</span>
+                          <span className="line-clamp-2 break-words" title={`${upcomingIndicator.shortName} · ${tn("tm.inWeeks", upcomingIndicator.startWeek - calendarWeek)}`}>{upcomingIndicator.shortName} · {tn("tm.inWeeks", upcomingIndicator.startWeek - calendarWeek)}</span>
                         </button>
                       )}
                       {weekBlocks.map(a => (
