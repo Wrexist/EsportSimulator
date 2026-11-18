@@ -710,7 +710,7 @@
  "live.rounds": "Runden",
  "live.mapPlayed": "{{map}} · {{n}} gespielt",
  "live.winner": "Sieger",
- "live.endedBy": "Entschieden durch",
+ "live.endedBy": "Rundenende",
  "live.buys": "Käufe",
  "live.buysTitle": "Kauf beider Teams: deiner / ihrer",
  "live.noRounds": "Auf dieser Map ist noch keine Runde beendet.",

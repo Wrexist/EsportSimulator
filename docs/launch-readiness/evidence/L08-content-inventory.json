@@ -91998,8 +91998,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "d2b41cee4ece0b1d5ef9472f24d5fa3e3cbc16624501d1ba8ef4ca21ac6296cd",
-      "bytes": 430398,
+      "sha256": "c740fd97ddfebe821d412ecdf284818eeddeaf1de964fdb6b13a47d8120c358b",
+      "bytes": 430391,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92178,7 +92178,7 @@
         {
           "date": "2026-11-18",
           "previousSha256": "845431407b51e02c088d03d33fe5fd25d34d491cd20cf88c429f50f66484baa4",
-          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording, shorter de round-history header; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
