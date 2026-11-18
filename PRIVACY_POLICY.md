@@ -1,7 +1,7 @@
 # Privacy Policy
 
 **Esports Manager: FPS**
-Last Updated: October 27, 2026
+Last Updated: November 18, 2026
 
 ## Overview
 
@@ -20,7 +20,7 @@ Esports Manager: FPS ("the Game") is a single-player offline game. We are commit
 If you purchased the Game through Steam:
 - **Steam Achievements**: Achievement unlock status is synced with Steam's servers via the Steam SDK.
 - **Steam Cloud**: Save files may be synced via Steam Cloud if enabled in your Steam settings. This is governed by [Steam's Privacy Policy](https://store.steampowered.com/privacy_agreement/).
-- **Steam Leaderboards**: Aggregate game statistics (e.g., total wins, peak ranking) may be submitted to Steam leaderboards.
+- **Steam Stats**: Aggregate game statistics (e.g., total wins, peak ranking) are stored as Steam stats on your Steam account; they track achievement progress. The Game has no leaderboards.
 - **Steam Rich Presence**: Your current in-game status (e.g., "Week 15 | Rank #3") is shared with your Steam friends list.
 
 All Steam-related data processing is handled by Valve Corporation under their terms.
