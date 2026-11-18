@@ -406,8 +406,9 @@ export default function TournamentDetailPage() {
     const enteredTeamIds = [...new Set(tournamentQualifications
         .filter(q => ENTERED_STATUSES.has(q.status) && isQualificationForTournament(q, displayTournament.id, currentWeek))
         .map(q => q.teamId))]
+    // Entered only: a turned-down invite (owner decision 3) is not "Registered".
     const isRegistered = !!playerTeamId && tournamentQualifications.some(q =>
-        q.teamId === playerTeamId && isQualificationForTournament(q, displayTournament.id, currentWeek)
+        q.teamId === playerTeamId && ENTERED_STATUSES.has(q.status) && isQualificationForTournament(q, displayTournament.id, currentWeek)
     )
 
     // Check start based on the specific displayTournament
