@@ -3,8 +3,12 @@
  *  - Calendar, competition owner decision 2 (a): the one-week B/C events and
  *    the Showdowns are out of the Major and RMR weeks, and every qualifier
  *    still finishes before its event (COMP-01).
+ *  - Home's season record counts every official match; the league card's
+ *    record counts league matches only, and both labels say so.
  */
 import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
+import fs from "node:fs"
+import path from "node:path"
 
 const lastWeek = (d: { startWeek: number; duration: number }) => d.startWeek + d.duration - 1
 
@@ -45,5 +49,27 @@ describe("calendar: small events stay out of Major and RMR weeks", () => {
             const main = getTournamentById(q.qualifierFor!)!
             expect({ q: q.id, ends: lastWeek(q) < main.startWeek }).toEqual({ q: q.id, ends: true })
         }
+    })
+})
+
+describe("Home season record vs the league card record", () => {
+    const en = (file: string) => fs.readFileSync(path.join(process.cwd(), "locales/en", file), "utf8")
+    const json = (lang: string) => JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/locales", `${lang}.json`), "utf8")) as Record<string, string>
+
+    test("the labels name what each counts", () => {
+        expect(en("home.ts")).toContain('"home.seasonRecord": "Season, all matches"')
+        expect(en("league.ts")).toContain('"leagueCard.record": "League record"')
+        for (const lang of ["de", "es", "fr", "pl", "pt-BR", "ru"]) {
+            const t = json(lang)
+            expect(t["home.seasonRecord"]).not.toBe(t["leagueCard.record"])
+            expect(t["home.seasonRecord"]).toMatch(/,/)
+        }
+    })
+
+    test("Home counts every official match of the season; the league card counts its division only", () => {
+        const home = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8")
+        expect(home).toMatch(/const games = completedMatches\.filter\(m => !m\.isScrim && m\.week >= seasonStartWeek/)
+        const card = fs.readFileSync(path.join(process.cwd(), "components/league/LeagueSnapshot.tsx"), "utf8")
+        expect(card).toContain("{me ? `${me.wins}–${me.losses}` : \"0–0\"}")
     })
 })

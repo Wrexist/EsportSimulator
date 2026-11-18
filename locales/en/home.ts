@@ -71,7 +71,7 @@ export const HOME = {
     "home.eyebrowDay": "Season {{season}} · Week {{week}} · Day {{day}}",
     "home.title": "Club overview",
     "home.worldRank": "World rank",
-    "home.seasonRecord": "Season record",
+    "home.seasonRecord": "Season, all matches",
     "home.squadStatus": "Squad status",
     "home.squad": "Squad",
     "home.starter": "Starter",
