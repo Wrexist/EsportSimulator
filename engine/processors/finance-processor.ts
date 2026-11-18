@@ -135,7 +135,9 @@ export class FinanceProcessor {
             // Generate budget warning events for player team
             if (team.id === playerTeamId) {
                 const prevState = team._prevFinancialState
-                if (report.state !== "STABLE" && report.state !== prevState) {
+                // SMOKE-B-16: while insolvent, every settlement re-sends the
+                // warning with the new count ("week 5 of 8"), as Finances shows it.
+                if (report.state !== "STABLE" && (report.state !== prevState || report.state === "INSOLVENT")) {
                     const runway = Math.round(report.runwayWeeks);
                     // Kept as translation keys (I18N-03); the English stays in `description`.
                     const messages: Record<string, { ref: TextRef; importance: string }> = {
