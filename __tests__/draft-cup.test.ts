@@ -10,6 +10,7 @@ import {
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { buildDraftCupWorld } from "@/lib/draft-cup-world"
 import type { GameSave } from "@/engine/save-types"
+import { isOpenDecision } from "@/engine/decision-deadlines"
 
 jest.mock("@/data", () => {
     const actual = jest.requireActual("@/data")
@@ -109,6 +110,8 @@ test.each([["as drafted", false], ["with a dominant side, so the cup is won", tr
     const team = s.teams.find(t => t.id === cup.teamId)!
     expect(team.name).toBe("Test Five")
     expect(team.shortName).toBe("TST")
+    // Audit 17 MODES-03: the manager is the name typed on the setup, not the world's placeholder.
+    expect(s.managerDetails.name).toBe("Draft run")
     expect([...team.rosterIds].sort()).toEqual(picks.map(p => p.playerId).sort())
     for (const pick of picks) {
         expect(s.players.find(p => p.id === pick.playerId)!.role).toBe(pick.role)
@@ -169,6 +172,10 @@ test.each([["as drafted", false], ["with a dominant side, so the cup is won", tr
     JobOfferGenerator.forceJobOffer(probe)
     expect(JobOfferGenerator.createDismissalOffers(probe)).toEqual([])
     expect(probe.eventsLog.filter(e => e.type === "JOB_OFFER")).toEqual([])
+    // Audit 17 MODES-04: no storyline, no club decision about money, nothing left open once the run is over.
+    expect((s.storylines ?? []).length).toBe(0)
+    expect(s.eventsLog.filter(e => /^(fan_meet_|sponsor_review_|streak_)/.test(e.id))).toEqual([])
+    expect(s.eventsLog.filter(isOpenDecision)).toEqual([])
     // No other competition ever scheduled the drafted team.
     expect(s.scheduledMatches.concat(s.completedMatches).filter(m => (m.homeTeamId === cup.teamId || m.awayTeamId === cup.teamId) && m.tournamentId !== cup.tournamentId)).toEqual([])
 })

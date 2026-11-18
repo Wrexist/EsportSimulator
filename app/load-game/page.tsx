@@ -38,6 +38,15 @@ function draftCupSlotLabel(cup: { difficulty: string; finish?: string; score?: n
     return [t("dc.title"), difficulty, finish ?? t("lg.inProgress"), cup.score != null ? t("lg.pts", { n: cup.score }) : null].filter(Boolean).join(" · ")
 }
 
+/** Audit 17 MODES-17: the career's difficulty, in the names the new-career pickers use. */
+const CLUB_DIFFICULTIES = new Set(["easy", "normal", "hard"])
+const CREATED_DIFFICULTIES = new Set(["story", "normal", "hard", "impossible"])
+function difficultyLabel(d: { kind: "created" | "club"; id: string } | undefined): string | null {
+    if (!d) return null
+    if (d.kind === "created") return CREATED_DIFFICULTIES.has(d.id) ? t(`ct.diff.${d.id}`) : null
+    return CLUB_DIFFICULTIES.has(d.id) ? t(`ng.diff.${d.id}`) : null
+}
+
 export default function LoadGamePage() {
     return (
         <ErrorBoundary section="Save / Load">
@@ -293,6 +302,7 @@ function LoadGamePageInner() {
                                                         <h3 className="truncate text-[15px] font-semibold text-ink-1">{slot.teamName || slot.saveName || t("lg.unnamed")}</h3>
                                                         <p className="truncate text-xs text-ink-3">
                                                             {corrupted ? t("lg.unreadable") : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
+                                                            {!corrupted && difficultyLabel(slot.difficulty) && <> · {difficultyLabel(slot.difficulty)}</>}
                                                             {isActive && <span className="ml-2 font-semibold text-gold">{t("lg.loaded")}</span>}
                                                             {slot.sandbox && <span className="ml-2 rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution" title={t("lg.sandboxTip")}>{t("ng.sandbox")}</span>}
                                                             {slot.saveId?.startsWith("imported_") && <span className="ml-2 rounded-sm bg-raised px-1.5 py-0.5 text-[11px] font-semibold text-ink-2">{t("lg.imported")}</span>}

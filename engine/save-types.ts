@@ -1369,6 +1369,12 @@ export interface SaveSlotMetadata {
     sandbox?: boolean
     /** C10: a pro career; the pro's nickname. */
     pro?: string
+    /**
+     * Audit 17 MODES-17: the career's difficulty, read from the save each
+     * time the slots are listed: a created club's (story/normal/hard/impossible)
+     * or an existing club's (easy/normal/hard).
+     */
+    difficulty?: { kind: "created" | "club"; id: string }
 
     // Set when the slot's data failed to parse/validate. The slot is still
     // surfaced (rather than silently dropped) so the player can see it and

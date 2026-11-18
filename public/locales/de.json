@@ -6886,5 +6886,6 @@
  "stage.ro64": "Runde der letzten 64",
  "stage.ro16Match": "Achtelfinale · Spiel {{n}}",
  "stage.ro32Match": "Sechzehntelfinale · Spiel {{n}}",
- "stage.ro64Match": "Runde der letzten 64 · Spiel {{n}}"
+ "stage.ro64Match": "Runde der letzten 64 · Spiel {{n}}",
+ "squad.coachPicks": "Der Coach stellt die Fünf auf"
 }

@@ -72,8 +72,8 @@ function isBetweenClubsRoute(pathname: string | null): boolean {
 
 /** G7: club-running screens a Draft Cup side has no use for (no market, staff, money or facilities). */
 const DRAFT_CUP_BLOCKED = ["/transfers", "/academy", "/sponsorships", "/finances", "/scouting", "/staff", "/basecamp", "/equipment"]
-/** Screens still open once a Draft Cup run is over: its match reports and the menus. */
-const DRAFT_CUP_OVER_ROUTES = ["/match/", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
+/** Screens still open once a Draft Cup run is over: its match reports, the trophy room and the cup's bracket (MODES-08, audit 17), and the menus. */
+const DRAFT_CUP_OVER_ROUTES = ["/match/", "/trophies", "/tournaments/", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
 /** Screens still open once a demo career has played its last week: only the menus. */
 const DEMO_OVER_ROUTES = ["/settings", "/credits", "/load-game", "/main-menu", "/new-game"]
 const routeIn = (pathname: string | null, routes: string[]) =>

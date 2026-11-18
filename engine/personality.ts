@@ -318,15 +318,22 @@ export function renewalSalary(p: Pick<PlayerSaveData, "id"> & Partial<PlayerSave
 type Roster = Pick<TeamSaveData, "id" | "rosterIds"> & { dressingRoom?: TeamSaveData["dressingRoom"] }
 type PlayerLookup = (id: string) => PlayerSaveData | undefined
 
-/** Highest leader stat on the roster (roster order breaks ties). */
+/**
+ * Highest leader stat among the fit starters (the first five; roster order
+ * breaks ties). Audit 17 MODES-14: the captain's shield only counts when he
+ * plays, so a benched or injured leader is the pick only when no starter can be.
+ */
 export function defaultCaptainId(team: Roster, lookup: PlayerLookup): string | null {
-    let best: PlayerSaveData | undefined
-    for (const id of team.rosterIds) {
-        const p = lookup(id)
-        if (!p || p.isRetired) continue
-        if (!best || n(p.leader, 50) > n(best.leader, 50)) best = p
+    const best = (ids: readonly string[], fitOnly: boolean): PlayerSaveData | undefined => {
+        let top: PlayerSaveData | undefined
+        for (const id of ids) {
+            const p = lookup(id)
+            if (!p || p.isRetired || (fitOnly && p.injury && p.injury.weeksRemaining > 0)) continue
+            if (!top || n(p.leader, 50) > n(top.leader, 50)) top = p
+        }
+        return top
     }
-    return best?.id ?? null
+    return (best(team.rosterIds.slice(0, 5), true) ?? best(team.rosterIds, true) ?? best(team.rosterIds, false))?.id ?? null
 }
 
 /** The club's captain: the manager's pick while he is on the roster, else the default. */

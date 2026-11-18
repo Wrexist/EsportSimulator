@@ -517,7 +517,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Equipment Shop
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   // Squad Management
-  swapRosterPositions: (teamId: string, index1: number, index2: number) => void
+  swapRosterPositions: (teamId: string, index1: number, index2: number) => boolean
   promotePlayer: (playerId: string) => void
   // Dressing room (Phase 5.2)
   setCaptain: (playerId: string | null) => { success: boolean; message: string }
@@ -1135,7 +1135,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Create new save from snapshot
           // A world the club picker built and previewed is used as it is (START-01/02).
           const previewed = !draftCup && options?.world ? options.world : null
-          const newSave = draftCup ? { ...draftCup.world, saveName }
+          // MODES-03 (audit 17): the manager is the name typed on the Draft Cup setup, not the world's placeholder.
+          const newSave = draftCup ? { ...draftCup.world, saveName, managerDetails: { ...draftCup.world.managerDetails, name: saveName } }
             : previewed ? { ...previewed, saveName, playerTeamId, managerDetails: { ...previewed.managerDetails, name: saveName } }
             : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
 

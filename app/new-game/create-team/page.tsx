@@ -539,7 +539,7 @@ export default function CreateTeamPage() {
                         <dl className="mt-6 divide-y divide-line border-y border-line text-sm">
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.manager")}</dt><dd className="font-semibold text-ink-1">{managerName || "—"}</dd></div>
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.step.difficulty")}</dt><dd className="font-semibold text-ink-1">{t(`ct.diff.${teamData.difficulty}`)}</dd></div>
-                            <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.startingCash")}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(startingCash)}</dd></div>
+                            <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.startingCash")}</dt><dd className="font-semibold tabular-nums text-ink-1">{/* MODES-16 (audit 17): exact, as the review table beside it */}{formatCurrency(startingCash, "$", false)}</dd></div>
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.worldRank")}</dt><dd className="font-semibold tabular-nums text-ink-1">{startRank ? `#${startRank}` : "—"}</dd></div>
                         </dl>
                         <p className="mt-3 text-xs text-ink-3">{t("ct.previewNote")}</p>

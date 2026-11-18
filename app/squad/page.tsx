@@ -70,6 +70,8 @@ type RosterRowProps = {
   salary: number
   retraining?: { weeksCompleted: number; totalWeeks: number }
   swapIdle: boolean
+  /** False in a pro career: the coach picks the five (Audit 17 MODES-13). */
+  canSwap: boolean
   onOpen: (playerId: string) => void
   onSwapInitiate: (index: number) => void
   onSwapExecute: (targetIndex: number) => void
@@ -79,7 +81,7 @@ type RosterRowProps = {
 
 // Module-level + memoized so a row only re-renders when its own props change.
 const RosterRow = memo(function RosterRow({
-  player, teamId, index, slot, isCaptain, isBench, isSelected, isSwapTarget, weeksLeft, salary, retraining, swapIdle,
+  player, teamId, index, slot, isCaptain, isBench, isSelected, isSwapTarget, weeksLeft, salary, retraining, swapIdle, canSwap,
   onOpen, onSwapInitiate, onSwapExecute, onSwapCancel, onTreatInjury,
 }: RosterRowProps) {
   const apps = player.personality?.apps
@@ -179,7 +181,7 @@ const RosterRow = memo(function RosterRow({
           )}
           {isSelected ? (
             <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={onSwapCancel}>{t("squad.cancel")}</Button>
-          ) : isBench && swapIdle ? (
+          ) : isBench && swapIdle && canSwap ? (
             <Button size="sm" variant="outline" className="h-8 gap-1.5 px-3 text-xs" onClick={() => onSwapInitiate(index)}>
               <ArrowRightLeft size={13} /> {t("squad.swapIn")}
             </Button>
@@ -213,7 +215,7 @@ export default function SquadPage() {
 }
 
 function SquadPageInner() {
-  const { players, playerTeamId, academyPlayers, swapRosterPositions, contracts, currentWeek, treatInjury, promoteProspect, addToast, loading } = useGameStore(useShallow(state => ({
+  const { players, playerTeamId, academyPlayers, swapRosterPositions, contracts, currentWeek, treatInjury, promoteProspect, addToast, loading, proActive } = useGameStore(useShallow(state => ({
     players: state.players,
     playerTeamId: state.playerTeamId,
     academyPlayers: state.academyPlayers,
@@ -225,6 +227,8 @@ function SquadPageInner() {
     addToast: state.addToast,
     // A fresh career or a load is still filling the store: wait, don't say "not found".
     loading: !state._hasHydrated || state.isLoading,
+    // Audit 17 MODES-13/20: in a pro career the coach picks the five and the staff manage the squad size.
+    proActive: !!state.proCareer && state.proCareer.retiredWeek == null,
   })))
   const teamData = useCurrentTeam()
   const router = useRouter()
@@ -276,9 +280,9 @@ function SquadPageInner() {
   }, [selectedSwapIndex])
   const handleSwapExecute = useCallback((targetIndex: number) => {
     if (selectedSwapIndex === null) return
-    swapRosterPositions(playerTeamId!, selectedSwapIndex, targetIndex)
+    const swapped = swapRosterPositions(playerTeamId!, selectedSwapIndex, targetIndex)
     setSelectedSwapIndex(null)
-    addToast({ message: t("squad.lineupUpdated"), type: "info" })
+    if (swapped) addToast({ message: t("squad.lineupUpdated"), type: "info" })
   }, [selectedSwapIndex, swapRosterPositions, playerTeamId, addToast])
 
   if (!teamData && loading) return <div className="min-h-[50vh]" aria-busy="true" />
@@ -326,6 +330,7 @@ function SquadPageInner() {
         salary={contract?.salaryPerWeek ?? 0}
         retraining={teamData.activeRoleTraining?.find(r => r.playerId === player.id)}
         swapIdle={selectedSwapIndex === null}
+        canSwap={!proActive}
         onOpen={openPlayer}
         onSwapInitiate={handleSwapInitiate}
         onSwapExecute={handleSwapExecute}
@@ -387,7 +392,7 @@ function SquadPageInner() {
                     label={t("squad.startingFive")}
                     hint={selectedSwapIndex !== null
                       ? <span className="text-xs font-semibold text-gold">{t("squad.chooseStarter")}</span>
-                      : <span className="text-xs text-ink-3">{activeRoster.length} / 5</span>}
+                      : <span className="text-xs text-ink-3">{activeRoster.length} / 5{proActive && <> · {t("squad.coachPicks")}</>}</span>}
                   />
                   {activeRoster.length > 0
                     ? [
@@ -416,7 +421,7 @@ function SquadPageInner() {
                   {benchRoster.length > 0
                     ? benchRoster.map((p, i) => renderRow(p, i + 6, true))
                     : <tr><td colSpan={13} className="px-4 py-5 text-sm text-ink-3">{t(activeRoster.length < 5 ? "squad.benchEmptyShort" : "squad.benchEmpty")}</td></tr>}
-                  {roster.length >= SENIOR_ROSTER_MAX && (
+                  {roster.length >= SENIOR_ROSTER_MAX && !proActive && (
                     <tr><td colSpan={13} role="status" className="border-t border-line px-4 py-3 text-xs text-ink-2">{squadFullMessage(roster.length)}</td></tr>
                   )}
                 </tbody>

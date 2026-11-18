@@ -114,8 +114,9 @@ export function processStorylines(save: GameSave): StoryWeekResult {
         if ((arc.state as StoryArc["state"]) === "RESOLVED") out.resolved++
     }
 
-    // 2. One new arc this week.
-    if (!save.gameOverReason && !arcs.some(a => a.startedWeek === week)) {
+    // 2. One new arc this week. Audit 17 MODES-04: none in a Draft Cup, a
+    // three-week run (a drafted player's 12-week deal read as a contract standoff).
+    if (!save.gameOverReason && !save.draftCup && !arcs.some(a => a.startedWeek === week)) {
         const managedActive = arcs.filter(a => a.state === "ACTIVE" && a.managed).length
         const detected = new Map<StoryArcKind, ArcCandidate[]>()
         const detect = (kind: StoryArcKind) => {

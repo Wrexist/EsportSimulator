@@ -161,7 +161,8 @@ export function buildDraftPool(players: DraftSourcePlayer[], teams: DraftSourceT
                 options.push({ playerId: p.id, nickname: p.nickname, role, overall, price: draftPrice(overall), fromTeamId: clubOf.get(p.id) ?? "" })
             }
         }
-        pool[role] = options.sort((x, y) => y.price - x.price || x.playerId.localeCompare(y.playerId))
+        // Audit 17 MODES-07: within one price the stronger player is listed first.
+        pool[role] = options.sort((x, y) => y.price - x.price || y.overall - x.overall || x.playerId.localeCompare(y.playerId))
     }
     return pool
 }

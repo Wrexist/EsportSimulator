@@ -18,6 +18,7 @@ import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-ca
 import { recordNewCampaign } from "@/engine/manager-career-profile"
 import { calculateTeamTier } from "@/engine/tier-system"
 import { PRO_ROLES } from "@/engine/pro-career"
+import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
 import { PlayerRole } from "@/types/enums"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -55,12 +56,17 @@ export default function ProCareerSetupPage() {
             .catch(err => { debug.error("Pro career: teams failed", err); toast.error(t("pro.err.load"), { description: t("pro.err.loadBody") }) })
     }, [])
 
-    /** Amateur clubs (ranked below the semi-pro tier) by region. */
+    /**
+     * Amateur clubs (ranked below the semi-pro tier) by region, with a place
+     * in the squad for the pro (Audit 17 MODES-20: a club already at the
+     * squad limit put him above it, behind its bench).
+     */
     const amateurs = useMemo(() => {
         const ranked = [...(teams ?? [])].sort((a, b) => (b.reputation ?? 0) - (a.reputation ?? 0))
         const out = new Map<string, SnapshotTeam[]>()
         ranked.forEach((tm, i) => {
-            if (calculateTeamTier(i + 1) !== "AMATEUR" || (tm.rosterIds?.length ?? 0) < 5) return
+            const size = tm.rosterIds?.length ?? 0
+            if (calculateTeamTier(i + 1) !== "AMATEUR" || size < 5 || size >= SENIOR_ROSTER_MAX) return
             const r = tm.region ?? "EU"
             out.set(r, [...(out.get(r) ?? []), tm])
         })
