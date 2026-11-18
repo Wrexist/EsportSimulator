@@ -10,9 +10,10 @@
  *   4. BYE pairings are dropped (the team that would have played the
  *      BYE just skips that round).
  *
- * Match weeks are linearly distributed across the tournament's
- * duration so longer leagues spread evenly and short ones pack
- * multiple rounds per week.
+ * Match weeks are linearly distributed across the tournament's listed
+ * duration (start .. endWeek), so a league ends inside the window the
+ * calendar shows (COMP-10): a long league packs a few rounds into a week,
+ * each on its own day (Tue/Thu/Sat/Sun), in round order.
  *
  * Extracted from tournament-manager.ts.
  */
@@ -63,26 +64,22 @@ export function setupLeagueSchedule(
         teams.splice(1, 0, teams.pop()!)
     }
 
-    // Each round-robin round has every team play exactly once, so placing ONE
-    // round per week means no team is ever double-booked in a week. We do that
-    // whenever all rounds fit inside the tournament's own season (so the league
-    // can't overrun into the next season's instance); otherwise we fall back to
-    // the even-compression layout (which packs multiple rounds per week — a team
-    // can get several BO1s in one week, but at least nothing overruns).
-    const seasonEnd = (Math.floor((startWeek - 1) / 52) + 1) * 52
-    const canSpread = startWeek + (numRounds - 1) <= seasonEnd
-    if (canSpread && numRounds > 0) {
-        // Extend the window so completion/standings span all the spread rounds.
-        // (endWeek is the week after the last round, as start + duration is.)
-        tournament.endWeek = Math.max(tournament.endWeek, startWeek + numRounds)
-    }
+    // Rounds are spread over the listed window (COMP-10: one round a week used
+    // to stretch a 23-round "6 wk event" over 23 weeks). Each round-robin
+    // round has every team play once, so the rounds that share a week go on
+    // different days, in round order.
+    const weekOffsetOf = (roundIndex: number) => Math.floor((roundIndex / numRounds) * duration)
+    const roundsInWeek = new Map<number, number>()
+    for (let r = 0; r < numRounds; r++) roundsInWeek.set(weekOffsetOf(r), (roundsInWeek.get(weekOffsetOf(r)) ?? 0) + 1)
+    const slotInWeek = new Map<number, number>()
 
     let currentMatchIndex = 0
     rounds.forEach((roundMatches, roundIndex) => {
-        const weekOffset = canSpread
-            ? roundIndex
-            : Math.floor((roundIndex / numRounds) * duration)
+        const weekOffset = weekOffsetOf(roundIndex)
         const matchWeek = startWeek + weekOffset
+        const slot = slotInWeek.get(weekOffset) ?? 0
+        slotInWeek.set(weekOffset, slot + 1)
+        const preferredDays = leagueRoundDays(roundsInWeek.get(weekOffset) ?? 1, slot)
 
         roundMatches.forEach(m => {
             const match: BracketMatchSaveData = {
@@ -99,7 +96,25 @@ export function setupLeagueSchedule(
             }
 
             addBracketMatch(tournament, match)
-            scheduleBracketMatch(save, match)
+            scheduleBracketMatch(save, match, preferredDays)
         })
     })
+}
+
+/** Days the rounds of one week start from: Tue/Thu/Sat/Sun, spread evenly when there are more. */
+const LEAGUE_ROUND_DAYS: Record<number, number[]> = { 2: [2, 5], 3: [1, 3, 5], 4: [1, 3, 5, 6] }
+
+/**
+ * Day preference (0 = Mon … 6 = Sun) for the `slot`-th of `count` league
+ * rounds in one week: its own day first, then the days after it, then the
+ * days before (a club with another match that day moves on, not back). A
+ * single round a week keeps the usual weekend-first order.
+ */
+export function leagueRoundDays(count: number, slot: number): number[] | undefined {
+    if (count <= 1) return undefined
+    const anchor = LEAGUE_ROUND_DAYS[count]?.[slot] ?? Math.min(6, Math.round((slot * 6) / (count - 1)))
+    const days = [anchor]
+    for (let d = anchor + 1; d <= 6; d++) days.push(d)
+    for (let d = anchor - 1; d >= 0; d--) days.push(d)
+    return days
 }

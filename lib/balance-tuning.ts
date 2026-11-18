@@ -844,3 +844,26 @@ export const STORY_TUNING = {
     /** Weeks between press conferences, finals excepted (a top club met a top-10 side most weeks: 27 a season). */
     PRESS_MIN_WEEKS_BETWEEN: 4,
 } as const
+
+/**
+ * Fatigue a match adds to every player who plays it, by format. COMP-10
+ * (2026-11-18): a round-robin league now plays inside its listed weeks, up
+ * to four BO1 rounds a week (Global Pro League Finals, Conference, Perfect
+ * Realm), and at 10 a BO1 its clubs averaged fatigue 67-74 through the event.
+ * A league BO1 (stage "League Match") costs LEAGUE_BO1; every other match is
+ * unchanged.
+ */
+export const MATCH_FATIGUE_TUNING = {
+    BO1: 10,
+    BO3: 15,
+    BO5: 25,
+    LEAGUE_BO1: 3,
+} as const
+
+/** Fatigue one match adds to each player who played it (both the week tick and the managed club's match). */
+export function matchFatigueCost(format: string | undefined, stage?: string): number {
+    const f = (format || "BO1").toUpperCase()
+    if (f === "BO5") return MATCH_FATIGUE_TUNING.BO5
+    if (f === "BO3") return MATCH_FATIGUE_TUNING.BO3
+    return stage === "League Match" ? MATCH_FATIGUE_TUNING.LEAGUE_BO1 : MATCH_FATIGUE_TUNING.BO1
+}

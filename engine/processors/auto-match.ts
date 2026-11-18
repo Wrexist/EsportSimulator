@@ -29,6 +29,7 @@ import { recordOfficialMatch } from "../official-stats"
 import { isManagedMatch, resultForSave } from "./match-detail"
 import type { SaveIndexes } from "@/store/indexes"
 import { perfTrace } from "../perf-trace"
+import { matchFatigueCost } from "@/lib/balance-tuning"
 
 const defaultEngine = new MatchEngine()
 
@@ -213,9 +214,8 @@ export function playAutoMatch(
             applyTournamentXP(awayPlayers, !homeWon, match.awayTeamId)
         }
 
-        // Fatigue scaled by match format (BO1=10, BO3=15, BO5=25)
-        const matchFormat = (match.format || "BO1").toUpperCase()
-        const fatigueCost = matchFormat === "BO5" ? 25 : matchFormat === "BO3" ? 15 : 10
+        // Fatigue scaled by match format (BO1=10, BO3=15, BO5=25; a league BO1 less, COMP-10)
+        const fatigueCost = matchFatigueCost(match.format, match.stage)
 
         // Morale scaled by tournament tier
         const getMoraleChange = (won: boolean): number => {
