@@ -384,9 +384,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             // double as both a select type-ahead and a route shortcut.
             const tag = (e.target as HTMLElement)?.tagName
             if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target as HTMLElement)?.isContentEditable) return
-            // Don't intercept when a dialog/modal is open — the open dialog owns
-            // keyboard handling (Esc, Ctrl+Enter) via its own listeners.
-            if (document.querySelector('[role="dialog"]')) return
+            // Don't intercept when a dialog/modal or an open menu/list is on screen:
+            // it owns keyboard handling (Esc, Ctrl+Enter, type-ahead). A digit
+            // used to change screen under a still-open menu (CROSSCUT-15).
+            if (document.querySelector('[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]')) return
 
             const mod = e.ctrlKey || e.metaKey
             // Mid-match the sidebar is locked; navigation hotkeys must not

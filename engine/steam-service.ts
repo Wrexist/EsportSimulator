@@ -360,9 +360,18 @@ export class SteamService {
         week: number
         ranking?: number
     }): Promise<void> {
+        await this.setPresence(buildRichPresence(state))
+    }
+
+    /**
+     * Sets Rich Presence keys in order (steam_display last). Used by the week
+     * tick and by components/layout/SteamPresenceSync.tsx (menu, career, live
+     * match; CROSSCUT-12).
+     */
+    async setPresence(presence: Record<string, string>): Promise<void> {
+        if (!this.isInitialized) await this.initialize()
         if (!this.electronBridge?.setRichPresence) return
         try {
-            const presence = buildRichPresence(state)
             for (const [key, value] of Object.entries(presence)) {
                 await this.electronBridge.setRichPresence(key, value)
             }
@@ -422,7 +431,7 @@ export class SteamService {
 export const steamService = SteamService.getInstance()
 
 /** Tokens defined in steamworks/rich-presence/*.vdf. Keep the two in sync. */
-export const RICH_PRESENCE_TOKENS = ["#Status_Managing", "#Status_Ranked"] as const
+export const RICH_PRESENCE_TOKENS = ["#Status_Managing", "#Status_Ranked", "#Status_Menu", "#Status_Match"] as const
 
 const PRESENCE_VALUE_MAX = 64
 
@@ -440,6 +449,19 @@ export function buildRichPresence(state: { teamName: string; week: number; ranki
     // steam_display last, so Steam never renders a token before its substitutions exist.
     presence.steam_display = ranked ? "#Status_Ranked" : "#Status_Managing"
     return presence
+}
+
+/** Rich Presence in the main menu (no career on screen): no stale club and week (CROSSCUT-12). */
+export function buildMenuPresence(): Record<string, string> {
+    return { status: "In the main menu", steam_display: "#Status_Menu" }
+}
+
+/** Rich Presence while the live match screen is open (CROSSCUT-12). */
+export function buildMatchPresence(state: { teamName: string; opponentName: string }): Record<string, string> {
+    const team = state.teamName.trim().slice(0, PRESENCE_VALUE_MAX) || "a club"
+    const opponent = state.opponentName.trim().slice(0, PRESENCE_VALUE_MAX) || "a club"
+    // steam_display last, so Steam never renders a token before its substitutions exist.
+    return { team, opponent, status: `Playing a match: ${team} vs ${opponent}`, steam_display: "#Status_Match" }
 }
 
 export function checkAchievements(gameState: {

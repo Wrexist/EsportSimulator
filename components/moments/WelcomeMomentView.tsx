@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { useShallow } from "zustand/react/shallow"
 import type { WelcomeMoment } from "@/engine/moments"
-import { TIER_DISPLAY } from "@/engine/league-engine"
+import { calculateTeamTier } from "@/engine/tier-system"
 import { useGameStore } from "@/store/game-store"
 import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
 import { competitionOf } from "@/lib/match-framing"
@@ -35,7 +35,9 @@ export function WelcomeMomentView({ moment, onDismiss }: { moment: WelcomeMoment
     const team = s.teams.find(t => t.id === moment.teamId)
     const objectives = s.boardState?.teamId === moment.teamId ? s.boardState.objectives ?? [] : []
     const division = s.league?.current?.divisions.find(d => d.teamIds.includes(moment.teamId))
-    const tierLabel = team?.leagueTier ? TIER_DISPLAY[team.leagueTier as keyof typeof TIER_DISPLAY]?.label ?? team.leagueTier : undefined
+    // The club level by world ranking, as on New career and the club page ("Amateur"), not
+    // the league tier ("C-Tier"), which reads like a tournament tier (CROSSCUT-08).
+    const tierLabel = team?.worldRanking != null ? t(`ng.tier.${calculateTeamTier(team.worldRanking)}`) : undefined
     const first = s.scheduledMatches
         .filter(m => m.homeTeamId === moment.teamId || m.awayTeamId === moment.teamId)
         .sort((a, b) => a.week - b.week || (a.day ?? 6) - (b.day ?? 6))[0]

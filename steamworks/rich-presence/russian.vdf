@@ -1,0 +1,11 @@
+"lang"
+{
+	"language"	"russian"
+	"tokens"
+	{
+		"#Status_Managing"	"Руководит %team% - сезон %season%, неделя %week%"
+		"#Status_Ranked"	"Руководит %team% (мировой рейтинг #%rank%) - сезон %season%, неделя %week%"
+		"#Status_Menu"	"В главном меню"
+		"#Status_Match"	"Играет матч: %team% против %opponent%"
+	}
+}

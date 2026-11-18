@@ -5,5 +5,7 @@
 	{
 		"#Status_Managing"	"Managing %team% - Season %season%, Week %week%"
 		"#Status_Ranked"	"Managing %team% (World #%rank%) - Season %season%, Week %week%"
+		"#Status_Menu"	"In the main menu"
+		"#Status_Match"	"Playing a match: %team% vs %opponent%"
 	}
 }

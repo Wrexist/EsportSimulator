@@ -1,0 +1,11 @@
+"lang"
+{
+	"language"	"spanish"
+	"tokens"
+	{
+		"#Status_Managing"	"Dirige a %team% - Temporada %season%, semana %week%"
+		"#Status_Ranked"	"Dirige a %team% (puesto mundial #%rank%) - Temporada %season%, semana %week%"
+		"#Status_Menu"	"En el menú principal"
+		"#Status_Match"	"Jugando un partido: %team% contra %opponent%"
+	}
+}

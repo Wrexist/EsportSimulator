@@ -5749,6 +5749,7 @@
  "guard.title": "Match läuft",
  "guard.body": "Du kannst das Match nicht verlassen, solange es läuft. Spiel es zuerst zu Ende.",
  "guard.back": "Zurück zum Match",
+ "guard.simulate": "Rest simulieren",
  "search.aria": "Spielbildschirme durchsuchen",
  "search.tooltip": "Bildschirme durchsuchen (Strg oder Cmd + K)",
  "deal.toSquad": "Zum Kader",

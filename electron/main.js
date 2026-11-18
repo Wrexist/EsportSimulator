@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const steam = require('./steam');
 const { createCloseHandshake } = require('./close-handshake');
-const { clampWindowSize, fitBoundsToWorkArea } = require('./window-bounds');
+const { clampWindowSize, fitBoundsToWorkArea, windowMinimumSize } = require('./window-bounds');
 const { isAllowedAppNavigation, isTrustedMainFrame } = require('./app-origin');
 const { registerTrustedHandler, storageKey, MAX_MOD_BYTES, MOD_FILES } = require('./ipc-policy');
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
@@ -171,13 +171,13 @@ const showErrorPage = (window, errorMessage, errorStack) => {
     const safeMsg = escapeHtml(errorMessage || 'Unknown error');
     const safeStack = escapeHtml(errorStack || '');
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager - Launch Error</title>
-<style>body{background:#1a1a2e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
-.c{max-width:600px;text-align:center}h1{color:#ff4444;font-size:24px;margin-bottom:8px}h2{color:#999;font-size:16px;font-weight:normal;margin-top:0}
-.e{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px;text-align:left;font-family:Consolas,monospace;font-size:12px;color:#ff8888;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;margin:16px 0}
-.b{background:#333;color:#fff;border:1px solid #555;padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}.b:hover{background:#444}
-.h{color:#666;font-size:12px;margin-top:16px}</style></head>
+<style>body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
+.c{max-width:600px;text-align:center}h1{color:#FF5468;font-size:24px;margin-bottom:8px}h2{color:#AEB6C2;font-size:16px;font-weight:normal;margin-top:0}
+.e{background:#0D1015;border:1px solid rgba(255,255,255,.075);border-radius:8px;padding:16px;text-align:left;font-family:Consolas,monospace;font-size:12px;color:#FF5468;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;margin:16px 0}
+.b{background:#181D25;color:#F2F4F7;border:1px solid rgba(255,255,255,.16);padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}.b:hover{background:#212833}
+.h{color:#808A99;font-size:12px;margin-top:16px}</style></head>
 <body><div class="c"><h1>Failed to Launch</h1><h2>The game engine could not start</h2>
-<div class="e">${safeMsg}${safeStack ? '\\n\\n' + safeStack : ''}</div>
+<div class="e">${safeMsg}${safeStack ? '\n\n' + safeStack : ''}</div>
 <div><button class="b" onclick="window.close()">Quit</button></div>
 <p class="h">Try verifying game files through Steam (right-click &gt; Properties &gt; Local Files &gt; Verify).</p>
 </div></body></html>`;
@@ -215,6 +215,10 @@ const closeHandshake = createCloseHandshake(async () => {
     }
 });
 let closePending = false;
+// Set once the first game page has loaded (markBootCompleted). Before that no
+// page listens for a close request, so the window closes at once instead of
+// waiting 15 s for the "Game is not responding" prompt (CROSSCUT-03, 2026-11-17).
+let rendererBooted = false;
 let store;
 // Test harnesses swap this for a fault-injecting fs (so it stays `let`); production always uses node:fs.
 // eslint-disable-next-line prefer-const
@@ -844,8 +848,9 @@ async function createWindow() {
 
         mainWindow = new BrowserWindow({
             ...initialBounds,
-            minWidth: MIN_WIDTH,
-            minHeight: MIN_HEIGHT,
+            // Never above the work area: on a screen smaller than 1024x640 the
+            // minimum would push the window under the taskbar (CROSSCUT-05).
+            ...windowMinimumSize(initialBounds, WINDOW_LIMITS),
             fullscreen: windowState.fullscreen || false,
             icon: windowIcon,
             webPreferences: {
@@ -985,6 +990,7 @@ async function createWindow() {
         const markBootCompleted = (reason) => {
             if (bootCompleted || bootFailed) return;
             bootCompleted = true;
+            rendererBooted = true;
             clearBootWatchdog();
             clearLoadRetry();
             try {
@@ -1165,7 +1171,7 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
         loadApp();
 
         mainWindow.on('close', (e) => {
-            if (forceQuit) return;
+            if (forceQuit || !rendererBooted) return;
             e.preventDefault();
             if (closePending) return;
             closePending = true;
@@ -1244,6 +1250,7 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
             closeHandshake.cancel();
             forceQuit = false;
             closePending = false;
+            rendererBooted = false;
             mainWindow = null;
         });
     } catch (error) {

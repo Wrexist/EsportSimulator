@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Lock } from "lucide-react"
 import { useFocusTrap } from "@/lib/accessibility"
+import { resolveMatchWithoutLiveScreen } from "@/lib/live-match-rescue"
+import { toast } from "@/lib/toast"
 import { t } from "@/lib/i18n"
 
 export function MatchNavigationGuard() {
@@ -22,6 +24,7 @@ export function MatchNavigationGuard() {
     const pathname = usePathname()
     const router = useRouter()
     const [showBlocker, setShowBlocker] = useState(false)
+    const [resolving, setResolving] = useState(false)
 
     useEffect(() => {
         // Wait for store to hydrate/initialize to prevent false positives on reload
@@ -100,6 +103,25 @@ export function MatchNavigationGuard() {
         }
     }
 
+    // The lock can always be resolved, even when the live screen cannot be shown
+    // for this match (CROSSCUT-13): finish it without the live screen.
+    const handleSimulateRest = async () => {
+        const matchId = activeMatchId
+        if (!matchId || resolving) return
+        setResolving(true)
+        try {
+            if (await resolveMatchWithoutLiveScreen(matchId)) {
+                toast.success(t("matchError.resolved"))
+                router.push(`/match/${matchId}/result`)
+            }
+        } catch (e) {
+            if (process.env.NODE_ENV !== "production") console.error("[Match guard] simulating the rest failed", e)
+            toast.error(t("matchError.failed"))
+        } finally {
+            setResolving(false)
+        }
+    }
+
     // Blocking notice: trap focus on it; Escape has nowhere valid to go.
     const dialogRef = useFocusTrap(showBlocker)
 
@@ -110,7 +132,7 @@ export function MatchNavigationGuard() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 top-16 z-modal bg-ink/90 flex items-center justify-center p-4"
+                    className="fixed inset-0 z-modal bg-ink/90 flex items-center justify-center p-4"
                 >
                     <motion.div
                         initial={{ scale: 0.9, y: 20 }}
@@ -133,10 +155,20 @@ export function MatchNavigationGuard() {
 
                         <Button
                             onClick={handleReturnToMatch}
+                            disabled={resolving}
                             size="lg"
                             className="w-full h-12"
                         >
                             {t("guard.back")}
+                        </Button>
+                        <Button
+                            onClick={handleSimulateRest}
+                            disabled={resolving}
+                            variant="outline"
+                            size="lg"
+                            className="mt-3 w-full h-12"
+                        >
+                            {resolving ? t("advance.simulating") : t("guard.simulate")}
                         </Button>
                     </motion.div>
                 </motion.div>

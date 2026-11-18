@@ -4,8 +4,9 @@ import { normalizeColorVision, type ColorVisionMode } from './accessibility-pref
 import { normalizeUiLanguage } from './ui-languages'
 import { normalizeWindowMode, type WindowModeChoice } from './window-mode'
 import { applyUiScale, clampUiScale, effectiveUiScale, stableBaseViewportSize } from './ui-scale'
+import { deviceStorage } from './device-storage'
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 /** Windowed or fullscreen (START-18: "borderless" was the same as fullscreen and reads as it). */
 export type WindowMode = WindowModeChoice
@@ -274,6 +275,9 @@ export const useSettingsStore = create<GameSettings>()(
         }),
         {
             name: 'game-settings',
+            // Also kept in the desktop app's user-data folder: localStorage is per
+            // port, and the app moves off port 3000 when it is taken (CROSSCUT-01).
+            storage: createJSONStorage(() => deviceStorage),
             version: SETTINGS_VERSION,
             migrate: (persisted, version) => migrateSettings(persisted, version) as GameSettings,
             merge: (persisted, current) => {
@@ -318,3 +322,7 @@ export const useSettingsStore = create<GameSettings>()(
         }
     )
 )
+
+// Desktop app: adopt the user-data copy when it differs from this port's
+// localStorage (a session on another port changed a setting), CROSSCUT-01.
+deviceStorage.track('game-settings', () => { void useSettingsStore.persist.rehydrate() })

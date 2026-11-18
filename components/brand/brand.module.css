@@ -1,4 +1,5 @@
-/* Brand surfaces: title hero and loading splash.
+/* Brand surface: the title hero (the loading splash's rules are global, in
+   app/globals.css, CROSSCUT-11).
    Motion is transform/opacity only (Electron defaults to software rendering);
    the heavy look — blur, glow, perspective — is pre-rendered into
    public/key-art by scripts/key-art/render-key-art.ts. */
@@ -132,44 +133,4 @@
 /* Menu side: near-solid ink under the column, fading into the art. */
 .menuShade {
   background: linear-gradient(90deg, #07090c 0%, rgb(7 9 12 / 0.96) 24%, rgb(7 9 12 / 0.7) 40%, rgb(7 9 12 / 0) 58%);
-}
-
-/* ── Loading splash ───────────────────────────────────────── */
-
-.splash {
-  animation: splashIn 260ms ease-out 140ms both;
-}
-
-@keyframes splashIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.track {
-  position: relative;
-  overflow: hidden;
-  height: 2px;
-  border-radius: 1px;
-  background: rgb(255 255 255 / 0.07);
-}
-
-.shimmer {
-  position: absolute;
-  inset: 0;
-  width: 38%;
-  background: linear-gradient(90deg, rgb(242 181 58 / 0), rgb(242 181 58 / 0.95) 50%, rgb(242 181 58 / 0));
-  transform: translateX(-100%);
-  animation: shimmer 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-}
-
-.shimmerStatic {
-  composes: shimmer;
-  animation: none;
-  transform: translateX(81%);
-  opacity: 0.6;
-}
-
-@keyframes shimmer {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(263%); }
 }

@@ -359,10 +359,10 @@ export function TopBar() {
                     {!hideCareerControls && <div className="hidden h-8 w-px bg-line @min-[80rem]/topbar:block" aria-hidden="true" />}
 
                     {!hideCareerControls && <div className="flex flex-col items-end leading-none">
-                        <span suppressHydrationWarning className="topbar-date whitespace-nowrap text-sm font-semibold text-ink-1">
+                        <span suppressHydrationWarning className="topbar-date whitespace-nowrap text-sm font-semibold tabular-nums text-ink-1">
                             {/* Weekly mode: the whole week, so results already played this week are never "in the future" (HOME-18). */}
                             {timeMode === "HYBRID_DAILY"
-                                ? formatGameCalendarDate(currentDate, { weekday: "short", day: "2-digit", month: "short", year: "numeric" })
+                                ? formatGameCalendarDate(currentDate, { weekday: "short", day: "numeric", month: "short", year: "numeric" })
                                 : formatGameCalendarRange(currentDate, weekEnd, { day: "numeric", month: "short", year: "numeric" })}
                         </span>
                         <button

@@ -91,7 +91,7 @@ export function renderSteamworksSheet(): string {
         "",
         "## Rich Presence",
         "",
-        "Steamworks → Community → Rich Presence: upload each file below (one per language). The game sets `team`, `season`, `week`, `rank` and then `steam_display`; without these files Steam shows only the game name.",
+        "Steamworks → Community → Rich Presence: upload each file below (one per language). The game sets `team`, `season`, `week`, `rank` (in a career) or `team`, `opponent` (during a live match), then `steam_display`; without these files Steam shows only the game name.",
         "",
     )
     for (const { file, text } of richPresenceFiles()) {
