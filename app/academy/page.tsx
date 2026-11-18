@@ -140,7 +140,7 @@ export default function AcademyPage() {
         const build = ACADEMY_LEVELS[1]
         return (
             <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
-                <ScreenHeader eyebrow={t("ac.eyebrow")} title={t("ac.title")} subtitle={t("ac.subtitleNone")} />
+                <ScreenHeader eyebrow={t("ac.eyebrow", { season: Math.ceil(Math.max(1, s.currentWeek) / 52) })} title={t("ac.title")} subtitle={t("ac.subtitleNone")} />
                 <Panel>
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <p className="text-sm text-ink-2">
@@ -167,7 +167,7 @@ export default function AcademyPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={t("ac.eyebrowLevel", { n: level })}
+                eyebrow={t("ac.eyebrowLevel", { season: Math.ceil(Math.max(1, s.currentWeek) / 52), n: level })}
                 title={t("ac.title")}
                 subtitle={t("ac.subtitle", { name: t(`ac.level.${level}`), progress: PROMOTION_PROGRESS })}
                 aside={

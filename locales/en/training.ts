@@ -75,7 +75,7 @@ export const TRAINING = {
     "tr.notRun": "Drill not run",
     "tr.loadingSquad": "Loading squad…",
     "tr.eyebrow": "Week · Training",
-    "tr.eyebrowWeek": "Week {{n}} · Training",
+    "tr.eyebrowWeek": "Season {{season}} · Week {{n}} · Training",
     "tr.title": "Training",
     "tr.noPlayers": "No players to train yet.",
     "tr.browse": "Browse transfers",

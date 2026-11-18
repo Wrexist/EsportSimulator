@@ -135,7 +135,7 @@ export default function TrainingPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={t("tr.eyebrowWeek", { n: ((currentWeek - 1) % 52) + 1 })}
+                eyebrow={t("tr.eyebrowWeek", { season: Math.ceil(Math.max(1, currentWeek) / 52), n: ((Math.max(1, currentWeek) - 1) % 52) + 1 })}
                 title={t("tr.title")}
                 subtitle={<Trans k="tr.subtitle" tags={{ link: x => <Link href="/week#training-focus" className="font-semibold text-ink-1 underline underline-offset-2">{x}</Link> }} />}
                 aside={

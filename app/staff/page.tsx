@@ -138,7 +138,7 @@ export default function StaffPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={t("st.eyebrow", { n: ((Math.max(1, currentWeek) - 1) % 52) + 1 })}
+                eyebrow={t("st.eyebrow", { season: Math.ceil(Math.max(1, currentWeek) / 52) })}
                 title={t("st.title")}
                 subtitle={t("st.subtitle")}
                 aside={

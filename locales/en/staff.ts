@@ -45,7 +45,7 @@ export const STAFF: Record<string, string> = {
     "st.eff.scout.ELITE": "Elite scouting reports",
     // Page
     "st.loading": "Loading staff…",
-    "st.eyebrow": "Week {{n}} · Club",
+    "st.eyebrow": "Season {{season}} · Squad",
     "st.title": "Staff",
     "st.subtitle": "Coach, analyst and psychologist add match strength by level; each also has a development job. One per role counts in matches.",
     "st.kpi.staff": "Staff",
