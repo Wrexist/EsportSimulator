@@ -1380,7 +1380,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               { id: "room_train", type: "TRAINING" as const, level: 1, description: "Basic training setup", monthlyCost: 500 },
             ],
             sponsors: [],
-            merchHype: 5,
+            merchHype: 10, // MARKET-10: neutral hype (×1), like every world club
             trophies: [],
             recentForm: [],
             equipment: [],
