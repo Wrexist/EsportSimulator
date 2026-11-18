@@ -220,7 +220,8 @@ export default function ProCareerSetupPage() {
                 </Panel>
             </div>
 
-            <div className="flex items-center justify-end gap-3">
+            {/* SMOKE-B-20: the action stays in view on a short window, on an opaque bar (as Create team's, START-51). */}
+            <div className="sticky bottom-0 z-10 -mx-2 mt-auto flex items-center justify-end gap-3 border-t border-line bg-ink px-2 py-3">
                 {!nameOk && !nicknameTaken && <span className="text-xs text-ink-3">{t("pro.nickShort")}</span>}
                 <Button onClick={start} disabled={!nameOk || !clubId || busy} className="h-11 px-6">
                     {busy ? <><Loader2 size={16} className="animate-spin" /> {t("pro.signing")}</> : t("pro.sign")}

@@ -10,6 +10,8 @@ export interface NewCareerDraft {
     step?: 'welcome' | 'team-select'
     /** The Create team wizard step (START-68): a reload reopens it once the earlier steps check out. */
     ctStep?: CreateTeamStep
+    /** SMOKE-B-17: the career Create team just started; a reload reopens its roster builder instead of the wizard. */
+    createdSaveId?: string
 }
 export const CREATE_TEAM_STEPS = ['name', 'region', 'colors', 'difficulty', 'review'] as const
 export type CreateTeamStep = typeof CREATE_TEAM_STEPS[number]
@@ -23,6 +25,7 @@ export function normalizeCareerDraft(raw: unknown): NewCareerDraft | null {
     if (v.randomWorld === true) result.randomWorld = true
     if (v.step === 'welcome' || v.step === 'team-select') result.step = v.step
     if (typeof v.ctStep === 'string' && (CREATE_TEAM_STEPS as readonly string[]).includes(v.ctStep)) result.ctStep = v.ctStep
+    if (typeof v.createdSaveId === 'string' && v.createdSaveId.length > 0 && v.createdSaveId.length < 200) result.createdSaveId = v.createdSaveId
     const c = v.custom
     if (c && typeof c.name === 'string' && typeof c.shortName === 'string' && Object.hasOwn(DIFFICULTY_SETTINGS, c.difficulty) && Object.hasOwn(REGION_INFO, c.region)) {
         const color = (s: unknown) => typeof s === 'string' && /^#[0-9a-f]{6}$/i.test(s) ? s : '#3B82F6'

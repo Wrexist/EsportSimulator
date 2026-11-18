@@ -89,8 +89,11 @@ function CrestPreview({ team, size }: { team: CustomTeamData; size: number }) {
 
 export default function CreateTeamPage() {
     const router = useRouter()
-    const { initializeCustomTeam } = useGameStore(useShallow(state => ({
+    const { initializeCustomTeam, activeSaveId, storeLoading, rosterSize } = useGameStore(useShallow(state => ({
         initializeCustomTeam: state.initializeCustomTeam,
+        activeSaveId: state.saveId,
+        storeLoading: !state._hasHydrated || state.isLoading,
+        rosterSize: state.teams.find(team => team.id === state.playerTeamId)?.rosterIds?.length ?? 0,
     })))
     // START-10/11: the world's clubs (no career is loaded on this screen), for
     // the name and tag check and the world rank a new club starts at.
@@ -127,16 +130,31 @@ export default function CreateTeamPage() {
     const creatingRef = useRef(false)
     const [draftReady, setDraftReady] = useState(false)
     const [draftSaved, setDraftSaved] = useState(true)
+    // SMOKE-B-17: the career this wizard already started (its roster builder was open when the page reloaded).
+    const [resumeSaveId, setResumeSaveId] = useState<string | null>(null)
     useEffect(() => {
         const draft = loadCareerDraft()
         if (draft) { setManagerName(draft.managerName); if (draft.custom) setTeamData(draft.custom) }
+        if (draft?.createdSaveId) setResumeSaveId(draft.createdSaveId)
         // START-68: a reload returns to the step the player was on.
         setCurrentStep(restorableCreateTeamStep(draft))
         setDraftReady(true)
     }, [])
+    // Once the store has reloaded the career, reopen its roster builder; a
+    // career that is gone (or already has its five) leaves the wizard as it is.
     useEffect(() => {
-        if (draftReady && !isCreating) setDraftSaved(saveCareerDraft({ managerName, custom: teamData, ctStep: currentStep }))
-    }, [draftReady, managerName, teamData, isCreating, currentStep])
+        if (!resumeSaveId || storeLoading) return
+        if (activeSaveId === resumeSaveId && rosterSize < 5) {
+            creatingRef.current = true
+            setShowRosterBuilder(true)
+        } else {
+            saveCareerDraft({ createdSaveId: undefined })
+        }
+        setResumeSaveId(null)
+    }, [resumeSaveId, storeLoading, activeSaveId, rosterSize])
+    useEffect(() => {
+        if (draftReady && !isCreating && !showRosterBuilder) setDraftSaved(saveCareerDraft({ managerName, custom: teamData, ctStep: currentStep }))
+    }, [draftReady, managerName, teamData, isCreating, currentStep, showRosterBuilder])
     // START-68: a restored later step still needs a club name and tag no other club uses.
     useEffect(() => {
         if (!worldClubs || currentStep === "name") return
@@ -258,7 +276,10 @@ export default function CreateTeamPage() {
                 return
             }
 
+            // SMOKE-B-17: until the roster is signed, a reload reopens the builder for this career.
             clearCareerDraft()
+            const createdSaveId = useGameStore.getState().saveId
+            if (createdSaveId) saveCareerDraft({ managerName: managerName.trim(), custom: teamData, ctStep: "review", createdSaveId })
             setShowRosterBuilder(true)
         } catch (err) {
             const msg = err instanceof Error ? err.message : t("ct.err.unexpected")
@@ -270,6 +291,7 @@ export default function CreateTeamPage() {
     }
 
     const handleRosterComplete = () => {
+        clearCareerDraft()
         setShowRosterBuilder(false)
         // Replace: Back/Escape from Home must not reopen the setup (START-05).
         router.replace("/")
@@ -490,7 +512,8 @@ export default function CreateTeamPage() {
             />
             <div aria-hidden="true" className="absolute inset-0 bg-linear-to-r from-ink from-35% via-ink/90 via-60% to-ink/40" />
 
-            <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1240px] gap-12 px-12 py-10">
+            {/* SMOKE-B-17: while a reload decides whether to reopen the roster builder, the wizard stays hidden. */}
+            <div className={cn("relative z-10 mx-auto flex min-h-dvh w-full max-w-[1240px] gap-12 px-12 py-10", resumeSaveId && "invisible")}>
                 <div className="flex w-full max-w-[620px] flex-col gap-6">
                     <button type="button" onClick={goPrev} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                         <ArrowLeft size={16} /> {currentStepIndex === 0 ? t("ng.step1.title") : t(STEPS[currentStepIndex - 1].label)}
@@ -516,8 +539,8 @@ export default function CreateTeamPage() {
 
                     <Panel>{renderStepContent()}</Panel>
 
-                    {/* START-51: the wizard's buttons stay in view on a short window. */}
-                    <div className="sticky bottom-0 z-10 -mx-2 flex justify-between bg-ink/95 px-2 py-3">
+                    {/* START-51: the wizard's buttons stay in view on a short window; SMOKE-B-18: on an opaque bar. */}
+                    <div className="sticky bottom-0 z-10 -mx-2 flex justify-between border-t border-line bg-ink px-2 py-3">
                         <Button variant="outline" onClick={goPrev} className="gap-2">
                             <ArrowLeft size={16} /> {currentStepIndex === 0 ? t("ng.cancel") : t("ng.back")}
                         </Button>
