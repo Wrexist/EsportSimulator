@@ -114,4 +114,5 @@ export const SUPPORT = {
     "search.g.squad": "Your squad",
     "search.g.clubs": "Clubs",
     "search.g.commands": "Commands",
+    "search.saved": "Game saved",
 } as const

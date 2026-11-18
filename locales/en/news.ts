@@ -427,6 +427,7 @@ export const NEWS = {
     "pcr.retireAsk.retire": "Retire and manage the club",
     "pcr.retireAsk.follows": "Ends the pro career; the save continues as a manager career",
     "pcr.offer.followsTo": "Moves you to {{club}} now",
+    "pcr.offer.mRival": "{{club}} (world #{{rank}}) offer a two-year deal and a starting place: their coach would start you instead of {{rival}}. Join them, or stay at {{current}}.",
 
     // The board's warnings, reviews and dismissal (engine/board-expectations.ts)
     "bd.reasons": " ({{list}})",

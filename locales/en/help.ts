@@ -138,6 +138,6 @@ export const HELP = {
     "help.transfers.l1": "The board sets a <b>maximum fee</b>: all of your cash when its confidence is high, down to 40% when it is low or you are on notice.",
     "help.transfers.l2": "Wages are paid every week. Check Finances before adding salary, and keep enough cash for the board's season-end target.",
     "help.transfers.h1": "Scouting",
-    "help.transfers.l3": "You need a scout on your staff. A mission costs $3,000 and takes 1 to 4 weeks, depending on the scout; one mission runs at a time.",
+    "help.transfers.l3": "You need a scout on your staff. A mission costs {{cost}} and takes 1 to 4 weeks, depending on the scout; one mission runs at a time.",
     "help.transfers.l4": "Players you have not scouted show less certain ratings. A report makes them clearer, and a better scout writes a more detailed one.",
 } as const
