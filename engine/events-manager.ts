@@ -16,6 +16,8 @@ const FAN_MILESTONES = [10_000, 50_000, 100_000, 250_000, 500_000, 1_000_000]
  */
 export const onceId = {
   fan: (teamId: string, threshold: number) => `once:fan:${teamId}:${threshold}`,
+  /** The manager's first week at a club (one per stint): thresholds already passed are recorded silently. */
+  fanTenure: (teamId: string, tenureStartWeek: number) => `once:fan:${teamId}:tenure:${tenureStartWeek}`,
   rivalry: (teamId: string, opponentId: string, meetings: number) => `once:rivalry:${teamId}:${opponentId}:${meetings}`,
 }
 
@@ -89,6 +91,21 @@ export class EventsManager {
     // ---------- 2. FAN MILESTONE (threshold-based, one-time per threshold) ----------
     const followers = playerTeam.followers || 0
     const fired = new Set(save.acknowledgedEventIds ?? [])
+    // Audit 11-17 ENGINE-02: a new career or a new job starts with the club's
+    // follower count as it is. Thresholds the club passed before the manager
+    // arrived are recorded without a mail or the +2 reputation; only those it
+    // reaches under him are announced.
+    const tenure = onceId.fanTenure(playerTeam.id, save.managerDetails?.tenureStartWeek ?? 1)
+    if (!fired.has(tenure)) {
+      for (const threshold of FAN_MILESTONES) {
+        if (followers < threshold) continue
+        const once = onceId.fan(playerTeam.id, threshold)
+        markOnce(save, once)
+        fired.add(once)
+      }
+      markOnce(save, tenure)
+      fired.add(tenure)
+    }
     for (const threshold of FAN_MILESTONES) {
       if (followers < threshold) continue
       // Per club: a new job's club has its own milestones.

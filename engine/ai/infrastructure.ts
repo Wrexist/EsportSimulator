@@ -218,8 +218,10 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
     // Academies are bought while sponsor income is high; when that income
     // lapses the upkeep (up to $40k/week) left low-reputation AI clubs in a
     // permanent deficit that also blocked every free-agent signing. Shed one
-    // level per week (no refund) while the club cannot cover its running costs.
-    if (team.academyFacility && team.academyFacility.level > 0 && aiClubBudget(save, team).net < 0) {
+    // level per week (no refund) while the club cannot cover its running costs
+    // (from income, or from the savings it may draw on: ENGINE-05).
+    const running = team.academyFacility && team.academyFacility.level > 0 ? aiClubBudget(save, team) : undefined
+    if (team.academyFacility && running && running.net + running.reserveDraw < 0) {
         team.academyFacility = { ...team.academyFacility, level: team.academyFacility.level - 1, lastUpgradeWeek: save.currentWeek }
         return
     }

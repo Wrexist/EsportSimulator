@@ -45,16 +45,25 @@ export function compactFinanceLedger<T extends { teamId?: string }>(ledger: T[],
     return ledger.filter(e => keep.has(e))
 }
 
+/**
+ * Cap the events log, keeping the newest weeks (unread first within a week).
+ * Writers mix push and unshift, so a positional slice would drop this week's
+ * mail; every path that caps the log uses this (store pruneGameState too:
+ * audit 11-17 ENGINE-04).
+ */
+export function compactEventsLog<T extends { week: number; acknowledged?: boolean }>(log: T[], cap: number): T[] {
+    if (log.length <= cap) return log
+    return [...log]
+        .sort((a, b) => {
+            if (b.week !== a.week) return b.week - a.week
+            if (a.acknowledged !== b.acknowledged) return a.acknowledged ? 1 : -1
+            return 0
+        })
+        .slice(0, cap)
+}
+
 export function compactPersistentState(save: GameSave): void {
-    if (save.eventsLog.length > ARRAY_CAPS.eventsLog) {
-        save.eventsLog = [...save.eventsLog]
-            .sort((a, b) => {
-                if (b.week !== a.week) return b.week - a.week
-                if (a.acknowledged !== b.acknowledged) return a.acknowledged ? 1 : -1
-                return 0
-            })
-            .slice(0, ARRAY_CAPS.eventsLog)
-    }
+    save.eventsLog = compactEventsLog(save.eventsLog, ARRAY_CAPS.eventsLog)
 
     // AI-vs-AI regional league matches: the league table keeps their results,
     // so their match records only stay a few weeks (Phase 4.4).
