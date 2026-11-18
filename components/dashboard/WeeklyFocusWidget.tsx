@@ -7,6 +7,7 @@ import { weeklyActivityXpBonus } from "@/types/activities"
 import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
 import { Check } from "lucide-react"
+import { useEffect, useRef } from "react"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
 type Effect = { label: string; good: boolean }
@@ -38,9 +39,19 @@ export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
     const selectedActivity = useGameStore(state => state.selectedWeeklyActivity)
     const setWeeklyActivity = useGameStore(state => state.setWeeklyActivity)
     const budget = useGameStore(state => state.teams.find(tm => tm.id === state.playerTeamId)?.budget ?? 0)
+    // SMOKE-A-15: "/week#weekly-focus" (the guide's "Choose weekly focus") lands
+    // here. The list renders after the save loads, too late for the browser's
+    // own jump to the hash, so it scrolls itself into view once it is there.
+    const anchorRef = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+        const reveal = () => { if (window.location.hash === "#weekly-focus") anchorRef.current?.scrollIntoView({ block: "start" }) }
+        const timer = window.setTimeout(reveal, 50)
+        window.addEventListener("hashchange", reveal)
+        return () => { window.clearTimeout(timer); window.removeEventListener("hashchange", reveal) }
+    }, [])
 
     const list = (
-        <div id="weekly-focus" className="scroll-mt-24">
+        <div id="weekly-focus" ref={anchorRef} className="scroll-mt-24">
             <ul className="py-2">
                 {Object.values(WEEKLY_ACTIVITIES).map((activity) => {
                     // No pick is a standard training week, so that row shows as the checked default (HOME-18).
