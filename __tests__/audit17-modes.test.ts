@@ -293,8 +293,13 @@ describe("device storage (MODES-01, MODES-10)", () => {
     beforeEach(() => {
         local = fakeStorage(); session = fakeStorage()
         ;(globalThis as unknown as { window: unknown }).window = { localStorage: local, sessionStorage: session }
+        // deviceStorage (CROSSCUT-01) writes through the global localStorage, as in a browser.
+        ;(globalThis as unknown as { localStorage: unknown }).localStorage = local
     })
-    afterAll(() => { delete (globalThis as unknown as { window?: unknown }).window })
+    afterAll(() => {
+        delete (globalThis as unknown as { window?: unknown }).window
+        delete (globalThis as unknown as { localStorage?: unknown }).localStorage
+    })
 
     const pool = (tag: string) => Object.fromEntries(["IGL", "AWPER", "ENTRY_FRAGGER", "RIFLER", "SUPPORT"].map((role, i) => [role, [{ playerId: `${tag}${i}`, nickname: `n${i}`, role, overall: 70, price: 10, fromTeamId: "" }]])) as unknown as DraftPool
     const board = {
