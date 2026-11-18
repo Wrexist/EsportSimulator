@@ -263,15 +263,23 @@ export function navLabel(entry: { key: string; label: string }): string {
 }
 
 const pathOf = (href: string) => href.split("?")[0]
+const safeDecode = (s: string) => { try { return decodeURIComponent(s) } catch { return s } }
 
 /** True when `pathname` is the item's own page. */
 export function isNavItemActive(item: MenuItem, pathname: string | null | undefined): boolean {
     return !!pathname && pathname === pathOf(item.href)
 }
 
-/** The hub that owns `pathname`, or null (settings, menus, unknown routes). */
-export function hubForPath(pathname: string | null | undefined): NavHub | null {
+/**
+ * The hub that owns `pathname`, or null (settings, menus, unknown routes).
+ * Your own club's page belongs to Squad, not Competition (SQUAD-55).
+ */
+export function hubForPath(pathname: string | null | undefined, ownTeamId?: string | null): NavHub | null {
     if (!pathname) return null
+    if (ownTeamId && pathname.startsWith("/team/") && safeDecode(pathname.slice("/team/".length).split("/")[0]) === ownTeamId) {
+        const squad = navHubs.find(hub => hub.id === "squad")
+        if (squad) return squad
+    }
     for (const hub of navHubs) {
         if (hub.items.some(item => isNavItemActive(item, pathname))) return hub
     }

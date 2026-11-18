@@ -203,7 +203,7 @@ export function TopBar() {
     const pathname = usePathname()
     // C10: a pro career hides the club-running screens (the staff run the club).
     const hubs = navHubsFor(pro, draftCup, betweenClubs)
-    const pathHub = hubForPath(pathname)
+    const pathHub = hubForPath(pathname, playerTeamId)
     const activeHub = pathHub ? hubs.find(h => h.id === pathHub.id) ?? null : null
 
     const currentDate = useMemo(() => {
