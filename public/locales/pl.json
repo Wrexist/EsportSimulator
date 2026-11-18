@@ -7363,5 +7363,14 @@
  "tm.yourUpcoming": "Nadchodzące",
  "tm.yourResults": "Wyniki",
  "tm.col.date": "Data",
- "tm.openPrep": "Otwórz przygotowanie do meczu z {{team}}"
+ "tm.openPrep": "Otwórz przygotowanie do meczu z {{team}}",
+ "result.rankingPoints": "Punkty rankingowe",
+ "result.practiceNoRanking": "Mecz treningowy: bez zmian w rankingu i tabeli",
+ "result.allMaps": "Wszystkie mapy",
+ "result.mvpWinningSide": "MVP meczu (zwycięska drużyna)",
+ "result.mvpTitle": "MVP meczu to osoba z najwyższą oceną w zwycięskiej drużynie; najwyższa ocena w całym meczu może należeć do przegranych.",
+ "roster.series": "Seria",
+ "roster.seriesTitle": "Zabójstwa, zgony, asysty i ADR z całej dotychczasowej serii, nie tylko z tej mapy.",
+ "veto.comfortYou": "Ty: {{label}}",
+ "veto.comfortThem": "Oni: {{label}}"
 }

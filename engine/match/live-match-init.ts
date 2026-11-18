@@ -171,3 +171,48 @@ export function sanitizeRoundLossLevels(value: unknown): { home?: number; away?:
     const home = level(v?.home), away = level(v?.away)
     return { ...(home !== undefined ? { home } : {}), ...(away !== undefined ? { away } : {}) }
 }
+
+/** The round's post-buy loadouts as kept in a checkpoint (MATCHDAY-07). */
+export interface CheckpointLoadouts {
+    mapIndex: number
+    round: number
+    players: Record<string, { weapon?: string; utility?: string[]; hasKit?: boolean }>
+}
+
+/** Only what the radar and the rosters read (weapon, grenades, kit) of each player's post-buy state. */
+export function checkpointLoadouts(
+    mapIndex: number,
+    round: number,
+    loadouts: Readonly<Record<string, { weapon?: string; utility?: readonly string[]; hasKit?: boolean } | undefined>>,
+): CheckpointLoadouts {
+    const players: CheckpointLoadouts["players"] = {}
+    for (const [id, l] of Object.entries(loadouts)) {
+        if (!l) continue
+        players[id] = {
+            ...(typeof l.weapon === "string" ? { weapon: l.weapon } : {}),
+            ...(Array.isArray(l.utility) ? { utility: [...l.utility] } : {}),
+            ...(typeof l.hasKit === "boolean" ? { hasKit: l.hasKit } : {}),
+        }
+    }
+    return { mapIndex, round, players }
+}
+
+/**
+ * The checkpointed loadouts for the round being restored, or undefined when
+ * the checkpoint has none, is for another round, or is malformed.
+ */
+export function restoreRoundLoadouts(value: unknown, mapIndex: number, round: number): CheckpointLoadouts["players"] | undefined {
+    const v = value as Partial<CheckpointLoadouts> | null | undefined
+    if (!v || v.mapIndex !== mapIndex || v.round !== round || !v.players || typeof v.players !== "object") return undefined
+    const out: CheckpointLoadouts["players"] = {}
+    for (const [id, l] of Object.entries(v.players as Record<string, unknown>)) {
+        const p = l as { weapon?: unknown; utility?: unknown; hasKit?: unknown } | null
+        if (!p || typeof p !== "object") continue
+        out[id] = {
+            ...(typeof p.weapon === "string" ? { weapon: p.weapon } : {}),
+            ...(Array.isArray(p.utility) ? { utility: p.utility.filter((u): u is string => typeof u === "string") } : {}),
+            ...(typeof p.hasKit === "boolean" ? { hasKit: p.hasKit } : {}),
+        }
+    }
+    return out
+}

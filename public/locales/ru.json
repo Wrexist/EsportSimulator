@@ -7363,5 +7363,14 @@
  "tm.yourUpcoming": "Предстоящие",
  "tm.yourResults": "Результаты",
  "tm.col.date": "Дата",
- "tm.openPrep": "Открыть подготовку к матчу с {{team}}"
+ "tm.openPrep": "Открыть подготовку к матчу с {{team}}",
+ "result.rankingPoints": "Рейтинговые очки",
+ "result.practiceNoRanking": "Тренировочный матч: рейтинг и таблица не меняются",
+ "result.allMaps": "Все карты",
+ "result.mvpWinningSide": "MVP матча (команда-победитель)",
+ "result.mvpTitle": "MVP матча — лучший по рейтингу в команде-победителе; самый высокий рейтинг в матче может быть у проигравших.",
+ "roster.series": "Серия",
+ "roster.seriesTitle": "Убийства, смерти, помощь и ADR за всю серию на данный момент, а не только за эту карту.",
+ "veto.comfortYou": "Ты: {{label}}",
+ "veto.comfortThem": "Они: {{label}}"
 }

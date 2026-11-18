@@ -48,9 +48,10 @@ export function IntermissionCard({ intermission, homeName, awayName, homeIsCT, m
                 <div className="px-6 pb-5 pt-4 text-center">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-3">{title}</p>
                     <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
-                        <span className="truncate text-right font-display text-2xl font-bold uppercase leading-none text-ink-1">{homeName}</span>
+                        {/* Names take two lines rather than being cut (MATCHDAY-11). */}
+                        <span className="line-clamp-2 text-right font-display text-2xl font-bold uppercase leading-none text-ink-1 [overflow-wrap:anywhere]" title={homeName}>{homeName}</span>
                         <span className="font-display text-5xl font-bold tabular-nums leading-none text-ink-1">{intermission.homeScore}<span className="mx-2 text-ink-3">–</span>{intermission.awayScore}</span>
-                        <span className="truncate text-left font-display text-2xl font-bold uppercase leading-none text-ink-1">{awayName}</span>
+                        <span className="line-clamp-2 text-left font-display text-2xl font-bold uppercase leading-none text-ink-1 [overflow-wrap:anywhere]" title={awayName}>{awayName}</span>
                     </div>
                     {halftime && (
                         <p className="mt-3 flex items-center justify-center gap-2 text-sm text-ink-2">

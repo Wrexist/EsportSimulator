@@ -7135,5 +7135,14 @@
  "tm.yourUpcoming": "Próximos",
  "tm.yourResults": "Resultados",
  "tm.col.date": "Fecha",
- "tm.openPrep": "Abrir la preparación contra {{team}}"
+ "tm.openPrep": "Abrir la preparación contra {{team}}",
+ "result.rankingPoints": "Puntos de ranking",
+ "result.practiceNoRanking": "Partido de práctica: sin cambios en el ranking ni en la tabla",
+ "result.allMaps": "Todos los mapas",
+ "result.mvpWinningSide": "MVP del partido (equipo ganador)",
+ "result.mvpTitle": "El MVP del partido es quien tiene la mejor valoración del equipo ganador; la mejor valoración total puede estar en el equipo perdedor.",
+ "roster.series": "Serie",
+ "roster.seriesTitle": "Bajas, muertes, asistencias y ADR de toda la serie hasta ahora, no solo de este mapa.",
+ "veto.comfortYou": "Tú: {{label}}",
+ "veto.comfortThem": "Ellos: {{label}}"
 }

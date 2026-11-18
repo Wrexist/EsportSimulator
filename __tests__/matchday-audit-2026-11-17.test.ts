@@ -7,6 +7,9 @@ import fs from "fs"
 import path from "path"
 import { historyWindow, roundLabel } from "@/components/match/LiveMatchScoreboard"
 import { t } from "@/lib/i18n"
+import { mirrorBeat, mirrorRounds, mirrorScore } from "@/lib/live-display-order"
+import { defaultLiveSpeed, liveSpeedSetting } from "@/lib/live-match-pacing"
+import { checkpointLoadouts, restoreRoundLoadouts } from "@/engine/match/live-match-init"
 
 const src = (rel: string) => fs.readFileSync(path.resolve(__dirname, "..", rel), "utf8")
 
@@ -153,5 +156,131 @@ describe("match prep (MATCHDAY-03/23/25, NEWPLAYER-08/10/14)", () => {
         expect(tm).toMatch(/const upcomingMatches = scheduledMatches/)
         expect(tm).toMatch(/if \(playerMatches\.length === 0 && upcomingMatches\.length === 0\) return emptyBlock/)
         expect(src("data/tournaments.json")).not.toMatch(/purest form of competitive meritocracy/)
+    })
+})
+
+describe("NEWPLAYER-07: the manager's club is on the left everywhere", () => {
+    test("mirror helpers swap home and away of what is shown", () => {
+        expect(mirrorRounds([{ round: 1, winner: "home", side: "ct", homeBuy: "full", awayBuy: "eco", homeScore: 1, awayScore: 0 }]))
+            .toEqual([{ round: 1, winner: "away", side: "ct", homeBuy: "eco", awayBuy: "full", homeScore: 0, awayScore: 1 }])
+        expect(mirrorScore({ kind: "halftime", homeScore: 5, awayScore: 7 })).toEqual({ kind: "halftime", homeScore: 7, awayScore: 5 })
+        const beat = mirrorBeat({ id: "b", homeScore: 3, awayScore: 9, summary: { winner: "home" as const, mvp: null } })
+        expect(beat).toEqual({ id: "b", homeScore: 9, awayScore: 3, summary: { winner: "away", mvp: null } })
+    })
+    test("live page: scorebug, rosters, break card, banner and intro use the own-first order", () => {
+        const live = src("app/match/[id]/live/page.tsx")
+        expect(live).toMatch(/const flip = !isPlayerHome/)
+        expect(live).toMatch(/homeTeam=\{leftTeam as unknown as Team\}/)
+        expect(live).toMatch(/roundHistory=\{shownHistory\}/)
+        expect(live).toMatch(/ownTeam="home"/)
+        expect(live).toMatch(/beat=\{flip \? mirrorBeat\(roundBeat\) : roundBeat\}/)
+        expect(live).toMatch(/intermission=\{flip \? mirrorScore\(breakCard\) : breakCard\}/)
+        expect(live).toMatch(/<LiveRosterCard teamName=\{leftTeam\.name\}[^\n]*isOwn /)
+    })
+    test("result page, end beat and veto put the own club first", () => {
+        const result = src("app/match/[id]/result/page.tsx")
+        expect(result).toMatch(/\{crest\(leftTeam, "left", leftWon\)\}/)
+        expect(result).toMatch(/ordered\(\{ team: homeTeam, stats: homeStats, won: homeWon \}, \{ team: awayTeam/)
+        expect(src("components/match/MatchEndBeat.tsx")).toMatch(/const flip = playerTeamId === awayTeam\.id/)
+        expect(src("app/match/[id]/veto/page.tsx")).toMatch(/<TeamSide team=\{ownTeam\}/)
+    })
+})
+
+describe("result page (MATCHDAY-09/18/20/21/22, NEWPLAYER-18)", () => {
+    const result = src("app/match/[id]/result/page.tsx")
+    test("MATCHDAY-09: club names take two lines at a smaller size below 1280 instead of 'TROCK…'", () => {
+        expect(result).toMatch(/line-clamp-2 font-display text-\[28px\][^"]*xl:text-\[36px\]/)
+        expect(result).not.toMatch(/truncate font-display text-\[36px\]/)
+    })
+    test("MATCHDAY-18: the map buttons sit above the economy chart; duels and KAST say they cover all maps", () => {
+        const sel = result.indexOf('data-testid="economy-map-selector"')
+        expect(sel).toBeGreaterThan(result.indexOf("result.kast"))
+        expect(result).toMatch(/`\$\{t\("result\.openingDuels"\)\} · \$\{t\("result\.allMaps"\)\}`/)
+    })
+    test("MATCHDAY-20: the badge says 'winning side' when the other card rated higher", () => {
+        expect(result).toMatch(/outrated \? t\("result\.mvpWinningSide"\) : t\("endBeat\.matchMvp"\)/)
+        expect(t("result.mvpWinningSide")).toBe("Match MVP (winning side)")
+    })
+    test("MATCHDAY-21: nicknames keep their casing on the MVP card, intro and end beat", () => {
+        expect(result).not.toMatch(/text-\[26px\] font-bold uppercase/)
+        expect(src("components/match/MatchIntro.tsx")).not.toMatch(/uppercase leading-none text-ink-1">\{p\.nickname\}/)
+        expect(src("components/match/MatchEndBeat.tsx")).not.toMatch(/uppercase leading-none text-ink-1">\{mvp\?\.nickname/)
+    })
+    test("MATCHDAY-22: both team tables share fixed column widths", () => {
+        expect(result).toMatch(/table-fixed border-collapse/)
+        expect(result).toMatch(/<colgroup>/)
+    })
+    test("NEWPLAYER-18: 'Ranking points', and one practice line on a scrim", () => {
+        expect(result).not.toMatch(/>Elo</)
+        expect(result).toMatch(/match\.tournamentId === "SCRIM" \?/)
+        expect(t("result.practiceNoRanking")).toBe("Practice match: no ranking or table change")
+    })
+})
+
+describe("live screen (MATCHDAY-05/07/08/10/11/19/24, NEWPLAYER-20)", () => {
+    test("MATCHDAY-05: no 'Round script · Single level', no hard-coded English in the radar footer", () => {
+        const radar = src("components/match/MapRadarPanel.tsx")
+        expect(radar).not.toMatch(/'Recorded positions'/)
+        expect(radar).not.toMatch(/Recorded physical simulation snapshots/)
+        expect(radar).not.toMatch(/t\("radar\.script"\)/)
+        expect(radar).toMatch(/const floorLabel = isDualLevel \? [^\n]* : null/)
+    })
+    test("NEWPLAYER-20: before a round is loaded the radar says freeze time, not round over", () => {
+        const radar = src("components/match/MapRadarPanel.tsx")
+        expect(radar).toMatch(/const preRound = !reviewUi\.active && !activeScript && !headerScene/)
+        expect(radar).toMatch(/if \(preRound && roundOver\) return \{ label: t\("radar\.freeze"\)/)
+    })
+    test("MATCHDAY-07: the round's loadouts are checkpointed and restored for the same round only", () => {
+        const cp = checkpointLoadouts(1, 7, { a: { weapon: "ak47", utility: ["smoke", "flash"], hasKit: false }, b: undefined })
+        expect(cp).toEqual({ mapIndex: 1, round: 7, players: { a: { weapon: "ak47", utility: ["smoke", "flash"], hasKit: false } } })
+        expect(restoreRoundLoadouts(JSON.parse(JSON.stringify(cp)), 1, 7)).toEqual(cp.players)
+        expect(restoreRoundLoadouts(cp, 1, 8)).toBeUndefined()
+        expect(restoreRoundLoadouts(undefined, 1, 7)).toBeUndefined()
+        expect(restoreRoundLoadouts({ mapIndex: 1, round: 7, players: { a: { utility: ["smoke", 3], weapon: 9 } } }, 1, 7)).toEqual({ a: { utility: ["smoke"] } })
+        const hook = src("hooks/useLiveMatch.ts")
+        expect(hook).not.toMatch(/the bought utility is not checkpointed/)
+        expect(hook).toMatch(/roundLoadouts: roundLoadoutsRef\.current/)
+    })
+    test("MATCHDAY-08: a speed picked in the dock becomes the starting speed setting", () => {
+        for (const mode of ["moments", "full"] as const) {
+            for (const setting of ["normal", "fast", "very-fast"] as const) {
+                expect(liveSpeedSetting(mode, defaultLiveSpeed(mode, setting))).toBe(setting)
+            }
+        }
+        expect(liveSpeedSetting("moments", 1)).toBeNull()
+        expect(liveSpeedSetting("full", 8)).toBeNull()
+        expect(src("hooks/useLiveMatch.ts")).toMatch(/setSpeed: chooseSpeed,/)
+    })
+    test("MATCHDAY-10: 'Continue to results' is in the dock, not low in the radar", () => {
+        const live = src("app/match/[id]/live/page.tsx")
+        expect(live).toMatch(/onFinish=\{gameState\.status === "FINISHED" && \(endBeatDone \|\| !finishedResult\) \? handleFinish : undefined\}/)
+        expect(live).toMatch(/overlay=\{gameState\.status === "FINISHED" \? null : decisionOverlay \?\? coachBar\}/)
+        expect(src("components/match/LiveMatchControlBar.tsx")).toMatch(/\{onFinish \? \(\s*<Button onClick=\{onFinish\}/)
+    })
+    test("MATCHDAY-11: narrow rosters drop the weapon name; break-card names wrap; the dock stays one row", () => {
+        expect(src("components/match/live/LiveRosterCard.tsx")).toMatch(/<span className="truncate @max-\[21rem\]:hidden">\{weaponDisplayName\(p\.weapon\)\}/)
+        expect(src("components/match/live/IntermissionCard.tsx").match(/line-clamp-2/g)?.length).toBe(2)
+        expect(src("components/match/LiveMatchControlBar.tsx")).toMatch(/@min-\[72rem\]\/dock:inline-flex/)
+    })
+    test("MATCHDAY-19: from map 2 the roster header says the numbers are series totals", () => {
+        expect(src("app/match/[id]/live/page.tsx").match(/seriesTotals=\{gameState\.currentMapIndex > 0\}/g)?.length).toBe(2)
+        expect(t("roster.series")).toBe("Series")
+    })
+    test("MATCHDAY-24: below 720 px the buy card opens folded", () => {
+        expect(src("components/match/live/DecisionCard.tsx")).toMatch(/foldPreference \?\? \(typeof window !== "undefined" && window\.innerHeight < 720\)/)
+    })
+})
+
+describe("veto cards (MATCHDAY-04, NEWPLAYER-10)", () => {
+    const veto = src("app/match/[id]/veto/page.tsx")
+    test("MATCHDAY-04: the BAN / PICK chip can shrink, so the name ends in an ellipsis", () => {
+        expect(veto).toMatch(/inline-flex min-w-0 max-w-full items-center gap-1 rounded-sm/)
+        expect(veto).toMatch(/<Ban size=\{11\} className="shrink-0"/)
+    })
+    test("NEWPLAYER-10: read edge hidden at +0.0%; comfort as You / Them chips", () => {
+        expect(veto).toMatch(/\{Math\.abs\(edge\) >= 0\.05 && \(/)
+        expect(veto).toMatch(/data-testid="veto-comfort"/)
+        expect(t("veto.comfortYou", { label: "Neutral" })).toBe("You: Neutral")
+        expect(t("veto.comfortThem", { label: "Best map" })).toBe("Them: Best map")
     })
 })

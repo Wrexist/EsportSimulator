@@ -6907,5 +6907,14 @@
  "tm.yourUpcoming": "Anstehend",
  "tm.yourResults": "Ergebnisse",
  "tm.col.date": "Datum",
- "tm.openPrep": "Matchvorbereitung gegen {{team}} öffnen"
+ "tm.openPrep": "Matchvorbereitung gegen {{team}} öffnen",
+ "result.rankingPoints": "Ranglistenpunkte",
+ "result.practiceNoRanking": "Trainingsmatch: keine Änderung an Rangliste oder Tabelle",
+ "result.allMaps": "Alle Maps",
+ "result.mvpWinningSide": "Match-MVP (Siegerteam)",
+ "result.mvpTitle": "Match-MVP ist die am besten bewertete Person des Siegerteams; die höchste Wertung überhaupt kann im unterlegenen Team liegen.",
+ "roster.series": "Serie",
+ "roster.seriesTitle": "Kills, Tode, Assists und ADR über die ganze bisherige Serie, nicht nur diese Map.",
+ "veto.comfortYou": "Du: {{label}}",
+ "veto.comfortThem": "Sie: {{label}}"
 }

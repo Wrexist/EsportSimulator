@@ -20,7 +20,6 @@ import { RoundEndBanner } from "@/components/match/live/RoundEndBanner"
 import type { MomentCalloutData } from "@/components/match/live/MomentCallout"
 import { IntermissionCard, type HalfStat } from "@/components/match/live/IntermissionCard"
 import { CoachCallBanner, CoachCallBar } from "@/components/match/live/CoachCallBar"
-import { ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { CustomTactics, LivePlayerState, MapId, Team } from "@/types"
@@ -39,6 +38,7 @@ import { headToHeadOf, introContextLine } from "@/lib/match-intro"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { ProGoalStrip, useProGoal } from "@/components/pro/ProMatchGoal"
 import { t } from "@/lib/i18n"
+import { mirrorBeat, mirrorRounds, mirrorScore } from "@/lib/live-display-order"
 
 declare global {
     interface Window { __liveCommits?: number }
@@ -209,6 +209,10 @@ export default function LiveMatchPage() {
         // The map's rounds array is appended to in place; its length is the change signal.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [shownMap, shownRoundCount, revealed, homeTeamId])
+    // NEWPLAYER-07: the manager's club is shown on the left; "home" in what is
+    // displayed below means the left-hand (own) side.
+    const flip = !isPlayerHome
+    const shownHistory = useMemo(() => (flip ? mirrorRounds(roundHistory) : roundHistory), [flip, roundHistory])
 
     // Damage over the revealed rounds of the match → ADR per player.
     const damageTally = useMemo(
@@ -276,7 +280,8 @@ export default function LiveMatchPage() {
         const competition = competitionOf(match, st.tournaments, st.gameStartDate)
         const h2h = headToHeadOf(st.completedMatches, homeTeam.id, awayTeam.id)
         const context = introContextLine({ home: homeTeam, away: awayTeam, playerTeamId: st.playerTeamId, stage: match.stage, competitionName: competition.name, h2h })
-        return { competition, h2h, context, maps: canonicalMaps as string[] }
+        const shownH2h = st.playerTeamId === awayTeam.id ? headToHeadOf(st.completedMatches, awayTeam.id, homeTeam.id) : h2h
+        return { competition, h2h: shownH2h, context, maps: canonicalMaps as string[] }
         // eslint-disable-next-line react-hooks/exhaustive-deps -- built once when the match is ready
     }, [introReady])
     const endBeat = useCallback(() => setEndBeatDone(true), [])
@@ -296,6 +301,7 @@ export default function LiveMatchPage() {
     }
 
     const { homeTeam, awayTeam } = matchData.current
+    const [leftTeam, rightTeam] = flip ? [awayTeam, homeTeam] : [homeTeam, awayTeam]
     const mapName = MAP_NAMES[currentMapId] || currentMapId || t("live.unknownMap")
 
     // Side colours follow the round being shown.
@@ -368,8 +374,8 @@ export default function LiveMatchPage() {
     const breakCard = !roundBeat && intermission && (intermission.kind === "halftime" || intermission.kind === "map-end") ? intermission : null
     // Over the map the card is about (the screen stays on a finished map until the next one starts, MATCHDAY-18).
     const breakStats: HalfStat[] = breakCard ? (() => {
-        const count = (side: "home" | "away", types: string[]) => roundHistory.filter(r => r.winner === side && types.includes(r.winType ?? "")).length
-        const pistols = roundHistory.filter(r => r.round === 1 || (breakCard.kind === "map-end" && r.round === 13))
+        const count = (side: "home" | "away", types: string[]) => shownHistory.filter(r => r.winner === side && types.includes(r.winType ?? "")).length
+        const pistols = shownHistory.filter(r => r.round === 1 || (breakCard.kind === "map-end" && r.round === 13))
         return [
             ...(pistols.length ? [{ label: t("live.stat.pistol"), home: pistols.filter(r => r.winner === "home").length, away: pistols.filter(r => r.winner === "away").length }] : []),
             { label: t("live.stat.eliminations"), home: count("home", ["ELIMINATION"]), away: count("away", ["ELIMINATION"]) },
@@ -377,20 +383,19 @@ export default function LiveMatchPage() {
             { label: t("live.stat.time"), home: count("home", ["TIME"]), away: count("away", ["TIME"]) },
         ]
     })() : []
-    const ownKey = isPlayerHome ? "home" : "away"
-    const roundsPanel = <RoundsPanel rounds={roundHistory} mapName={mapName} ownKey={ownKey} homeName={homeTeam.name} awayName={awayTeam.name} />
+    const roundsPanel = <RoundsPanel rounds={shownHistory} mapName={mapName} ownKey="home" homeName={leftTeam.name} awayName={rightTeam.name} />
     const feedPanel = <LiveFeedPanel logs={logs} />
 
     return (
         <ErrorBoundary section="Live Match">
         <div className="relative flex h-full min-h-0 select-none flex-col gap-2.5 bg-ink font-sans text-ink-1"
             role="main"
-            aria-label={t("live.aria", { home: homeTeam?.name ?? "", away: awayTeam?.name ?? "" })}
+            aria-label={t("live.aria", { home: leftTeam?.name ?? "", away: rightTeam?.name ?? "" })}
         >
             {/* Every screen has an h1; here it is for screen readers only (CROSSCUT-11). */}
-            <h1 className="sr-only">{t("prep.versus", { a: homeTeam?.name ?? "", b: awayTeam?.name ?? "" })}</h1>
+            <h1 className="sr-only">{t("prep.versus", { a: leftTeam?.name ?? "", b: rightTeam?.name ?? "" })}</h1>
             {/* Pre-match derby framing — only renders for HEATED/FIERCE rivalries. */}
-            <DerbyBanner homeTeam={homeTeam} awayTeam={awayTeam} />
+            <DerbyBanner homeTeam={leftTeam} awayTeam={rightTeam} />
             <FirstVisitTip tip={SCREEN_TIPS.live} />
 
             {/* TeamSaveData (engine save shape) → Team (engine runtime
@@ -399,24 +404,24 @@ export default function LiveMatchPage() {
                 "Known Type-System Debt". */}
             <LiveMatchScoreboard
                 gameState={gameState}
-                homeTeam={homeTeam as unknown as Team}
-                awayTeam={awayTeam as unknown as Team}
+                homeTeam={leftTeam as unknown as Team}
+                awayTeam={rightTeam as unknown as Team}
                 matchFormat={matchData.current.match.format}
                 currentMapId={currentMapId}
                 mapName={mapName}
-                homeSeriesScore={gameState.homeSeriesScore}
-                awaySeriesScore={gameState.awaySeriesScore}
-                homeScore={gameState.homeScore}
-                awayScore={gameState.awayScore}
+                homeSeriesScore={flip ? gameState.awaySeriesScore : gameState.homeSeriesScore}
+                awaySeriesScore={flip ? gameState.homeSeriesScore : gameState.awaySeriesScore}
+                homeScore={flip ? gameState.awayScore : gameState.homeScore}
+                awayScore={flip ? gameState.homeScore : gameState.awayScore}
                 roundTime={roundTime}
                 isBombPlanted={isBombPlanted}
                 bombTime={bombTime}
-                homeIsCT={homeIsCT}
-                roundHistory={roundHistory}
-                homeLossLevel={shownLossLevels.home}
-                awayLossLevel={shownLossLevels.away}
+                homeIsCT={flip ? !homeIsCT : homeIsCT}
+                roundHistory={shownHistory}
+                homeLossLevel={flip ? shownLossLevels.away : shownLossLevels.home}
+                awayLossLevel={flip ? shownLossLevels.home : shownLossLevels.away}
                 clock={scorebugClock}
-                ownTeam={isPlayerHome ? "home" : "away"}
+                ownTeam="home"
                 nextRound={isWaitingForStrategy && gameState.status === "IN_PROGRESS" && !roundBeat ? simState.currentRound : null}
             />
 
@@ -439,13 +444,14 @@ export default function LiveMatchPage() {
                 onSimulateMatch={simulateMatchInstant}
                 onLeave={gameState.status !== "FINISHED" ? leaveToHub : undefined}
                 onBeforeLeave={pauseForLeave}
+                onFinish={gameState.status === "FINISHED" && (endBeatDone || !finishedResult) ? handleFinish : undefined}
             />
 
             {/* Rosters left/right, radar is the hero. */}
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(420px,min(1400px,calc(100dvh-196px),calc(100vw-720px)))_minmax(0,1fr)]">
                 <div className="flex min-h-0 min-w-0 flex-col gap-3">
-                    <LiveRosterCard teamName={homeTeam.name} isCT={homeIsCT} isOwn={isPlayerHome} alive={aliveCount(homeRows)} teamCash={teamCash(homeRows)} players={homeRows} footer={isPlayerHome ? proFooter : undefined} />
-                    {isPlayerHome ? roundsPanel : feedPanel}
+                    <LiveRosterCard teamName={leftTeam.name} isCT={flip ? !homeIsCT : homeIsCT} isOwn alive={aliveCount(flip ? awayRows : homeRows)} teamCash={teamCash(flip ? awayRows : homeRows)} players={flip ? awayRows : homeRows} footer={proFooter} seriesTotals={gameState.currentMapIndex > 0} />
+                    {roundsPanel}
                 </div>
 
                 <div className="live-radar-stage relative min-h-[360px] min-w-0">
@@ -461,31 +467,23 @@ export default function LiveMatchPage() {
                         currentTime={gameState.time}
                         roundOver={roundOver}
                         moment={callout}
-                        overlay={gameState.status === "FINISHED" && (endBeatDone || !finishedResult)
-                            ? (
-                                // In the radar's overlay slot, above the scrubber (not floating over it).
-                                <div className="flex justify-center pb-2">
-                                    <Button onClick={handleFinish} className="h-12 w-full max-w-sm text-base shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
-                                        {t("live.toResults")} <ChevronRight size={18} aria-hidden="true" />
-                                    </Button>
-                                </div>
-                            )
-                            : decisionOverlay ?? coachBar}
+                        // The final board's "Continue to results" is in the dock, always on screen (MATCHDAY-10).
+                        overlay={gameState.status === "FINISHED" ? null : decisionOverlay ?? coachBar}
                         fillHeight
                     />
                     <CoachCallBanner call={coachCalls[coachCalls.length - 1] ?? null} ct={ownCT} />
                     <AnimatePresence>
                         {/* The round that ends the match has the end beat instead (its own winner line and match MVP, MATCHDAY-04). */}
-                        {roundBeat && gameState.status !== "FINISHED" && <RoundEndBanner key={roundBeat.id} beat={roundBeat} homeName={homeTeam.name} awayName={awayTeam.name} names={names} />}
+                        {roundBeat && gameState.status !== "FINISHED" && <RoundEndBanner key={roundBeat.id} beat={flip ? mirrorBeat(roundBeat) : roundBeat} homeName={leftTeam.name} awayName={rightTeam.name} names={names} />}
                     </AnimatePresence>
                     <AnimatePresence>
                         {breakCard && (
                             <IntermissionCard
                                 key={`${breakCard.kind}-${breakCard.mapIndex}`}
-                                intermission={breakCard}
-                                homeName={homeTeam.name}
-                                awayName={awayTeam.name}
-                                homeIsCT={homeIsCT}
+                                intermission={flip ? mirrorScore(breakCard) : breakCard}
+                                homeName={leftTeam.name}
+                                awayName={rightTeam.name}
+                                homeIsCT={flip ? !homeIsCT : homeIsCT}
                                 mapName={MAP_NAMES[matchData.current.canonicalMaps[breakCard.mapIndex]] ?? mapName}
                                 nextMapName={breakCard.nextMapId ? MAP_NAMES[breakCard.nextMapId as MapId] ?? breakCard.nextMapId : undefined}
                                 stats={breakStats}
@@ -496,8 +494,8 @@ export default function LiveMatchPage() {
                 </div>
 
                 <div className="flex min-h-0 min-w-0 flex-col gap-3">
-                    <LiveRosterCard teamName={awayTeam.name} isCT={!homeIsCT} isOwn={!isPlayerHome} alive={aliveCount(awayRows)} teamCash={teamCash(awayRows)} players={awayRows} footer={isPlayerHome ? undefined : proFooter} />
-                    {isPlayerHome ? feedPanel : roundsPanel}
+                    <LiveRosterCard teamName={rightTeam.name} isCT={flip ? homeIsCT : !homeIsCT} alive={aliveCount(flip ? homeRows : awayRows)} teamCash={teamCash(flip ? homeRows : awayRows)} players={flip ? homeRows : awayRows} seriesTotals={gameState.currentMapIndex > 0} />
+                    {feedPanel}
                 </div>
             </div>
 
@@ -536,13 +534,13 @@ export default function LiveMatchPage() {
                     <MatchIntro
                         key="intro"
                         matchId={params.id}
-                        homeTeam={homeTeam}
-                        awayTeam={awayTeam}
+                        homeTeam={leftTeam}
+                        awayTeam={rightTeam}
                         format={matchData.current.match.format}
                         competition={introData.competition}
                         maps={introData.maps}
-                        homePlayers={originalHomePlayers}
-                        awayPlayers={originalAwayPlayers}
+                        homePlayers={flip ? originalAwayPlayers : originalHomePlayers}
+                        awayPlayers={flip ? originalHomePlayers : originalAwayPlayers}
                         h2h={introData.h2h}
                         context={introData.context}
                         onDone={endIntro}

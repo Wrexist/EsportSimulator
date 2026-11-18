@@ -9,7 +9,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { ArmorGlyph, GrenadeGlyph, KitGlyph, WeaponGlyph, weaponDisplayName } from "@/components/match/WeaponGlyph"
 
-/** Marks the player's own team (home is always on the left, so in an away match it is the right-hand side). */
+/** Marks the player's own team (on the live screen it is always the left-hand side, NEWPLAYER-07). */
 export function YouTag() {
     return <span className="shrink-0 rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-bold leading-none tracking-[0.06em] text-gold" title={t("live.yourTeam")}>{t("live.you")}</span>
 }
@@ -59,9 +59,10 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
                     <span className={cn("min-w-0 truncate text-sm font-semibold leading-none", p.dead ? "text-ink-3" : "text-ink-1")}>{p.name}</span>
                     {p.isPro && <span className="shrink-0 rounded-sm bg-gold/15 px-1 py-0.5 text-[10px] font-bold leading-none tracking-[0.06em] text-gold" title={t("live.yourPlayer")}>{t("live.you")}</span>}
                     {!p.dead && (
-                        <span className="ml-auto flex min-w-0 shrink items-center gap-1.5 text-xs leading-none text-ink-2">
-                            <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 text-ink-1" />
-                            <span className="truncate">{weaponDisplayName(p.weapon)}</span>
+                        // A narrow card keeps the glyph only (its name is the title), so the player's name gets the width (MATCHDAY-11).
+                        <span className="ml-auto flex min-w-0 shrink items-center gap-1.5 text-xs leading-none text-ink-2" title={weaponDisplayName(p.weapon)}>
+                            <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 shrink-0 text-ink-1" />
+                            <span className="truncate @max-[21rem]:hidden">{weaponDisplayName(p.weapon)}</span>
                         </span>
                     )}
                     <span className={cn("shrink-0 text-right text-[13px] leading-none tabular-nums", p.dead ? "ml-auto text-ink-3" : "text-positive")}>{formatCurrency(p.money, "$", false)}</span>
@@ -105,8 +106,10 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
     )
 })
 
-export function LiveRosterCard({ teamName, isCT, isOwn, alive, teamCash, players, footer }: {
+export function LiveRosterCard({ teamName, isCT, isOwn, alive, teamCash, players, footer, seriesTotals }: {
     teamName: string
+    /** From map 2 on K / D / A / ADR are series totals: the column header says so (MATCHDAY-19). */
+    seriesTotals?: boolean
     /** The player's own team (a YOU tag in the header). */
     isOwn?: boolean
     isCT: boolean
@@ -131,7 +134,8 @@ export function LiveRosterCard({ teamName, isCT, isOwn, alive, teamCash, players
             </header>
             <div className="flex items-center border-b border-line bg-shell px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">
                 <span>{t("prep.player")}</span>
-                <span className="ml-auto grid grid-cols-[repeat(3,22px)_32px] text-right">
+                {seriesTotals && <span className="ml-auto pr-2 normal-case tracking-normal text-ink-2" title={t("roster.seriesTitle")} data-series-totals="">{t("roster.series")}</span>}
+                <span className={cn("grid grid-cols-[repeat(3,22px)_32px] text-right", !seriesTotals && "ml-auto")}>
                     <span title={t("roster.kills")}>K</span><span title={t("roster.deaths")}>D</span><span title={t("roster.assists")}>A</span><span title={t("roster.adr")}>ADR</span>
                 </span>
             </div>

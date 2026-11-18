@@ -751,4 +751,13 @@ export const MATCH = {
     "prep.worthIt": "How much is this worth?",
     "prep.qualPath.one": "{{count}} win away from {{event}} (top {{k}} go through).",
     "prep.qualPath.other": "{{count}} wins away from {{event}} (top {{k}} go through).",
+    "result.rankingPoints": "Ranking points",
+    "result.practiceNoRanking": "Practice match: no ranking or table change",
+    "result.allMaps": "All maps",
+    "result.mvpWinningSide": "Match MVP (winning side)",
+    "result.mvpTitle": "The match MVP is the best-rated player of the winning team; the highest rating overall can be on the losing side.",
+    "roster.series": "Series",
+    "roster.seriesTitle": "Kills, deaths, assists and ADR over the whole series so far, not only this map.",
+    "veto.comfortYou": "You: {{label}}",
+    "veto.comfortThem": "Them: {{label}}",
 } as const

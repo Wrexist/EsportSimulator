@@ -587,4 +587,6 @@ export interface ActiveMatchState {
   timeoutBoostRounds?: number
   /** Loss-bonus levels the round on screen was played with (scorebug after a mid-round resume). Optional: older checkpoints have none. */
   roundLossLevels?: { home?: number; away?: number }
+  /** Post-buy weapon / grenades / kit of the round on screen, so a resumed round still shows them (MATCHDAY-07). Optional: older checkpoints have none. */
+  roundLoadouts?: import('../engine/match/live-match-init').CheckpointLoadouts
 }

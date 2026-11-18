@@ -64,8 +64,12 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
     const series = String(format || "BO1").toUpperCase() !== "BO1"
     const played = result.maps.filter(m => (m.finalScore?.team1 ?? 0) + (m.finalScore?.team2 ?? 0) > 0)
     const single = !series && played.length === 1 ? played[0] : null
-    const hScore = single ? single.finalScore.team1 : result.homeScore
-    const aScore = single ? single.finalScore.team2 : result.awayScore
+    // The manager's club on the left, its score first (NEWPLAYER-07).
+    const flip = playerTeamId === awayTeam.id
+    const pair = (home: number, away: number) => (flip ? [away, home] : [home, away])
+    const [hScore, aScore] = pair(single ? single.finalScore.team1 : result.homeScore, single ? single.finalScore.team2 : result.awayScore)
+    const [leftTeam, rightTeam] = flip ? [awayTeam, homeTeam] : [homeTeam, awayTeam]
+    const leftWon = homeWon !== flip
     const mine = playerTeamId === homeTeam.id || playerTeamId === awayTeam.id
     const won = mine && winner.id === playerTeamId
     const tone = !mine ? "text-gold" : won ? "text-positive" : "text-negative"
@@ -101,9 +105,9 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                 </motion.p>
 
                 <div className="mt-6 flex w-full items-center justify-center gap-10">
-                    <motion.div {...fade(0.15)} className={cn("flex min-w-0 flex-1 flex-col items-center gap-3", !homeWon && "opacity-60")}>
-                        <TeamLogoDisplay team={homeTeam} size={84} />
-                        <span className="line-clamp-2 max-w-full break-words font-display text-[clamp(28px,2.8vw,44px)] font-bold uppercase leading-[0.9] text-ink-1">{homeTeam.name}</span>
+                    <motion.div {...fade(0.15)} className={cn("flex min-w-0 flex-1 flex-col items-center gap-3", !leftWon && "opacity-60")}>
+                        <TeamLogoDisplay team={leftTeam} size={84} />
+                        <span className="line-clamp-2 max-w-full break-words font-display text-[clamp(28px,2.8vw,44px)] font-bold uppercase leading-[0.9] text-ink-1">{leftTeam.name}</span>
                     </motion.div>
                     <motion.p
                         initial={reduce ? false : { opacity: 0, scale: 1.25 }}
@@ -111,13 +115,13 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                         transition={{ duration: reduce ? 0 : 0.55, delay: reduce ? 0 : 0.2, ease: EASE }}
                         className="shrink-0 font-display text-[clamp(84px,9vw,136px)] font-extrabold leading-none tabular-nums text-ink-1"
                     >
-                        <span className={homeWon ? "text-ink-1" : "text-ink-3"}>{hScore}</span>
+                        <span className={leftWon ? "text-ink-1" : "text-ink-3"}>{hScore}</span>
                         <span className="px-4 text-ink-3" aria-hidden="true">–</span>
-                        <span className={!homeWon ? "text-ink-1" : "text-ink-3"}>{aScore}</span>
+                        <span className={!leftWon ? "text-ink-1" : "text-ink-3"}>{aScore}</span>
                     </motion.p>
-                    <motion.div {...fade(0.15)} className={cn("flex min-w-0 flex-1 flex-col items-center gap-3", homeWon && "opacity-60")}>
-                        <TeamLogoDisplay team={awayTeam} size={84} />
-                        <span className="line-clamp-2 max-w-full break-words font-display text-[clamp(28px,2.8vw,44px)] font-bold uppercase leading-[0.9] text-ink-1">{awayTeam.name}</span>
+                    <motion.div {...fade(0.15)} className={cn("flex min-w-0 flex-1 flex-col items-center gap-3", leftWon && "opacity-60")}>
+                        <TeamLogoDisplay team={rightTeam} size={84} />
+                        <span className="line-clamp-2 max-w-full break-words font-display text-[clamp(28px,2.8vw,44px)] font-bold uppercase leading-[0.9] text-ink-1">{rightTeam.name}</span>
                     </motion.div>
                 </div>
 
@@ -130,7 +134,7 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                         {played.map((m, i) => (
                             <span key={`${m.map}-${i}`} className="inline-flex items-center gap-2 rounded-sm border border-line px-2.5 py-1 text-sm">
                                 <span className="font-semibold uppercase tracking-[0.06em] text-ink-2">{MAP_NAMES[m.map] ?? m.map}</span>
-                                <span className="tabular-nums text-ink-1">{m.finalScore.team1}–{m.finalScore.team2}</span>
+                                <span className="tabular-nums text-ink-1">{pair(m.finalScore.team1, m.finalScore.team2).join("–")}</span>
                             </span>
                         ))}
                     </motion.div>
@@ -143,7 +147,7 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                         </div>
                         <div className="min-w-0">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">{series ? t("endBeat.seriesMvp") : t("endBeat.matchMvp")}</p>
-                            <p className="mt-1 truncate font-display text-[40px] font-extrabold uppercase leading-none text-ink-1">{mvp?.nickname ?? "MVP"}</p>
+                            <p className="mt-1 truncate font-display text-[40px] font-extrabold leading-none text-ink-1">{mvp?.nickname ?? "MVP"}</p>
                         </div>
                         <dl className="ml-4 grid grid-cols-3 divide-x divide-line border-l border-line">
                             {[
