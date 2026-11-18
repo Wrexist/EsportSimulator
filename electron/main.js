@@ -14,12 +14,24 @@ const { secureWebContents, secureSession } = require('./renderer-security');
 const { createExternalOpener } = require('./external-links');
 const { pickUiLanguage, uiString } = require('./ui-strings');
 const handleApp = (channel, handler) => registerTrustedHandler(ipcMain, channel, isMainWindowSender, handler);
-// Native dialogs follow the game's language (the renderer reports it), else the OS language when it is one of ours.
+// Native dialogs follow the game's language (the renderer reports it). Before the
+// renderer has reported (a boot failure), the language saved in the game's settings
+// is used, else the OS language when it is one of ours.
 let uiLanguage = null;
-const ui = (key) => {
-    if (!uiLanguage) { try { return uiString(pickUiLanguage(app.getLocale()), key); } catch (_) { return uiString('en', key); } }
-    return uiString(uiLanguage, key);
+const storedUiLanguage = () => {
+    try {
+        // Read only (no legacy import): <userData>/game-storage/esports_device_game-settings.json.
+        const raw = readBounded(app.getPath('userData'), 'game-storage/esports_device_game-settings.json', 256 * 1024);
+        return pickUiLanguage(JSON.parse(raw)?.state?.language);
+    } catch (_) { return null; }
 };
+const activeUiLanguage = () => {
+    if (uiLanguage) return uiLanguage;
+    const stored = storedUiLanguage();
+    if (stored) return stored;
+    try { return pickUiLanguage(app.getLocale()) || 'en'; } catch (_) { return 'en'; }
+};
+const ui = (key) => uiString(activeUiLanguage(), key);
 
 // Single-instance lock — must be checked BEFORE any heavy initialization
 // (steamworks, next.js) to prevent duplicate windows on alt-tab / re-launch.
@@ -177,16 +189,18 @@ const showErrorPage = (window, errorMessage, errorStack) => {
     const escapeHtml = value => String(value).slice(0, 16000).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
     const safeMsg = escapeHtml(errorMessage || 'Unknown error');
     const safeStack = escapeHtml(errorStack || '');
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager - Launch Error</title>
+    const lang = activeUiLanguage();
+    const text = key => escapeHtml(uiString(lang, key));
+    const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8"><title>Esports Manager: FPS - ${text('launchErrorTitle')}</title>
 <style>body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
 .c{max-width:600px;text-align:center}h1{color:#FF5468;font-size:24px;margin-bottom:8px}h2{color:#AEB6C2;font-size:16px;font-weight:normal;margin-top:0}
 .e{background:#0D1015;border:1px solid rgba(255,255,255,.075);border-radius:8px;padding:16px;text-align:left;font-family:Consolas,monospace;font-size:12px;color:#FF5468;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;margin:16px 0}
 .b{background:#181D25;color:#F2F4F7;border:1px solid rgba(255,255,255,.16);padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}.b:hover{background:#212833}
 .h{color:#808A99;font-size:12px;margin-top:16px}</style></head>
-<body><div class="c"><h1>Failed to Launch</h1><h2>The game engine could not start</h2>
+<body><div class="c"><h1>${text('errorPageHeading')}</h1><h2>${text('errorPageDetail')}</h2>
 <div class="e">${safeMsg}${safeStack ? '\n\n' + safeStack : ''}</div>
-<div><button class="b" onclick="window.close()">Quit</button></div>
-<p class="h">Try verifying game files through Steam (right-click &gt; Properties &gt; Local Files &gt; Verify).</p>
+<div><button class="b" onclick="window.close()">${text('quit')}</button></div>
+<p class="h">${text('errorPageHint')}</p>
 </div></body></html>`;
     window.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
     window.show();
