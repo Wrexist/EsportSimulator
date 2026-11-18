@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, type ReactNode } from "react"
-import { t } from "./i18n"
+import { t, tn } from "./i18n"
 
 const TAG = /<([a-z][a-z0-9]*)>([\s\S]*?)<\/\1>/g
 
@@ -10,12 +10,14 @@ const TAG = /<([a-z][a-z0-9]*)>([\s\S]*?)<\/\1>/g
  * tags, "Press <kbd>F1</kbd> anywhere", and `tags` says how each one renders,
  * so a translator can move the styled word to wherever it belongs.
  */
-export function Trans({ k, params, tags }: {
+export function Trans({ k, params, tags, count }: {
     k: string
     params?: Record<string, string | number>
     tags: Record<string, (text: string) => ReactNode>
+    /** Plural: `k` is a plural group (`<k>.one` / `<k>.other` …), picked by tn() with {{count}} filled in. */
+    count?: number
 }) {
-    const text = t(k, params)
+    const text = count === undefined ? t(k, params) : tn(k, count, params)
     const out: ReactNode[] = []
     let last = 0
     for (const m of text.matchAll(TAG)) {

@@ -481,7 +481,7 @@ function SquadPageInner() {
           <DressingRoomPanel team={teamData} />
 
           <Panel title={t("squad.panel.chemistry")} padded={false} bodyClassName="p-2">
-            <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} teamChemistry={teamData.chemistry} />
+            <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} />
           </Panel>
         </aside>
       </div>

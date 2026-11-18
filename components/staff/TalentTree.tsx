@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
     Lock,
     Unlock,
@@ -39,6 +39,11 @@ import { cn } from '@/lib/utils'
 import { t, tn } from '@/lib/i18n'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { TalentNode } from '@/engine/talent-trees'
+import { toast } from '@/lib/toast'
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+    AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 /**
  * Talent-node icon dispatch. Mirrors the talent definitions in
@@ -115,6 +120,15 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
     }, [nodes, SPACING_X])
 
     const center = (n: TalentNode) => ({ x: n.position.x * SPACING_X + 28 + NODE / 2, y: n.position.y * SPACING_Y + NODE / 2 })
+    // SQUAD-60: points are scarce and an unlock is permanent, so a click asks first
+    // (saying what the talent does, which touch users never see in the tooltip) and a toast confirms it.
+    const [confirming, setConfirming] = useState<TalentNode | null>(null)
+    const confirmUnlock = () => {
+        if (!confirming) return
+        onUnlock(confirming.id)
+        toast.success(t('talent.unlocked', { name: talentName(confirming) }), { description: talentDescription(confirming) })
+        setConfirming(null)
+    }
 
     return (
         <div className="flex w-full justify-center overflow-x-auto px-4 py-5">
@@ -163,7 +177,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                     <TooltipTrigger asChild>
                                         <button
                                             type="button"
-                                            onClick={() => canUnlock && onUnlock(node.id)}
+                                            onClick={() => canUnlock && setConfirming(node)}
                                             aria-disabled={!canUnlock}
                                             aria-label={`${name}: ${description} ${status}.`}
                                             className={cn(
@@ -207,6 +221,19 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                     )
                 })}
             </div>
+            <AlertDialog open={!!confirming} onOpenChange={open => { if (!open) setConfirming(null) }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{confirming ? t('talent.confirmTitle', { name: talentName(confirming) }) : ''}</AlertDialogTitle>
+                        <AlertDialogDescription>{confirming ? talentDescription(confirming) : ''}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    {confirming && <p className="text-sm text-ink-3">{tn('talent.confirmCost', confirming.cost)}</p>}
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmUnlock}>{t('common.confirm')}</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

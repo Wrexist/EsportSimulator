@@ -48,7 +48,7 @@ export const SQUAD = {
     "squad.panel.profile": "Team profile",
     "squad.panel.academy": "Academy",
     "squad.academy.manage": "Manage",
-    "squad.academy.potential": "Potential {{n}}+",
+    "squad.academy.potential": "Potential {{n}}",
     "squad.academy.promote": "Promote",
     "squad.academy.empty": "No prospects in training",
     "squad.academy.open": "Open academy",

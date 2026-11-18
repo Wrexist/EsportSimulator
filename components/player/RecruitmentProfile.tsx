@@ -64,7 +64,8 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
     return (
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[400px_minmax(0,1fr)]">
             <section className="min-w-0 self-start overflow-hidden rounded-[10px] border border-line bg-panel">
-                <div className="relative flex h-[200px] items-end justify-center border-b border-line bg-raised">
+                {/* SQUAD-43: 64px above the portrait for the club and report labels (as the own-player hero), so a long club name is never covered. */}
+                <div className="relative flex h-[232px] items-end justify-center border-b border-line bg-raised">
                     <div className="absolute left-4 top-4 flex min-w-0 items-center gap-2">
                         {owner && <TeamLogoDisplay team={owner} size={24} />}
                         <TeamLink id={owner?.id} className="truncate text-sm font-semibold text-ink-1">{owner?.name || (academyHeld ? t("recruit.academyProspect") : t("player.freeAgent"))}</TeamLink>

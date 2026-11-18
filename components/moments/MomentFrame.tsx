@@ -88,6 +88,8 @@ export interface MomentFrameProps {
     sound: SoundType | null
     tone?: MomentTone
     actionLabel?: string
+    /** An optional first action (primary); it runs, then the moment closes. The usual action becomes the outline one. */
+    extraAction?: { label: string; onClick: () => void }
     onDismiss: () => void
     children: ReactNode
     className?: string
@@ -99,7 +101,7 @@ export interface MomentFrameProps {
  * Escape or the button continue (after a short arm delay). Focus is trapped
  * while it is open; reduced motion shows everything at once.
  */
-export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actionLabel, onDismiss, children, className }: MomentFrameProps) {
+export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actionLabel, extraAction, onDismiss, children, className }: MomentFrameProps) {
     const reduce = useAppReducedMotion()
     const [armed, setArmed] = useState(false)
     const armedRef = useRef(false)
@@ -170,9 +172,24 @@ export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actio
                     // name the action stays on screen instead of below the fold.
                     className="sticky bottom-0 z-10 mt-6 flex w-full flex-col items-center gap-2 bg-linear-to-t from-ink from-60% to-transparent pb-4 pt-6"
                 >
-                    <Button ref={buttonRef} onClick={close} disabled={!armed} className="h-12 min-w-[240px] px-10 text-base">
-                        {actionLabel ?? t("mo.continue")}
-                    </Button>
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                        {extraAction && (
+                            <Button
+                                onClick={() => {
+                                    if (!armedRef.current || closedRef.current) return
+                                    extraAction.onClick()
+                                    close()
+                                }}
+                                disabled={!armed}
+                                className="h-12 min-w-[240px] px-10 text-base"
+                            >
+                                {extraAction.label}
+                            </Button>
+                        )}
+                        <Button ref={buttonRef} onClick={close} disabled={!armed} variant={extraAction ? "outline" : undefined} className="h-12 min-w-[240px] px-10 text-base">
+                            {actionLabel ?? t("mo.continue")}
+                        </Button>
+                    </div>
                     <p className="text-xs text-ink-3">{t("mo.keysHint")}</p>
                 </motion.div>
             </div>

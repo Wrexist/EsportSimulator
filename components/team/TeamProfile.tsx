@@ -17,6 +17,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { cn } from "@/lib/utils"
 import { formatScoutedRating, fuzzyBand } from "@/engine/scouting-system"
+import { captainId } from "@/engine/personality"
 import { t, tn } from "@/lib/i18n"
 
 const RESULTS_SHOWN = 10
@@ -36,6 +37,8 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
     const playerById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
     const tournamentById = useMemo(() => new Map(tournaments.map(t => [t.id, t])), [tournaments])
     const isOwn = team.id === playerTeamId
+    // SQUAD-55: the captain gets the same "C" as on /squad.
+    const captain = captainId(team, id => playerById.get(id))
 
     const results = useMemo(() => completedMatches
         .filter(m => !m.isScrim && m.result && (m.homeTeamId === team.id || m.awayTeamId === team.id))
@@ -109,6 +112,9 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                                 </span>
                                                 <CountryFlag country={player.nationality} size={14} />
                                                 <span className="truncate text-sm font-semibold">{player.nickname}</span>
+                                                {player.id === captain && (
+                                                    <span title={t("squad.row.captainTitle")} aria-label={t("squad.row.captain")} className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-gold/60 text-[11px] font-bold leading-none text-gold">C</span>
+                                                )}
                                             </PlayerLink>
                                         </td>
                                         <td className="px-3"><RoleTag role={(player.role || "Rifler").split(",")[0]} /></td>
