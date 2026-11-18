@@ -146,7 +146,7 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                             <PlayerPortrait src={mvp?.portraitPath} alt={mvp?.nickname ?? "MVP"} seed={mvpId} fill className="object-cover object-top" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">{series ? t("endBeat.seriesMvp") : t("endBeat.matchMvp")}</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gold" title={t("result.mvpTitle")}>{series ? t("endBeat.seriesMvp") : t("endBeat.matchMvp")}</p>
                             <p className="mt-1 truncate font-display text-[40px] font-extrabold leading-none text-ink-1">{mvp?.nickname ?? "MVP"}</p>
                         </div>
                         <dl className="ml-4 grid grid-cols-3 divide-x divide-line border-l border-line">
