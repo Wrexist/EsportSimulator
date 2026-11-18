@@ -363,7 +363,7 @@ export const MARKET = {
     "fin.cat.OTHER": "Other",
     "fin.cat.MERCH": "Merch",
     "fin.cat.TRAINING": "Training",
-    "fin.cat.OPERATIONS": "Operations",
+    "fin.cat.OPERATIONS": "Club operations",
     "fin.cat.LEAGUE": "League",
     "merch.JERSEY": "Pro jersey",
     "merch.HOODIE": "Team hoodie",

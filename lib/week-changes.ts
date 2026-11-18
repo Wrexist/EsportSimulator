@@ -140,14 +140,14 @@ export function snapshotClub(source: ClubSource, teamId: string, playerIndex?: M
     }
 }
 
-/** Cause of a ledger row, from its category. */
+/** Cause of a ledger row, from its category (named as the /finances ledger names it, fin.cat.*). */
 export function moneyCause(category: string, description: string): ChangeCause {
     switch (category) {
         case "WAGES_PLAYER": return { type: "salary", label: "Player wages" }
         case "WAGES_STAFF": return { type: "staff", label: "Staff wages" }
         case "FACILITIES": return /activity/i.test(description) ? { type: "activity", label: "Weekly activity" }
             : /operations/i.test(description) ? { type: "finance", label: "Club operations" }
-            : { type: "facility", label: "Upkeep" }
+            : { type: "facility", label: "Facilities" }
         case "PRIZE": return /league|division/i.test(description) ? { type: "prize", label: "League prize money" } : { type: "prize", label: "Prize money" }
         case "SPONSOR": return { type: "sponsor", label: "Sponsors" }
         case "MERCH": return /fan/i.test(description) ? { type: "other", label: "Fans" } : { type: "sponsor", label: "Merchandise" }
@@ -155,6 +155,8 @@ export function moneyCause(category: string, description: string): ChangeCause {
         case "LEAGUE": return { type: "other", label: "League" }
         case "TRANSFER_IN": case "TRANSFER_OUT": return { type: "transfer", label: "Transfers" }
         case "TRAINING": return { type: "training", label: "Training" }
+        // MARKET-07 (2026-11-17): the same name the /finances ledger gives it (it fell under "Other").
+        case "SCOUTING": return { type: "other", label: "Scouting" }
         default: return /board/i.test(description) ? { type: "board", label: "Board" }
             : { type: "other", label: /fan/i.test(description) ? "Fans" : /league/i.test(description) ? "League" : "Other" }
     }
