@@ -115,6 +115,14 @@ export const TUNING = {
     // ── health ──
     /** Per kill this player already made this round (max 3). */
     MULTI_KILL: 5,
+    /**
+     * MATCHENGINE-08 (sight engine): a player with CLEANUP_KILLS kills this round, on a side up by
+     * CLEANUP_LEAD or more players, starts a fight from a fresh sighting with CLEANUP_ENGAGE of the
+     * usual chance (sight.ts playsForTeam), so the last kills of a won round spread over his mates.
+     */
+    CLEANUP_KILLS: 3,
+    CLEANUP_LEAD: 2,
+    CLEANUP_ENGAGE: 0.1,
     /** Per HP missing. */
     HP_PENALTY: 0.2,
     /** Chance a duel's loser chips the winner: base + close × (1 - P(winner)). */
