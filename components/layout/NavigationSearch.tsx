@@ -137,7 +137,7 @@ export function NavigationSearch({ compact = false, disabled, pro = false, draft
                         {matches.squad.length > 0 && (
                             <CommandGroup heading={t("search.g.squad")}>
                                 {matches.squad.map(p => <CommandItem key={p.id} value={`${p.nickname} ${p.name} · ${p.id}`} onSelect={() => go(playerHref(p.id))} className={ITEM}>
-                                    <User size={16} /><span className="flex-1">{p.nickname} <span className="text-ink-3">{p.name}</span></span><ArrowUpRight size={14} className="text-ink-3" />
+                                    <User size={16} /><span className="flex-1">{p.nickname}{p.name && p.name !== p.nickname && <span className="text-ink-3"> {p.name}</span>}</span><ArrowUpRight size={14} className="text-ink-3" />
                                 </CommandItem>)}
                             </CommandGroup>
                         )}
