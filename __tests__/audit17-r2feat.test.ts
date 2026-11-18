@@ -175,3 +175,36 @@ describe("NEWPLAYER-12: the first official win is celebrated when it is recorded
         expect(h.read().eventsLog.some(e => e.id === "ms_win_1")).toBe(false)
     })
 })
+
+describe("NEWPLAYER-23: the week report's player list starts with each player's main change", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { playerGroups } = require("@/components/report/report-model") as typeof import("@/components/report/report-model")
+    type Report = import("@/lib/week-report").WeekReport
+    const report = (changes: unknown[]) => ({
+        week: 3, teamId: "t", names: { p1: "k1ncu", p2: "ace" }, headline: "", matches: [], warnings: [],
+        kpis: { rank: [null, null], board: [null, null], morale: [null, null], budget: [0, 0] }, changes,
+    }) as unknown as Report
+    const stat = (subjectId: string, label: string, delta: number) => ({ kind: "attribute", subjectId, label, delta, cause: { type: "training", label: "Aim training" } })
+    const form = (subjectId: string, delta: number) => ({ kind: "form", subjectId, label: "Form", delta, cause: { type: "match", label: "Lost to Zumblers 9–13" } })
+
+    test("the condition row leads over stat rows; an injury leads over both", () => {
+        const groups = playerGroups(report([
+            stat("p1", "AWP", 0.6), form("p1", -4.6),
+            stat("p2", "Rifle", 1.2), form("p2", 3),
+            { kind: "injury", subjectId: "p2", label: "Sprained wrist", delta: 2, cause: { type: "match", label: "Lost to Zumblers 9–13" } },
+        ]))
+        const p1 = groups.find(g => g.id === "p1")!
+        expect(p1.rows[p1.lead].change).toMatch(/^Form/)
+        const p2 = groups.find(g => g.id === "p2")!
+        expect(p2.rows[p2.lead].change).toMatch(/Sprained wrist/)
+    })
+    test("only stat changes: the first row leads", () => {
+        const [g] = playerGroups(report([stat("p1", "AWP", 0.6)]))
+        expect(g.lead).toBe(0)
+    })
+    test("the view shows the lead row unless the player asked for every row", () => {
+        const src = fs.readFileSync(path.join(__dirname, "..", "components", "report", "WeekReportView.tsx"), "utf8")
+        expect(src).toContain("showAllRows ? group.rows : [group.rows[group.lead]]")
+        expect(src).toContain('t("wr.more", { n: group.rows.length - 1 })')
+    })
+})

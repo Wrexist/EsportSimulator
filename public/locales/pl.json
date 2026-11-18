@@ -5934,6 +5934,8 @@
  "wr.smallStats.many": "{{count}} drobnych zmian statystyk",
  "wr.smallStats.other": "{{count}} drobnej zmiany statystyk",
  "wr.smallStatsCause": "Każda poniżej 0,5: wszystkie na stronie zawodnika",
+ "wr.showAll": "Pokaż wszystkie zmiany",
+ "wr.showMain": "Tylko najważniejsze",
  "help.title": "Pomoc i przewodnik po grze",
  "help.open": "Otwórz pomoc",
  "help.back": "Wstecz",

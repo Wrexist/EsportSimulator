@@ -5772,6 +5772,8 @@
  "wr.smallStats.many": "{{count}} petites variations de stats",
  "wr.smallStats.other": "{{count}} petites variations de stats",
  "wr.smallStatsCause": "Moins de 0,5 chacune : tout est sur la page du joueur",
+ "wr.showAll": "Voir tous les changements",
+ "wr.showMain": "Seulement l'essentiel",
  "help.title": "Aide et guide du jeu",
  "help.open": "Ouvrir l'aide",
  "help.back": "Retour",

@@ -5610,6 +5610,8 @@
  "wr.smallStats.one": "{{count}} kleine Werteänderung",
  "wr.smallStats.other": "{{count}} kleine Werteänderungen",
  "wr.smallStatsCause": "Je unter 0,5: alle Werte auf der Spielerseite",
+ "wr.showAll": "Alle Änderungen zeigen",
+ "wr.showMain": "Nur die wichtigsten",
  "help.title": "Hilfe und Spielanleitung",
  "help.open": "Hilfe öffnen",
  "help.back": "Zurück",

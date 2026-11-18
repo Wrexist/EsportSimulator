@@ -24,6 +24,11 @@ export interface PlayerGroup {
     id: string
     name: string
     rows: ChangeRow[]
+    /**
+     * NEWPLAYER-23: the row the short view shows for this player: an injury or
+     * contract, else his condition (morale, form, energy), else his stats.
+     */
+    lead: number
 }
 
 const CONDITION_ORDER = ["morale", "form", "energy", "fatigue"] as const
@@ -107,9 +112,12 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
                 conditionRows.push({ change: text, cause, tone })
             }
         }
+        const firstCondition = rows.length
         rows.push(...conditionRows)
         if (smallStats > 0) rows.push({ change: tn("wr.smallStats", smallStats), cause: t("wr.smallStatsCause"), tone: "neutral" })
-        if (rows.length) groups.push({ id, name: report.names[id] ?? t("wr.player"), rows })
+        const injuryOrContract = entries.some(x => x.kind === "injury" || x.kind === "contract")
+        const lead = !injuryOrContract && conditionRows.length ? firstCondition : 0
+        if (rows.length) groups.push({ id, name: report.names[id] ?? t("wr.player"), rows, lead })
     }
     return groups
 }
