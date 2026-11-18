@@ -153,6 +153,12 @@ export default function FinancesPage() {
     ...(retraining > 0 ? [{ label: t("tr.finRetraining"), amount: retraining, note: tn("tr.finRetrainingNote", team.activeRoleTraining?.length ?? 0) }] : []),
   ]
 
+  const handleStartSelling = (item: string) => {
+    const res = toggleMerchItem(team.id, item)
+    if (res.success) toast.success(storedText(res.message))
+    else toast.error(storedText(res.message))
+  }
+
   const handleUpgrade = () => {
     const res = upgradeMerchStore(team.id)
     if (res.success) toast.success(storedText(res.message))
@@ -356,15 +362,16 @@ export default function FinancesPage() {
                 return (
                   <li key={line.id} className="flex items-center justify-between gap-3 px-3 py-2">
                     <span className={cn("text-sm", unlocked ? "text-ink-1" : "text-ink-3")}>{t(`merch.${line.id}`)}</span>
-                    {unlocked ? (
+                    {unlocked && active ? (
+                      // MARKET-09 (2026-11-17): a line costs nothing to sell, so taking it off sale could only lose money.
+                      <span className="inline-flex h-7 items-center gap-1 px-2 text-xs font-semibold text-positive"><Check size={12} /> {t("fin.selling")}</span>
+                    ) : unlocked ? (
                       <button
                         type="button"
-                        aria-pressed={active}
-                        onClick={() => toggleMerchItem(team.id, line.id)}
-                        className={cn("inline-flex h-7 items-center gap-1 rounded border px-2 text-xs font-semibold transition-colors",
-                          active ? "border-positive/40 text-positive hover:bg-hover" : "border-line-strong text-ink-2 hover:bg-hover hover:text-ink-1")}
+                        onClick={() => handleStartSelling(line.id)}
+                        className="inline-flex h-7 items-center gap-1 rounded border border-line-strong px-2 text-xs font-semibold text-ink-2 transition-colors hover:bg-hover hover:text-ink-1"
                       >
-                        {active ? <><Check size={12} /> {t("fin.selling")}</> : t("fin.startSelling")}
+                        {t("fin.startSelling")}
                       </button>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs text-ink-3"><Lock size={11} /> {t("fin.storeLevel", { n: line.level })}</span>
