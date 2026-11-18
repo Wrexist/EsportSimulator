@@ -25,11 +25,15 @@ import { Button } from "@/components/ui/button"
 import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
 import { ChevronRight, Mail, Dumbbell, CalendarClock, CheckCircle2, Mic } from "lucide-react"
-import { choiceLabel, describeChoice, getEventSubject, homeDecisions, type EffectChip } from "@/components/inbox/inbox-model"
+import { choiceLabel, describeChoice, getEventSubject, homeDecisions, type ChoiceLike, type EffectChip } from "@/components/inbox/inbox-model"
 import { selectInboxContext } from "@/components/inbox/inbox-store-bindings"
 import { t, tn } from "@/lib/i18n"
+import { weekLabel } from "@/lib/season-week"
+import { toast } from "@/lib/toast"
 
 const DEFAULT_MAX_TRAINING_SLOTS = 10
+/** Weeks into a job the "Plan this week" reminder shows while no focus is picked. */
+const PLAN_PROMPT_WEEKS = 4
 
 function StoryChips({ chips }: { chips: EffectChip[] }) {
     return (
@@ -58,12 +62,13 @@ function PromptRow({ href, icon, title, detail }: { href?: string; icon: ReactNo
 }
 
 export function ActionCenter({ children, className }: { children?: ReactNode; className?: string }) {
-    const { eventsLog, teams, playerTeamId, selectedWeeklyActivity, resolveEventChoice, ctx } = useGameStore(useShallow(s => ({
+    const { eventsLog, teams, playerTeamId, selectedWeeklyActivity, resolveEventChoice, tenureStartWeek, ctx } = useGameStore(useShallow(s => ({
         eventsLog: s.eventsLog,
         teams: s.teams,
         playerTeamId: s.playerTeamId,
         selectedWeeklyActivity: s.selectedWeeklyActivity,
         resolveEventChoice: s.resolveEventChoice,
+        tenureStartWeek: s.managerDetails?.tenureStartWeek ?? 1,
         ctx: selectInboxContext(s),
     })))
 
@@ -72,12 +77,23 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
     // The same open decisions the inbox lists (HOME-05/13, SQUAD-07): inline
     // choices, plus offers (job/transfer) that keep their richer flow in the
     // inbox — surfaced here as a count + link.
-    const { choices: decisions, offers: offerCount } = useMemo(() => homeDecisions(eventsLog ?? [], ctx), [eventsLog, ctx])
+    const { choices: decisions, offers: offerCount, offerEvents } = useMemo(() => homeDecisions(eventsLog ?? [], ctx), [eventsLog, ctx])
 
     const freeTrainingSlots = playerTeam
         ? Math.max(0, (playerTeam.maxTrainingSlots ?? DEFAULT_MAX_TRAINING_SLOTS) - (playerTeam.trainingSlotsUsed ?? 0))
         : 0
-    const focusNotSet = !selectedWeeklyActivity
+    // No focus picked is a standard training week, the week plan's default
+    // (HOME-18): the reminder only helps a new manager find the plan, in the
+    // first PLAN_PROMPT_WEEKS weeks of the job, not every week of the season.
+    const focusNotSet = !selectedWeeklyActivity && ctx.currentWeek - tenureStartWeek < PLAN_PROMPT_WEEKS
+
+    // HOME-13: say what the answer did, with the same effect chips the button showed.
+    const answer = (event: (typeof decisions)[number], choice: ChoiceLike, chips: EffectChip[]) => {
+        resolveEventChoice(event.id, choice.id)
+        const done = useGameStore.getState().eventsLog.find(e => e.id === event.id)?.selectedChoiceId === choice.id
+        if (!done) return
+        toast.success([t("ib.res.chose", { choice: choiceLabel(choice) }), ...chips.map(c => c.label)].join(" · "))
+    }
 
     // The badge counts what needs an answer, the same number the inbox shows
     // as decisions waiting; the training / week-plan rows are reminders (HOME-13).
@@ -111,12 +127,12 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                             />
                         )
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- choices is a runtime-only field
-                        const choices = (event as any).choices as { id: string; text: string; effects: any }[]
+                        const choices = (event as any).choices as (ChoiceLike & { effects: any })[]
                         return (
                             <div key={event.id} className="space-y-2 px-4 py-3">
                                 <div className="flex items-baseline justify-between gap-3">
                                     <span className="text-sm font-semibold text-ink-1">{getEventSubject(event, ctx)}</span>
-                                    <span className="shrink-0 text-xs text-ink-3">{t("common.week", { n: event.week })}</span>
+                                    <span className="shrink-0 text-xs text-ink-3">{weekLabel(event.week, ctx.currentWeek)}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     {choices.map(choice => {
@@ -126,7 +142,7 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                                             <Button
                                                 key={choice.id}
                                                 variant="outline"
-                                                onClick={() => resolveEventChoice(event.id, choice.id)}
+                                                onClick={() => answer(event, choice, outcome.chips)}
                                                 disabled={!!outcome.blockedReason}
                                                 title={outcome.blockedReason}
                                                 className="h-auto w-full justify-between gap-3 whitespace-normal px-3 py-2 text-left"
@@ -142,12 +158,13 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                     })}
 
                     {/* Offers — link to the full inbox */}
+                    {/* One offer is named ("Kiyd Stars want you as manager"); several are counted (HOME-12). */}
                     {offerCount > 0 && (
                         <PromptRow
                             href="?inbox=decisions"
                             icon={<Mail size={15} />}
-                            title={tn("decisions.offers", offerCount)}
-                            detail={t("decisions.offersDetail")}
+                            title={offerCount === 1 && offerEvents[0] ? getEventSubject(offerEvents[0], ctx) : tn("decisions.offers", offerCount)}
+                            detail={offerCount === 1 ? t("decisions.offerDetailOne") : t("decisions.offersDetail")}
                         />
                     )}
 

@@ -43,7 +43,8 @@ export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
         <div id="weekly-focus" className="scroll-mt-24">
             <ul className="py-2">
                 {Object.values(WEEKLY_ACTIVITIES).map((activity) => {
-                    const isSelected = selectedActivity === activity.type
+                    // No pick is a standard training week, so that row shows as the checked default (HOME-18).
+                    const isSelected = (selectedActivity ?? WeeklyActivityType.TRAINING_ONLY) === activity.type
                     const unaffordable = activity.cost > 0 && activity.cost > budget
                     const effects = activityEffects(activity)
                     return (

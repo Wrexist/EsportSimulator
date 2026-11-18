@@ -8,6 +8,7 @@ import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { usePathname } from "next/navigation"
 import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { formatGameCalendarDate, formatGameCalendarRange } from "@/lib/game-calendar"
+import { weekOfSeason } from "@/lib/season-week"
 import { MoreHorizontal, Settings } from "lucide-react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
@@ -338,6 +339,12 @@ export function TopBar() {
                     {/* START-43: "Go to…" lists career screens, so it needs a career. */}
                     {!hideCareerControls && <NavigationSearch compact disabled={false} pro={pro} draftCup={draftCup} betweenClubs={betweenClubs} />}
 
+                    {/* Below 80rem (Steam Deck width) the funds stay as one compact value without the label (NEWPLAYER-22). */}
+                    {!hideCareerControls && !betweenClubs && !pro && (
+                        <span suppressHydrationWarning className="whitespace-nowrap text-sm font-semibold tabular-nums text-ink-1 @min-[80rem]/topbar:hidden" title={`${t("topbar.funds")}: ${formatCurrency(budget, "$", false)}`}>
+                            {formatCurrency(budget)}
+                        </span>
+                    )}
                     {!hideCareerControls && !betweenClubs && !pro && (
                         <div className="hidden flex-col items-end leading-none @min-[80rem]/topbar:flex" title={t("topbar.funds")}>
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("topbar.funds")}</span>
@@ -372,8 +379,8 @@ export function TopBar() {
                             className="mt-1 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 hover:text-ink-1"
                         >
                             {timeMode === "HYBRID_DAILY"
-                                ? t("topbar.weekDayLine", { week: currentWeek, day: currentDay + 1, mode: t("common.daily") })
-                                : t("topbar.weekLine", { week: currentWeek, mode: t("common.weekly") })}
+                                ? t("topbar.weekDayLine", { week: weekOfSeason(currentWeek), day: currentDay + 1, mode: t("common.daily") })
+                                : t("topbar.weekLine", { week: weekOfSeason(currentWeek), mode: t("common.weekly") })}
                         </button>
                     </div>}
 

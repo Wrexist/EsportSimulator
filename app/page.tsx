@@ -37,13 +37,14 @@ import { formatCurrency, formatSignedCurrency, getDynamicTournamentName } from "
 import { matchEventName } from "@/lib/tournament-instances"
 import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
+import { weekLabelShort, weekNumberText } from "@/lib/season-week"
 import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { startingFiveOvr } from "@/lib/team-ovr"
+import { startingFiveOvr, teamOvr as clubOvr } from "@/lib/team-ovr"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
-import { playerEnergyPercent } from "@/lib/player-energy"
+import { LoadChip } from "@/components/squad/LoadChip"
 import { fixtureBlockReason } from "@/lib/playable-match"
 import { sideScore } from "@/lib/week-changes"
 import { ordinalLabel, t, tn } from "@/lib/i18n"
@@ -164,12 +165,8 @@ export default function Page() {
     return teams.find(t => t.id === id)
   }, [nextMatch, playerTeamId, teams])
 
-  const opponentOvr = useMemo(() => {
-    if (!opponent) return null
-    const roster = (opponent.rosterIds || []).slice(0, 5).map(id => playersById.get(id)).filter((p): p is NonNullable<typeof p> => !!p)
-    if (roster.length === 0) return null
-    return Math.round(roster.reduce((s, p) => s + evaluatePlayer(p).overallRating, 0) / roster.length)
-  }, [opponent, playersById])
+  // Same starting-five rule as the club's own OVR: an empty slot counts as 0 (HOME-16, SQUAD-06).
+  const opponentOvr = useMemo(() => clubOvr(opponent, players, playersById), [opponent, players, playersById])
 
   const tournament = useMemo(() => tournamentFor(nextMatch?.tournamentId), [nextMatch])
   // The event's name with the year it is played in: the saved instance's name,
@@ -180,16 +177,14 @@ export default function Page() {
     return matchEventName(stored, tournament?.name, nextMatch.tournamentId, nextMatch.week, gameStartDate)
   }, [nextMatch, tournaments, tournament, gameStartDate])
 
-  // Last five official results (oldest first) for any team.
+  // Last five official results (oldest first) for any team. Scrims never count,
+  // so before the first official match the guide says "No matches yet", like
+  // the season record next to it (HOME-16).
   const formFor = useCallback((teamId: string | undefined | null): FormResult[] => {
     if (!teamId) return []
     const played = completedMatches.filter(m => !m.isScrim && (m.homeTeamId === teamId || m.awayTeamId === teamId))
-    if (played.length === 0) {
-      const t = teams.find(x => x.id === teamId)
-      return ((t?.recentForm as FormResult[] | undefined) ?? []).slice(-5)
-    }
     return played.slice(-5).map(m => m.result.winnerId === teamId ? "W" : "L")
-  }, [completedMatches, teams])
+  }, [completedMatches])
 
   const isMatchLive = !!nextMatch
     && nextMatch.week === currentWeek
@@ -293,7 +288,7 @@ export default function Page() {
       const when = (
         <span className="flex items-center gap-2">
           <span className={cn("font-semibold", isMatchLive ? "text-gold" : "text-ink-1")}>{countdown}</span>
-          <span className="text-ink-3">{matchDate ? t("home.whenWeekDate", { week: nextMatch.week, date: matchDate }) : t("home.whenWeek", { week: nextMatch.week })}</span>
+          <span className="text-ink-3">{matchDate ? t("home.whenWeekDate", { week: weekNumberText(nextMatch.week, currentWeek), date: matchDate }) : t("home.whenWeek", { week: weekNumberText(nextMatch.week, currentWeek) })}</span>
         </span>
       )
       const action = isMatchLive && matchBlockReason
@@ -458,7 +453,9 @@ export default function Page() {
                     <th data-slot="table-head" className="px-2">{t("common.role")}</th>
                     <th data-slot="table-head" className="px-2 text-center">{t("common.ovr")}</th>
                     <th data-slot="table-head" className="px-2">{t("common.morale")}</th>
-                    <th data-slot="table-head" className="pr-4">{t("common.energy")}</th>
+                    {/* HOME-20: load (fatigue and this week's injury chance), the value the medical
+                        team's workload warnings use; training energy stays on the Training screen. */}
+                    <th data-slot="table-head" className="pr-4" title={t("squad.col.loadTitle")}>{t("squad.col.load")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -479,8 +476,8 @@ export default function Page() {
                       </td>
                       <td className="px-2"><RoleTag role={player.role} /></td>
                       <td className="px-2 text-center"><RatingChip value={ovr} size="sm" /></td>
-                      <td className="px-2"><Meter value={player.morale} label={t("common.morale")} trackClassName="w-12" /></td>
-                      <td className="pr-4"><Meter value={playerEnergyPercent(player)} label={t("common.energy")} trackClassName="w-12" /></td>
+                      <td className="px-2"><Meter value={player.morale} label={t("common.morale")} trackClassName="w-8 xl:w-12" /></td>
+                      <td className="pr-4"><LoadChip player={player} showRisk={false} /></td>
                     </tr>
                   ))}
                   {starters.length < 5 && (
@@ -595,7 +592,7 @@ export default function Page() {
                           <TeamLogoDisplay team={opp} size={22} />
                           {/* The opponent's name wins the space; a long league label truncates (HOME-15). */}
                           <span className="min-w-[6rem] flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
-                          <span className="hidden min-w-0 max-w-[45%] truncate text-xs text-ink-3 sm:inline" title={`${comp} · ${t("common.weekShort", { n: m.week })}`}>{comp} · {t("common.weekShort", { n: m.week })}</span>
+                          <span className="hidden min-w-0 max-w-[45%] truncate text-xs text-ink-3 sm:inline" title={`${comp} · ${weekLabelShort(m.week, currentWeek)}`}>{comp} · {weekLabelShort(m.week, currentWeek)}</span>
                           <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{sideScore(m.result, m.homeTeamId === playerTeamId)}</span>
                         </Link>
                       </li>

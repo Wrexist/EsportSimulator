@@ -15,13 +15,14 @@ const TONE = {
     bad: "bg-negative/15 text-negative",
 } as const
 
-export function LoadChip({ player, className }: { player: Pick<PlayerSaveData, "fatigue" | "health" | "age"> & Partial<Pick<PlayerSaveData, "injury" | "knock">>; className?: string }) {
+/** `showRisk={false}`: the band only (tight tables such as Home's squad status); the risk stays in the tooltip. */
+export function LoadChip({ player, className, showRisk = true }: { player: Pick<PlayerSaveData, "fatigue" | "health" | "age"> & Partial<Pick<PlayerSaveData, "injury" | "knock">>; className?: string; showRisk?: boolean }) {
     if (player.injury) return <span className={cn("text-xs text-ink-3", className)}>{t("load.injured")}</span>
     const w = workloadOf(player)
     const title = t("load.title", { load: w.load, risk: riskPct(w.risk) }) + (player.knock ? " " + t("load.knockTitle", { knock: player.knock.name, pct: Math.round(player.knock.escalateChance * 100) }) : "")
     return (
         <span title={title} className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-1.5 py-0.5 text-[11px] font-semibold tabular-nums", TONE[w.tone], className)} data-testid="load-chip">
-            {t(`load.band.${w.band}`)} · {riskPct(w.risk)}{player.knock ? ` · ${t("load.knock")}` : ""}
+            {t(`load.band.${w.band}`)}{showRisk ? ` · ${riskPct(w.risk)}` : ""}{player.knock ? ` · ${t("load.knock")}` : ""}
         </span>
     )
 }
