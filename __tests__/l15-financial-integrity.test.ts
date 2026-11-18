@@ -11,6 +11,7 @@ import { settlePlayerContractBonuses } from "@/engine/processors/player-contract
 import { calculateWeeklyUpkeep } from "@/engine/academy-constants"
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { WeeklyActivityType } from "@/types"
+import { releaseSettlement } from "@/engine/roster-rules"
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value))
 
@@ -223,4 +224,15 @@ test("settlementsLeft equals the wage payments the weekly settlement really make
         expect(staffPays).toBe(settlementsLeft(signedWeek + duration, signedWeek))
     }
     expect(settlementsLeft(5, 10)).toBe(0)
+})
+
+describe("MARKET-06 (2026-11-17): release cost is Payroll's \"Left to pay\"", () => {
+    test("audit: HZY $250/wk to week 67, now week 1: both read $16,250", () => {
+        const cost = releaseSettlement({ salaryPerWeek: 250, endWeek: 67 }, 1)
+        expect(cost.amount).toBe(250 * settlementsLeft(67, 1))
+        expect(cost.amount).toBe(16_250)
+        expect(cost.weeksLeft).toBe(65)
+        // The last week of a deal pays nothing more to release.
+        expect(releaseSettlement({ salaryPerWeek: 250, endWeek: 2 }, 1).amount).toBe(0)
+    })
 })

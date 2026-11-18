@@ -12,6 +12,7 @@ import { tn } from "@/lib/i18n"
 
 import type { ContractSaveData } from "./save-types"
 import { CHEMISTRY_PENALTY_PER_SWAP } from "./chemistry-engine"
+import { settlementsLeft } from "./finance-forecast"
 
 /** Most senior players a club may hold; signing or promoting needs a free slot. */
 export const SENIOR_ROSTER_MAX = 7
@@ -21,7 +22,7 @@ export const SENIOR_ROSTER_MIN = 5
 export const RELEASE_CHEMISTRY_COST = CHEMISTRY_PENALTY_PER_SWAP
 
 export interface ReleaseSettlement {
-    /** Weeks left on his deal. */
+    /** Wage settlements his deal still pays (settlementsLeft, as Payroll counts them). */
     weeksLeft: number
     /** His weekly wage. */
     wage: number
@@ -29,10 +30,14 @@ export interface ReleaseSettlement {
     amount: number
 }
 
-/** Releasing a player pays out the rest of his contract now. */
+/**
+ * Releasing a player pays out the rest of his contract now. MARKET-06
+ * (2026-11-17): the weeks his contract still pays, as Payroll's "Left to
+ * pay" counts them (this week's settlement has already run).
+ */
 export function releaseSettlement(contract: Pick<ContractSaveData, "salaryPerWeek" | "endWeek"> | undefined, week: number): ReleaseSettlement {
     if (!contract) return { weeksLeft: 0, wage: 0, amount: 0 }
-    const weeksLeft = Math.max(0, Math.floor(contract.endWeek - week))
+    const weeksLeft = settlementsLeft(contract.endWeek, week)
     const wage = Math.max(0, Math.round(contract.salaryPerWeek || 0))
     return { weeksLeft, wage, amount: weeksLeft * wage }
 }

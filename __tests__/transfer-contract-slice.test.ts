@@ -449,15 +449,15 @@ describe("releasePlayer — the manager's paid release (roster cap dead end)", (
         for (const id of ["p9", "p8", "p7"]) {
             const r = slice.releasePlayer(id)
             expect(r.success).toBe(true)
-            // 20 weeks left (week 10 → 30) at $2,000.
-            expect(r.message).toContain("Paid $40,000")
+            // Week 10 → 30 at $2,000: 19 settlements left (weeks 11-29), as Payroll counts them (MARKET-06, 2026-11-17).
+            expect(r.message).toContain("Paid $38,000")
         }
         const s = h.state()
         const team = s.teams.find(t => t.id === "player")!
         expect(team.rosterIds).toEqual(["p1", "p2", "p3", "p4", "p5", "p6"])
-        expect(team.budget).toBe(500_000 - 3 * 40_000)
+        expect(team.budget).toBe(500_000 - 3 * 38_000)
         expect(s.contracts.some(c => ["p7", "p8", "p9"].includes(c.playerId))).toBe(false)
-        expect(s.financeLedger.filter(e => e.category === "WAGES_PLAYER" && e.amount === 40_000)).toHaveLength(3)
+        expect(s.financeLedger.filter(e => e.category === "WAGES_PLAYER" && e.amount === 38_000)).toHaveLength(3)
         expect(s.transferHistory.filter(t => t.type === "RELEASE")).toHaveLength(3)
         expect(team.chemistry).toBe(30) // −10 per roster change
         // Now a signing fits.
@@ -466,10 +466,10 @@ describe("releasePlayer — the manager's paid release (roster cap dead end)", (
 
     test("refuses what the club can't pay, below a starting five, and other clubs' players", () => {
         const poor = overCap()
-        poor.set(draft => { draft.teams[0].budget = 39_999 })
+        poor.set(draft => { draft.teams[0].budget = 37_999 })
         const r = createTransferContractSlice(poor.set, poor.get).releasePlayer("p9")
         expect(r.success).toBe(false)
-        expect(r.message).toContain("costs $40,000 (20 weeks at $2,000/wk)")
+        expect(r.message).toContain("costs $38,000 (19 weeks at $2,000/wk)")
         expect(poor.state().teams[0].rosterIds).toContain("p9")
 
         const five = overCap()
