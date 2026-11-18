@@ -129,7 +129,7 @@ export const SETTINGS = {
     "settings.sandboxNoCareer": "Load a career to use the sandbox editor.",
     "settings.sandboxOpen": "Open editor",
     "settings.sandboxConfirmTitle": "Turn on the sandbox editor?",
-    "settings.sandboxConfirmBody": "You can then edit this career's money, players, contracts and names. The career earns no achievements, Steam stats or leaderboard scores from now on, and its save slot is marked Sandbox. This cannot be turned off for this career.",
+    "settings.sandboxConfirmBody": "You can then edit this career's money, players, contracts and names. The career earns no achievements or Steam stats from now on, and its save slot is marked Sandbox. This cannot be turned off for this career.",
     "settings.sandboxConfirm": "Turn on sandbox",
     "settings.sandboxTurnOn": "Turn on…",
     "settings.deleteAll": "Delete all local careers",
