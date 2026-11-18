@@ -416,7 +416,8 @@ export default function TournamentsPage() {
                                             <TeamLogoDisplay team={team} size={20} />
                                         </div>
                                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{team.name}</span>
-                                        <span className="text-xs tabular-nums text-ink-3">{Math.round(team.elo || 1000)}</span>
+                                        {/* SMOKE-B-22: the points the rank was set by (the weekly refresh), not the live Elo, so the order reads right. */}
+                                        <span className="text-xs tabular-nums text-ink-3">{Math.round(team.rankedElo ?? team.elo ?? 1000)}</span>
                                     </li>
                                 )
                             })}
