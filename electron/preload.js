@@ -15,8 +15,6 @@ contextBridge.exposeInMainWorld('electron', {
         // Back-compat alias for call sites that used the old name.
         setAchievement: (name) => ipcRenderer.invoke('steam-set-achievement', name),
         isAchievementUnlocked: (name) => ipcRenderer.invoke('steam-is-achievement-unlocked', name),
-        // leaderboards
-        setLeaderboardScore: (name, score) => ipcRenderer.invoke('steam-set-leaderboard-score', name, score),
         // rich presence
         setRichPresence: (key, value) => ipcRenderer.invoke('steam-set-rich-presence', key, value),
         getRichPresence: (key) => ipcRenderer.invoke('steam-get-rich-presence', key),

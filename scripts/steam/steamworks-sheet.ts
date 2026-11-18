@@ -1,6 +1,6 @@
 /**
- * Renders docs/steam/STEAMWORKS_CONFIG.md: the exact achievements, stats,
- * leaderboards and Rich Presence tokens to enter in Steamworks, read from
+ * Renders docs/steam/STEAMWORKS_CONFIG.md: the exact achievements, stats
+ * and Rich Presence tokens to enter in Steamworks, read from
  * the code that uses them so the partner portal and the game cannot drift.
  *
  *   npx tsx scripts/steam/steamworks-sheet.ts          # rewrite the file
@@ -14,30 +14,17 @@ import { ACHIEVEMENTS } from "../../engine/steam-service"
 const root = path.join(__dirname, "..", "..")
 export const SHEET_PATH = path.join(root, "docs", "steam", "STEAMWORKS_CONFIG.md")
 
-/** Lower is better only for the weeks-to-S-tier board. */
-const ASCENDING_LEADERBOARDS = new Set(["lead_fastest_stier"])
-
-const LEADERBOARD_LABELS: Record<string, string> = {
-    lead_world_ranking: "Peak Elo rating",
-    lead_major_wins: "Major wins",
-    lead_fastest_stier: "Fastest rise to S-Tier (career weeks)",
-    lead_total_earnings: "Career income",
-    lead_win_streak: "Longest win streak",
-    lead_tournaments_won: "Titles won",
-}
-
 function allowlist(source: string, name: string): string[] {
     const match = source.match(new RegExp(`const ${name} = new Set\\(\\[([\\s\\S]*?)\\]\\)`))
     if (!match) throw new Error(`${name} not found in electron/steam.js`)
     return [...match[1].matchAll(/'([A-Za-z0-9_]+)'/g)].map(m => m[1])
 }
 
-export function steamAllowlists(): { achievements: string[]; stats: string[]; leaderboards: string[] } {
+export function steamAllowlists(): { achievements: string[]; stats: string[] } {
     const source = fs.readFileSync(path.join(root, "electron", "steam.js"), "utf8")
     return {
         achievements: allowlist(source, "ALLOWED_ACHIEVEMENTS"),
         stats: allowlist(source, "ALLOWED_STATS"),
-        leaderboards: allowlist(source, "ALLOWED_LEADERBOARDS"),
     }
 }
 
@@ -53,7 +40,7 @@ function richPresenceFiles(): Array<{ file: string; text: string }> {
 const cell = (text: string) => text.replace(/\|/g, "\\|")
 
 export function renderSteamworksSheet(): string {
-    const { stats, leaderboards } = steamAllowlists()
+    const { stats } = steamAllowlists()
     const lines: string[] = [
         "# Steamworks configuration: Esports Manager: FPS (App 4326170)",
         "",
@@ -80,14 +67,6 @@ export function renderSteamworksSheet(): string {
         "| API name | Written by the game today |",
         "|---|---|",
         ...stats.map(name => `| \`${name}\` | ${RESERVED_STATS.has(name) ? "No: reserved, safe to leave out of Steamworks" : "Yes"} |`),
-        "",
-        "## Leaderboards",
-        "",
-        "Steamworks → Stats & Achievements → Leaderboards. Display type **Numeric**, community name and sort method as below.",
-        "",
-        "| API name | Community name | Sort |",
-        "|---|---|---|",
-        ...leaderboards.map(name => `| \`${name}\` | ${LEADERBOARD_LABELS[name] ?? name} | ${ASCENDING_LEADERBOARDS.has(name) ? "Ascending (lower is better)" : "Descending"} |`),
         "",
         "## Rich Presence",
         "",

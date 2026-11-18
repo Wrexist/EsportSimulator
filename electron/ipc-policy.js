@@ -8,7 +8,6 @@ const cloudName = v => typeof v === 'string' && /^save_[a-zA-Z0-9_-]{1,230}\.jso
 const workshopId = v => typeof v === 'string' && /^[1-9][0-9]{0,19}$/.test(v) && BigInt(v) <= 18446744073709551615n;
 const record = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const name = v => typeof v === 'string' && /^[a-zA-Z0-9_]{1,128}$/.test(v);
-const int32 = v => Number.isInteger(v) && v >= -2147483648 && v <= 2147483647;
 function modContent(file, value) {
     if (!text(value, MAX_MOD_BYTES)) return false;
     try {
@@ -59,7 +58,6 @@ add('steam-get-stat', null, one(name), 'bounded stat identifier → number|null'
 add('steam-set-stat', false, a=>a.length===2&&name(a[0])&&typeof a[1]==='number'&&Number.isFinite(a[1])&&Math.abs(a[1])<=2147483647, 'allowlisted name + finite 32-bit range value → boolean', 'Steam stats; throttled');
 add('steam-store-stats', false, none, 'no arguments → boolean', 'Steam stats; throttled');
 add('steam-set-achievement steam-is-achievement-unlocked', false, one(name), 'allowlisted identifier → boolean', 'Steam achievements');
-add('steam-set-leaderboard-score', false, a=>a.length===2&&name(a[0])&&int32(a[1]), 'allowlisted name + int32 → boolean', 'Steam leaderboard; throttled');
 const presenceKey = v=>['status','steam_display','team','season','week','rank','opponent'].includes(v);
 add('steam-set-rich-presence', false, a=>a.length===2&&presenceKey(a[0])&&(a[1]===null||text(a[1],255)), 'status|steam_display|team|season|week|rank|opponent + string ≤255 bytes|null → boolean', 'Bounded presence cache and Steam');
 add('steam-get-rich-presence', null, one(presenceKey), 'status|steam_display|team|season|week|rank|opponent → string|null', 'Presence cache');

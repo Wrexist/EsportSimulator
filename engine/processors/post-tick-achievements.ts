@@ -1,19 +1,18 @@
 /**
- * Post-tick Steam achievement evaluation + leaderboard push.
+ * Post-tick Steam achievement evaluation.
  *
  * Runs after the week processor returns and the new state has landed.
  * Computes a snapshot of player-team metrics — total wins, kills,
  * trophies, S_TIER counts, loyalty years, redemption-arc detection,
  * 14-16 Grand Final loss detection — and hands them to
- * `checkAchievements`. Also updates Steam Rich Presence and pushes
- * the latest leaderboard stats.
+ * `checkAchievements`. Also updates Steam Rich Presence.
  *
  * Extracted from store/game-store.ts so this big snapshot-collection
  * block lives alongside the other tick phases. Pure read of the
  * supplied GameSave; no state mutations.
  */
 
-import type { GameSave, TeamSaveData } from "../save-types"
+import type { GameSave } from "../save-types"
 import { checkAchievements, steamService } from "../steam-service"
 import { isMajorTournament } from "../official-stats"
 import { isOfficialMatch } from "../personality"
@@ -53,10 +52,6 @@ export function evaluatePostTickAchievements(save: GameSave): void {
         week: save.currentWeek,
         ranking: playerTeam.worldRanking,
     })
-
-    if (playerTeam.leagueTier === "S_TIER") {
-        steamService.pushLeaderboardStats({ weeksToSTier: save.currentWeek })
-    }
 
     // This week's player-team matches — used by comeback/underdog/14-16 checks.
     const thisWeekMatches = save.completedMatches.filter(m =>
@@ -157,8 +152,6 @@ export function evaluatePostTickAchievements(save: GameSave): void {
             .filter(e => e.type === "INCOME" && e.category === "PRIZE" && e.teamId === save.playerTeamId)
             .reduce((sum, e) => sum + e.amount, 0),
     })
-
-    pushLeaderboardSnapshot(save, playerTeam, totalMajorWins)
 }
 
 /** True when the player won every series they played in this tournament without losing a map. */
@@ -222,31 +215,4 @@ function managedClubLegends(save: GameSave): number {
         [lp.seasonTally, ...(lp.seasonLines ?? [])].some(line =>
             !!line && line.maps > 0 && spells.some(sp => sp.teamId === line.clubId && line.season >= sp.from && line.season <= sp.to))
     ).length
-}
-
-function pushLeaderboardSnapshot(save: GameSave, playerTeam: TeamSaveData, totalMajorWins: number): void {
-    const totalEarnings = save.financeLedger
-        .filter(e => e.type === "INCOME" && e.teamId === save.playerTeamId)
-        .reduce((sum, e) => sum + e.amount, 0)
-
-    // Longest win streak across recentForm.
-    const form = playerTeam.recentForm || []
-    let maxStreak = 0
-    let curStreak = 0
-    for (const r of form) {
-        if (r === "W") {
-            curStreak++
-            maxStreak = Math.max(maxStreak, curStreak)
-        } else {
-            curStreak = 0
-        }
-    }
-
-    steamService.pushLeaderboardStats({
-        maxElo: playerTeam.elo,
-        totalEarnings,
-        longestWinStreak: maxStreak,
-        tournamentsWon: (playerTeam.trophies || []).length,
-        majorWins: totalMajorWins,
-    })
 }

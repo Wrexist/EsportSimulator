@@ -26,7 +26,7 @@ import {
 } from "@/engine/circuit-engine"
 import { seniorRosterEligibility } from "@/engine/recruitment"
 import { QualificationEngine } from "@/engine/tournament-qualification"
-import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
+import { checkAchievements } from "@/engine/steam-service"
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { eventText, newsText } from "@/lib/news-ref"
 import { instanceName } from "@/lib/tournament-instances"
@@ -253,7 +253,6 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                     const isMajor = tournamentDef?.tier === "S_TIER"
                     if (isMajor) {
                         state.managerDetails.championships = (state.managerDetails.championships || 0) + 1
-                        steamAchievements.pushLeaderboardStats({ majorWins: state.managerDetails.championships })
                     }
                     // Silent fail for achievements — they're cosmetic only.
                     try { checkAchievements({ wonTournament: true }) } catch { /* ignore */ }
