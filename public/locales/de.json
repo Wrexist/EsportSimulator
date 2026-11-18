@@ -2656,6 +2656,8 @@
  "pro.sign": "Unterschreiben und starten",
  "pro.nickTaken": "Es gibt schon einen Spieler mit diesem Namen.",
  "pro.offerStats": "OVR {{ovr}} · gleiche Rolle im Kader: {{n}}",
+ "pro.rival": "Dein Rivale: {{name}} · OVR {{ovr}}",
+ "pro.noRival": "In deiner Rolle steht hier noch niemand in der Startaufstellung",
  "dc.diff.open": "Offen",
  "dc.diff.open.hint": "Gegner aus dem Verfolgerfeld. Ein ausgewogener Draft sollte weit kommen.",
  "dc.diff.pro": "Profi",

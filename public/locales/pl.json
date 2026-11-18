@@ -2804,6 +2804,8 @@
  "pro.sign": "Podpisz i zacznij",
  "pro.nickTaken": "Gracz o tej nazwie już istnieje.",
  "pro.offerStats": "OVR {{ovr}} · ta sama rola w składzie: {{n}}",
+ "pro.rival": "Twój rywal: {{name}} · OVR {{ovr}}",
+ "pro.noRival": "W twojej roli nikt tu jeszcze nie gra w pierwszej piątce",
  "dc.diff.open": "Otwarty",
  "dc.diff.open.hint": "Rywale z peletonu goniącego czołówkę. Zrównoważony draft powinien zajść daleko.",
  "dc.diff.pro": "Pro",

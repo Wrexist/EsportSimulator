@@ -92,3 +92,26 @@ describe("MODES-17: Finances names the difficulty behind the income multiplier",
         expect(src).toContain("incomeDifficulty(team, careerDifficulty)")
     })
 })
+
+describe("MODES-19: a pro trial offer names the starter to beat", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { proRival, ovrOf } = require("@/engine/pro-career") as typeof import("@/engine/pro-career")
+    const STATS = ["skill", "rifle", "awp", "pistol", "grenades", "creativity", "clutch", "tactic", "leader", "teamwork", "reaction", "eyesight", "entry", "trading"]
+    const flat = (id: string, role: string, v: number, over: Record<string, unknown> = {}) => ({
+        id, nickname: id, name: id, age: 22, nationality: "Sweden", role, morale: 75, form: 70, fatigue: 0, energy: 100, maxEnergy: 100,
+        level: 1, xp: 0, potential: 85, productivity: 60, endurance: 70, ...Object.fromEntries(STATS.map(k => [k, v])), ...over,
+    }) as unknown as import("@/engine/save-types").PlayerSaveData
+    const five = [["i", "IGL"], ["w", "AWPER"], ["e", "ENTRY_FRAGGER"], ["r", "RIFLER"], ["s", "SUPPORT"]].map(([id, role]) => flat(id, role, 70))
+
+    test("the AWPer in the coach's five, with his OVR, not the bench AWPer", () => {
+        const benchAwp = flat("w2", "AWPER", 60)
+        const rival = proRival([...five, benchAwp], "AWPER" as never, 20)!
+        expect(rival.player.id).toBe("w")
+        expect(rival.ovr).toBe(ovrOf(five[1], 20))
+    })
+    test("an injured starter does not count; no starter in the role gives null", () => {
+        const injured = five.map(p => p.id === "w" ? { ...p, injury: { weeksRemaining: 3 } } as typeof p : p)
+        expect(proRival(injured, "AWPER" as never, 20)).toBeNull()
+        expect(proRival(five.filter(p => p.role !== "IGL"), "IGL" as never, 20)).toBeNull()
+    })
+})

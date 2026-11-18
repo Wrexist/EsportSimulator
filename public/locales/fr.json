@@ -2730,6 +2730,8 @@
  "pro.sign": "Signer et commencer",
  "pro.nickTaken": "Un joueur porte déjà ce nom.",
  "pro.offerStats": "OVR {{ovr}} · même rôle dans l'effectif : {{n}}",
+ "pro.rival": "Ton rival : {{name}} · OVR {{ovr}}",
+ "pro.noRival": "Personne n'est encore dans le cinq de départ à ton rôle ici",
  "dc.diff.open": "Open",
  "dc.diff.open.hint": "Des adversaires du peloton de poursuivants. Une draft équilibrée devrait aller loin.",
  "dc.diff.pro": "Pro",

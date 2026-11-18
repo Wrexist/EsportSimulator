@@ -320,4 +320,6 @@ export const NEWGAME = {
     "lg.deleteSave": "Delete save",
     "lg.imported": "Imported",
     "dc.namesShort": "Manager name, team name and tag need two characters or more.",
+    "pro.rival": "Your rival: {{name}} · OVR {{ovr}}",
+    "pro.noRival": "Nobody in your role is in their starting five yet",
 } as const

@@ -218,6 +218,17 @@ export function proNicknameTaken(nickname: string, players: ReadonlyArray<{ nick
 }
 
 /**
+ * MODES-19: the player a pro in `role` has to pass at a club: the starter in
+ * that role in the five the coach would field (bestAILineup, as coachLineup
+ * picks it), with his OVR. Null when nobody in that role starts there.
+ */
+export function proRival(roster: PlayerSaveData[], role: PlayerRole, week?: number): { player: PlayerSaveData; ovr: number } | null {
+    const five = bestAILineup(roster.filter(p => !p.isRetired && !(p.injury && p.injury.weeksRemaining > 0)), week ?? 1).five
+    const rated = five.filter(p => p.role === role).map(player => ({ player, ovr: ovrOf(player, week) }))
+    return rated.sort((a, b) => b.ovr - a.ovr || a.player.id.localeCompare(b.player.id))[0] ?? null
+}
+
+/**
  * Creates the pro at the managed club (a 17-year-old a little behind the
  * starters, with a high ceiling), hands the club to its staff and opens
  * the pro career. Returns the player, or null when the club is missing.
