@@ -406,4 +406,5 @@ export const MARKET = {
     "fin.merchHype": "Your club's hype multiplies fan income by ×{{hype}}.",
     "fin.weekNet": "Net {{amount}}",
     "fin.olderWeeks": "Show older weeks",
+    "fin.in.difficulty": "Difficulty: {{difficulty}}. Sponsor, fan and merch income ×{{factor}}.",
 } as const

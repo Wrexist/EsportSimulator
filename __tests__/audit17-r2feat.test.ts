@@ -75,3 +75,20 @@ describe("i18n leftover: the workload warning's stored percent is shown in the l
         expect(i18n.localizeStoredPercent("0.4")).toBe("0.4")
     })
 })
+
+describe("MODES-17: Finances names the difficulty behind the income multiplier", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { incomeDifficulty } = require("@/lib/career-difficulty") as typeof import("@/lib/career-difficulty")
+    test("existing club on Hard, created club on Impossible, Normal and joined clubs show nothing", () => {
+        expect(incomeDifficulty({ difficultySettings: { incomeMultiplier: 0.85 } }, "hard")).toEqual({ label: "Hard", factor: 0.85 })
+        expect(incomeDifficulty({ difficultySettings: { incomeMultiplier: 0.6 }, customTeamData: { difficulty: "impossible" } }, "normal")).toEqual({ label: "Impossible", factor: 0.6 })
+        expect(incomeDifficulty({ difficultySettings: { incomeMultiplier: 1 } }, "normal")).toBeNull()
+        expect(incomeDifficulty({}, "hard")).toBeNull()
+        expect(incomeDifficulty({ difficultySettings: { incomeMultiplier: 1.2 } }, "legendary")).toBeNull()
+    })
+    test("the finances page shows it under the income rows", () => {
+        const src = fs.readFileSync(path.join(__dirname, "..", "app", "finances", "page.tsx"), "utf8")
+        expect(src).toContain('t("fin.in.difficulty"')
+        expect(src).toContain("incomeDifficulty(team, careerDifficulty)")
+    })
+})

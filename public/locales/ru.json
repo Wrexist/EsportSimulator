@@ -7516,6 +7516,7 @@
  "fin.merchHype": "Ажиотаж вокруг твоего клуба умножает доход от фанатов на ×{{hype}}.",
  "fin.weekNet": "Итог {{amount}}",
  "fin.olderWeeks": "Показать прошлые недели",
+ "fin.in.difficulty": "Сложность: {{difficulty}}. Доход от спонсоров, фанатов и мерча ×{{factor}}.",
  "ib.res.received": "Получено {{amount}}",
  "ib.res.receivedSellOn": "Получено {{amount}} и {{pct}}% от следующей продажи",
  "scoreboard.rndOvertime": "ОТ {{set}} · РАУНД {{n}} / 6",

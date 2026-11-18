@@ -7275,6 +7275,7 @@
  "fin.merchHype": "O hype do seu clube multiplica a receita de torcida por ×{{hype}}.",
  "fin.weekNet": "Líquido {{amount}}",
  "fin.olderWeeks": "Ver semanas anteriores",
+ "fin.in.difficulty": "Dificuldade: {{difficulty}}. Receita de patrocínio, torcida e produtos ×{{factor}}.",
  "ib.res.received": "Recebido: {{amount}}",
  "ib.res.receivedSellOn": "Recebido: {{amount}}, mais {{pct}}% da próxima venda",
  "scoreboard.rndOvertime": "OT {{set}} · RND {{n}} / 6",

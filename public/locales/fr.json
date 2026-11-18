@@ -7275,6 +7275,7 @@
  "fin.merchHype": "La hype autour de ton club multiplie les revenus fans par ×{{hype}}.",
  "fin.weekNet": "Net {{amount}}",
  "fin.olderWeeks": "Voir les semaines précédentes",
+ "fin.in.difficulty": "Difficulté : {{difficulty}}. Revenus sponsors, fans et merch ×{{factor}}.",
  "ib.res.received": "Reçu : {{amount}}",
  "ib.res.receivedSellOn": "Reçu : {{amount}}, plus {{pct}} % de la prochaine vente",
  "scoreboard.rndOvertime": "OT {{set}} · RND {{n}} / 6",
