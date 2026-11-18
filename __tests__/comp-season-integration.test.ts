@@ -46,8 +46,11 @@ const pointsAtStart = new Map<string, Map<string, number>>()
 
 beforeAll(async () => {
     // Some engine paths still draw from Math.random: seed it so every run
-    // simulates the same world.
-    let mathSeed = Number(process.env.COMP_SIM_SEED ?? 1) >>> 0
+    // simulates the same world. The career is created from the same seed too:
+    // without one, createCareerFromSnapshot draws its creation seed from
+    // crypto and every run built a different world (a flaky test).
+    const simSeed = Number(process.env.COMP_SIM_SEED ?? 1) >>> 0
+    let mathSeed = simSeed
     jest.spyOn(Math, "random").mockImplementation(() => {
         mathSeed = (Math.imul(mathSeed, 1664525) + 1013904223) >>> 0
         return mathSeed / 4294967296
@@ -58,7 +61,7 @@ beforeAll(async () => {
     const snap = loader.getSnapshot()!
     // Manage the world #5 club: good enough for the Majors, not invited everywhere.
     const club = [...snap.teams].sort((a, b) => (a.worldRanking ?? 999) - (b.worldRanking ?? 999))[4]
-    save = loader.createCareerFromSnapshot("comp-season", club.id, 1)! as GameSave
+    save = loader.createCareerFromSnapshot("comp-season", club.id, 1, simSeed)! as GameSave
     AIManager.initializeTeamData(save)
     save.lastRngSeed = 4242
     let n = 0
