@@ -39,7 +39,7 @@ describe("grand final on the result screen", () => {
             id, homeTeamId: i ? opp : me, awayTeamId: others[i], tournamentId: "cup", stage: i ? "Semi-final 2" : "Semi-final 1", week: match.week, day: 1, format: "BO1", seed: 1,
             result: { homeScore: 1, awayScore: 0, winnerId: i ? opp : me, maps: [] },
         })) as unknown as CompletedMatchSaveData[]
-        let state = { ...save, saveId: save.saveId, newsFeed: [], momentQueue: [], seenMomentKeys: [] } as unknown as StoreState
+        let state = { ...save, saveId: save.saveId, newsFeed: [], momentQueue: [], seenMomentKeys: [], addToast: () => {} } as unknown as StoreState
         const set = (fn: Partial<StoreState> | ((s: StoreState) => void)) => { state = typeof fn === "function" ? produce(state, fn) : { ...state, ...fn } }
         const slice = createMatchSimulationSlice(set, () => state)
         const result = (homeWins: boolean) => ({
