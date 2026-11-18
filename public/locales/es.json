@@ -3788,7 +3788,7 @@
  "tm.viewSeason": "Ver resultados de la temporada {{n}}",
  "tm.unknownWinner": "Campeón desconocido",
  "tm.leagueStandings": "Clasificación de la liga",
- "tm.leagueStandingsNote": "Todos contra todos · los mejores pasan a los playoffs",
+ "tm.leagueStandingsNote": "Todos contra todos · puestos por puntos",
  "tm.col.played": "PJ",
  "tm.col.playedLong": "Partidos jugados",
  "tm.col.pts": "Pts",
@@ -7113,5 +7113,12 @@
  "stage.ro64": "Ronda de 64",
  "stage.ro16Match": "Octavos de final · partido {{n}}",
  "stage.ro32Match": "Dieciseisavos de final · partido {{n}}",
- "stage.ro64Match": "Ronda de 64 · partido {{n}}"
+ "stage.ro64Match": "Ronda de 64 · partido {{n}}",
+ "tm.swiss.stage1": "Fase 1",
+ "tm.swiss.stage2": "Fase 2",
+ "tm.swiss.majorNote": "Fase 1: los 16 equipos del RMR; pasan los 8 mejores. Fase 2: se enfrentan a los 8 equipos invitados y los 8 mejores juegan los playoffs.",
+ "tm.block.region": "Solo pueden inscribirse equipos de {{region}}",
+ "tm.block.in_main": "Ya estás en {{event}}",
+ "tm.block.invited": "Tienes una invitación a {{event}} en camino",
+ "tm.block.sibling": "Ya juegas otro clasificatorio para {{event}}"
 }

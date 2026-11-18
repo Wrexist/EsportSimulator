@@ -56,7 +56,7 @@ describe("grand final on the result screen", () => {
         h.slice.saveMatchResult(h.match.id, h.result(true))
         expect(h.read().completedMatches.some(m => m.id === h.match.id)).toBe(true)
         expect(h.read().momentQueue).toHaveLength(1)
-        expect(h.read().momentQueue[0]).toMatchObject({ key: "title:cup", kind: "title", matchId: h.match.id, prizeBooked: false, finalScore: "1-0", prize: 20_000 })
+        expect(h.read().momentQueue[0]).toMatchObject({ key: "title:cup", kind: "title", matchId: h.match.id, prizeBooked: false, finalScore: "1-0", prize: 28_571 }) // the fixture places 3 clubs; they share the whole pool, 40/70 to 1st (COMP-11)
     })
 
     test("losing it queues nothing", () => {

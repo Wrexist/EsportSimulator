@@ -189,3 +189,25 @@ export function clubEventWindows(save: Pick<GameSave, "tournaments" | "tournamen
 export function clashes(events: ClubEvent[] | undefined, instanceId: string, from: number, to: number, minWeight = 0): boolean {
     return !!events?.some(e => e.id !== instanceId && e.from <= to && from <= e.to && eventWeight(e.def) >= minWeight)
 }
+
+/**
+ * Why the managed club may not sign up for this qualifier, as text to show,
+ * or null when it may (COMP-07). The same rules as automatic entry and the
+ * computer clubs: its region's qualifiers only, none for an event it is in or
+ * about to be invited to, one qualifier per event.
+ */
+export function registerBlockText(
+    save: Pick<GameSave, "tournamentQualifications" | "teams" | "tournaments">,
+    team: Pick<TeamSaveData, "id" | "region">,
+    def: TournamentDefinition,
+    season: number,
+    eventName: (def: TournamentDefinition) => string,
+): { key: string; params: Record<string, string> } | null {
+    if (!def.qualifierFor) return null
+    if (!regionAllows(def, team)) return { key: "tm.block.region", params: { region: def.region ?? "" } }
+    const block = qualifierEntryBlock(save, team.id, def, season)
+    if (!block) return null
+    const chain = downstreamEvents(def)
+    const target = block === "sibling" ? chain[0] : chain[chain.length - 1]
+    return { key: `tm.block.${block}`, params: { event: target ? eventName(target) : "" } }
+}

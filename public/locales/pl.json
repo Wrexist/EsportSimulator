@@ -3879,7 +3879,7 @@
  "tm.viewSeason": "Zobacz wyniki sezonu {{n}}",
  "tm.unknownWinner": "Nieznany zwycięzca",
  "tm.leagueStandings": "Tabela ligi",
- "tm.leagueStandingsNote": "Każdy z każdym · najlepsze drużyny awansują do play-offów",
+ "tm.leagueStandingsNote": "Każdy z każdym · miejsca według punktów",
  "tm.col.played": "M",
  "tm.col.playedLong": "Rozegrane mecze",
  "tm.col.pts": "Pkt",
@@ -7340,5 +7340,12 @@
  "stage.ro64": "1/32 finału",
  "stage.ro16Match": "1/8 finału · mecz {{n}}",
  "stage.ro32Match": "1/16 finału · mecz {{n}}",
- "stage.ro64Match": "1/32 finału · mecz {{n}}"
+ "stage.ro64Match": "1/32 finału · mecz {{n}}",
+ "tm.swiss.stage1": "Etap 1",
+ "tm.swiss.stage2": "Etap 2",
+ "tm.swiss.majorNote": "Etap 1: 16 drużyn z RMR, 8 najlepszych idzie dalej. Etap 2: mierzą się z 8 zaproszonymi drużynami, a 8 najlepszych gra w playoffach.",
+ "tm.block.region": "Zapisać mogą się tylko drużyny z regionu {{region}}",
+ "tm.block.in_main": "Twoja drużyna już gra w {{event}}",
+ "tm.block.invited": "Twoja drużyna czeka na zaproszenie do {{event}}",
+ "tm.block.sibling": "Twoja drużyna gra już inne kwalifikacje do {{event}}"
 }

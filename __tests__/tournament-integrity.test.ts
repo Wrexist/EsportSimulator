@@ -269,10 +269,11 @@ describe("League completion — round-robin leagues complete, crown standings[0]
         const champ = save.teams.find(tm => tm.id === "A")!
         expect(champ.trophies.some(tr => tr.tournamentId === "t1")).toBe(true)
 
-        // Champion gets the 40% first-place prize (was $0 pre-fix: placements
-        // never included position 1 for a league).
+        // Champion gets the first-place prize (was $0 pre-fix: placements
+        // never included position 1 for a league). A 4-club field pays the
+        // whole pool over its 4 places (COMP-11): 40/80 of the pool to 1st.
         const champPrize = save.financeLedger.find(e => e.id === "prize_t1_A_p1")
-        expect(champPrize?.amount).toBe(40_000)
+        expect(champPrize?.amount).toBe(50_000)
 
         // Circuit points by placement: A_TIER position 1 = 500.
         const champPoints = save.circuitPoints!.find(cp => cp.teamId === "A")

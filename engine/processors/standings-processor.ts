@@ -72,17 +72,36 @@ const toBaseTournamentId = (id: string) => id.replace(/_s\d+$/, "")
 const TITLE_REPUTATION = 10
 
 /**
+ * Share of the pool for each place of a field placed down to `places`: the
+ * 8-place table, or the 16-place one past 8th. A field smaller than its table
+ * (12 clubs) has no 13th–16th: their shares go to the places that exist, in
+ * proportion, so the whole advertised pool is paid (COMP-11).
+ */
+export function prizeSplit(places: number): Record<number, number> {
+    const table = places > 8 ? PRIZE_DISTRIBUTION_16 : PRIZE_DISTRIBUTION_8
+    const shown = Object.keys(table).map(Number).filter(place => place <= Math.max(1, places))
+    const total = shown.reduce((sum, place) => sum + table[place], 0)
+    const scale = total > 0 && total < 1 ? 1 / total : 1
+    return Object.fromEntries(shown.map(place => [place, table[place] * scale]))
+}
+
+/**
  * Prize per placed team, the way the week tick pays it: the field-size table
- * (16-place split once anyone is placed past 8th), each share rounded, and
- * the rounding drift folded into 1st place so the total matches the pool.
+ * (prizeSplit), each share rounded, and the rounding drift folded into 1st
+ * place so the total matches the pool.
  */
 export function computePrizeAwards(prizePool: number, placements: { teamId: string; position: number }[]): { teamId: string; position: number; amount: number }[] {
     if (!(prizePool > 0)) return []
-    const deepField = placements.some(p => p.position > 8)
-    const prizeTable = deepField ? PRIZE_DISTRIBUTION_16 : PRIZE_DISTRIBUTION_8
-    const awards = placements
+    const prizeTable = prizeSplit(Math.max(placements.length, ...placements.map(p => p.position)))
+    const shares = placements
         .map(p => ({ p, pct: prizeTable[p.position] ?? 0 }))
         .filter(a => a.pct > 0)
+    // Clubs that share a place (two beaten semi-finalists both 3rd) each take
+    // that place's share, so the shares can miss 100% by a little: rescale so
+    // the clubs actually placed split exactly the pool (COMP-11).
+    const shareTotal = shares.reduce((s, a) => s + a.pct, 0)
+    const awards = shares
+        .map(a => ({ p: a.p, pct: shareTotal > 0 ? a.pct / shareTotal : 0 }))
         .map(a => ({ p: a.p, pct: a.pct, amount: Math.round(prizePool * a.pct) }))
     const exactTotal = Math.round(awards.reduce((s, a) => s + prizePool * a.pct, 0))
     const roundedTotal = awards.reduce((s, a) => s + a.amount, 0)
@@ -329,9 +348,9 @@ export function updateStandings(
 
         // Prize distribution by placement (UI-matching percentages): deep
         // fields (anything placed past 8th) use the 16-place split, compact
-        // fields the historical top-8 split; rounding drift goes to 1st place
-        // so the awarded total matches the intended total to the dollar
-        // (small fields legitimately don't pay the full pool).
+        // fields the top-8 split, scaled so the placed clubs share the whole
+        // pool; rounding drift goes to 1st place so the total matches the
+        // pool to the dollar.
         const awards = computePrizeAwards(tournament.prizePool, placements)
         if (tournament.prizePool > 0) {
             for (const { teamId, position, amount: prizeAmount } of awards) {

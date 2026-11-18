@@ -30,8 +30,9 @@ import {
     CircuitPointsEntry,
     QualificationStatus
 } from "@/engine/tournament-qualification"
-import { getSeasonFromWeek, buildInstanceId, isQualificationForTournament, resolveTournamentIdentity } from "@/engine/circuit-engine"
-import { currentSeasonInstance, seasonStartWeek } from "@/lib/tournament-instances"
+import { getSeasonFromWeek, getSeasonFromTournamentId, buildInstanceId, isQualificationForTournament, resolveTournamentIdentity } from "@/engine/circuit-engine"
+import { currentSeasonInstance, instanceName, seasonStartWeek } from "@/lib/tournament-instances"
+import { registerBlockText } from "@/engine/tournament/qualification-path"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { pressable } from "@/lib/accessibility"
@@ -182,7 +183,13 @@ export default function TournamentsPage() {
         const displayId = instanceId
 
         const eligibility = getEligibility(tournament)
-        const isLocked = eligibility && QualificationEngine.isTournamentLocked(tournament, eligibility)
+        // A qualifier the club may not sign up for: another region's, or one
+        // for an event it is in or about to be invited to (COMP-07).
+        const rowSeason = getSeasonFromTournamentId(instanceId) ?? currentSeason
+        const entryBlock = playerTeam
+            ? registerBlockText({ tournamentQualifications: qualificationStatuses, teams, tournaments }, playerTeam, tournament, rowSeason, def => instanceName(def, rowSeason, gameStartDate))
+            : null
+        const isLocked = (eligibility && QualificationEngine.isTournamentLocked(tournament, eligibility)) || !!entryBlock
         const isQualified = qualificationStatuses.some(
             qs => qs.teamId === playerTeam?.id && qs.status === "QUALIFIED" && isQualificationForTournament(qs, instanceId, currentWeek)
         )
@@ -237,12 +244,12 @@ export default function TournamentsPage() {
                         : isQualified ? { key: "qualified", tone: "good" }
                             : isRegistered ? { key: "registered", tone: "good" }
                                 : isOnSchedule ? { key: "onSchedule", tone: "neutral" }
-                                    : isLocked ? { key: tournament.entryType === "INVITE" ? "inviteOnly" : "locked", tone: "muted", detail: eligibility?.reason }
+                                    : isLocked ? { key: tournament.entryType === "INVITE" ? "inviteOnly" : "locked", tone: "muted", detail: entryBlock ? t(entryBlock.key, entryBlock.params.region !== undefined ? { region: eventRegionName(entryBlock.params.region) } : entryBlock.params) : eligibility?.reason }
                                         : { key: "open", tone: "neutral" }
 
         const teamsEntered = liveTournament?.teamIds?.length || 0
         // A live event's field is set: no sign-up once it has started.
-        const canRegister = !!eligibility?.canRegister && !isRegistered && !isQualified && !isPast && !isActive && !isEliminated
+        const canRegister = !!eligibility?.canRegister && !entryBlock && !isRegistered && !isQualified && !isPast && !isActive && !isEliminated
         const name = getDynamicTournamentName(tournament.name, effectiveStart, gameStartDate, tournament.duration)
 
         return (

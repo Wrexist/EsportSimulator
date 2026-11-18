@@ -266,7 +266,7 @@ describe("season 1 to season 2", () => {
         // Season-2 instances are new rows with their own year and their own field.
         const open2 = instance("iem_katowice_open_s2")
         expect(open2).toBeDefined()
-        expect(open2.name).toBe("Winter Open Katova Open Qualifier S2")
+        expect(open2.name).toBe("Winter Open Katova Open Qualifier 2028")
         expect(open2.startWeek).toBe(54)
         expect(open2.teamIds).toHaveLength(getTournamentById("iem_katowice_open")!.slots)
         // Its own fixtures, all in season 2.

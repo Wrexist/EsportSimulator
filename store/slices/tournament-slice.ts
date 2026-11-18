@@ -30,6 +30,8 @@ import { checkAchievements, steamService as steamAchievements } from "@/engine/s
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { eventText, newsText } from "@/lib/news-ref"
 import { instanceName } from "@/lib/tournament-instances"
+import { eventRegionName } from "@/lib/display-names"
+import { registerBlockText } from "@/engine/tournament/qualification-path"
 
 export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get) => ({
     registerForTournament: (tournamentId: string) => {
@@ -69,6 +71,11 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
             q => q.teamId === state.playerTeamId && isQualificationForTournament(q, instanceId, state.currentWeek)
         )
         if (existing) return { success: false, message: "Already registered or qualified" }
+
+        // Region, a projected invite, the main event or a sibling qualifier
+        // (the rules automatic entry and the computer clubs follow, COMP-07).
+        const block = registerBlockText(state, team, definition, seasonNumber, eventName)
+        if (block) return { success: false, message: liveText(block.params.region !== undefined ? { key: block.key, params: { region: eventRegionName(block.params.region) } } : block) }
 
         // Qualifier double-entry guard: can't enter a qualifier if you're
         // already in the main event, or in a sibling qualifier for it.

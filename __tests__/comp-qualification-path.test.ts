@@ -69,7 +69,11 @@ describe("calendar: the qualifier path fits", () => {
     test("stored names carry the year the event is played in, or the season", () => {
         expect(instanceName(def("iem_katowice"), 1, "2026-11-15T00:00:00.000Z")).toBe("Winter Open Katova 2027")
         expect(instanceName(def("iem_katowice"), 2, "2026-11-15T00:00:00.000Z")).toBe("Winter Open Katova 2028")
-        expect(instanceName({ name: "Some League", startWeek: 3, duration: 4 }, 2, null)).toBe("Some League S2")
+        // Every instance carries its year (COMP-15); an edition number counts on instead.
+        expect(instanceName({ name: "Some League", startWeek: 3, duration: 4 }, 2, null)).toBe("Some League 2026")
+        expect(instanceName({ name: "Some League", startWeek: 3, duration: 4 }, 1, "2026-11-15T00:00:00.000Z")).toBe("Some League 2026")
+        expect(instanceName({ name: "Global Pro League Season 21 Finals", startWeek: 20, duration: 6 }, 2, null)).toBe("Global Pro League Season 22 Finals")
+        expect(instanceName(def("copenhagen_rmr_asia"), 2, "2026-11-15T00:00:00.000Z")).toBe(`${def("copenhagen_rmr_asia").name} 2028`)
     })
 })
 

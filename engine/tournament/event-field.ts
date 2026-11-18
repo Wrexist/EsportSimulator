@@ -75,6 +75,9 @@ export function buildEventField(
         for (const q of rows) {
             if (q.status === "REGISTERED" && q.teamId !== playerTeamId && qualifierEntryBlock(save, q.teamId, definition, season)) blocked.add(q.teamId)
             if (q.status === "REGISTERED" && q.teamId === playerTeamId && qualifierEntryBlock(save, q.teamId, definition, season) === "in_main") blocked.add(q.teamId)
+            // A regional qualifier takes its region's clubs, sign-ups included (COMP-07).
+            const club = teamById.get(q.teamId)
+            if (q.status === "REGISTERED" && club && !regionAllows(definition, club)) blocked.add(q.teamId)
         }
     }
     // A computer club with an invite or sign-up passes it up for a bigger
