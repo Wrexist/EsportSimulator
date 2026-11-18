@@ -83,10 +83,16 @@ test("NEWPLAYER-09: clubs, staff and maps keep their names; new handles are clea
     expect(MAP_NAMES).toEqual(mapsBefore)
     expect(Object.values(MAP_NAMES)).toEqual(expect.arrayContaining(["Mirage", "Inferno", "Nuke", "Ancient", "Anubis"]))
     expect(JSON.stringify(save.staff ?? null)).toBe(JSON.stringify(base.staff ?? null))
-    for (const p of save.players.filter(p => !p.isRetired)) {
-        expect(stripForbidden(p.nickname.toLowerCase())).toBe(p.nickname.toLowerCase())
-        expect(p.name).toBe(p.nickname)
+    for (const p of save.players.filter(p => !p.isRetired)) expect(p.name).toBe(p.nickname)
+    // Many worlds: no invented handle spells a real team or brand (a run once dealt "fazero").
+    const bad: string[] = []
+    for (let i = 0; i < 40; i++) {
+        const world = structuredClone(base)
+        world.saveId = `naming_${i}`
+        randomizeWorld(world)
+        for (const p of world.players) if (!p.isRetired && stripForbidden(p.nickname.toLowerCase()) !== p.nickname.toLowerCase()) bad.push(p.nickname)
     }
+    expect(bad).toEqual([])
 })
 
 test("NEWPLAYER-09: the New Career switch starts on, and a player's 'off' survives a reload", () => {

@@ -6,8 +6,9 @@
  * yields the same output, so saves, IDs, and roster references stay stable
  * across regenerations.
  *
- * Used at snapshot-sanitize time (scripts/sanitize-snapshot.js). Never called
- * at runtime.
+ * Used at snapshot-sanitize time (scripts/sanitize-snapshot.js). At runtime
+ * only `stripForbidden` is used, by engine/random-world.ts, to keep invented
+ * handles clear of real team and brand names.
  */
 
 // ============================================================
