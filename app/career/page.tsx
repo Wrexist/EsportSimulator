@@ -26,6 +26,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { t, tn, intlLocale, isTextRef, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { DIGEST_TYPE, digestItems } from "@/lib/inbox-digest"
+import { weekNumberText, weekOfSeason } from "@/lib/season-week"
 
 /** A log row in the active language: the saved translation key first (as the inbox reads it), else the stored English through stored-text. */
 function eventText(event: { type: string; data?: unknown }): string {
@@ -139,7 +140,7 @@ export default function CareerPage() {
                         {!proActive && <Kpi label={t("car.kpi.reputation")} value={Math.round(managerDetails?.reputation ?? 0)} hint={t("car.kpi.of100")} />}
                         <Kpi label={t("tro.kpi.record")} value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={t(record.official ? "car.kpi.recordHintOfficial" : "car.kpi.recordHint", { rate: record.rate })} />
                         <Kpi label={t("tro.kpi.titles")} value={titles} valueClassName={titles > 0 ? "text-gold" : undefined} hint={majors > 0 ? tn("car.kpi.majors", majors) : undefined} />
-                        <Kpi label={t("car.kpi.season")} value={seasons} hint={t("car.kpi.week", { week: currentWeek })} />
+                        <Kpi label={t("car.kpi.season")} value={seasons} hint={t("car.kpi.week", { week: weekOfSeason(currentWeek) })} />
                     </KpiStrip>
                 }
             />
@@ -169,7 +170,7 @@ export default function CareerPage() {
                                 <tbody>
                                     {log.map(e => (
                                         <tr key={e.id} data-slot="table-row" className="border-b border-line">
-                                            <td className="py-2 pl-4 align-top text-sm tabular-nums text-ink-3">{e.week}</td>
+                                            <td className="py-2 pl-4 align-top text-sm tabular-nums text-ink-3">{weekNumberText(e.week, currentWeek)}</td>
                                             <td className={cn("py-2 pr-4 text-sm", e.type === "TOURNAMENT_WIN" ? "text-gold" : "text-ink-1")}>
                                                 <span className="line-clamp-2" title={eventText(e)}>{eventText(e)}</span>
                                             </td>
@@ -215,7 +216,7 @@ export default function CareerPage() {
                                                 {slot.isCorrupted && <span className="text-xs font-normal text-negative">{t("car.damaged")}</span>}
                                             </p>
                                             <p className="mt-0.5 text-xs tabular-nums text-ink-3">
-                                                {t("car.kpi.week", { week: slot.currentWeek || 1 })} · {w}–{l}
+                                                {t("car.kpi.week", { week: weekNumberText(slot.currentWeek || 1) })} · {w}–{l}
                                                 {slot.stats?.tournamentsWon ? ` · ${tn("tro.review.titles", slot.stats.tournamentsWon)}` : ""}
                                                 {slot.budget !== undefined ? ` · ${formatCurrency(slot.budget, "$", true)}` : ""}
                                             </p>
