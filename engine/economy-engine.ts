@@ -53,7 +53,7 @@ export function weeklyUpkeep(report: Pick<WeeklyFinancialReport, "expenses"> | n
     return (e.total ?? 0) - (e.playerWages ?? 0) - (e.staffWages ?? 0)
 }
 
-/** Fan income's hype factor (merchHype / 10; a created club starts at 5, ×0.5). /finances states it (MARKET-10). */
+/** Fan income's hype factor (merchHype / 10; every club starts at 10, ×1: MARKET-10). /finances states it (MARKET-10). */
 export function merchHypeMultiplier(team: Pick<TeamSaveData, "merchHype">): number {
     return Math.max(0, Math.min(100, team.merchHype || 10)) / 10
 }

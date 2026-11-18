@@ -23,10 +23,18 @@ interface PlayerLike {
     clutch: number
 }
 
-/** Form after a committed match result (CONDITION_TUNING); same rule for every club. */
-export function applyFormResult(form: number | undefined, won: boolean, factor = 1): number {
-    const delta = (won ? CONDITION_TUNING.FORM_PER_WIN : CONDITION_TUNING.FORM_PER_LOSS) * factor
-    return Math.max(0, Math.min(100, (form ?? 50) + delta))
+/**
+ * Form after a committed match result (CONDITION_TUNING); same rule for every
+ * club. The result part (scaled by the odds) plus, when the player's match
+ * rating is known, a capped share of how far it was from 1.0 (SQUAD-64).
+ */
+export function applyFormResult(form: number | undefined, won: boolean, factor = 1, rating?: number): number {
+    const result = (won ? CONDITION_TUNING.FORM_PER_WIN : CONDITION_TUNING.FORM_PER_LOSS) * factor
+    const cap = CONDITION_TUNING.FORM_RATING_CAP
+    const own = typeof rating === "number" && Number.isFinite(rating)
+        ? Math.max(-cap, Math.min(cap, CONDITION_TUNING.FORM_PER_RATING * (rating - 1)))
+        : 0
+    return Math.max(0, Math.min(100, (form ?? 50) + result + own))
 }
 
 /**

@@ -5851,7 +5851,7 @@
  "help.rmr.l3": "L'enjeu est énorme : la préparation compte plus qu'à un événement normal.",
  "help.cond.title": "Moral, forme et fatigue",
  "help.cond.desc": "Des joueurs affûtés et heureux",
- "help.cond.l1": "<b>Forme</b> : la tendance des derniers résultats. Une bonne forme donne un petit élan.",
+ "help.cond.l1": "<b>Forme</b> : la tendance des derniers résultats et du rating du joueur lui-même à chaque match. Une bonne forme donne un petit élan.",
  "help.cond.l2": "<b>Moral</b> : le bien-être d'un joueur. Un moral bas nuit aux performances et peut mener à des plaintes ; les victoires et un bon traitement le font monter.",
  "help.cond.l3": "<b>Fatigue</b> : s'accumule avec les matchs et les exercices. Une forte fatigue augmente le risque de blessure et réduit les performances ; gère-la avec du repos et ton axe hebdomadaire.",
  "help.board.title": "Confiance de la direction",

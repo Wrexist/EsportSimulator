@@ -23,7 +23,8 @@ describe('C5: workload and injury risk', () => {
         expect(workloadOf(player('a', { fatigue: 65 })).band).toBe('HIGH')
         expect(workloadOf(player('a', { fatigue: 90 })).band).toBe('OVERLOADED')
         expect(needsWorkloadWarning(player('a', { fatigue: 60 }))).toBe(false)
-        expect(needsWorkloadWarning(player('a', { fatigue: 80 }))).toBe(true)
+        expect(needsWorkloadWarning(player('a', { fatigue: 80 }))).toBe(false)
+        expect(needsWorkloadWarning(player('a', { fatigue: 90 }))).toBe(true)
     })
 
     const target = (players: PlayerSaveData[]): ChoiceTarget => ({

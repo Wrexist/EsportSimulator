@@ -90,7 +90,7 @@ export const HELP = {
 
     "help.cond.title": "Morale, form and fatigue",
     "help.cond.desc": "Keeping players sharp and happy",
-    "help.cond.l1": "<b>Form</b>: the trend of recent results. Hot form is a small momentum edge.",
+    "help.cond.l1": "<b>Form</b>: the trend of recent results and the player's own match ratings. Hot form is a small momentum edge.",
     "help.cond.l2": "<b>Morale</b>: how happy a player is. Low morale hurts performance and can lead to complaints; wins and good treatment raise it.",
     "help.cond.l3": "<b>Fatigue</b>: builds up from matches and drills. High fatigue raises the injury risk and saps performance; manage it with rest and your weekly focus.",
 

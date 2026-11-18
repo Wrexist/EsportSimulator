@@ -54,7 +54,7 @@ async function run(index: number, intensity: number, template: GameSave | null) 
     state.createdAt = '2025-01-01T00:00:00.000Z'; state.updatedAt = state.createdAt; state.lastPlayedAt = state.createdAt
     if (finance === 'fixture') {
         team.budget = settings.startingBudget * (index % 3 + 1)
-        team.difficultySettings = { incomeMultiplier: settings.incomeMultiplier, fansMultiplier: settings.fansMultiplier, tournamentPrizeMultiplier: settings.tournamentPrizeMultiplier }
+        team.difficultySettings = { incomeMultiplier: settings.incomeMultiplier }
     }
     if (!template) {
         team.tier = tier; team.leagueTier = tier as typeof team.leagueTier

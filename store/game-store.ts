@@ -1217,7 +1217,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // Same helper as the club picker's budget (lib/career-start-preview.ts).
             started.startingBudget = difficultyStartingCash(started.startingBudget ?? selectedTeam.budget, difficulty)
             selectedTeam.budget = difficultyStartingCash(selectedTeam.budget, difficulty)
-            selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier, fansMultiplier: d.fansMultiplier, tournamentPrizeMultiplier: d.tournamentPrizeMultiplier }
+            selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier }
           }
           newSave.difficulty = difficulty
           // Snapshot the starting tier so ZERO_TO_HERO can detect a
@@ -1380,7 +1380,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               { id: "room_train", type: "TRAINING" as const, level: 1, description: "Basic training setup", monthlyCost: 500 },
             ],
             sponsors: [],
-            merchHype: 5,
+            merchHype: 10, // MARKET-10: neutral hype (×1), like every world club
             trophies: [],
             recentForm: [],
             equipment: [],

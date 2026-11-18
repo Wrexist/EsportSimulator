@@ -14,8 +14,8 @@ import { intlLocale, t } from "@/lib/i18n"
 import { staffDevelopmentEffects } from "@/engine/organization-effects"
 import { buildRuntimeStaff } from "@/engine/match/live-staff-adapter"
 import { NON_PLAYER_BONUS_CAP, staffStrengthBonus } from "@/engine/match/team-strength"
-import { getSpecializationMultiplier, normalizeSpecialization } from "@/engine/staff-specialization"
-import { scoutTierFromAccuracy } from "@/engine/scouting-system"
+import { normalizeSpecialization } from "@/engine/staff-specialization"
+import { scoutReportTierOf } from "@/engine/staff-generator"
 
 /** Translated staff role name (staffRole.*). */
 export function roleLabel(role: StaffSaveData["role"]): string {
@@ -57,7 +57,7 @@ export function staffMatchPct(s: StaffSaveData): number {
  * (NEWPLAYER-04).
  */
 export function scoutReportTier(s: StaffSaveData) {
-    return scoutTierFromAccuracy((s.stats?.accuracy ?? 50) * getSpecializationMultiplier(s))
+    return scoutReportTierOf(s)
 }
 
 /** Market and staff-table order: grouped by role. */

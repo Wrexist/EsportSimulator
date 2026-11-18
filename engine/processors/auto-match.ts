@@ -270,7 +270,7 @@ export function playAutoMatch(
                 let moraleDelta = getMoraleChange(won) * derbyStakes * surprise
                 if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
                 p.morale = applyMoraleResult(p.morale, playerResultMorale(p, moraleDelta, shield))
-                p.form = applyFormResult(p.form, won, surprise)
+                p.form = applyFormResult(p.form, won, surprise, pStat?.rating)
 
                 // Phase 6: Skill Point Progression
                 // 5% chance on win, 1% on loss to simulate learning

@@ -652,10 +652,9 @@ export interface TeamSaveData {
         secondaryColor: string
         logoData?: string
     }
+    /** Difficulty's recurring-income multiplier. Older saves also carry unused fansMultiplier/tournamentPrizeMultiplier (MODES-18). */
     difficultySettings?: {
         incomeMultiplier: number
-        fansMultiplier: number
-        tournamentPrizeMultiplier: number
     }
 }
 

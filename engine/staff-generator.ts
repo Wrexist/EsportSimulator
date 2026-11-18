@@ -3,6 +3,8 @@ import { StaffSaveData, STAFF_ROLES } from "./save-types"
 import { LEGACY_STAFF_POOL } from "./staff-db"
 import { SeededRNG } from "./rng"
 import { STAFF_SALARY_RANGES } from "../lib/constants"
+import { scoutTierFromAccuracy } from "./scouting-system"
+import { getSpecializationMultiplier } from "./staff-specialization"
 
 /** Weeks a staff member released by a club stays on the market through refreshes. */
 export const RELEASED_STAFF_MARKET_WEEKS = 8
@@ -22,6 +24,28 @@ const RARITY_TERMS: Record<NonNullable<StaffSaveData["rarity"]>, { salaryTier: s
 
 const salaryRangeOf = (salaryTier: string) =>
     STAFF_SALARY_RANGES[salaryTier as keyof typeof STAFF_SALARY_RANGES] ?? STAFF_SALARY_RANGES.Standard
+
+/**
+ * The report tier a scout's missions produce: accuracy x specialization, as
+ * engine/processors/scouting-mission-processor.ts grades them. His staff level
+ * plays no part in it (NEWPLAYER-04).
+ */
+export function scoutReportTierOf(s: Pick<StaffSaveData, "role" | "specialization" | "stats">) {
+    return scoutTierFromAccuracy((s.stats?.accuracy ?? 50) * getSpecializationMultiplier(s))
+}
+
+/**
+ * A scout's wage band follows the report tier he produces (NEWPLAYER-04, round
+ * 2): a Basic scout cost up to double an Expert one when the wage followed
+ * rarity. Bands are ordered and do not overlap, so a better report never
+ * lists for less. Expert is the High band; the others sit around it.
+ */
+export const SCOUT_TIER_SALARY: Record<ReturnType<typeof scoutTierFromAccuracy>, { min: number; max: number }> = {
+    BASIC: { min: 800, max: 1200 },
+    ADVANCED: { min: 1200, max: 1800 },
+    EXPERT: STAFF_SALARY_RANGES.High,
+    ELITE: { min: 3000, max: 6000 },
+}
 
 /**
  * A legacy-pool entry's level and wage, held inside its rarity's band
@@ -181,8 +205,9 @@ export class StaffGenerator {
             specialization = "Talent ID"
         }
 
-        // Salary Calculation
-        const salaryRange = salaryRangeOf(salaryTier)
+        // Salary Calculation (one draw either way, so the market's RNG sequence is unchanged).
+        // A scout is priced by the report tier he produces, not his rarity (NEWPLAYER-04).
+        const salaryRange = role === "scout" ? SCOUT_TIER_SALARY[scoutReportTierOf({ role, specialization, stats })] : salaryRangeOf(salaryTier)
         const salary = rnd(salaryRange.min, salaryRange.max)
 
         const level = rnd(levelMin, levelMax)
