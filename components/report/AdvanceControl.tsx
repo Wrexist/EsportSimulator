@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import { demoWeekCapReached } from "@/lib/edition"
 import { t } from "@/lib/i18n"
+import { weekOfSeason } from "@/lib/season-week"
 import { liveMatchInProgress } from "@/app/match/match-centre"
 
 /**
@@ -108,7 +109,7 @@ export function AdvanceControl() {
                 <span className="flex h-10 items-center gap-2 rounded-lg border border-line bg-raised px-3 text-xs font-semibold text-ink-2">
                     <Loader2 size={14} className="animate-spin text-gold" />
                     <span className="whitespace-nowrap tabular-nums">
-                        {t("advance.running", { when: daily ? t("common.day", { n: currentDay + 1 }) : t("common.week", { n: currentWeek }) })}
+                        {t("advance.running", { when: daily ? t("common.day", { n: currentDay + 1 }) : t("common.week", { n: weekOfSeason(currentWeek) }) })}
                     </span>
                 </span>
                 <Button

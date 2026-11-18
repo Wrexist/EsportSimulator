@@ -2,6 +2,7 @@
 import { Trans } from "@/lib/trans"
 import { countryName } from "@/lib/country"
 import { formatDecimal, t, tn } from "@/lib/i18n"
+import { weekLabel, weekLabelShort } from "@/lib/season-week"
 
 import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
@@ -386,7 +387,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                                 {performances.slice(0, 4).map(r => (
                                                     <li key={r.matchId}>
                                                         <Link href={`/match/${r.matchId}/result`} className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-hover">
-                                                            <span className="w-9 tabular-nums text-ink-3">W{r.week}</span>
+                                                            <span className="shrink-0 whitespace-nowrap tabular-nums text-ink-3">{weekLabelShort(r.week, currentWeek)}</span>
                                                             <span className="min-w-0 flex-1 truncate text-ink-2">{t("common.vsLower")} {r.opponentName}</span>
                                                             <span className="tabular-nums text-ink-3">{r.kills}–{r.deaths}</span>
                                                             <span className="w-10 text-right font-semibold tabular-nums text-ink-1">{r.rating.toFixed(2)}</span>
@@ -416,8 +417,9 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <dl className="divide-y divide-line">
                                             <Row label={t("player.row.club")}><TeamLink id={viewedTeam?.id}>{viewedTeam?.name ?? "—"}</TeamLink></Row>
                                             <Row label={t("player.row.wage")}>{t("player.row.wageValue", { wage: formatCurrency(contract.salaryPerWeek, "$", false) })}</Row>
-                                            <Row label={t("player.row.signed")}>{t("common.week", { n: contract.startWeek })}</Row>
-                                            <Row label={t("player.row.expires")}>{t("common.week", { n: contract.endWeek })}</Row>
+                                            {/* SQUAD-57: season weeks ("Week 19 (season 2)"), never the career's absolute week. */}
+                                            <Row label={t("player.row.signed")}>{weekLabel(contract.startWeek, currentWeek)}</Row>
+                                            <Row label={t("player.row.expires")}>{weekLabel(contract.endWeek, currentWeek)}</Row>
                                             <Row label={t("player.row.timeLeft")} className={contractTone(weeksLeft)}>{formatWeeks(weeksLeft)}</Row>
                                             {/* SQUAD-12: nothing reads the buyout of your own players (release cost is below); it went stale on renewal. */}
                                             {!isOwnPlayer && contract.buyout > 0 && <Row label={t("player.row.buyout")}>{formatCurrency(contract.buyout)}</Row>}
@@ -529,7 +531,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                                         <ArrowRightLeft size={13} className="shrink-0 text-ink-3" />
                                                         <span className="truncate">{c.teamName}</span>
                                                     </span>
-                                                    <span className="shrink-0 tabular-nums text-ink-3">W{c.joinedWeek}{c.leftWeek != null ? ` – W${c.leftWeek}` : ` – ${t("player.now")}`}</span>
+                                                    <span className="shrink-0 tabular-nums text-ink-3">{weekLabelShort(c.joinedWeek)}{c.leftWeek != null ? ` – ${weekLabelShort(c.leftWeek)}` : ` – ${t("player.now")}`}</span>
                                                 </li>
                                             ))}
                                         </ul>

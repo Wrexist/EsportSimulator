@@ -5,7 +5,8 @@ import { t } from "@/lib/i18n"
 import { useMemo, memo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { format } from "date-fns"
+import { formatGameCalendarDate } from "@/lib/game-calendar"
+import { weekLabelShort, weekNumberText } from "@/lib/season-week"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { cn } from "@/lib/utils"
@@ -13,6 +14,8 @@ import { cn } from "@/lib/utils"
 export interface RecordedPerformance {
     matchId: string
     week: number
+    /** Day of the week it was played (0 = the week's first day), when stored. */
+    day?: number
     opponentId?: string
     opponentName: string
     event: string
@@ -38,8 +41,8 @@ export function usePlayerPerformances(playerId: string): RecordedPerformance[] {
     })))
     return useMemo(() => {
         const teamById = new Map(teams.map(t => [t.id, t]))
-        const rows: RecordedPerformance[] = []
-        for (const match of completedMatches) {
+        const rows: (RecordedPerformance & { order: number })[] = []
+        for (const [order, match] of completedMatches.entries()) {
             const stats = match.result?.playerStats?.[playerId]
             if (!stats) continue
             const lineups = (match.result as { lineups?: Record<string, string[]> }).lineups
@@ -53,6 +56,8 @@ export function usePlayerPerformances(playerId: string): RecordedPerformance[] {
             rows.push({
                 matchId: match.id,
                 week: match.week,
+                day: match.day,
+                order,
                 opponentId,
                 opponentName: teamById.get(opponentId)?.name ?? t("common.unknown"),
                 event,
@@ -66,7 +71,10 @@ export function usePlayerPerformances(playerId: string): RecordedPerformance[] {
                 rating: stats.rating ?? 0,
             })
         }
-        return rows.sort((a, b) => b.week - a.week)
+        // SQUAD-42: newest first by week, then day, then the order they were played.
+        return rows
+            .sort((a, b) => b.week - a.week || (b.day ?? 6) - (a.day ?? 6) || b.order - a.order)
+            .map(({ order: _order, ...row }) => row)
     }, [completedMatches, teams, playerId])
 }
 
@@ -78,6 +86,13 @@ interface PlayerMatchHistoryProps {
 /** PlayerMatchHistory — dense table of recorded performances, rows open the match report. */
 export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, limit = 10 }: PlayerMatchHistoryProps) {
     const getDateForWeek = useGameStore(state => state.getDateForWeek)
+    const currentWeek = useGameStore(state => state.currentWeek)
+    // SQUAD-42: the day it was played (the week's start plus its day), in the interface language.
+    const playedOn = (r: RecordedPerformance) => {
+        const date = new Date(getDateForWeek(r.week))
+        date.setUTCDate(date.getUTCDate() + (r.day ?? 0))
+        return formatGameCalendarDate(date, { month: "short", day: "numeric" })
+    }
     const router = useRouter()
     const rows = usePlayerPerformances(playerId)
     const shown = rows.slice(0, limit)
@@ -113,12 +128,12 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
                             tabIndex={0}
                             onClick={() => router.push(`/match/${r.matchId}/result`)}
                             onKeyDown={e => { if (e.key === "Enter") router.push(`/match/${r.matchId}/result`) }}
-                            aria-label={t("history.aria", { week: r.week, opponent: r.opponentName })}
+                            aria-label={t("history.aria", { week: weekNumberText(r.week, currentWeek), opponent: r.opponentName })}
                             className="h-11 cursor-pointer border-b border-line outline-none focus-visible:bg-hover"
                         >
                             <td className="pl-4 text-sm tabular-nums text-ink-2">
-                                W{r.week}
-                                <span className="ml-2 text-xs text-ink-3">{format(getDateForWeek(r.week), "MMM d")}</span>
+                                {weekLabelShort(r.week, currentWeek)}
+                                <span className="ml-2 text-xs text-ink-3">{playedOn(r)}</span>
                             </td>
                             <td className="max-w-[220px] truncate px-3 text-sm font-semibold text-ink-1">{r.opponentName}</td>
                             <td className="px-3 text-sm text-ink-3">{r.event === "SCRIM" ? t("common.scrim") : r.event === "TOURNAMENT" ? t("history.tournament") : r.event === "MATCH" ? t("common.match") : stageName(r.event)}</td>
