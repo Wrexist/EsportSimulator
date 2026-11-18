@@ -89,6 +89,9 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
     ["transfer_request_", rule({ family: "transfer_request", label: "Transfer request", window: 2, cooldown: 0, defaultChoiceId: "refuse", consequence: "refuses {name}'s transfer request (his morale and loyalty drop)" })],
     // Phase 5.3: a press conference before a big match; the deadline is match day.
     ["press_", rule({ family: "press", label: "Press conference", window: 0, cooldown: 0, defaultChoiceId: "no_one", consequence: "sends no one to the press conference: no effect" })],
+    // Owner decision 3: an invite that clashes with another event of the club.
+    // Each invite is its own question; unanswered, the club plays both.
+    ["invite_notif_", rule({ family: "invite_clash", label: "Tournament invitation", window: 2, cooldown: 0, defaultChoiceId: "both", consequence: "plays both events", dedupe: false })],
 ]
 
 /**

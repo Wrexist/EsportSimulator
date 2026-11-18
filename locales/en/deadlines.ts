@@ -33,4 +33,5 @@ export const DEADLINES = {
     "dl.c.offerLapse": "lets the offer lapse",
     "dl.c.bidLapse": "lets the bid lapse",
     "dl.c.dropRequest": "drops the request",
+    "dl.c.invite_clash": "plays both events",
 } as const

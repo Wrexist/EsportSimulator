@@ -240,3 +240,105 @@ describe("COMP-22: a locked event's row says what the club still has to do", () 
         expect(entryPathText(save(rows), teams[0], katowice, 1, 3, name)).toBeNull()
     })
 })
+
+describe("Competition owner decision 3: an invite that clashes with another event asks which to play", () => {
+    /* eslint-disable @typescript-eslint/no-require-imports */
+    const path = require("../engine/tournament/qualification-path") as typeof import("../engine/tournament/qualification-path")
+    const { FULL_TOURNAMENT_CALENDAR } = require("../data/tournament-calendar") as typeof import("../data/tournament-calendar")
+    const { QualificationEngine } = require("../engine/tournament-qualification") as typeof import("../engine/tournament-qualification")
+    const { decisionRuleFor } = require("../engine/decision-deadlines") as typeof import("../engine/decision-deadlines")
+    const { createEventsSlice } = require("../store/slices/events-slice") as typeof import("../store/slices/events-slice")
+    const { produce } = require("immer") as typeof import("immer")
+    /* eslint-enable @typescript-eslint/no-require-imports */
+    const def = (id: string) => FULL_TOURNAMENT_CALENDAR.find(d => d.id === id)!
+    // Thunderpick World Championship (B tier, weeks 36-44) and the Shanghai Major (from week 38).
+    const invite = (teamId: string, id: string, via = "Direct Invite") =>
+        ({ tournamentId: `${id}_s1`, instanceId: `${id}_s1`, seasonNumber: 1, teamId, status: "QUALIFIED", qualifiedVia: via })
+    const save = (rows: object[]) => ({ tournaments: [], teams: [], tournamentQualifications: rows }) as unknown as import("../engine/save-types").GameSave
+
+    test("a lighter invite in a heavier event's weeks names both, the lighter one to skip", () => {
+        const clash = path.inviteClash(save([invite("me", "major_shanghai"), invite("me", "thunderpick_wc")]), "me", "thunderpick_wc_s1")
+        expect(clash?.light.id).toBe("thunderpick_wc_s1")
+        expect(clash?.heavy.id).toBe("major_shanghai_s1")
+    })
+
+    test("a heavier invite offers to skip the lighter event the club is in, unless it won that place", () => {
+        const s = save([invite("me", "thunderpick_wc"), invite("me", "major_shanghai")])
+        expect(path.inviteClash(s, "me", "major_shanghai_s1")?.light.id).toBe("thunderpick_wc_s1")
+        const won = save([invite("me", "thunderpick_wc", "Via Thunderpick Closed Qualifier"), invite("me", "major_shanghai")])
+        expect(path.inviteClash(won, "me", "major_shanghai_s1")).toBeNull()
+        // No other event in those weeks: an ordinary invite.
+        expect(path.inviteClash(save([invite("me", "major_shanghai")]), "me", "major_shanghai_s1")).toBeNull()
+    })
+
+    test("skipping a declined invite gives the place to the next club and keeps the club out of its qualifiers", () => {
+        const s = save([invite("me", "major_shanghai"), invite("me", "thunderpick_wc"), invite("a", "thunderpick_wc")])
+        expect(path.withdrawFromEvent(s, "me", "thunderpick_wc_s1")).toBe(true)
+        const mine = s.tournamentQualifications.find(q => q.teamId === "me" && q.instanceId === "thunderpick_wc_s1")
+        expect(mine).toMatchObject({ status: "ELIMINATED", qualifiedVia: path.DECLINED_INVITE })
+        expect(path.qualifierEntryBlock(s, "me", def("thunderpick_closed_qual"), 1)).toBe("declined")
+        // The next invite round passes over the club and fills its place.
+        const wc = { ...def("thunderpick_wc"), inviteSlots: 2 }
+        const rows = QualificationEngine.generateAutoInvites(s.tournamentQualifications, wc, [{ id: "me", worldRanking: 1 }, { id: "a", worldRanking: 2 }, { id: "b", worldRanking: 3 }], 30, 1)
+        expect(rows.filter(q => q.instanceId === "thunderpick_wc_s1" && q.status === "QUALIFIED").map(q => q.teamId).sort()).toEqual(["a", "b"])
+        // A started event can no longer be left.
+        const started = save([invite("me", "thunderpick_wc")])
+        started.tournaments = [{ id: "thunderpick_wc_s1", currentStage: "Group Stage", isCompleted: false, teamIds: ["me"] }] as never
+        expect(path.withdrawFromEvent(started, "me", "thunderpick_wc_s1")).toBe(false)
+    })
+
+    test("the week tick turns a clashing invite into the question; other invites stay notices", () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { atomicWeekProcessor } = require("../engine/atomic-week-processor") as typeof import("../engine/atomic-week-processor")
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { SeededRNG } = require("../engine/rng") as typeof import("../engine/rng")
+        const teams = Array.from({ length: 40 }, (_, i) => ({ id: `t${i + 1}`, name: `T${i + 1}`, region: "EU", worldRanking: i + 1, rosterIds: [], elo: 1500 }))
+        // Week 30: the Shanghai Major's invites go out; the club already has its Thunderpick invite.
+        const s = {
+            currentWeek: 30, currentDay: 0, gameStartDate: "2026-01-05", teams, players: [], contracts: [], staff: [], tournaments: [],
+            scheduledMatches: [], completedMatches: [], eventsLog: [], leagues: [], circuitPoints: [], financeLedger: [], newsFeed: [],
+            tournamentQualifications: [invite("t1", "thunderpick_wc")],
+        } as unknown as import("../engine/save-types").GameSave
+        atomicWeekProcessor.processTournaments(s, "t1", new SeededRNG(5))
+        const major = s.eventsLog.find(e => e.id === "invite_notif_major_shanghai_s1")!
+        expect(major.data).toMatchObject({ severity: "warning", skipInstanceId: "thunderpick_wc_s1", messageRef: { key: "evn.invite.clashM" } })
+        expect(major.choices?.map(c => c.id)).toEqual(["both", "skip"])
+        const plain = s.eventsLog.filter(e => e.id.startsWith("invite_notif_") && e !== major)
+        expect(plain.length).toBeGreaterThan(0)
+        for (const e of plain) expect([e.id, e.choices]).toEqual([e.id, undefined])
+    })
+
+    test("the question has a deadline, plays both by default, and never merges with another invite", () => {
+        const rule = decisionRuleFor({ id: "invite_notif_thunderpick_wc_s1", type: "TOURNAMENT", week: 30, acknowledged: false, data: {}, choices: [{ id: "both", text: "Play both events", effects: {} }, { id: "skip", text: "Skip", effects: {} }] } as never)
+        expect(rule).toMatchObject({ defaultChoiceId: "both", dedupe: false, consequenceRef: { key: "dl.c.invite_clash" } })
+    })
+
+    test("answering Skip in the inbox withdraws the club; Play both changes nothing", () => {
+        jest.useFakeTimers() // the answer's debounced save
+        const make = () => {
+            let state = {
+                currentWeek: 30, playerTeamId: "me", teams: [{ id: "me", rosterIds: [], budget: 0 }], players: [], financeLedger: [], tournaments: [],
+                acknowledgedEventIds: [], toasts: [], gameOverReason: null,
+                tournamentQualifications: [invite("me", "major_shanghai"), invite("me", "thunderpick_wc")],
+                eventsLog: [{
+                    id: "invite_notif_thunderpick_wc_s1", type: "TOURNAMENT", week: 30, acknowledged: false,
+                    data: { skipInstanceId: "thunderpick_wc_s1" },
+                    choices: [{ id: "both", text: "Play both events", effects: {} }, { id: "skip", text: "Skip", effects: { follows: { key: "evn.invite.skipFollows" } } }],
+                }],
+            } as never as import("../store/types").StoreState
+            const set = (fn: (d: typeof state) => void) => { state = produce(state, fn) }
+            const slice = createEventsSlice(set as never, (() => state) as never, undefined as never)
+            return { slice, state: () => state }
+        }
+        const skip = make()
+        skip.slice.resolveEventChoice("invite_notif_thunderpick_wc_s1", "skip")
+        expect(skip.state().eventsLog[0].selectedChoiceId).toBe("skip")
+        expect(skip.state().tournamentQualifications.find(q => q.instanceId === "thunderpick_wc_s1")?.qualifiedVia).toBe(path.DECLINED_INVITE)
+        const both = make()
+        both.slice.resolveEventChoice("invite_notif_thunderpick_wc_s1", "both")
+        expect(both.state().eventsLog[0].selectedChoiceId).toBe("both")
+        expect(both.state().tournamentQualifications.find(q => q.instanceId === "thunderpick_wc_s1")?.status).toBe("QUALIFIED")
+        jest.clearAllTimers()
+        jest.useRealTimers()
+    })
+})

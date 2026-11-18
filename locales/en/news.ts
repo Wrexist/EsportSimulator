@@ -484,4 +484,8 @@ export const NEWS = {
     "evn.budget.INSOLVENT": "Team is INSOLVENT. This is week {{week}} of 8 consecutive insolvent settlements before the club disbands. Restore a positive balance by a weekly settlement to reset this counter.",
     "evn.forfeit.lost": "Your team forfeited against {{team}}: only {{n}}/5 players were available.",
     "evn.forfeit.won": "{{team}} forfeited your match — win by default!",
+    "evn.invite.clashM": "Your team's results have earned an official invitation to {{event}}! The event starts in {{weeks}}. It runs in the same weeks as {{other}}: play both, or skip {{light}}?",
+    "evn.invite.both": "Play both events",
+    "evn.invite.skip": "Skip {{event}}",
+    "evn.invite.skipFollows": "Your place goes to another club.",
 } as const

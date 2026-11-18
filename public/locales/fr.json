@@ -6585,6 +6585,7 @@
  "dl.c.offerLapse": "laisse l'offre expirer",
  "dl.c.bidLapse": "laisse l'offre expirer",
  "dl.c.dropRequest": "abandonne la demande",
+ "dl.c.invite_clash": "joue les deux événements",
  "nw.faSigned.t": "{{name}} signe à {{team}}",
  "nw.faSigned.c": "Libre de tout contrat, {{name}} a rejoint {{team}}.",
  "nw.aiTransfer.t": "{{name}} part à {{team}}",
@@ -7126,6 +7127,7 @@
  "svd.p.legend.majorMvp.many": "{{count}}× MVP de Major",
  "svd.p.legend.majorMvp.other": "{{count}}× MVP de Major",
  "svd.p.answered": "{{title}} : {{choice}}",
+ "svd.dec.inviteClash": "Invitation à un tournoi",
  "sl.bp.standing.trophyCount.one": "{{count}} trophée pour un objectif de {{target}}",
  "sl.bp.standing.trophyCount.many": "{{count}} trophées pour un objectif de {{target}}",
  "sl.bp.standing.trophyCount.other": "{{count}} trophées pour un objectif de {{target}}",
@@ -7234,6 +7236,10 @@
  "evn.budget.INSOLVENT": "Le club est en FAILLITE. C'est la semaine {{week}} sur 8 règlements consécutifs dans le rouge avant la dissolution du club. Repasse en positif avant un règlement hebdomadaire pour remettre ce compteur à zéro.",
  "evn.forfeit.lost": "Ton équipe a déclaré forfait contre {{team}} : seuls {{n}}/5 joueurs étaient disponibles.",
  "evn.forfeit.won": "{{team}} a déclaré forfait pour ton match : victoire par forfait !",
+ "evn.invite.clashM": "Les résultats de ton équipe lui valent une invitation officielle à {{event}} ! L'événement commence dans {{weeks}}. Il se joue les mêmes semaines que {{other}} : tu joues les deux ou tu laisses tomber {{light}} ?",
+ "evn.invite.both": "Jouer les deux événements",
+ "evn.invite.skip": "Laisser tomber {{event}}",
+ "evn.invite.skipFollows": "Ta place revient à un autre club.",
  "nw.match.giant": "Tombeurs de géant : {{winner}} (#{{wr}}) renverse {{loser}} (#{{lr}}) {{score}}",
  "nw.match.cIn": "{{winner}} s'est imposé {{score}} face à {{loser}} ({{event}}).",
  "topbar.moreHubs": "Autres sections",
@@ -7324,5 +7330,7 @@
  "tm.entry.RANKING": "Classement mondial",
  "tm.path.invite": "Invitation attendue en semaine {{week}} (top {{n}} mondial)",
  "tm.path.qualify": "Qualifie-toi via {{event}} (semaine {{week}})",
- "tm.path.rank": "Les invitations vont au top {{n}} mondial. Tu es n° {{rank}}."
+ "tm.path.rank": "Les invitations vont au top {{n}} mondial. Tu es n° {{rank}}.",
+ "tm.block.declined": "Tu as refusé l'invitation à {{event}}",
+ "tm.qual.DECLINED": "invitation refusée"
 }

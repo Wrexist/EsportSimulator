@@ -39,7 +39,7 @@ import { TournamentManager } from "@/engine/tournament-manager"
 import { prizeSplit } from "@/engine/processors/standings-processor"
 import { buildInstanceId, getSeasonFromTournamentId, getSeasonFromWeek, isQualificationForTournament } from "@/engine/circuit-engine"
 import { instanceName, instanceSeason, instancesOfSeries, seasonStartWeek } from "@/lib/tournament-instances"
-import { registerBlockText } from "@/engine/tournament/qualification-path"
+import { DECLINED_INVITE, registerBlockText } from "@/engine/tournament/qualification-path"
 import {
     Trophy,
     Calendar,
@@ -386,7 +386,8 @@ export default function TournamentDetailPage() {
                 role: getTimelineNodeRole(entry),
                 isCurrent: index === currentIndex,
                 incomingQualifierCount: getQualifiersFor(entry.id).length,
-                playerStatus: playerRow?.status || null,
+                // A turned-down invite says so, not "eliminated" (owner decision 3).
+                playerStatus: playerRow?.qualifiedVia === DECLINED_INVITE ? "DECLINED" : playerRow?.status || null,
             }
         })
     }, [currentWeek, definition, displaySeason, playerTeamId, tournamentQualifications, tournaments, scheduledMatches, completedMatches])

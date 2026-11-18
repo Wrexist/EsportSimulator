@@ -29,6 +29,7 @@ import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { generateSocialPosts } from "@/lib/social-generator"
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { moveProPlayer, retirePro } from "@/engine/pro-career"
+import { withdrawFromEvent } from "@/engine/tournament/qualification-path"
 
 import { formatCurrency } from "@/lib/utils-extended"
 const NEWS_FEED_CAP = 50
@@ -113,6 +114,11 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => {
                 if (!moveProPlayer(state as unknown as GameSave, String(event.data.offeringTeamId ?? ""))) return
             }
             if (eventId.startsWith("pro_retire_") && choiceId === "retire") retirePro(state as unknown as GameSave)
+            // Owner decision 3: skip the lighter of two clashing events; refused
+            // (the question stays open) once the club can no longer pull out.
+            if (eventId.startsWith("invite_notif_") && choiceId === "skip") {
+                if (!state.playerTeamId || !withdrawFromEvent(state as unknown as GameSave, state.playerTeamId, String(event.data.skipInstanceId ?? ""))) return
+            }
 
             // Legend-Coach Hire — special-case event handler that replaces
             // (or appends) the team's coach with a max-level legend.

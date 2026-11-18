@@ -18,6 +18,9 @@ export const QUALIFIER_REGION: Record<string, string> = { CIS: "EU", MENA: "EU",
 
 const ENTERED: ReadonlySet<QualificationStatus["status"]> = new Set(["QUALIFIED", "REGISTERED", "INVITED"])
 
+/** `qualifiedVia` of an invite the managed club turned down (owner decision 3); its status is ELIMINATED. */
+export const DECLINED_INVITE = "Declined invite"
+
 function definition(id: string): TournamentDefinition | undefined {
     return FULL_TOURNAMENT_CALENDAR.find(d => d.id === id)
 }
@@ -105,12 +108,13 @@ export function qualifierEntryBlock(
     teamId: string,
     def: TournamentDefinition,
     season: number,
-): "in_main" | "invited" | "sibling" | null {
+): "in_main" | "invited" | "declined" | "sibling" | null {
     if (!def.qualifierFor) return null
     const rows = save.tournamentQualifications ?? []
     for (const target of downstreamEvents(def)) {
         const instanceId = buildInstanceId(target.id, season)
         if (isEnteredIn(rows, teamId, instanceId)) return "in_main"
+        if (rows.some(q => q.teamId === teamId && q.qualifiedVia === DECLINED_INVITE && isQualificationForTournament(q, instanceId))) return "declined"
         if (hasRankedInvites(target) && !invitesIssued(rows, instanceId) && rankedInvitees(target, save.teams).includes(teamId)) return "invited"
     }
     for (const sibling of FULL_TOURNAMENT_CALENDAR) {
@@ -250,4 +254,57 @@ export function entryPathText(
         return { key: "tm.path.rank", params: { n: def.inviteSlots ?? 0, rank: team.worldRanking ?? 999 } }
     }
     return null
+}
+
+/** May the club still pull out of this event: entered, not through a qualifier, and not started? */
+function canWithdraw(save: Pick<GameSave, "tournamentQualifications" | "tournaments">, teamId: string, instanceId: string): boolean {
+    const instance = save.tournaments.find(t => t.id === instanceId)
+    if (instance && (instance.isCompleted || instance.currentStage !== "Registration")) return false
+    const rows = (save.tournamentQualifications ?? []).filter(q => q.teamId === teamId && ENTERED.has(q.status) && isQualificationForTournament(q, instanceId))
+    return rows.length > 0 && rows.every(q => !q.qualifiedVia?.startsWith("Via "))
+}
+
+/**
+ * The managed club was just invited to `instanceId`: does it run in the same
+ * weeks as another event of the club that weighs more or less (owner
+ * decision 3)? Computer clubs pass up the lighter one by themselves; the
+ * manager is asked instead. `light` is the event the club could skip; it is
+ * only offered while the club can still pull out of it. Equal weights are
+ * not a clash here (owner decision 2).
+ */
+export function inviteClash(
+    save: Pick<GameSave, "tournaments" | "tournamentQualifications">,
+    teamId: string,
+    instanceId: string,
+): { light: ClubEvent; heavy: ClubEvent } | null {
+    const events = clubEventWindows(save).get(teamId) ?? []
+    const invited = events.find(e => e.id === instanceId)
+    if (!invited) return null
+    const weight = eventWeight(invited.def)
+    let best: { light: ClubEvent; heavy: ClubEvent } | null = null
+    for (const e of events) {
+        if (e.id === instanceId || e.to < invited.from || invited.to < e.from) continue
+        const w = eventWeight(e.def)
+        const pair = w > weight ? { light: invited, heavy: e } : w < weight && canWithdraw(save, teamId, e.id) ? { light: e, heavy: invited } : null
+        if (!pair) continue
+        if (!best || eventWeight(pair.heavy.def) - eventWeight(pair.light.def) > eventWeight(best.heavy.def) - eventWeight(best.light.def)) best = pair
+    }
+    return best
+}
+
+/**
+ * The manager skips an event it was invited or signed up to (owner decision
+ * 3): an invite is marked declined (its place goes to the next club in the
+ * ranking, and the club stays out of the event's qualifiers), a sign-up is
+ * removed. False, with nothing changed, once the club can no longer pull out.
+ */
+export function withdrawFromEvent(save: GameSave, teamId: string, instanceId: string): boolean {
+    if (!canWithdraw(save, teamId, instanceId)) return false
+    save.tournamentQualifications = save.tournamentQualifications.flatMap(q => {
+        if (q.teamId !== teamId || !ENTERED.has(q.status) || !isQualificationForTournament(q, instanceId)) return [q]
+        return q.qualifiedVia === "Direct Invite" ? [{ ...q, status: "ELIMINATED" as const, qualifiedVia: DECLINED_INVITE }] : []
+    })
+    const instance = save.tournaments.find(t => t.id === instanceId)
+    if (instance) instance.teamIds = instance.teamIds.filter(id => id !== teamId)
+    return true
 }

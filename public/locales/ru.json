@@ -6783,6 +6783,7 @@
  "dl.c.offerLapse": "даёт предложению истечь",
  "dl.c.bidLapse": "даёт предложению истечь",
  "dl.c.dropRequest": "отзывает запрос",
+ "dl.c.invite_clash": "играет оба турнира",
  "nw.faSigned.t": "{{name}} подписывает контракт с {{team}}",
  "nw.faSigned.c": "Свободный агент {{name}} присоединяется к {{team}}.",
  "nw.aiTransfer.t": "{{name}} переходит в {{team}}",
@@ -7348,6 +7349,7 @@
  "svd.p.legend.majorMvp.many": "{{count}}× MVP мейджора",
  "svd.p.legend.majorMvp.other": "{{count}}× MVP мейджора",
  "svd.p.answered": "{{title}}: {{choice}}",
+ "svd.dec.inviteClash": "Приглашение на турнир",
  "sl.bp.standing.trophyCount.one": "трофеев: {{count}} при цели {{target}}",
  "sl.bp.standing.trophyCount.few": "трофеев: {{count}} при цели {{target}}",
  "sl.bp.standing.trophyCount.many": "трофеев: {{count}} при цели {{target}}",
@@ -7471,6 +7473,10 @@
  "evn.budget.INSOLVENT": "Клуб — БАНКРОТ. Это неделя {{week}} из 8 расчётов подряд в минусе, после которых клуб будет расформирован. Выведи баланс в плюс к еженедельному расчёту, чтобы обнулить счётчик.",
  "evn.forfeit.lost": "Твоей команде засчитано техническое поражение в матче с {{team}}: в строю было только {{n}}/5 игроков.",
  "evn.forfeit.won": "Соперник {{team}} не вышел на матч: техническая победа!",
+ "evn.invite.clashM": "Результаты твоей команды принесли официальное приглашение на {{event}}! Турнир начнётся через {{weeks}}. Он идёт в те же недели, что и {{other}}: играть оба или пропустить {{light}}?",
+ "evn.invite.both": "Играть оба турнира",
+ "evn.invite.skip": "Пропустить {{event}}",
+ "evn.invite.skipFollows": "Место твоей команды получит другой клуб.",
  "nw.match.giant": "Сенсация: {{winner}} (#{{wr}}) обыгрывает {{loser}} (#{{lr}}) {{score}}",
  "nw.match.cIn": "{{winner}} побеждает {{loser}} со счётом {{score}} ({{event}}).",
  "topbar.moreHubs": "Другие разделы",
@@ -7566,5 +7572,7 @@
  "tm.entry.RANKING": "Мировой рейтинг",
  "tm.path.invite": "Приглашение ожидается на неделе {{week}} (топ-{{n}} рейтинга)",
  "tm.path.qualify": "Отбор через {{event}} (неделя {{week}})",
- "tm.path.rank": "Приглашения получает топ-{{n}} рейтинга. Твоя команда на {{rank}}-м месте."
+ "tm.path.rank": "Приглашения получает топ-{{n}} рейтинга. Твоя команда на {{rank}}-м месте.",
+ "tm.block.declined": "Твоя команда отказалась от приглашения на {{event}}",
+ "tm.qual.DECLINED": "приглашение отклонено"
 }

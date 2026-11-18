@@ -233,4 +233,6 @@ export const TOURNAMENTS: Record<string, string> = {
     "tm.path.invite": "Invite expected in week {{week}} (world top {{n}})",
     "tm.path.qualify": "Qualify through {{event}} (week {{week}})",
     "tm.path.rank": "Invites go to the world top {{n}}. You're #{{rank}}.",
+    "tm.block.declined": "You turned down the invite to {{event}}",
+    "tm.qual.DECLINED": "invite declined",
 }

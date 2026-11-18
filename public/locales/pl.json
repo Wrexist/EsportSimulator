@@ -6783,6 +6783,7 @@
  "dl.c.offerLapse": "pozwala ofercie wygasnąć",
  "dl.c.bidLapse": "pozwala ofercie wygasnąć",
  "dl.c.dropRequest": "porzuca prośbę",
+ "dl.c.invite_clash": "gra w obu turniejach",
  "nw.faSigned.t": "{{name}} podpisuje kontrakt z {{team}}",
  "nw.faSigned.c": "Wolny agent {{name}} dołącza do {{team}}.",
  "nw.aiTransfer.t": "{{name}} przechodzi do {{team}}",
@@ -7348,6 +7349,7 @@
  "svd.p.legend.majorMvp.many": "{{count}}× MVP Majora",
  "svd.p.legend.majorMvp.other": "{{count}}× MVP Majora",
  "svd.p.answered": "{{title}}: {{choice}}",
+ "svd.dec.inviteClash": "Zaproszenie na turniej",
  "sl.bp.standing.trophyCount.one": "trofea: {{count}} przy celu {{target}}",
  "sl.bp.standing.trophyCount.few": "trofea: {{count}} przy celu {{target}}",
  "sl.bp.standing.trophyCount.many": "trofea: {{count}} przy celu {{target}}",
@@ -7471,6 +7473,10 @@
  "evn.budget.INSOLVENT": "Klub jest NIEWYPŁACALNY. To tydzień {{week}} z 8 kolejnych rozliczeń na minusie, po których klub zostanie rozwiązany. Wróć na plus przed cotygodniowym rozliczeniem, aby wyzerować ten licznik.",
  "evn.forfeit.lost": "Twoja drużyna oddaje mecz z {{team}} walkowerem: dostępnych było tylko {{n}}/5 zawodników.",
  "evn.forfeit.won": "{{team}} oddaje mecz walkowerem: wygrana bez gry!",
+ "evn.invite.clashM": "Wyniki twojej drużyny przyniosły oficjalne zaproszenie na {{event}}! Turniej startuje za {{weeks}}. Odbywa się w tych samych tygodniach co {{other}}: grać w obu czy odpuścić {{light}}?",
+ "evn.invite.both": "Grać w obu turniejach",
+ "evn.invite.skip": "Odpuścić {{event}}",
+ "evn.invite.skipFollows": "Miejsce twojej drużyny przejdzie na inny klub.",
  "nw.match.giant": "Pogromcy faworytów: {{winner}} (#{{wr}}) pokonuje {{loser}} (#{{lr}}) {{score}}",
  "nw.match.cIn": "{{winner}} wygrywa {{score}} z {{loser}} ({{event}}).",
  "topbar.moreHubs": "Więcej sekcji",
@@ -7566,5 +7572,7 @@
  "tm.entry.RANKING": "Ranking światowy",
  "tm.path.invite": "Zaproszenie spodziewane w tygodniu {{week}} (top {{n}} rankingu)",
  "tm.path.qualify": "Awans przez {{event}} (tydzień {{week}})",
- "tm.path.rank": "Zaproszenia dostaje top {{n}} rankingu. Twoja drużyna jest na {{rank}}. miejscu."
+ "tm.path.rank": "Zaproszenia dostaje top {{n}} rankingu. Twoja drużyna jest na {{rank}}. miejscu.",
+ "tm.block.declined": "Twoja drużyna odrzuciła zaproszenie na {{event}}",
+ "tm.qual.DECLINED": "zaproszenie odrzucone"
 }

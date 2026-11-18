@@ -6585,6 +6585,7 @@
  "dl.c.offerLapse": "deja que caduque la oferta",
  "dl.c.bidLapse": "deja que caduque la oferta",
  "dl.c.dropRequest": "retira la petición",
+ "dl.c.invite_clash": "juega los dos eventos",
  "nw.faSigned.t": "{{name}} firma por {{team}}",
  "nw.faSigned.c": "El agente libre {{name}} se ha unido a {{team}}.",
  "nw.aiTransfer.t": "{{name}} se marcha a {{team}}",
@@ -7126,6 +7127,7 @@
  "svd.p.legend.majorMvp.many": "{{count}}× MVP de Major",
  "svd.p.legend.majorMvp.other": "{{count}}× MVP de Major",
  "svd.p.answered": "{{title}}: {{choice}}",
+ "svd.dec.inviteClash": "Invitación a torneo",
  "sl.bp.standing.trophyCount.one": "{{count}} trofeo, con un objetivo de {{target}}",
  "sl.bp.standing.trophyCount.many": "{{count}} trofeos, con un objetivo de {{target}}",
  "sl.bp.standing.trophyCount.other": "{{count}} trofeos, con un objetivo de {{target}}",
@@ -7234,6 +7236,10 @@
  "evn.budget.INSOLVENT": "El club está en INSOLVENCIA. Esta es la semana {{week}} de 8 liquidaciones seguidas en negativo antes de que el club desaparezca. Recupera un saldo positivo antes de una liquidación semanal para reiniciar este contador.",
  "evn.forfeit.lost": "Tu equipo perdió por incomparecencia contra {{team}}: solo había {{n}}/5 jugadores disponibles.",
  "evn.forfeit.won": "{{team}} no se presentó a tu partido: ¡victoria por incomparecencia!",
+ "evn.invite.clashM": "¡Los resultados de tu equipo le han valido una invitación oficial a {{event}}! El evento empieza dentro de {{weeks}}. Se juega en las mismas semanas que {{other}}: ¿juegas los dos o te saltas {{light}}?",
+ "evn.invite.both": "Jugar los dos eventos",
+ "evn.invite.skip": "Saltarse {{event}}",
+ "evn.invite.skipFollows": "Tu plaza pasa a otro club.",
  "nw.match.giant": "Matagigantes: {{winner}} (#{{wr}}) tumba a {{loser}} (#{{lr}}) {{score}}",
  "nw.match.cIn": "{{winner}} ganó por {{score}} a {{loser}} ({{event}}).",
  "topbar.moreHubs": "Más secciones",
@@ -7324,5 +7330,7 @@
  "tm.entry.RANKING": "Ranking mundial",
  "tm.path.invite": "Invitación prevista en la semana {{week}} (top {{n}} mundial)",
  "tm.path.qualify": "Clasifícate en {{event}} (semana {{week}})",
- "tm.path.rank": "Las invitaciones van al top {{n}} mundial. Estás en el puesto {{rank}}."
+ "tm.path.rank": "Las invitaciones van al top {{n}} mundial. Estás en el puesto {{rank}}.",
+ "tm.block.declined": "Rechazaste la invitación a {{event}}",
+ "tm.qual.DECLINED": "invitación rechazada"
 }
