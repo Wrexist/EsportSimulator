@@ -6892,5 +6892,10 @@
  "sl.rs.noBidder": "Gerade kann kein Verein das Gehalt von {{name}} stemmen, ein Transferlisting brächte also keine Angebote.",
  "player.biddersNone": "Gerade kann sich kein Verein Ablöse und Gehalt leisten, Angebote kommen also erst, wenn sich das ändert.",
  "player.bidders.one": "{{count}} Verein könnte diese Woche ein Angebot machen.",
- "player.bidders.other": "{{count}} Vereine könnten diese Woche ein Angebot machen."
+ "player.bidders.other": "{{count}} Vereine könnten diese Woche ein Angebot machen.",
+ "market.noScoutHint": "Wertungen bleiben verborgen, bis ein Scout über einen Spieler berichtet. <link>Stell auf der Mitarbeiter-Seite einen Scout ein</link> und schick ihn dann über das Transferfenster eines Spielers los ({{fee}} pro Bericht, fertig in wenigen Wochen).",
+ "deal.publicRecord.one": "Öffentliche Bilanz: Rating {{rating}} aus {{count}} offiziellen Map.",
+ "deal.publicRecord.other": "Öffentliche Bilanz: Rating {{rating}} aus {{count}} offiziellen Maps.",
+ "terms.offerFeeAnyway": "Trotzdem bieten ({{fee}})",
+ "terms.feeAgreedNext": "{{club}} hat {{fee}} angenommen. Jetzt den Vertrag mit dem Spieler aushandeln."
 }

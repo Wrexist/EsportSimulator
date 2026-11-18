@@ -7120,5 +7120,11 @@
  "player.biddersNone": "Nenhum clube consegue pagar o valor e o salário agora, então nenhuma oferta vai chegar até isso mudar.",
  "player.bidders.one": "{{count}} clube poderia fazer uma oferta esta semana.",
  "player.bidders.many": "{{count}} clubes poderiam fazer uma oferta esta semana.",
- "player.bidders.other": "{{count}} clubes poderiam fazer uma oferta esta semana."
+ "player.bidders.other": "{{count}} clubes poderiam fazer uma oferta esta semana.",
+ "market.noScoutHint": "As notas ficam ocultas até um olheiro fazer um relatório sobre o jogador. <link>Contrate um olheiro na Comissão técnica</link> e depois envie-o pelo painel de negociação de um jogador ({{fee}} por relatório, pronto em poucas semanas).",
+ "deal.publicRecord.one": "Histórico público: rating de {{rating}} em {{count}} mapa oficial.",
+ "deal.publicRecord.many": "Histórico público: rating de {{rating}} em {{count}} mapas oficiais.",
+ "deal.publicRecord.other": "Histórico público: rating de {{rating}} em {{count}} mapas oficiais.",
+ "terms.offerFeeAnyway": "Oferecer mesmo assim ({{fee}})",
+ "terms.feeAgreedNext": "{{club}} aceitou {{fee}}. Agora acerte o contrato com o jogador."
 }

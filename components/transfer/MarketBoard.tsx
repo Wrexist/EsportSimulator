@@ -2,7 +2,7 @@
 import { intlLocale, t, tn } from "@/lib/i18n"
 import { countryName } from "@/lib/country"
 
-import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import Link from "next/link"
 import { ArrowDown, ArrowUp, Bell, BellOff, Bookmark, ChevronLeft, ChevronRight, Search, SlidersHorizontal, Star, X } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
@@ -29,7 +29,8 @@ import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { ScoutedRating } from "./ScoutedRating"
-import { DealPanel } from "./DealPanel"
+import { DealPanel, SCOUTING_FEE } from "./DealPanel"
+import { Trans } from "@/lib/trans"
 import { TeamLink } from "@/components/ui/EntityLink"
 import { describeCriteria, isNarrowing, matchesMarketSearch, MAX_SAVED_SEARCHES, sameCriteria, type MarketCriteria } from "@/engine/market-search"
 import { toast } from "@/lib/toast"
@@ -316,6 +317,10 @@ export function MarketBoard({ mode }: { mode: Mode }) {
         }))
     }, [mode, myTeam, boardState, market, standings, contractWeeks, teams, players, currentWeek, playerTeamId, saveId])
 
+    // NEWPLAYER-03 (2026-11-17): a fee the club can't get near (the marquee's MARKET-24 rule).
+    const feeCap = myTeam ? getBoardSanctionedFee(boardState, myTeam.budget).maxFee : 0
+    const withinReach = useCallback((r: Row) => !r.team || r.value <= feeCap * 1.1, [feeCap])
+
     const filtered = useMemo(() => {
         const list = market.filter(({ player, team, knowledge, value }) => matchesMarketSearch({
             player, team, value,
@@ -328,19 +333,21 @@ export function MarketBoard({ mode }: { mode: Mode }) {
             if (sort === "ovr") return compareByScoutedRating({ knowledge: a.knowledge, name: a.player.nickname }, { knowledge: b.knowledge, name: b.player.nickname }, dir)
             let cmp = 0
             if (sort === "age") cmp = a.player.age - b.player.age
-            else if (sort === "value") cmp = (a.team ? a.value : 0) - (b.team ? b.value : 0)
+            // NEWPLAYER-03: by value, the players the club can pay for come first.
+            else if (sort === "value") return Number(withinReach(b)) - Number(withinReach(a)) || ((a.team ? a.value : 0) - (b.team ? b.value : 0)) * sign
             else if (sort === "wage") cmp = a.wage - b.wage
             else cmp = a.player.nickname.localeCompare(b.player.nickname)
             return cmp * sign
         })
         return list
-    }, [market, debouncedSearch, role, status, age, maxFee, contractMax, region, sort, dir, watchSet, contractWeeks])
+    }, [market, debouncedSearch, role, status, age, maxFee, contractMax, region, sort, dir, watchSet, contractWeeks, withinReach])
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
     const safePage = Math.min(page, totalPages - 1)
     const pageRows = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
-    // Docked panel follows the selection; before any click it shows the top row.
-    const activeId = (selectedId && market.some(r => r.player.id === selectedId)) ? selectedId : pageRows[0]?.player.id ?? null
+    // Docked panel follows the selection; before any click it shows the top row
+    // the club can pay for (NEWPLAYER-03: never an Icon far above its means).
+    const activeId = (selectedId && market.some(r => r.player.id === selectedId)) ? selectedId : pageRows.find(withinReach)?.player.id ?? null
 
     // MARKET-20: below xl the deal panel sits under the table; bring it into
     // view when a player is picked, so the click visibly does something.
@@ -462,6 +469,12 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                 </select>
                                 {activeFilterCount > 0 && <button className="text-xs text-ink-3 underline-offset-2 hover:text-ink-1 hover:underline" onClick={() => { setAge("all"); setMaxFee(0); setContractMax(0); setRegion("ALL"); resetPage() }}>{t("market.reset")}</button>}
                             </div>
+                        )}
+                        {/* NEWPLAYER-02 (2026-11-17): every rating is hidden until a scout reports; say how to get one. */}
+                        {mode === "transfers" && !scout && (
+                            <p className="border-t border-line px-3 py-2 text-xs text-ink-3">
+                                <Trans k="market.noScoutHint" params={{ fee: formatCurrency(SCOUTING_FEE, "$", false) }} tags={{ link: s => <Link href="/staff" className="font-semibold text-ink-2 underline underline-offset-2 hover:text-ink-1">{s}</Link> }} />
+                            </p>
                         )}
                         {missingRoles.length > 0 && (
                             <div className="flex flex-wrap items-center gap-2 border-t border-line px-3 py-2 text-xs text-ink-3">

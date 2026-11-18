@@ -7120,5 +7120,11 @@
  "player.biddersNone": "Ahora mismo ningún club puede pagar su traspaso y su salario, así que no llegarán ofertas hasta que eso cambie.",
  "player.bidders.one": "{{count}} club podría pujar por él esta semana.",
  "player.bidders.many": "{{count}} clubes podrían pujar por él esta semana.",
- "player.bidders.other": "{{count}} clubes podrían pujar por él esta semana."
+ "player.bidders.other": "{{count}} clubes podrían pujar por él esta semana.",
+ "market.noScoutHint": "Las valoraciones siguen ocultas hasta que un ojeador informa sobre un jugador. <link>Contrata un ojeador en Cuerpo técnico</link> y envíalo desde el panel de fichaje de un jugador ({{fee}} por informe, listo en pocas semanas).",
+ "deal.publicRecord.one": "Historial público: rating de {{rating}} en {{count}} mapa oficial.",
+ "deal.publicRecord.many": "Historial público: rating de {{rating}} en {{count}} mapas oficiales.",
+ "deal.publicRecord.other": "Historial público: rating de {{rating}} en {{count}} mapas oficiales.",
+ "terms.offerFeeAnyway": "Ofertar de todos modos ({{fee}})",
+ "terms.feeAgreedNext": "{{club}} ha aceptado {{fee}}. Ahora acuerda el contrato con el jugador."
 }

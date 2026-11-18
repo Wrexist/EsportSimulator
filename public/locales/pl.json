@@ -7348,5 +7348,12 @@
  "player.bidders.one": "{{count}} klub może złożyć ofertę w tym tygodniu.",
  "player.bidders.few": "{{count}} kluby mogą złożyć ofertę w tym tygodniu.",
  "player.bidders.many": "{{count}} klubów może złożyć ofertę w tym tygodniu.",
- "player.bidders.other": "{{count}} klubu może złożyć ofertę w tym tygodniu."
+ "player.bidders.other": "{{count}} klubu może złożyć ofertę w tym tygodniu.",
+ "market.noScoutHint": "Oceny pozostają ukryte, dopóki skaut nie przygotuje raportu o zawodniku. <link>Zatrudnij skauta w Sztabie</link>, a potem wyślij go z panelu transferu zawodnika ({{fee}} za raport, gotowy w kilka tygodni).",
+ "deal.publicRecord.one": "Publiczny bilans: rating {{rating}} w {{count}} oficjalnej mapie.",
+ "deal.publicRecord.few": "Publiczny bilans: rating {{rating}} w {{count}} oficjalnych mapach.",
+ "deal.publicRecord.many": "Publiczny bilans: rating {{rating}} w {{count}} oficjalnych mapach.",
+ "deal.publicRecord.other": "Publiczny bilans: rating {{rating}} w {{count}} oficjalnej mapy.",
+ "terms.offerFeeAnyway": "Zaoferuj mimo to ({{fee}})",
+ "terms.feeAgreedNext": "{{club}}: kwota {{fee}} przyjęta. Teraz uzgodnij kontrakt z zawodnikiem."
 }

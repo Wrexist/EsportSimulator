@@ -7120,5 +7120,11 @@
  "player.biddersNone": "Aucun club ne peut payer son indemnité et son salaire pour l'instant : aucune offre n'arrivera tant que ça ne change pas.",
  "player.bidders.one": "{{count}} club pourrait faire une offre cette semaine.",
  "player.bidders.many": "{{count}} clubs pourraient faire une offre cette semaine.",
- "player.bidders.other": "{{count}} clubs pourraient faire une offre cette semaine."
+ "player.bidders.other": "{{count}} clubs pourraient faire une offre cette semaine.",
+ "market.noScoutHint": "Les notes restent cachées tant qu'un recruteur n'a pas fait de rapport sur un joueur. <link>Recrute un recruteur dans le Staff</link>, puis envoie-le depuis le panneau de transfert d'un joueur ({{fee}} par rapport, prêt en quelques semaines).",
+ "deal.publicRecord.one": "Bilan public : rating de {{rating}} sur {{count}} map officielle.",
+ "deal.publicRecord.many": "Bilan public : rating de {{rating}} sur {{count}} maps officielles.",
+ "deal.publicRecord.other": "Bilan public : rating de {{rating}} sur {{count}} maps officielles.",
+ "terms.offerFeeAnyway": "Proposer quand même ({{fee}})",
+ "terms.feeAgreedNext": "{{club}} a accepté {{fee}}. Mets-toi maintenant d'accord avec le joueur sur son contrat."
 }

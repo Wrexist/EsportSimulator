@@ -398,4 +398,9 @@ export const MARKET = {
     "fin.tipNetOneOff": "Week {{week}}: net {{amount}} from the weekly settlement; {{other}} from transfers and one-off items",
     "terms.rivalRefusal": "{{club}} won't sell to you before your match against them in week {{week}}. Try again from week {{next}}.",
     "nego.log.feeOverLimit": "That is more than you can offer ({{max}}).",
+    "market.noScoutHint": "Ratings stay hidden until a scout reports on a player. <link>Hire a scout on Staff</link>, then send him from a player's deal panel ({{fee}} a report, ready in a few weeks).",
+    "deal.publicRecord.one": "Public record: {{rating}} rating over {{count}} official map.",
+    "deal.publicRecord.other": "Public record: {{rating}} rating over {{count}} official maps.",
+    "terms.offerFeeAnyway": "Offer anyway ({{fee}})",
+    "terms.feeAgreedNext": "{{club}} accepted {{fee}}. Now agree the player's contract.",
 } as const

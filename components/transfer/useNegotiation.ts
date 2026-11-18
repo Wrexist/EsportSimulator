@@ -71,6 +71,13 @@ const deterministicSeed = (...parts: Array<string | number | undefined | null>):
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
+/**
+ * NEWPLAYER-11 (2026-11-17): fees agreed this week, by save, player and week
+ * (with the selling club), so reopening the deal returns to the contract step.
+ * Kept for the session only (a full reload starts the talks again).
+ */
+const agreedFees = new Map<string, { fee: number; clubId: string }>()
+
 export function formatWeeksAsYears(weeks: number): string {
     const years = weeks / 52
     if (years < 1) return tn("deal.weeks", weeks)
@@ -122,6 +129,8 @@ export function useNegotiation(playerId: string | null, active = true) {
     const [initializedKey, setInitializedKey] = useState("")
     const [failureMessage, setFailureMessage] = useState<string | null>(null)
     const [pendingDeal, setPendingDeal] = useState<PendingDeal | null>(null)
+    /** NEWPLAYER-11: the fee the selling club accepted (shown at the top of the contract step). */
+    const [agreedFee, setAgreedFee] = useState<number | null>(null)
     /** MARKET-07: the counter-offers on the table this week (the wage one holds for the length and clauses it was made at). */
     const [feeCounter, setFeeCounter] = useState<number | null>(null)
     const [wageCounter, setWageCounter] = useState<{ value: number; key: string } | null>(null)
@@ -234,9 +243,17 @@ export function useNegotiation(playerId: string | null, active = true) {
             setWageCounter(null)
             setFailureMessage(null)
             setPendingDeal(null)
+            setAgreedFee(null)
             dealSubmittedRef.current = false
 
+            const agreed = initialTeam ? agreedFees.get(sessionKey) : undefined
             if (!initialTeam) {
+                setStage("CONTRACT")
+            } else if (agreed && agreed.clubId === initialTeam.id) {
+                // NEWPLAYER-11: the club already took this fee this week; back to the contract.
+                setBuyoutOfferRaw(agreed.fee)
+                setAgreedFee(agreed.fee)
+                setNegotiationLog([t("nego.log.feeAccepted", { club: initialTeam.name, fee: money(agreed.fee) })])
                 setStage("CONTRACT")
             } else {
                 setStage("BUYOUT")
@@ -278,7 +295,12 @@ export function useNegotiation(playerId: string | null, active = true) {
         const minPrice = Math.round(askingValue * variance)
 
         if (sanitizedBuyoutOffer >= minPrice * ACCEPT_WITHIN) {
-            setNegotiationLog(prev => [...prev, t("nego.log.feeAccepted", { club: currentTeam?.name ?? t("nego.log.theClub"), fee: money(sanitizedBuyoutOffer) })])
+            const accepted = t("nego.log.feeAccepted", { club: currentTeam?.name ?? t("nego.log.theClub"), fee: money(sanitizedBuyoutOffer) })
+            setNegotiationLog(prev => [...prev, accepted])
+            // NEWPLAYER-11: say it where the player looks, and keep it for the week.
+            setAgreedFee(sanitizedBuyoutOffer)
+            if (currentTeam) agreedFees.set(sessionKey, { fee: sanitizedBuyoutOffer, clubId: currentTeam.id })
+            addToast({ message: accepted, type: "info" })
             setStage("CONTRACT")
         } else {
             // MARKET-07: a counter-offer, never the exact hidden price.
@@ -356,6 +378,7 @@ export function useNegotiation(playerId: string | null, active = true) {
             }
         )
         if (result.success) {
+            agreedFees.delete(sessionKey)
             setNegotiationLog(prev => [...prev, t("nego.log.signed")])
             setStage("SUCCESS")
             celebrateSigning({
@@ -395,6 +418,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         boardSanction,
         cashTarget,
         refusal,
+        agreedFee,
         evaluation,
         rivals,
         feePremium,

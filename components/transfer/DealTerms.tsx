@@ -194,9 +194,16 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
                             : `${boardLimitLabel}: ${money(n.boardSanction.maxFee)}`}
                     </div>
                 ) : (
-                    <Button className="h-10 w-full" onClick={n.submitBuyout}>
-                        {t("terms.offerFee", { fee: money(n.buyoutOffer) })}
-                    </Button>
+                    // NEWPLAYER-03 (2026-11-17): a near-hopeless offer is not the gold call to action.
+                    n.feeChance <= 0.05 ? (
+                        <Button variant="outline" className="h-10 w-full" onClick={n.submitBuyout}>
+                            {t("terms.offerFeeAnyway", { fee: money(n.buyoutOffer) })}
+                        </Button>
+                    ) : (
+                        <Button className="h-10 w-full" onClick={n.submitBuyout}>
+                            {t("terms.offerFee", { fee: money(n.buyoutOffer) })}
+                        </Button>
+                    )
                 )}
             </div>
         )
@@ -209,6 +216,13 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
     const belowCashTarget = feeDue > 0 && n.cashTarget !== null && n.budget - feeDue < n.cashTarget
     return (
         <div className="space-y-3">
+            {/* NEWPLAYER-11 (2026-11-17): the fee outcome at the top of the step, not under the runway rows. */}
+            {n.currentTeam && n.agreedFee !== null && (
+                <div role="status" className="flex items-start gap-3 rounded border border-positive/30 bg-positive/5 px-3 py-2.5">
+                    <Check size={16} className="mt-0.5 shrink-0 text-positive" />
+                    <p className="text-xs leading-relaxed text-ink-2">{t("terms.feeAgreedNext", { club: clubName, fee: money(n.agreedFee) })}</p>
+                </div>
+            )}
             <Overline>{n.currentTeam ? t("terms.step2") : t("terms.freeContract")}</Overline>
             <div className="grid grid-cols-[minmax(0,1fr)] gap-3">
                 <div className="space-y-1.5">
