@@ -339,13 +339,13 @@ export function TopBar() {
                     {/* START-43: "Go to…" lists career screens, so it needs a career. */}
                     {!hideCareerControls && <NavigationSearch compact disabled={false} pro={pro} draftCup={draftCup} betweenClubs={betweenClubs} />}
 
-                    {/* Below 80rem (Steam Deck width) the funds stay as one compact value without the label (NEWPLAYER-22). */}
-                    {!hideCareerControls && !betweenClubs && !pro && (
+                    {/* Below 80rem (Steam Deck width) the funds stay as one compact value without the label (NEWPLAYER-22). No funds in a Draft Cup: no money to manage (SMOKE-B-09). */}
+                    {!hideCareerControls && !betweenClubs && !pro && !draftCup && (
                         <span suppressHydrationWarning className="whitespace-nowrap text-sm font-semibold tabular-nums text-ink-1 @min-[80rem]/topbar:hidden" title={`${t("topbar.funds")}: ${formatCurrency(budget, "$", false)}`}>
                             {formatCurrency(budget)}
                         </span>
                     )}
-                    {!hideCareerControls && !betweenClubs && !pro && (
+                    {!hideCareerControls && !betweenClubs && !pro && !draftCup && (
                         <div className="hidden flex-col items-end leading-none @min-[80rem]/topbar:flex" title={t("topbar.funds")}>
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("topbar.funds")}</span>
                             {isMounted ? (

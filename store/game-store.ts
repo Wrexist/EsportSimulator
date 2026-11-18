@@ -1256,6 +1256,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           drawDueLeagueSplit(newSave)
           // The drafted team joins after the draw, so it plays no league.
           const teamId = draftCup ? setupDraftCup(newSave, draftCup.setup) : playerTeamId
+          // SMOKE-B-08: the draw's mail went to the club picked before the draft; the cup team plays no league.
+          if (draftCup) newSave.eventsLog = newSave.eventsLog.filter(e => !(e.id.startsWith("league_draw_") && (e.data as { teamId?: unknown } | undefined)?.teamId !== teamId))
           ensureBoardState(newSave)
           if (draftCup) {
             // No welcome moment: the cup's inbox mail opens the run.
