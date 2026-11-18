@@ -33,7 +33,7 @@ function harness(tournamentId: string | null) {
     const save = createLaunchFixture("first-week")
     save.scheduledMatches[0].maps = ["Nuke"]
     save.scheduledMatches[0].tournamentId = tournamentId as never
-    let state = { ...save, saveId: save.id, managerDetails: save.managerDetails, newsFeed: [] } as unknown as StoreState
+    let state = { ...save, saveId: save.id, managerDetails: save.managerDetails, newsFeed: [], addToast: () => {} } as unknown as StoreState
     const set = (fn: Partial<StoreState> | ((s: StoreState) => void)) => { state = typeof fn === "function" ? produce(state, fn) : { ...state, ...fn } }
     const slice = createMatchSimulationSlice(set as never, () => state)
     const match = state.scheduledMatches[0]
