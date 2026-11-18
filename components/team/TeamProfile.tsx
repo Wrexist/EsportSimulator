@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils"
 import { formatScoutedRating, fuzzyBand } from "@/engine/scouting-system"
 import { captainId } from "@/engine/personality"
 import { t, tn } from "@/lib/i18n"
+import { weekLabelShort } from "@/lib/season-week"
 
 const RESULTS_SHOWN = 10
 const TIER_KEYS = new Set(["ELITE", "PRO", "SEMI_PRO", "AMATEUR"])
@@ -29,9 +30,9 @@ const TIER_KEYS = new Set(["ELITE", "PRO", "SEMI_PRO", "AMATEUR"])
  * managed club. Opened from any club name.
  */
 export function TeamProfile({ team }: { team: TeamSaveData }) {
-    const { teams, players, playerTeamId, completedMatches, tournaments, isPlayerScouted } = useGameStore(useShallow(s => ({
+    const { teams, players, playerTeamId, completedMatches, tournaments, isPlayerScouted, currentWeek } = useGameStore(useShallow(s => ({
         teams: s.teams, players: s.players, playerTeamId: s.playerTeamId, completedMatches: s.completedMatches,
-        tournaments: s.tournaments, isPlayerScouted: s.isPlayerScouted,
+        tournaments: s.tournaments, isPlayerScouted: s.isPlayerScouted, currentWeek: s.currentWeek,
     })))
     const teamById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
     const playerById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
@@ -156,7 +157,7 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                                     {competition && <> <span className="text-ink-3">·</span> <TournamentLink id={competition.id} className="text-ink-3">{competition.name}</TournamentLink></>}
                                                 </span>
                                                 <span className="shrink-0 text-xs tabular-nums text-ink-3">
-                                                    {involvesYou ? <Link href={`/match/${m.id}/result`} className="hover:text-gold">{t("common.weekShort", { n: m.week })}</Link> : t("common.weekShort", { n: m.week })}
+                                                    {involvesYou ? <Link href={`/match/${m.id}/result`} className="hover:text-gold">{weekLabelShort(m.week, currentWeek)}</Link> : weekLabelShort(m.week, currentWeek)}
                                                 </span>
                                             </li>
                                         )
@@ -175,7 +176,7 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                             <TournamentLink id={tournamentById.has(tr.tournamentId) ? tr.tournamentId : null} className="min-w-0 truncate font-semibold text-ink-1">{tr.tournamentName}</TournamentLink>
                                             <span className="shrink-0 text-xs text-ink-3">
                                                 {tr.mvpId && playerById.get(tr.mvpId) && <>MVP <PlayerLink id={tr.mvpId} className="text-ink-2">{playerById.get(tr.mvpId)!.nickname}</PlayerLink> · </>}
-                                                {t("common.weekShort", { n: tr.week })}
+                                                {weekLabelShort(tr.week, currentWeek)}
                                             </span>
                                         </li>
                                     ))}

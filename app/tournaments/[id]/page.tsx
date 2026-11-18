@@ -39,6 +39,7 @@ import { TournamentManager } from "@/engine/tournament-manager"
 import { prizeSplit } from "@/engine/processors/standings-processor"
 import { buildInstanceId, getSeasonFromTournamentId, getSeasonFromWeek, isQualificationForTournament } from "@/engine/circuit-engine"
 import { instanceName, instanceSeason, instancesOfSeries, seasonStartWeek } from "@/lib/tournament-instances"
+import { seasonOfWeek, weekLabel, weekNumberText, weekOfSeason } from "@/lib/season-week"
 import { DECLINED_INVITE, registerBlockText } from "@/engine/tournament/qualification-path"
 import {
     Trophy,
@@ -54,7 +55,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
-import { getDynamicTournamentName, formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency } from "@/lib/utils-extended"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { pressable } from "@/lib/accessibility"
@@ -116,6 +117,17 @@ interface PathTimelineNode {
  */
 const eventEndWeek = (startWeek: number, duration: number | undefined, instanceEndWeek: number | undefined, lastMatchWeek: number): number =>
     Math.max(startWeek + Math.max(1, duration || 1) - 1, (instanceEndWeek ?? 1) - 1, lastMatchWeek)
+
+/**
+ * "Week 38–45" for weeks in the season being played, "Week 38–45, season 2"
+ * for another season's (SMOKE-A-01): the save counts weeks from the start of
+ * the career, the player counts them inside a season.
+ */
+const weekRangeText = (from: number, to: number, currentWeek: number): string => {
+    if (from === to) return weekLabel(from, currentWeek)
+    const fromText = seasonOfWeek(from) === seasonOfWeek(to) ? String(weekOfSeason(from)) : weekNumberText(from, currentWeek)
+    return t("tm.weekRange", { from: fromText, to: weekNumberText(to, currentWeek) })
+}
 
 const getTimelineNodeStatus = (startWeek: number, endWeek: number, currentWeek: number): TimelineNodeStatus => {
     if (currentWeek < startWeek) return "UPCOMING"
@@ -546,14 +558,14 @@ export default function TournamentDetailPage() {
                                 <TierTag tier={displayTournament.tier} />
                                 <span className="flex items-center gap-1.5"><CountryFlag country={displayTournament.region} size={12} />{eventRegionName(displayTournament.region)}</span>
                                 <span aria-hidden="true">·</span>
-                                <span className="flex items-center gap-1"><Calendar size={12} aria-hidden="true" />{t("tm.weekRange", { from: startWeek, to: endWeek })}</span>
+                                <span className="flex items-center gap-1"><Calendar size={12} aria-hidden="true" />{weekRangeText(startWeek, endWeek, currentWeek)}</span>
                                 <span aria-hidden="true">·</span>
                                 <span className={cn("flex items-center gap-1.5 font-semibold", status.tone)}>
                                     {status.live && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
                                     {status.label}
                                 </span>
                             </div>
-                            <h1 className="page-title mt-1 truncate">{getDynamicTournamentName(displayTournament.name, startWeek, gameStartDate, duration)}</h1>
+                            <h1 className="page-title mt-1 truncate">{definition ? instanceName(definition, displaySeason, gameStartDate) : displayTournament.name}</h1>
                         </div>
                         {!isStarted && (
                             isRegistered ? (
@@ -573,11 +585,13 @@ export default function TournamentDetailPage() {
                     </div>
                     {currentWeek >= startWeek && (
                         <div className="flex items-center gap-3 border-t border-line px-6 py-2.5 text-xs tabular-nums text-ink-3">
-                            <span>{t("common.week", { n: startWeek })}</span>
+                            <span>{weekLabel(startWeek, currentWeek)}</span>
                             <div className="h-1 flex-1 overflow-hidden rounded-full bg-hover">
                                 <div className="h-full rounded-full bg-ink-2" style={{ width: `${progress}%` }} />
                             </div>
-                            <span>{t("tm.weekOf", { n: Math.min(currentWeek, endWeek), total: endWeek })}</span>
+                            <span>{seasonOfWeek(endWeek) === seasonOfWeek(currentWeek) && seasonOfWeek(startWeek) === seasonOfWeek(currentWeek)
+                                ? t("tm.weekOf", { n: weekOfSeason(Math.min(currentWeek, endWeek)), total: weekOfSeason(endWeek) })
+                                : weekLabel(endWeek, currentWeek)}</span>
                         </div>
                     )}
                 </section>
@@ -611,7 +625,7 @@ export default function TournamentDetailPage() {
                                                     <li className={cn("min-w-[200px] rounded-[4px] border p-3", node.isCurrent ? "border-gold bg-gold/[0.04]" : "border-line bg-raised")}>
                                                         <p className={overline}>{getTimelineRoleLabel(node.role)}{node.isCurrent ? ` · ${t("tm.thisEvent")}` : ""}</p>
                                                         <p className="mt-1 text-sm font-semibold text-ink-1">{node.tournament.shortName}</p>
-                                                        <p className="mt-0.5 text-xs tabular-nums text-ink-3">{weekStart === weekEnd ? t("common.week", { n: weekStart }) : t("tm.weekRange", { from: weekStart, to: weekEnd })} · <span className={node.status === "LIVE" ? "text-negative" : undefined}>{t(`tm.node.${node.status}`)}</span></p>
+                                                        <p className="mt-0.5 text-xs tabular-nums text-ink-3">{weekRangeText(weekStart, weekEnd, currentWeek)} · <span className={node.status === "LIVE" ? "text-negative" : undefined}>{t(`tm.node.${node.status}`)}</span></p>
                                                         {node.incomingQualifierCount > 1 && <p className="mt-0.5 text-xs text-ink-3">{tn("tm.feeders", node.incomingQualifierCount)}</p>}
                                                         {node.playerStatus && <p className={cn("mt-1 text-xs font-semibold", node.playerStatus === "ELIMINATED" ? "text-negative" : ENTERED_STATUSES.has(node.playerStatus) ? "text-positive" : "text-ink-3")}>{t("tm.you", { status: qualStatusLabel(node.playerStatus) })}</p>}
                                                     </li>
@@ -714,7 +728,7 @@ export default function TournamentDetailPage() {
                             {tournament && !isStarted && !isRegistered && (
                                 <Panel title={t("tm.col.entry")}>
                                     {canRegister ? (
-                                        <p className="text-sm text-ink-2">{t("tm.canEnter", { week: startWeek })}</p>
+                                        <p className="text-sm text-ink-2">{t("tm.canEnter", { week: weekNumberText(startWeek, currentWeek) })}</p>
                                     ) : entryBlockText ? (
                                         <p className="text-sm text-ink-2">{entryBlockText}</p>
                                     ) : eligibility?.eligible ? (
@@ -971,7 +985,7 @@ export default function TournamentDetailPage() {
                         emptyBlock(Trophy, t("tm.direct"), t("tm.directBody"),
                             <Button onClick={() => setActiveTab("playoffs")} className="mt-4" variant="outline">{t("tm.viewBracket")}</Button>)
                     ) : (
-                        emptyBlock(LayoutGrid, t("tm.noGroups"), t("tm.noGroupsBody", { week: displayTournament.startWeek }))
+                        emptyBlock(LayoutGrid, t("tm.noGroups"), t("tm.noGroupsBody", { week: weekNumberText(displayTournament.startWeek, currentWeek) }))
                     )
                 )}
 
@@ -1032,7 +1046,7 @@ export default function TournamentDetailPage() {
                         return (
                             <div className="space-y-4">
                                 {playerNextMatch && opponent && (
-                                    <Panel title={t("tm.nextMatch")} actions={<span className="text-xs text-ink-3">{t("common.week", { n: playerNextMatch.week })} · {playerNextMatch.stage ? stageName(playerNextMatch.stage) : t("tm.match")}</span>}>
+                                    <Panel title={t("tm.nextMatch")} actions={<span className="text-xs text-ink-3">{weekLabel(playerNextMatch.week, currentWeek)} · {playerNextMatch.stage ? stageName(playerNextMatch.stage) : t("tm.match")}</span>}>
                                         <div className="flex items-center gap-6">
                                             <span className="flex flex-1 items-center gap-3">
                                                 <TeamLogoImage src={playerTeam?.logoPath} alt="" size={36} team={playerTeam} />
@@ -1056,7 +1070,7 @@ export default function TournamentDetailPage() {
                                     <section key={week} className="space-y-2">
                                         <div className="flex items-baseline justify-between border-b border-line pb-1.5">
                                             <h3 className="text-sm font-semibold text-ink-1">
-                                                {t("common.week", { n: week })} <span className="font-normal text-ink-3">· {week === currentWeek ? t("tm.thisWeek") : week < currentWeek ? t("tm.played") : t("tm.upcoming")}</span>
+                                                {weekLabel(week, currentWeek)} <span className="font-normal text-ink-3">· {week === currentWeek ? t("tm.thisWeek") : week < currentWeek ? t("tm.played") : t("tm.upcoming")}</span>
                                             </h3>
                                             <span className="text-xs text-ink-3">{matchesByWeek[week][0].stage ? stageName(matchesByWeek[week][0].stage) : t("stage.groupStage")}</span>
                                         </div>
@@ -1163,7 +1177,7 @@ export default function TournamentDetailPage() {
                                                     </span>
                                                 </td>
                                                 <td className="px-3 text-sm text-ink-2">{match.stage ? stageName(match.stage) : t("tm.match")}</td>
-                                                <td className="px-3 text-sm tabular-nums text-ink-3">{match.week}</td>
+                                                <td className="px-3 text-sm tabular-nums text-ink-3">{weekNumberText(match.week, currentWeek)}</td>
                                                 <td className="pr-4 text-right font-display text-lg font-bold tabular-nums text-ink-1">{playerScore}–{opponentScore}</td>
                                             </tr>
                                         )

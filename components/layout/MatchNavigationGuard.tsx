@@ -113,7 +113,17 @@ export function MatchNavigationGuard() {
         setResolving(true)
         try {
             if (await resolveMatchWithoutLiveScreen(matchId)) {
-                toast.success(t("matchError.resolved"))
+                // SMOKE-A-16: the final score, in the guard's own words (not the crash card's).
+                const st = useGameStore.getState()
+                const done = st.completedMatches.find(m => m.id === matchId)
+                const name = (id: string) => st.teams.find(tm => tm.id === id)?.name ?? t("common.tbd")
+                if (done?.result) {
+                    // Your club first, as on the live screen.
+                    const flip = done.awayTeamId === st.playerTeamId
+                    toast.success(t("matchGuard.finished", flip
+                        ? { home: name(done.awayTeamId), homeScore: done.result.awayScore, awayScore: done.result.homeScore, away: name(done.homeTeamId) }
+                        : { home: name(done.homeTeamId), homeScore: done.result.homeScore, awayScore: done.result.awayScore, away: name(done.awayTeamId) }))
+                }
                 router.push(`/match/${matchId}/result`)
             }
         } catch (e) {

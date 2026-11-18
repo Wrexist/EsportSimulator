@@ -71,3 +71,16 @@ export function benchedUpgrade(rosterIds: string[], players: PlayerSaveData[], c
     }
     return best
 }
+
+/**
+ * SMOKE-A-05: the starting five's average rating now, and after `swap` (the
+ * one the signing reveal offers). The reveal shows this gain, so it never
+ * claims more than the button does. Null without five rated starters.
+ */
+export function startingFiveOvr(rosterIds: string[], players: PlayerSaveData[], swap: LineupUpgrade | null, currentWeek?: number): { before: number; after: number } | null {
+    const starters = rate(rosterIds, players, currentWeek).filter(r => r.index < STARTERS)
+    if (starters.length < STARTERS) return null
+    const sum = starters.reduce((s, r) => s + r.ovr, 0)
+    const swapped = swap && starters.some(r => r.id === swap.starterId) ? sum - swap.starterOvr + swap.benchOvr : sum
+    return { before: Math.round(sum / STARTERS), after: Math.round(swapped / STARTERS) }
+}

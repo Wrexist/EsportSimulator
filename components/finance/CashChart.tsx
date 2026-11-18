@@ -1,5 +1,6 @@
 import { t } from "@/lib/i18n"
 import { formatCurrency } from "@/lib/utils-extended"
+import { weekNumberText, weekOfSeason } from "@/lib/season-week"
 
 export interface CashPoint {
     week: number
@@ -42,7 +43,8 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
     // the axis frames the actual range so the trend is readable.
     const includeZero = minB <= 0 || minB < maxB * 0.25
     const dataLo = includeZero ? Math.min(0, minB) : minB
-    const dataHi = Math.max(dataLo + 1, maxB)
+    // SMOKE-A-13: an all-negative balance still shows the zero line on top.
+    const dataHi = Math.max(dataLo + 1, includeZero ? Math.max(0, maxB) : maxB)
     const pad = (dataHi - dataLo) * 0.1
     const hi = dataHi + pad
     const lo = includeZero && dataLo === 0 ? 0 : dataLo - pad
@@ -58,7 +60,9 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
     const pathFrom = (from: number, to: number) => points.slice(from, to)
         .map((p, i) => `${i === 0 ? "M" : "L"}${x(i + from).toFixed(1)},${yB(p.balance).toFixed(1)}`).join(" ")
 
+    // One gridline per distinct label: a flat range would print "$1.4M" three times (SMOKE-A-13).
     const ticks = [dataHi, (dataHi + dataLo) / 2, dataLo].map(v => Math.round(v))
+        .filter((v, i, all) => all.findIndex(o => short(o) === short(v)) === i)
     const nowIndex = points.findIndex(p => p.week === nowWeek)
     const labelEvery = n > 16 ? 4 : 2
     // One fixed stride, anchored on "now" so its label never crowds a neighbour.
@@ -86,7 +90,7 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
             {firstProjected !== -1 && <path d={pathFrom(Math.max(0, firstProjected - 1), n)} fill="none" className="stroke-gold" strokeWidth="2" strokeDasharray="5 4" strokeOpacity="0.8" />}
             {points.map((p, i) => (
                 <circle key={i} cx={x(i)} cy={yB(p.balance)} r={i === nowIndex ? 3.5 : 2.2} strokeWidth="1.5" className={p.projected ? "fill-panel stroke-gold" : "fill-gold stroke-gold"}>
-                    <title>{t(p.projected ? "fin.tipBalanceProjected" : "fin.tipBalance", { week: p.week, amount: formatCurrency(p.balance, "$", false) })}</title>
+                    <title>{t(p.projected ? "fin.tipBalanceProjected" : "fin.tipBalance", { week: weekNumberText(p.week, nowWeek), amount: formatCurrency(p.balance, "$", false) })}</title>
                 </circle>
             ))}
 
@@ -107,14 +111,14 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
                         fillOpacity={p.projected ? 0.2 : 0.55}
                     >
                         <title>{p.oneOff
-                            ? t("fin.tipNetOneOff", { week: p.week, amount: formatCurrency(p.net, "$", false), other: formatCurrency(p.oneOff, "$", false) })
-                            : t(p.projected ? "fin.tipNetProjected" : "fin.tipNet", { week: p.week, amount: formatCurrency(p.net, "$", false) })}</title>
+                            ? t("fin.tipNetOneOff", { week: weekNumberText(p.week, nowWeek), amount: formatCurrency(p.net, "$", false), other: formatCurrency(p.oneOff, "$", false) })
+                            : t(p.projected ? "fin.tipNetProjected" : "fin.tipNet", { week: weekNumberText(p.week, nowWeek), amount: formatCurrency(p.net, "$", false) })}</title>
                     </rect>
                 )
             })}
 
             {points.map((p, i) => labelled(i) && (
-                <text key={i} x={x(i)} y={H - 4} textAnchor="middle" fontSize="11" className={i === nowIndex ? "fill-ink-2" : "fill-ink-3"}>{t("fin.axisWeek", { n: p.week })}</text>
+                <text key={i} x={x(i)} y={H - 4} textAnchor="middle" fontSize="11" className={i === nowIndex ? "fill-ink-2" : "fill-ink-3"}>{t("fin.axisWeek", { n: weekOfSeason(p.week) })}</text>
             ))}
         </svg>
     )

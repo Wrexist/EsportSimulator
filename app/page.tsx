@@ -33,12 +33,13 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
 import { Activity, ArrowUpRight, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatCurrency, formatSignedCurrency, getDynamicTournamentName } from "@/lib/utils-extended"
-import { matchEventName } from "@/lib/tournament-instances"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
+import { instanceName, matchEventName } from "@/lib/tournament-instances"
 import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
-import { weekLabelShort, weekNumberText } from "@/lib/season-week"
+import { seasonOfWeek, weekLabelShort, weekNumberText } from "@/lib/season-week"
 import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
+import { cashRunway, roleTrainingCost } from "@/engine/finance-forecast"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { startingFiveOvr, teamOvr as clubOvr } from "@/lib/team-ovr"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
@@ -213,7 +214,8 @@ export default function Page() {
       .slice(0, 2)
       .map(t => {
         const weeksUntil = t.startWeek - currentCalendarWeek
-        return { ...t, weeksUntil, name: getDynamicTournamentName(t.name, currentWeek + weeksUntil, gameStartDate, t.duration) }
+        // SMOKE-A-10: the name the event's saved instance carries (a qualifier takes its event's year).
+        return { ...t, weeksUntil, name: instanceName(t, seasonOfWeek(currentWeek), gameStartDate) }
       })
   }, [nextMatch, tournamentQualifications, playerTeamId, currentWeek, gameStartDate])
 
@@ -372,6 +374,9 @@ export default function Page() {
 
   const finance = financialReport
   const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE
+  // SMOKE-A-11: the net and runway /finances shows (role retraining included, runway from today's funds).
+  const homeNet = (finance?.net ?? 0) - (playerTeam ? roleTrainingCost(playerTeam) : 0)
+  const homeRunway = cashRunway(playerTeam?.budget ?? 0, homeNet)
 
   // G7: a Draft Cup run shows its round and record instead of the season.
   const cupBracket = draftCup ? (tournaments.find(t => t.id === draftCup.tournamentId)?.playoffBracket ?? []).filter(m => m.homeTeamId === draftCup.teamId || m.awayTeamId === draftCup.teamId) : []
@@ -555,8 +560,8 @@ export default function Page() {
                 <Kpi
                   className="px-4 py-3"
                   label={t("home.netWeek")}
-                  value={<span className={(finance?.net ?? 0) < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(finance?.net ?? 0)}</span>}
-                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? tn("home.runway", Math.floor(finance.runwayWeeks)) : t("home.projected")}
+                  value={<span className={homeNet < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(homeNet)}</span>}
+                  hint={finance && homeNet < 0 ? tn("home.runway", homeRunway) : t("home.projected")}
                 />
               </div>
               <dl className="grid grid-cols-3 divide-x divide-line text-sm">

@@ -14,6 +14,7 @@ import type { WeekReport } from "@/lib/week-report"
 import { FormGuide } from "@/src/components/ui/FixtureBanner"
 import { formatMoney, moneyLines, playerGroups, resultsLabel, teamRows, unansweredRows, warningText, type Tone } from "./report-model"
 import { t, tn } from "@/lib/i18n"
+import { weekLabelShort } from "@/lib/season-week"
 import { useGameStore } from "@/store/game-store"
 
 /**
@@ -171,7 +172,7 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                                         <span className="text-ink-1">{line.label}</span>
                                         {line.cause && line.cause !== line.label && <span className="ml-2 text-xs text-ink-3">{line.cause}</span>}
                                         {/* MARKET-08 (2026-11-17): the ledger (and the /finances chart) books this row under another week. */}
-                                        {line.week !== undefined && <span className="ml-2 text-xs text-ink-3">· {t("common.weekShort", { n: line.week })}</span>}
+                                        {line.week !== undefined && <span className="ml-2 text-xs text-ink-3">· {weekLabelShort(line.week, report.week)}</span>}
                                     </dt>
                                     <dd className={cn("shrink-0 font-semibold tabular-nums", line.amount < 0 ? "text-negative" : "text-positive")}>{formatMoney(line.amount, true)}</dd>
                                 </div>

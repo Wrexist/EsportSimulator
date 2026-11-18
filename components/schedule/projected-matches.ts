@@ -89,9 +89,17 @@ export function projectedMatchesFor(src: ProjectionSource, labels: { nextStage: 
         // A drawn bracket with nothing left for the club: it is out, even if no qualification row says so.
         if (bracket.length > 0 && bracket.some(m => m.isCompleted && m.loserId === me) && !bracket.some(m => !m.isCompleted && canReachBracketMatch(m, bracket, me))) continue
 
+        // SMOKE-A-09: the club is drawn in the bracket's last round (a match
+        // no other match is fed by): nothing comes after it to forecast.
+        // Swiss rounds and GSL groups share playoffBracket and are not part of it.
+        const playoff = bracket.filter(m => !m.id.includes("_swiss_r") && !/^Group /.test(m.stage || ""))
+        const fedBy = new Set(playoff.flatMap(m => m.sourceMatchIds ?? []))
+        if (fedBy.size > 0 && playoff.some(m => (m.homeTeamId === me || m.awayTeamId === me) && !fedBy.has(m.id))) continue
+
         // Stage window fallback when bracket rounds are not generated yet.
+        // A saved event's endWeek is the week after its last one (start + duration).
         const startWeek = Math.max(src.currentWeek, instance.startWeek)
-        const endWeek = Math.max(startWeek, instance.endWeek)
+        const endWeek = Math.max(startWeek, instance.endWeek - 1)
         for (let week = startWeek; week <= endWeek; week++) {
             const hasPlayerMatch = src.scheduledMatches.some(m => m.week === week && m.tournamentId === instance.id && (m.homeTeamId === me || m.awayTeamId === me))
             if (hasPlayerMatch) continue

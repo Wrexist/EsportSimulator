@@ -671,6 +671,7 @@ export const MATCH = {
     "matchError.simulate": "Simulate instead",
     "matchError.retry": "Retry",
     "matchError.preparing": "Preparing match",
+    "matchGuard.finished": "Match finished: {{home}} {{homeScore}}–{{awayScore}} {{away}}",
 
     // Playbook
     "playbook.situation.pistol": "Pistol round",

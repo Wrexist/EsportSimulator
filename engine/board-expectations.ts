@@ -175,12 +175,13 @@ export function getBoardSanctionedFee(
     board: BoardState | undefined,
     budget: number,
 ): { maxFee: number; fraction: number } {
-    if (!board) return { maxFee: budget, fraction: 1 }
+    if (!board) return { maxFee: Math.max(0, budget), fraction: 1 }
     const fraction = board.onNotice || board.confidence < 25 ? 0.4
         : board.confidence < 40 ? 0.6
         : board.confidence < 70 ? 0.8
         : 1
-    return { maxFee: Math.floor(budget * fraction), fraction }
+    // SMOKE-A-13: no fee at all on empty or negative funds, never a negative cap.
+    return { maxFee: Math.max(0, Math.floor(budget * fraction)), fraction }
 }
 
 /** Trophies the player's club lifted within a given season window. */

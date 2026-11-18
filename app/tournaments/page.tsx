@@ -15,7 +15,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { intlLocale, t, tn } from "@/lib/i18n"
 import { eventFormatName, eventRegionName } from "@/lib/display-names"
-import { getDynamicTournamentName } from "@/lib/utils-extended"
 import {
     FULL_TOURNAMENT_CALENDAR,
     getDiscoveredTournaments,
@@ -255,7 +254,8 @@ export default function TournamentsPage() {
         const teamsEntered = liveTournament?.teamIds?.length || 0
         // A live event's field is set: no sign-up once it has started.
         const canRegister = !!eligibility?.canRegister && !entryBlock && !isRegistered && !isQualified && !isPast && !isActive && !isEliminated
-        const name = getDynamicTournamentName(tournament.name, effectiveStart, gameStartDate, tournament.duration)
+        // SMOKE-A-10: the name its saved instance carries (a qualifier takes its event's year).
+        const name = instanceName(tournament, rowSeason, gameStartDate)
 
         return (
             <tr

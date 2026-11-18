@@ -6,7 +6,6 @@ import React, { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-import { getDynamicTournamentName } from "@/lib/utils-extended"
 import {
     TournamentDefinition,
     formatPrizePool,
@@ -20,7 +19,7 @@ import TournamentStandings from "@/components/tournament/TournamentStandings"
 import TournamentBracket from "@/components/tournament/TournamentBracket"
 import { isQualificationForTournament, getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
 import { ScheduleDialog } from "./ScheduleDialog"
-import { currentSeasonInstance, seasonStartWeek } from "@/lib/tournament-instances"
+import { currentSeasonInstance, instanceName } from "@/lib/tournament-instances"
 
 interface TournamentDetailsModalProps {
     isOpen: boolean
@@ -109,7 +108,7 @@ export function TournamentDetailsModal({
             isOpen={isOpen}
             onClose={onClose}
             titleId="modal-title-tournament-details"
-            title={getDynamicTournamentName(tournament.name, seasonalTournament?.startWeek ?? seasonStartWeek(tournament, getSeasonFromWeek(currentWeek)), gameStartDate, tournament.duration)}
+            title={instanceName(tournament, getSeasonFromWeek(currentWeek), gameStartDate)}
             subtitle={`${t(`common.tier.${tournament.tier}`)} · ${getEntryTypeLabel(tournament.entryType, tournament.id)} · ${t("tm.weekRange", { from: tournament.startWeek, to: endWeek })} · ${t("sch.td.prizePool", { amount: formatPrizePool(tournament.prizePool) })}`}
             closeLabel={t("sch.td.close")}
             className={activeTab === "bracket" ? "max-w-[90vw]" : "max-w-3xl"}

@@ -26,6 +26,7 @@ import { Sparkline } from "@/src/components/ui/Sparkline"
 import { MapDataPanel } from "@/components/stats/MapDataPanel"
 import { getTournamentById } from "@/data/tournament-calendar"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
+import { seasonOfWeek, weekLabelShort, weekOfSeason } from "@/lib/season-week"
 
 /** Chart styling from the v2 tokens (app/premium-ui.css custom properties). */
 const AXIS = { stroke: "var(--border-subtle)", tick: { fill: "var(--text-muted)", fontSize: 11 }, axisLine: false, tickLine: false } as const
@@ -95,9 +96,11 @@ export default function StatsPage() {
         .map(({ m }) => m),
     [completedMatches, playerTeamId])
 
+    // Official matches only: scrims never count toward a record, as on Home (SMOKE-A-08).
     const record = useMemo(() => {
+        const official = teamMatches.filter(m => !m.isScrim)
         let w = 0, mapW = 0, mapL = 0
-        for (const m of teamMatches) {
+        for (const m of official) {
             if (won(m, playerTeamId)) w++
             const home = ourSide(m, playerTeamId)
             for (const map of m.result.maps || []) {
@@ -106,7 +109,7 @@ export default function StatsPage() {
                 if (mapWon) mapW++; else mapL++
             }
         }
-        return { w, l: teamMatches.length - w, mapW, mapL, rate: teamMatches.length ? Math.round((w / teamMatches.length) * 100) : 0 }
+        return { w, l: official.length - w, mapW, mapL, rate: official.length ? Math.round((w / official.length) * 100) : 0 }
     }, [teamMatches, playerTeamId])
 
     // Per-player lines from this club's matches only (oldest → newest for the trend).
@@ -134,7 +137,7 @@ export default function StatsPage() {
     const trend = useMemo(() => teamMatches.slice(0, 12).reverse().map(m => {
         const own = (m.result.lineups?.[playerTeamId ?? ""] ?? team?.rosterIds ?? [])
         const stats = Object.entries(m.result.playerStats || {}).filter(([pid]) => own.includes(pid)).map(([, s]) => s.rating || 0)
-        return { week: t("sx.weekShort", { n: m.week }), rating: stats.length ? Number((stats.reduce((a, b) => a + b, 0) / stats.length).toFixed(2)) : null }
+        return { week: t("sx.weekShort", { n: weekOfSeason(m.week) }), rating: stats.length ? Number((stats.reduce((a, b) => a + b, 0) / stats.length).toFixed(2)) : null }
     }), [teamMatches, playerTeamId, team])
 
     const maps = useMemo(() => {
@@ -311,7 +314,7 @@ export default function StatsPage() {
                                                             onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(isOpen ? null : m.id) } }}
                                                             className="h-12 cursor-pointer border-b border-line outline-none focus-visible:bg-hover">
                                                             <td className="pl-4 text-ink-3">{isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</td>
-                                                            <td className="px-3 text-sm tabular-nums text-ink-2">{t("sx.weekShort", { n: m.week })}</td>
+                                                            <td className="px-3 text-sm tabular-nums text-ink-2">{seasonOfWeek(m.week) === seasonOfWeek(currentWeek) ? t("sx.weekShort", { n: weekOfSeason(m.week) }) : weekLabelShort(m.week, currentWeek)}</td>
                                                             <td className="px-3">
                                                                 <span className="flex items-center gap-2 text-sm font-semibold text-ink-1">
                                                                     {opp && <TeamLogoDisplay team={opp} size={20} />}{opp?.name ?? t("sx.unknown")}

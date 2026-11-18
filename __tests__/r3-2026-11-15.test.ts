@@ -41,7 +41,8 @@ describe("A: a calendar event is named with the year it is played in", () => {
         expect(home).not.toMatch(/leagueStage \?\? tournament\?\.name/)
         expect(home).toMatch(/matchEventName\(stored, tournament\?\.name/)
         // The "registered, starts in N weeks" card dates its event too.
-        expect(home).toMatch(/name: getDynamicTournamentName\(t\.name, currentWeek \+ weeksUntil/)
+        // SMOKE-A-10: named as its saved instance is (a qualifier takes its event's year).
+        expect(home).toMatch(/name: instanceName\(t, seasonOfWeek\(currentWeek\), gameStartDate\)/)
         const prep = read("app/match/[id]/tactics/page.tsx")
         expect(prep).not.toMatch(/tournamentDef\?\.name \|\| liveTournament\?\.name/)
         expect(prep).toMatch(/matchEventName\(liveTournament\?\.name, tournamentDef\?\.name/)

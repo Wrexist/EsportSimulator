@@ -12,7 +12,7 @@ import type { StoreState } from "@/store/types"
 import { Trans } from "@/lib/trans"
 import { t } from "@/lib/i18n"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { benchedUpgrade, startingSwapFor } from "@/lib/lineup-upgrade"
+import { benchedUpgrade, startingFiveOvr, startingSwapFor } from "@/lib/lineup-upgrade"
 import { scoutReportTier, STAFF_ROLE_ORDER } from "@/components/staff/staff-effects"
 import { hubForPath } from "@/lib/navigation"
 
@@ -50,9 +50,31 @@ describe("NEWPLAYER-01: a better signing on the bench", () => {
         expect(benchedUpgrade(roster, hurt)).toBeNull()
     })
 
-    test("the reveal line says best possible five", () => {
-        expect(t("mo.sign.bestFive")).toBe("Best possible five OVR")
+    // SMOKE-A-05: the reveal's rating line is the starting five, and its gain is the
+    // gain of the swap the reveal offers (no gain claimed when he goes to the bench).
+    test("the reveal line shows the starting five and the offered swap's gain", () => {
+        expect(t("squad.startingFive")).toBe("Starting five")
         expect(t("mo.sign.start", { name: "NioLife" })).toBe("Start him (replaces NioLife)")
+        const team = save.teams.find(tm => tm.rosterIds.length >= 5)!
+        const starters = team.rosterIds.slice(0, 5).map(id => save.players.find(p => p.id === id)!)
+        const weakest = starters.reduce((w, p) => (ovr(p) < ovr(w) ? p : w))
+        const signing = save.players.find(p => p.role === weakest.role && !p.isRetired && !p.injury && ovr(p) > ovr(weakest) + 5 && !save.teams.some(tm => tm.rosterIds.includes(p.id)))!
+        const roster = [...team.rosterIds.slice(0, 5), signing.id]
+        const sum = starters.reduce((s, p) => s + ovr(p), 0)
+        const swap = startingSwapFor(roster, save.players, signing.id)!
+        expect(startingFiveOvr(roster, save.players, swap)).toEqual({
+            before: Math.round(sum / 5),
+            after: Math.round((sum - swap.starterOvr + swap.benchOvr) / 5),
+        })
+        // No swap offered: the five is unchanged.
+        expect(startingFiveOvr(roster, save.players, null)).toEqual({ before: Math.round(sum / 5), after: Math.round(sum / 5) })
+        // A role's starter who is stronger: no swap, even when the signing beats another starter.
+        const strongest = starters.reduce((b, p) => (ovr(p) > ovr(b) ? p : b))
+        const offRole = save.players.find(p => p.role === strongest.role && !p.isRetired && !p.injury
+            && !save.teams.some(tm => tm.rosterIds.includes(p.id))
+            && ovr(p) > Math.min(...starters.map(ovr)) && starters.filter(s => s.role === p.role).every(s => ovr(s) >= ovr(p)))
+        if (offRole) expect(startingSwapFor([...team.rosterIds.slice(0, 5), offRole.id], save.players, offRole.id)).toBeNull()
+        expect(startingFiveOvr(roster.slice(0, 4), save.players, null)).toBeNull()
     })
 })
 

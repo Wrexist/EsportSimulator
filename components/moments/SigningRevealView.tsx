@@ -22,14 +22,14 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { colors, tokens } from "@/src/design/tokens"
 import { rivalLine } from "@/engine/transfer-hype"
 import { StandingBadge, STANDING_FRAME } from "@/components/transfer/StandingBadge"
-import { startingSwapFor } from "@/lib/lineup-upgrade"
+import { startingFiveOvr, startingSwapFor } from "@/lib/lineup-upgrade"
 import { MomentFacts, MomentFrame, MomentOverline, MomentRule, useReveal, type MomentFact } from "./MomentFrame"
 
 const EASE = [...tokens.motion.easeOutExpo] as [number, number, number, number]
 const money = (n: number) => formatCurrency(Math.round(n), "$", false)
 /** Signature size on the reveal (px): its height, and the most width it may take. */
 const SIG_HEIGHT = 72
-const SIG_MAX_WIDTH = 300
+const SIG_MAX_WIDTH = 240
 
 /** Headline size by name length, so a long tag stays on one line. */
 function nameSize(name: string, big: boolean): string {
@@ -91,13 +91,23 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     const { player, gameStartDate } = useGameStore(useShallow(s => ({ player: s.players.find(p => p.id === moment.playerId), gameStartDate: s.gameStartDate })))
     // NEWPLAYER-01: a signing lands on the bench. When he beats a starter
     // (of his role, else the weakest), offer to start him from the reveal.
-    const startSwap = useGameStore(useShallow(s => {
+    // SMOKE-A-05: the starting five's rating line shows that swap's gain, and
+    // no gain when no swap is offered (he goes to the bench).
+    const lineup = useGameStore(useShallow(s => {
         const team = s.teams.find(tm => tm.id === s.playerTeamId)
-        if (!team || s.activeMatchId || (s.proCareer && s.proCareer.retiredWeek == null)) return null
-        const swap = startingSwapFor(team.rosterIds, s.players, moment.playerId, s.currentWeek)
-        if (!swap) return null
-        return { teamId: team.id, from: swap.benchIndex, to: swap.starterIndex, replaced: s.players.find(p => p.id === swap.starterId)?.nickname ?? "" }
+        if (!team || (s.proCareer && s.proCareer.retiredWeek == null)) return null
+        const swap = s.activeMatchId ? null : startingSwapFor(team.rosterIds, s.players, moment.playerId, s.currentWeek)
+        const five = startingFiveOvr(team.rosterIds, s.players, swap, s.currentWeek)
+        return {
+            teamId: team.id,
+            from: swap?.benchIndex ?? -1,
+            to: swap?.starterIndex ?? -1,
+            replaced: swap ? s.players.find(p => p.id === swap.starterId)?.nickname ?? "" : null,
+            before: five?.before ?? null,
+            after: five?.after ?? null,
+        }
     }))
+    const startSwap = lineup && lineup.replaced !== null ? { teamId: lineup.teamId, from: lineup.from, to: lineup.to, replaced: lineup.replaced } : null
     const startHim = () => {
         if (!startSwap) return
         const st = useGameStore.getState()
@@ -132,7 +142,9 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     const frame = moment.big ? STANDING_FRAME.ICON : moment.standing ? STANDING_FRAME[moment.standing] : "border-line-strong"
     const sweep = !reduce && (moment.big || !!moment.standing)
     const rivals = moment.rivalNames ?? []
-    const gain = moment.squad ? moment.squad.after - moment.squad.before : 0
+    const fiveBefore = lineup?.before ?? null
+    const fiveAfter = startSwap ? lineup?.after ?? null : null
+    const gain = fiveBefore !== null && fiveAfter !== null ? fiveAfter - fiveBefore : 0
     const sig = moment.signature
     const sigBox = sig ? signatureViewBox(sig) : null
 
@@ -220,29 +232,34 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                         )}
                     </motion.div>
                     {rivals.length > 0 && (
-                        <motion.p {...reveal(0.7)} className="mt-5 flex items-start gap-2 text-base text-ink-2">
+                        <motion.p {...reveal(0.7)} className="mt-5 [@media(max-height:760px)]:mt-3 flex items-start gap-2 text-base text-ink-2">
                             <Swords size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-gold" />
                             <span><Trans k="mo.sign.beatRivals" params={{ rivals: rivalLine(rivals, moment.rivalCount ?? rivals.length) }} tags={{ b: (text) => <span className="font-semibold text-ink-1">{text}</span> }} /></span>
                         </motion.p>
                     )}
-                    <MomentRule className="mt-7 max-w-none" delay={0.55} />
-                    <motion.div {...reveal(0.75)} className="mt-7">
+                    <MomentRule className="mt-7 max-w-none [@media(max-height:760px)]:mt-4" delay={0.55} />
+                    <motion.div {...reveal(0.75)} className="mt-7 [@media(max-height:760px)]:mt-4">
                         <MomentFacts facts={facts} />
                     </motion.div>
-                    {moment.squad && (
-                        <motion.div {...reveal(0.95)} className="mt-4 flex items-center gap-3 text-sm text-ink-3">
+                    {/* SMOKE-A-06: the five and the signature share one row, so the
+                        reveal fits a 1280x720 window above the sticky actions. */}
+                    {(fiveBefore !== null || (sig && sigBox)) && <div className="mt-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+                    {fiveBefore !== null && (
+                        <motion.div {...reveal(0.95)} className="flex items-center gap-3 text-sm text-ink-3" data-testid="signing-five">
                             <TrendingUp size={16} aria-hidden="true" className={gain > 0 ? "text-positive" : "text-ink-3"} />
-                            <span>{t("mo.sign.bestFive")}</span>
-                            <span className="font-display text-xl font-bold tabular-nums text-ink-2">{moment.squad.before}</span>
-                            <span aria-hidden="true">→</span>
-                            <span className="font-display text-xl font-bold tabular-nums text-ink-1">{moment.squad.after}</span>
-                            {gain !== 0 && <span className={cn("font-semibold tabular-nums", gain > 0 ? "text-positive" : "text-negative")}>{gain > 0 ? `+${gain}` : gain}</span>}
-                            {gain === 0 && <span>· {t("mo.sign.depth")}</span>}
+                            <span>{t("squad.startingFive")}</span>
+                            <span className={cn("font-display text-xl font-bold tabular-nums", fiveAfter !== null ? "text-ink-2" : "text-ink-1")}>{fiveBefore}</span>
+                            {fiveAfter !== null && <>
+                                <span aria-hidden="true">→</span>
+                                <span className="font-display text-xl font-bold tabular-nums text-ink-1">{fiveAfter}</span>
+                            </>}
+                            {gain > 0 && <span className="font-semibold tabular-nums text-positive">+{gain}</span>}
+                            {fiveAfter === null && <span>· {t("mo.sign.depth")}</span>}
                         </motion.div>
                     )}
                     {sig && sigBox && (
                         // MARKET-11 (2026-11-17): the signature fills its box and the caption sits under it, on the line.
-                        <motion.div {...reveal(1.05)} className="mt-5 inline-flex flex-col items-stretch">
+                        <motion.div {...reveal(1.05)} className="inline-flex flex-col items-stretch">
                             <svg viewBox={`${sigBox.x} ${sigBox.y} ${sigBox.w} ${sigBox.h}`} style={{ height: SIG_HEIGHT, width: Math.min(SIG_MAX_WIDTH, SIG_HEIGHT * sigBox.w / Math.max(1, sigBox.h)) }} className="shrink-0" role="img" aria-label={t("mo.sign.signatureAlt")}>
                                 <motion.path
                                     d={sig.d}
@@ -260,6 +277,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                             <p className="mt-1 border-t border-line-strong pt-1.5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-3">{t("mo.sign.signedBy")}</p>
                         </motion.div>
                     )}
+                    </div>}
                 </div>
             </div>
         </MomentFrame>
