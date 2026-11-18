@@ -1,5 +1,5 @@
 "use client"
-import { intlLocale, t, tn } from "@/lib/i18n"
+import { formatDecimal, intlLocale, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 import { useMemo } from "react"
@@ -18,7 +18,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { MoneyBreakdown } from "@/components/finance/IncomeBreakdown"
 import { CashChart, type CashPoint } from "@/components/finance/CashChart"
-import { EconomyEngine } from "@/engine/economy-engine"
+import { EconomyEngine, merchHypeMultiplier } from "@/engine/economy-engine"
 import { cashRunway, forecastFinances, roleTrainingCost, settlementsLeft } from "@/engine/finance-forecast"
 import { ECONOMY_CONSTANTS } from "@/lib/constants"
 import { toast } from "@/lib/toast"
@@ -128,6 +128,7 @@ export default function FinancesPage() {
   const activeLines = team.activeMerchItems ?? []
   const upgradeCost = MERCH_UPGRADE_BASE * Math.pow(2, merchLevel - 1)
   const fanZone = team.facilities?.find(f => f.type === "FANZONE")?.level ?? 0
+  const hypeFactor = merchHypeMultiplier(team)
   const recentLedger = [...ledger].reverse().slice(0, 18)
   // MARKET-19: what the next store level adds a week, with its new line on sale.
   const nextLine = MERCH_LINES.find(l => l.level === merchLevel + 1)
@@ -349,6 +350,8 @@ export default function FinancesPage() {
           <Panel title={t("fin.merch")} actions={<span className="text-xs tabular-nums text-ink-3">{t("fin.level", { n: merchLevel, max: MERCH_MAX_LEVEL })}</span>}>
             <p className="text-sm text-ink-2">
               {t("fin.merchFormula", { perFan: ECONOMY_CONSTANTS.BASE_FAN_INCOME_PER_FAN, level: Math.round(ECONOMY_CONSTANTS.MERCH_LEVEL_RATE * 100), line: 4 })}
+              {/* MARKET-10 (2026-11-17): the hype factor of the real formula (engine/economy-engine.ts), shown when it is not ×1 (a created club starts at half). */}
+              {hypeFactor !== 1 && ` ${t("fin.merchHype", { hype: formatDecimal(hypeFactor) })}`}
             </p>
             <dl className="mt-3 grid grid-cols-3 divide-x divide-line rounded border border-line text-center">
               <div className="px-2 py-2"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("fin.store")}</dt><dd className="mt-0.5 text-sm font-semibold tabular-nums text-ink-1">+{Math.round((merchLevel - 1) * ECONOMY_CONSTANTS.MERCH_LEVEL_RATE * 100)}%</dd></div>

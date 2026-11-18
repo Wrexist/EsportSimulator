@@ -7355,5 +7355,6 @@
  "deal.publicRecord.many": "Publiczny bilans: rating {{rating}} w {{count}} oficjalnych mapach.",
  "deal.publicRecord.other": "Publiczny bilans: rating {{rating}} w {{count}} oficjalnej mapy.",
  "terms.offerFeeAnyway": "Zaoferuj mimo to ({{fee}})",
- "terms.feeAgreedNext": "{{club}}: kwota {{fee}} przyjęta. Teraz uzgodnij kontrakt z zawodnikiem."
+ "terms.feeAgreedNext": "{{club}}: kwota {{fee}} przyjęta. Teraz uzgodnij kontrakt z zawodnikiem.",
+ "fin.merchHype": "Hype wokół twojego klubu mnoży przychody od fanów przez ×{{hype}}."
 }

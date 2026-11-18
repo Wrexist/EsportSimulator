@@ -403,4 +403,5 @@ export const MARKET = {
     "deal.publicRecord.other": "Public record: {{rating}} rating over {{count}} official maps.",
     "terms.offerFeeAnyway": "Offer anyway ({{fee}})",
     "terms.feeAgreedNext": "{{club}} accepted {{fee}}. Now agree the player's contract.",
+    "fin.merchHype": "Your club's hype multiplies fan income by ×{{hype}}.",
 } as const

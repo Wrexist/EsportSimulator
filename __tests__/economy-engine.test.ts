@@ -10,7 +10,7 @@
  * failures. Pin every channel + the state-classification thresholds.
  */
 
-import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
+import { EconomyEngine, merchHypeMultiplier, weeklyUpkeep } from "@/engine/economy-engine"
 import { clubOperationsCost, leagueCentralPayment, sponsorIncomeFloor } from "@/lib/balance-tuning"
 import type { TeamSaveData, PlayerSaveData, StaffSaveData, ContractSaveData } from "@/engine/save-types"
 
@@ -176,6 +176,16 @@ describe("processWeeklyFinances — fan income", () => {
         const rLow = EconomyEngine.processWeeklyFinances(low, [], [], [])
         const rHigh = EconomyEngine.processWeeklyFinances(high, [], [], [])
         expect(rHigh.income.fanbase).toBeGreaterThan(rLow.income.fanbase)
+    })
+
+    test("MARKET-10 (2026-11-17): the hype factor /finances states is the one fan income uses", () => {
+        const created = makeTeam({ followers: 1_000_000, merchStoreLevel: 1, merchHype: 5, activeMerchItems: [] })
+        const usual = makeTeam({ followers: 1_000_000, merchStoreLevel: 1, merchHype: 10, activeMerchItems: [] })
+        expect(merchHypeMultiplier(created)).toBe(0.5)
+        expect(merchHypeMultiplier(usual)).toBe(1)
+        const half = EconomyEngine.processWeeklyFinances(created, [], [], []).income.fanbase
+        const full = EconomyEngine.processWeeklyFinances(usual, [], [], []).income.fanbase
+        expect(Math.abs(half - full * 0.5)).toBeLessThanOrEqual(1)
     })
 
     test("legacy fanbase fallback when followers is missing", () => {

@@ -7126,5 +7126,6 @@
  "deal.publicRecord.many": "Bilan public : rating de {{rating}} sur {{count}} maps officielles.",
  "deal.publicRecord.other": "Bilan public : rating de {{rating}} sur {{count}} maps officielles.",
  "terms.offerFeeAnyway": "Proposer quand même ({{fee}})",
- "terms.feeAgreedNext": "{{club}} a accepté {{fee}}. Mets-toi maintenant d'accord avec le joueur sur son contrat."
+ "terms.feeAgreedNext": "{{club}} a accepté {{fee}}. Mets-toi maintenant d'accord avec le joueur sur son contrat.",
+ "fin.merchHype": "La hype autour de ton club multiplie les revenus fans par ×{{hype}}."
 }
