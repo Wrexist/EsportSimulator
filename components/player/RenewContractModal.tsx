@@ -25,6 +25,8 @@ interface RenewContractModalProps {
     currentWeek: number
     onConfirm: () => void
     trigger?: React.ReactNode
+    /** Club funds: renewContract needs RENEWAL_RUNWAY_WEEKS of the raise in the bank (SQUAD-61). */
+    budget?: number
 }
 
 /**
@@ -48,13 +50,18 @@ export function renewalTerms(player: PlayerSaveData, currentSalary: number, curr
 }
 
 /** Renewal terms mirror the store: the archetype's raise (+10%; Loyal +5%, Mercenary +20%), or more when his level now earns more on the market, +52 weeks (renewContract). */
-export function RenewContractModal({ player, currentSalary, currentEndWeek, currentWeek, onConfirm, trigger }: RenewContractModalProps) {
+export function RenewContractModal({ player, currentSalary, currentEndWeek, currentWeek, onConfirm, trigger, budget }: RenewContractModalProps) {
     const [open, setOpen] = React.useState(false)
 
     const { newSalary, raisePct, usualPct, market, archetype } = renewalTerms(player, currentSalary, currentWeek)
     const reason = raisePct === 10 ? "" : raisePct < 10 ? t("renew.reason.loyal") : t("renew.reason.more")
     const weeksRemaining = Math.max(0, currentEndWeek - currentWeek)
     const newWeeksRemaining = weeksRemaining + 52
+    // SQUAD-61: the store refuses a renewal the club can't cover; say so here instead of closing on a failure.
+    const needed = Math.max(0, (newSalary - currentSalary) * AI_SQUAD_TUNING.RENEWAL_RUNWAY_WEEKS)
+    const fundsBlock = budget !== undefined && budget < needed
+        ? t("player.releaseBlock.funds", { cost: formatCurrency(needed, "$", false), funds: formatCurrency(Math.max(0, budget), "$", false) })
+        : null
 
     const handleConfirm = () => {
         onConfirm()
@@ -91,12 +98,13 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                 </div>
 
                 <p className="text-sm text-ink-2">
-                    {t("renew.runs", { week: currentEndWeek + 52, amount: formatCurrency((newSalary - currentSalary) * 26, "$", false) })}
+                    {t("renew.runs", { week: currentEndWeek + 52, amount: formatCurrency(needed, "$", false) })}
                 </p>
+                {fundsBlock && <p className="text-sm text-negative">{fundsBlock}</p>}
 
                 <DialogFooter className="gap-2 sm:gap-2">
                     <Button variant="outline" onClick={() => setOpen(false)}>{t("renew.cancel")}</Button>
-                    <Button onClick={handleConfirm}>{t("renew.sign")}</Button>
+                    <Button onClick={handleConfirm} disabled={!!fundsBlock}>{t("renew.sign")}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

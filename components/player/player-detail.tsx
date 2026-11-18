@@ -273,6 +273,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         currentSalary={contract.salaryPerWeek}
                                         currentEndWeek={contract.endWeek}
                                         currentWeek={currentWeek}
+                                        budget={funds}
                                         onConfirm={() => useGameStore.getState().renewContract(player.id)}
                                         trigger={
                                             <Button
@@ -507,7 +508,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{t("player.masteryNote")}</p>
                             </Panel>
 
-                            <Panel title={t("player.talents")} actions={<span className="text-xs text-ink-3"><Trans k="player.pointsToSpend" params={{ n: player.talentPoints || 0 }} tags={{ b: s => <span className="font-semibold tabular-nums text-ink-1">{s}</span> }} /></span>} padded={false}>
+                            <Panel title={t("player.talents")} actions={<span className="text-xs text-ink-3"><Trans k="player.pointsToSpend" count={player.talentPoints || 0} tags={{ b: s => <span className="font-semibold tabular-nums text-ink-1">{s}</span> }} /></span>} padded={false}>
                                 <TalentTree
                                     nodes={PLAYER_TALENT_TREE}
                                     unlockedIds={player.unlockedTalentIds || []}

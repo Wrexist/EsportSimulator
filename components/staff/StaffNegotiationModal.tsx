@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { settlementsLeft } from "@/engine/finance-forecast"
-import { roleLabel, specializationLabel } from "@/components/staff/staff-effects"
+import { roleLabel, scoutReportTier, specializationLabel } from "@/components/staff/staff-effects"
 interface StaffNegotiationModalProps {
     staffId: string
     isOpen: boolean
@@ -143,19 +143,25 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                         {staffMember.rarity && <span className="text-ink-3">· {t(`st.rarity.${staffMember.rarity}`)}</span>}
                     </div>
                     <dl className="mt-5 divide-y divide-line rounded-lg border border-line bg-panel text-sm">
-                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.level")}</dt><dd className="font-semibold text-ink-1">{staffMember.level}</dd></div>
+                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.level")}</dt><dd className="font-semibold text-ink-1">{staffMember.role === "scout" ? t(`recruit.level.${scoutReportTier(staffMember)}`) : staffMember.level}</dd></div>
                         <div className="flex justify-between gap-3 px-3 py-2"><dt className="text-ink-3">{t("st.neg.specialty")}</dt><dd className="truncate font-semibold text-ink-1">{specializationLabel(staffMember.specialization)}</dd></div>
-                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{isRenewal ? t("st.neg.currentWage") : t("st.neg.asking")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.perWeek", { amount: formatCurrency(isRenewal ? staffMember.salaryPerWeek : askingWage, "$", false) })}</dd></div>
+                        {/* SQUAD-44: once signed, the record is the agreed wage (re-running the asking formula on it showed a different "Asking"). */}
+                        {stage === "SUCCESS"
+                            ? <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.wageShort")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.perWeek", { amount: formatCurrency(salaryOffer, "$", false) })}</dd></div>
+                            : <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{isRenewal ? t("st.neg.currentWage") : t("st.neg.asking")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.perWeek", { amount: formatCurrency(isRenewal ? staffMember.salaryPerWeek : askingWage, "$", false) })}</dd></div>}
                     </dl>
                 </div>
 
                 {/* Right: the offer */}
                 <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                     <div className="flex items-start justify-between border-b border-line px-6 py-4">
+                        {/* SQUAD-44: the offer title and its "asking wage" intro only while making the offer; the result has its own heading. */}
                         <div>
-                            {/* SQUAD-09: the same title style as the other dialogs in this area. */}
-                            <h3 data-slot="dialog-title" className="text-ink-1">{isRenewal ? t("st.neg.renewal") : t("st.neg.offer")}</h3>
-                            <p className="mt-1 text-sm text-ink-3">{isRenewal ? t("st.neg.renewalHint") : t("st.neg.offerHint")}</p>
+                            {stage === "OFFER" && <>
+                                {/* SQUAD-09: the same title style as the other dialogs in this area. */}
+                                <h3 data-slot="dialog-title" className="text-ink-1">{isRenewal ? t("st.neg.renewal") : t("st.neg.offer")}</h3>
+                                <p className="mt-1 text-sm text-ink-3">{isRenewal ? t("st.neg.renewalHint") : t("st.neg.offerHint")}</p>
+                            </>}
                         </div>
                         <button onClick={onClose} className="rounded p-1.5 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label={t("st.neg.close")}>
                             <X size={18} />
