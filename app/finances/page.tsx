@@ -1,8 +1,8 @@
 "use client"
-import { intlLocale, t, tn } from "@/lib/i18n"
+import { formatDecimal, intlLocale, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import { ArrowUpRight, Check, Lock } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
@@ -18,7 +18,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { MoneyBreakdown } from "@/components/finance/IncomeBreakdown"
 import { CashChart, type CashPoint } from "@/components/finance/CashChart"
-import { EconomyEngine } from "@/engine/economy-engine"
+import { EconomyEngine, merchHypeMultiplier } from "@/engine/economy-engine"
 import { cashRunway, forecastFinances, roleTrainingCost, settlementsLeft } from "@/engine/finance-forecast"
 import { ECONOMY_CONSTANTS } from "@/lib/constants"
 import { toast } from "@/lib/toast"
@@ -27,6 +27,8 @@ import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 const HISTORY_WEEKS = 12
+/** Ledger weeks shown at first, and added by "Show older weeks". */
+const LEDGER_WEEKS = 4
 const PROJECTION_WEEKS = 12
 
 // Mirrors store/slices/team-facilities-slice.ts (merch store) — display only.
@@ -65,6 +67,8 @@ export default function FinancesPage() {
     toggleMerchItem: state.toggleMerchItem,
   })))
   const team = useCurrentTeam()
+  // MARKET-12 (2026-11-17): the ledger by week, LEDGER_WEEKS at a time.
+  const [ledgerWeekCount, setLedgerWeekCount] = useState(LEDGER_WEEKS)
 
   // The same projection the next weekly settlement will post.
   const report = useMemo(() => team
@@ -128,7 +132,13 @@ export default function FinancesPage() {
   const activeLines = team.activeMerchItems ?? []
   const upgradeCost = MERCH_UPGRADE_BASE * Math.pow(2, merchLevel - 1)
   const fanZone = team.facilities?.find(f => f.type === "FANZONE")?.level ?? 0
-  const recentLedger = [...ledger].reverse().slice(0, 18)
+  const hypeFactor = merchHypeMultiplier(team)
+  // MARKET-12 (2026-11-17): whole weeks, newest first, each with its net, instead of the last 18 rows.
+  const ledgerWeekList = [...new Set(ledger.map(e => e.week))].sort((a, b) => b - a)
+  const recentLedger = ledgerWeekList.slice(0, ledgerWeekCount).map(week => {
+    const rows = ledger.filter(e => e.week === week).reverse()
+    return { week, rows, net: rows.reduce((sum, e) => sum + (e.type === "INCOME" ? e.amount : -e.amount), 0) }
+  })
   // MARKET-19: what the next store level adds a week, with its new line on sale.
   const nextLine = MERCH_LINES.find(l => l.level === merchLevel + 1)
   const upgradeGain = nextLine
@@ -152,6 +162,12 @@ export default function FinancesPage() {
     { label: t("fin.out.academy"), amount: report.expenses.academy },
     ...(retraining > 0 ? [{ label: t("tr.finRetraining"), amount: retraining, note: tn("tr.finRetrainingNote", team.activeRoleTraining?.length ?? 0) }] : []),
   ]
+
+  const handleStartSelling = (item: string) => {
+    const res = toggleMerchItem(team.id, item)
+    if (res.success) toast.success(storedText(res.message))
+    else toast.error(storedText(res.message))
+  }
 
   const handleUpgrade = () => {
     const res = upgradeMerchStore(team.id)
@@ -243,19 +259,31 @@ export default function FinancesPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {recentLedger.map(e => (
-                        <tr key={e.id} data-slot="table-row" className="h-10 border-b border-line">
-                          <td className="pl-4 text-sm tabular-nums text-ink-3">{e.week}</td>
-                          <td className="max-w-[320px] truncate px-3 text-sm text-ink-1">{storedText(e.description)}</td>
-                          <td className="px-3 text-xs text-ink-3">{LEDGER_CATEGORIES.has(e.category) ? t(`fin.cat.${e.category}`) : e.category}</td>
-                          <td className={cn("px-3 text-right text-sm tabular-nums", e.type === "INCOME" ? "text-positive" : "text-ink-2")}>
-                            {e.type === "INCOME" ? "+" : "−"}{money(e.amount)}
-                          </td>
-                          <td className={cn("pl-3 pr-4 text-right text-sm tabular-nums", e.balance < 0 ? "text-negative" : "text-ink-1")}>{money(e.balance)}</td>
-                        </tr>
-                      ))}
+                      {recentLedger.map(group => [
+                        <tr key={`wk-${group.week}`} className="h-9 border-b border-line bg-shell">
+                          <td colSpan={3} className="pl-4 text-xs font-semibold text-ink-2">{t("common.week", { n: group.week })}</td>
+                          <td className={cn("px-3 text-right text-xs font-semibold tabular-nums", group.net < 0 ? "text-negative" : "text-positive")}>{t("fin.weekNet", { amount: formatSignedCurrency(group.net, "$", false) })}</td>
+                          <td className="pl-3 pr-4" />
+                        </tr>,
+                        ...group.rows.map(e => (
+                          <tr key={e.id} data-slot="table-row" className="h-10 border-b border-line">
+                            <td className="pl-4 text-sm tabular-nums text-ink-3">{e.week}</td>
+                            <td className="max-w-[320px] truncate px-3 text-sm text-ink-1">{storedText(e.description)}</td>
+                            <td className="px-3 text-xs text-ink-3">{LEDGER_CATEGORIES.has(e.category) ? t(`fin.cat.${e.category}`) : e.category}</td>
+                            <td className={cn("px-3 text-right text-sm tabular-nums", e.type === "INCOME" ? "text-positive" : "text-ink-2")}>
+                              {e.type === "INCOME" ? "+" : "−"}{money(e.amount)}
+                            </td>
+                            <td className={cn("pl-3 pr-4 text-right text-sm tabular-nums", e.balance < 0 ? "text-negative" : "text-ink-1")}>{money(e.balance)}</td>
+                          </tr>
+                        )),
+                      ])}
                     </tbody>
                   </table>
+                  {ledgerWeekList.length > ledgerWeekCount && (
+                    <div className="border-t border-line px-4 py-2.5">
+                      <Button variant="ghost" size="sm" className="h-8 px-2.5 text-xs" onClick={() => setLedgerWeekCount(n => n + LEDGER_WEEKS)}>{t("fin.olderWeeks")}</Button>
+                    </div>
+                  )}
                 </div>
               )}
             </TabsContent>
@@ -343,6 +371,8 @@ export default function FinancesPage() {
           <Panel title={t("fin.merch")} actions={<span className="text-xs tabular-nums text-ink-3">{t("fin.level", { n: merchLevel, max: MERCH_MAX_LEVEL })}</span>}>
             <p className="text-sm text-ink-2">
               {t("fin.merchFormula", { perFan: ECONOMY_CONSTANTS.BASE_FAN_INCOME_PER_FAN, level: Math.round(ECONOMY_CONSTANTS.MERCH_LEVEL_RATE * 100), line: 4 })}
+              {/* MARKET-10 (2026-11-17): the hype factor of the real formula (engine/economy-engine.ts), shown when it is not ×1 (a created club starts at half). */}
+              {hypeFactor !== 1 && ` ${t("fin.merchHype", { hype: formatDecimal(hypeFactor) })}`}
             </p>
             <dl className="mt-3 grid grid-cols-3 divide-x divide-line rounded border border-line text-center">
               <div className="px-2 py-2"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("fin.store")}</dt><dd className="mt-0.5 text-sm font-semibold tabular-nums text-ink-1">+{Math.round((merchLevel - 1) * ECONOMY_CONSTANTS.MERCH_LEVEL_RATE * 100)}%</dd></div>
@@ -356,15 +386,16 @@ export default function FinancesPage() {
                 return (
                   <li key={line.id} className="flex items-center justify-between gap-3 px-3 py-2">
                     <span className={cn("text-sm", unlocked ? "text-ink-1" : "text-ink-3")}>{t(`merch.${line.id}`)}</span>
-                    {unlocked ? (
+                    {unlocked && active ? (
+                      // MARKET-09 (2026-11-17): a line costs nothing to sell, so taking it off sale could only lose money.
+                      <span className="inline-flex h-7 items-center gap-1 px-2 text-xs font-semibold text-positive"><Check size={12} /> {t("fin.selling")}</span>
+                    ) : unlocked ? (
                       <button
                         type="button"
-                        aria-pressed={active}
-                        onClick={() => toggleMerchItem(team.id, line.id)}
-                        className={cn("inline-flex h-7 items-center gap-1 rounded border px-2 text-xs font-semibold transition-colors",
-                          active ? "border-positive/40 text-positive hover:bg-hover" : "border-line-strong text-ink-2 hover:bg-hover hover:text-ink-1")}
+                        onClick={() => handleStartSelling(line.id)}
+                        className="inline-flex h-7 items-center gap-1 rounded border border-line-strong px-2 text-xs font-semibold text-ink-2 transition-colors hover:bg-hover hover:text-ink-1"
                       >
-                        {active ? <><Check size={12} /> {t("fin.selling")}</> : t("fin.startSelling")}
+                        {t("fin.startSelling")}
                       </button>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs text-ink-3"><Lock size={11} /> {t("fin.storeLevel", { n: line.level })}</span>

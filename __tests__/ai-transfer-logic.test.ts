@@ -433,3 +433,35 @@ describe("processAITransferMarket — MARKET-11: clubs bid only for players who 
         expect(offersOver30Weeks(88)).toBeGreaterThan(0)
     })
 })
+
+import { aiClubsAbleToBid } from "@/engine/ai/transfer-market"
+
+describe("aiClubsAbleToBid — MARKET-13 (2026-11-17): the news and profile count with the bid loop's gates", () => {
+    const attrs = (v: number) => ({ rifle: v, awp: v, pistol: v, grenades: v, creativity: v, clutch: v, tactic: v, leader: v, teamwork: v, reaction: v, eyesight: v, skill: v })
+    function listedSave(listedRating: number) {
+        const listed = makePlayer("listed", { ...attrs(listedRating), age: 26, potential: 50, forSale: true, transferListingPrice: 1_000 } as any)
+        const stars = Array.from({ length: 5 }, (_, i) => makePlayer(`star${i}`, attrs(88) as any))
+        const playerTeam = makeTeam("player", { rosterIds: ["listed"] })
+        const elite = makeTeam("elite", { budget: 50_000_000, worldRanking: 2, rosterIds: stars.map(p => p.id), ...INCOME })
+        const broke = makeTeam("broke", { budget: 10_000, worldRanking: 3, ...INCOME })
+        return makeSave([playerTeam, elite, broke], [listed, ...stars])
+    }
+
+    test("a club the quality gate or the cash floor rules out is not counted; one that bids is", () => {
+        expect(aiClubsAbleToBid(listedSave(40), "player", listedSave(40).players[0]).map(t => t.id)).toEqual([])
+        const save = listedSave(88)
+        expect(aiClubsAbleToBid(save, "player", save.players[0]).map(t => t.id)).toEqual(["elite"])
+    })
+
+    test("every club that makes a real bid is one the count includes", () => {
+        for (const rating of [40, 88]) {
+            for (let w = 1; w <= 20; w++) {
+                const save = listedSave(rating)
+                save.currentWeek = w
+                const able = new Set(aiClubsAbleToBid(save, "player", save.players[0]).map(t => t.id))
+                processAITransferMarket(save, "player", new SeededRNG(w * 31 + 7))
+                for (const e of save.eventsLog.filter(x => x.type === "TRANSFER_OFFER")) expect(able.has(String(e.data?.teamId))).toBe(true)
+            }
+        }
+    })
+})

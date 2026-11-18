@@ -39,7 +39,7 @@ describe("wage with clauses", () => {
 
     test("contract fields carry the clause fee and bonuses; bad fields are dropped", () => {
         expect(releaseClauseFee("none", 10_000)).toBe(0)
-        expect(clauseFields({ release: "low", appearanceBonus: 300, titleBonus: 0 }, 10_000)).toEqual({ releaseClause: 500_000, appearanceBonus: 300 })
+        expect(clauseFields({ release: "low", appearanceBonus: 300, titleBonus: 0 }, 10_000)).toEqual({ releaseClause: 500_000, releaseClauseTier: "low", appearanceBonus: 300 })
         expect(clauseFields(NO_CLAUSES, 10_000)).toEqual({})
         expect(releaseTriggerChance(releaseClauseFee("low", 1000), 1000)).toBeCloseTo(CLAUSE_TUNING.RELEASE_TRIGGER_LOW)
         expect(releaseTriggerChance(releaseClauseFee("high", 1000), 1000)).toBeCloseTo(CLAUSE_TUNING.RELEASE_TRIGGER_HIGH)
@@ -56,7 +56,22 @@ describe("wage with clauses", () => {
         expect(releaseClauseFee("low", 10_000, 50_000)).toBe(500_000)
         expect(releaseClauseFee("low", 1000, 0)).toBe(releaseClauseFee("low", 1000))
         expect(releaseClauseFee("none", 362, 76_398)).toBe(0)
-        expect(clauseFields({ release: "low", appearanceBonus: 0, titleBonus: 0 }, 362, 76_398)).toEqual({ releaseClause: 76_398 })
+        expect(clauseFields({ release: "low", appearanceBonus: 0, titleBonus: 0 }, 362, 76_398)).toEqual({ releaseClause: 76_398, releaseClauseTier: "low" })
+    })
+
+    test("MARKET-01 (2026-11-17): a clause floored at the fee still carries its tier's risk", () => {
+        // Audit: dprx $78,284 fee at $396/wk; Low read "about a 0% chance" while still cutting the wage 10%.
+        const low = releaseClauseFee("low", 396, 78_284), high = releaseClauseFee("high", 396, 78_284)
+        expect(releaseTriggerChance(low, 396)).toBe(0) // the old weeks-of-wage rule (kept for old contracts)
+        expect(releaseTriggerChance(low, 396, "low")).toBe(CLAUSE_TUNING.RELEASE_TRIGGER_LOW)
+        expect(releaseTriggerChance(high, 396, "high")).toBe(CLAUSE_TUNING.RELEASE_TRIGGER_HIGH)
+        expect(releaseTriggerChance(low, 396, "low")).toBeGreaterThan(0)
+        // The tier is written on the contract and survives the store's sanitizer; a tier without a clause is dropped.
+        const fields = clauseFields({ release: "high", appearanceBonus: 0, titleBonus: 0 }, 396, 78_284)
+        expect(fields).toEqual({ releaseClause: high, releaseClauseTier: "high" })
+        expect(sanitizeClauseFields(fields)).toEqual(fields)
+        expect(sanitizeClauseFields({ releaseClauseTier: "low" })).toEqual({})
+        expect(sanitizeClauseFields({ releaseClause: 5000, releaseClauseTier: "bogus" as "low" })).toEqual({ releaseClause: 5000 })
     })
 })
 
@@ -87,6 +102,23 @@ describe("release clauses and sell-on", () => {
         expect(save.financeLedger.some(e => e.teamId === mine.id && e.description.startsWith("Release clause"))).toBe(true)
         expect(save.eventsLog.some(e => e.id === `evt_release_${save.currentWeek}_${taken[0]}`)).toBe(true)
         expect(save.contracts.filter(c => c.playerId === taken[0]).map(c => c.teamId)).not.toContain(mine.id)
+    })
+
+    test("MARKET-01 (2026-11-17): a low clause floored at a big fee can still be paid", () => {
+        let taken: string[] = []
+        for (let week = 1; week < 200 && !taken.length; week++) {
+            const save = structuredClone(world)
+            save.currentWeek = week
+            const mine = save.teams.find(t => t.id === save.playerTeamId)!
+            const target = save.players.find(p => p.id === mine.rosterIds[0])!
+            const c = save.contracts.find(x => x.playerId === target.id && x.teamId === mine.id)!
+            c.endWeek = week + 100
+            // 200 weeks of wage: 0% under the old rule, the low tier's 8% with the tier stored.
+            Object.assign(c, clauseFields({ release: "low", appearanceBonus: 0, titleBonus: 0 }, c.salaryPerWeek, c.salaryPerWeek * 200))
+            expect(releaseTriggerChance(c.releaseClause!, c.salaryPerWeek)).toBe(0)
+            taken = processReleaseClauses(save, mine.id)
+        }
+        expect(taken).toHaveLength(1)
     })
 
     test("a club pays only with the cash to spare and for a player who beats someone it has", () => {

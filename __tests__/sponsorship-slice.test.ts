@@ -4,14 +4,14 @@
  * Two thin actions:
  *   - refreshSponsorOffers: regenerate the offer pool deterministically
  *     from the team + current week (seed = lastRngSeed + week * 7919),
- *     and clear declinedSponsorOfferIds.
+ *     leaving out declined offers (the weekly processor clears that set).
  *   - declineSponsorOffer: drop the matching offer from the pool and
  *     remember its ID so the same generator seed doesn't re-show it
  *     before the next refresh.
  *
  * The generator output itself isn't pinned — that's SponsorGenerator's
  * responsibility. What we pin here is the SLICE-level contract:
- *   - refresh seeds the offer list and clears the declined set
+ *   - refresh seeds the offer list without the declined offers
  *   - decline filters by id and appends to the declined set
  *   - missing team is a no-op (no crash)
  */
@@ -64,7 +64,7 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
 }
 
 describe("refreshSponsorOffers", () => {
-    test("seeds sponsorOffers with at least one offer and clears declinedSponsorOfferIds", () => {
+    test("seeds sponsorOffers with at least one offer and keeps declinedSponsorOfferIds", () => {
         const h = makeHarness(makeBaseState({
             sponsorOffers: [],
             declinedSponsorOfferIds: ["old_offer_1", "old_offer_2"],
@@ -73,8 +73,20 @@ describe("refreshSponsorOffers", () => {
         slice.refreshSponsorOffers()
         // Generator produces at least one offer for a default team.
         expect(h.state().sponsorOffers.length).toBeGreaterThan(0)
-        // Declined set is cleared on refresh.
-        expect(h.state().declinedSponsorOfferIds).toEqual([])
+        // MARKET-02 (2026-11-17): only the weekly processor clears the declined set.
+        expect(h.state().declinedSponsorOfferIds).toEqual(["old_offer_1", "old_offer_2"])
+    })
+
+    test("MARKET-02 (2026-11-17): offers declined this week are not dealt again by a re-roll", () => {
+        const h = makeHarness(makeBaseState())
+        const slice = createSponsorshipSlice(h.set, h.get)
+        slice.refreshSponsorOffers()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const ids = h.state().sponsorOffers.map(o => (o as any).id as string)
+        for (const id of ids) slice.declineSponsorOffer(id)
+        expect(h.state().sponsorOffers).toEqual([])
+        slice.refreshSponsorOffers()
+        expect(h.state().sponsorOffers).toEqual([])
     })
 
     test("missing player team is a silent no-op", () => {

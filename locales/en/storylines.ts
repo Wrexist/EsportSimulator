@@ -251,4 +251,5 @@ export const STORYLINES = {
     "sl.bp.hangsOnTitle": "{{manager}} hangs on at {{club}}",
     "sl.managerLeft": "You left the club, which ends the story.",
     "sl.toldPress": "You told the press, \"{{answer}}\"",
+    "sl.rs.noBidder": "No club can fit {{name}}'s wage right now, so a listing would bring no bids.",
 }

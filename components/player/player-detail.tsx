@@ -50,6 +50,7 @@ import { PersonalityPanel } from "./PersonalityPanel"
 import { PlayerStorylines } from "@/components/storylines/PlayerStorylines"
 import { captainId } from "@/engine/personality"
 import { releaseSettlement, RELEASE_CHEMISTRY_COST, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
+import { aiClubsAbleToBid } from "@/engine/ai/transfer-market"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { visibleAcademyPotential } from "@/engine/academy-engine"
 import { potentialRevealText } from "@/app/academy/_components/academy-facts"
@@ -106,7 +107,7 @@ function Row({ label, children, className }: { label: string; children: ReactNod
 function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const {
         contracts, listPlayerForTransfer, unlistPlayerForTransfer, startRoleTraining, cancelRoleTraining,
-        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers, allPlayers, activeMatchId,
+        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers, allPlayers, activeMatchId, staff,
     } = useGameStore(useShallow(state => ({
         allPlayers: state.players,
         contracts: state.contracts,
@@ -120,6 +121,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
         unlockPlayerTalent: state.unlockPlayerTalent,
         academyPlayers: state.academyPlayers,
         activeMatchId: state.activeMatchId,
+        staff: state.staff,
     })))
     const [tab, setTab] = useState("overview")
     const [trainingModalOpen, setTrainingModalOpen] = useState(false)
@@ -172,6 +174,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
         wage: formatCurrency(release.wage, "$", false), amount: formatCurrency(release.amount, "$", false),
         after: formatCurrency(funds - release.amount, "$", false), chem: RELEASE_CHEMISTRY_COST, size: squadSize - 1, max: SENIOR_ROSTER_MAX,
     })
+
+    // MARKET-13 (2026-11-17): the real interest in a listed player (the weekly bid loop's own gates).
+    const bidders = useMemo(() => isOwnPlayer && player.forSale && playerTeamId
+        ? aiClubsAbleToBid({ teams, players: allPlayers, contracts, staff, currentWeek }, playerTeamId, player).length
+        : null, [isOwnPlayer, player, playerTeamId, teams, allPlayers, contracts, staff, currentWeek])
 
     const performances = usePlayerPerformances(player.id)
     const recentRatings = useMemo(() => performances.slice(0, 10).map(p => p.rating).reverse(), [performances])
@@ -442,6 +449,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <Row label={t("player.row.transferList")}>{player.forSale ? t("player.row.listedAt", { price: formatCurrency(player.transferListingPrice ?? evaluation.transferValue) }) : t("player.row.notListed")}</Row>
                                         {isOwnPlayer && <Row label={t("player.row.releaseCost")}>{t("player.row.releaseCostValue", { amount: formatCurrency(release.amount, "$", false) })}</Row>}
                                     </dl>
+                                    {bidders !== null && (
+                                        <p className={cn("border-t border-line px-4 py-3 text-xs leading-relaxed", bidders === 0 ? "text-caution" : "text-ink-3")}>
+                                            {bidders === 0 ? t("player.biddersNone") : tn("player.bidders", bidders)}
+                                        </p>
+                                    )}
                                     {/* SQUAD-06: the same reason as the renew dialog, translated. */}
                                     {renewal && (
                                         <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">

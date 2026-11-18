@@ -50,11 +50,11 @@ export const PERSONALITY = {
     "trait.TRADE_FRAGGER.label": "Trade fragger",
     "trait.TRADE_FRAGGER.effect": "+2 duel rating when trading a fallen teammate.",
     "demand.included": "Already in the wage range and preferred length above.",
-    "demand.loyal": "{{label}}: asks {{wage}} wages and wants a {{length}} longer deal.",
-    "demand.mercenary": "{{label}}: asks {{wage}} wages and wants a {{length}} shorter deal.",
-    "demand.ambitiousBelow": "{{label}}: your club is {{gap}}+ tiers below his level, so he asks {{wage}} wages.",
-    "demand.ambitiousClose": "{{label}}: no premium — your club is close enough to his level.",
-    "demand.none": "{{label}}: his personality does not change his demands.",
+    "demand.loyal": "Asks {{wage}} wages and wants a {{length}} longer deal.",
+    "demand.mercenary": "Asks {{wage}} wages and wants a {{length}} shorter deal.",
+    "demand.ambitiousBelow": "Your club is {{gap}}+ tiers below his level, so he asks {{wage}} wages.",
+    "demand.ambitiousClose": "No premium — your club is close enough to his level.",
+    "demand.none": "His personality does not change his demands.",
 
     // A player's transfer request (engine/processors/dressing-room.ts)
     "tr.req.t": "{{name}} asks to leave",

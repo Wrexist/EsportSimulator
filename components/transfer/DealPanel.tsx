@@ -26,7 +26,8 @@ import { ScoutedRating } from "./ScoutedRating"
 import { StandingBadge } from "./StandingBadge"
 import { RIVAL_FEE_MAX_CLUBS, RIVAL_FEE_STEP, type MarketStanding } from "@/engine/transfer-hype"
 
-const SCOUTING_FEE = 3000
+/** The scouting mission fee (store/slices/scouting-slice.ts SCOUTING_COST_BASIC). */
+export const SCOUTING_FEE = 3000
 const REPORT_RANKS = ["NONE", "BASIC", "ADVANCED", "EXPERT", "ELITE"] as const
 /** Attributes a full report confirms; labels are the attr.* keys of the player page. */
 const REPORT_ATTRIBUTES = ["skill", "rifle", "awp", "pistol", "reaction", "clutch", "grenades", "tactic", "creativity", "teamwork", "leader", "consistency"] as const
@@ -177,6 +178,8 @@ export function DealPanel({ playerId, mode, standing }: { playerId: string; mode
                         {knowledge.scoutingLevel === "NONE" ? t("deal.knowNone")
                             : knowledge.scoutingLevel === "ELITE" ? t("deal.knowElite")
                                 : t("deal.knowBand")}
+                        {/* NEWPLAYER-02 (2026-11-17): what is public about an unscouted player, his official-match record. */}
+                        {knowledge.scoutingLevel === "NONE" && (player.mapsPlayed ?? 0) > 0 && ` ${tn("deal.publicRecord", player.mapsPlayed ?? 0, { rating: (player.avgRating ?? 0).toFixed(2) })}`}
                     </p>
                 </div>
                 {mode === "scouting" && attributes.length > 0 && (

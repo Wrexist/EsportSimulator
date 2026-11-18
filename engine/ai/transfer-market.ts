@@ -215,7 +215,7 @@ export function processAITransferMarket(
 
             const existingOffer = existingOfferKeys.has(`${aiTeam.id}_${player.id}`)
             if (existingOffer) return
-            if (Math.max(ovr(player), player.age <= 21 ? (player.potential ?? 0) - 10 : 0) < weakestStarter - AI_BID_QUALITY_MARGIN) return
+            if (!aiBidQualityOk(ovr(player), player, weakestStarter)) return
             if ((openOffersPerPlayer.get(player.id) ?? 0) >= MAX_OPEN_OFFERS_PER_PLAYER) return
 
             // Market value + potential-based multipliers (0-100 scale; see aiMarketValuation).
@@ -470,7 +470,7 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
         const player = save.players.find(p => p.id === contract.playerId)
         if (!player || player.isRetired || !mine.rosterIds.includes(player.id)) continue
         const fee = contract.releaseClause!
-        if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek)) continue
+        if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek, contract.releaseClauseTier)) continue
         const buyer = save.teams
             .filter(t => t.id !== playerTeamId && canPayReleaseClause(save, t, player, fee))
             .sort((a, b) => b.reputation - a.reputation || a.id.localeCompare(b.id))[0]
@@ -517,4 +517,48 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
         taken.push(player.id)
     }
     return taken
+}
+
+// ---------------------------------------------------------------------------
+// MARKET-13 (2026-11-17): who could bid for a listed player. The story news
+// and the player profile count bidders with the same gates the weekly bid
+// loop above applies, so they never promise bids the market can't make.
+// ---------------------------------------------------------------------------
+
+/** MARKET-11 quality gate of processAITransferMarket: he could start for the club (or will grow into it). */
+export function aiBidQualityOk(playerOvr: number, player: Pick<PlayerSaveData, "age" | "potential">, weakestStarter: number): boolean {
+    return Math.max(playerOvr, player.age <= 21 ? (player.potential ?? 0) - 10 : 0) >= weakestStarter - AI_BID_QUALITY_MARGIN
+}
+
+/**
+ * AI clubs that could bid for `player` (listed at `listingPrice`) this week:
+ * cash and roster room, the quality gate, and aiCommitCheck at his wage with
+ * the lowest offer the club would make. The interest roll is not counted.
+ */
+export function aiClubsAbleToBid(
+    save: Pick<GameSave, "teams" | "players" | "contracts" | "staff" | "currentWeek">,
+    playerTeamId: string,
+    player: PlayerSaveData,
+    listingPrice?: number,
+): TeamSaveData[] {
+    const byId = new Map(save.players.map(p => [p.id, p]))
+    const ovrCache = new Map<string, number>()
+    const ovr = (p: PlayerSaveData) => {
+        let v = ovrCache.get(p.id)
+        if (v === undefined) { v = evaluatePlayer(p, undefined, undefined, save.currentWeek).overallRating; ovrCache.set(p.id, v) }
+        return v
+    }
+    const baseValue = evaluatePlayer(player, undefined, undefined, save.currentWeek).transferValue
+    const listing = listingPrice || player.transferListingPrice || baseValue
+    const { overpayBuffer } = aiMarketValuation(player.skill, player.potential, player.tier)
+    const lowestOffer = Math.round(((baseValue * 0.9) + (listing * 0.1)) * overpayBuffer * 0.85)
+    const playerOvr = ovr(player)
+    return save.teams.filter(team => {
+        if (team.id === playerTeamId || team.rosterIds.includes(player.id)) return false
+        if (team.budget < POACHER_MIN_BUDGET || team.rosterIds.length >= MAX_ROSTER_SIZE) return false
+        const rosterOvr = team.rosterIds.map(id => byId.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired).map(ovr)
+        const weakestStarter = rosterOvr.length >= 5 ? rosterOvr.sort((a, b) => b - a)[4] : 0
+        if (!aiBidQualityOk(playerOvr, player, weakestStarter)) return false
+        return aiCommitCheck(save, team)(recruitmentSalary(player, save.currentWeek, team), lowestOffer)
+    })
 }

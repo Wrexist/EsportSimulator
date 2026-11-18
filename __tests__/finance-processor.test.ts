@@ -205,6 +205,9 @@ describe("FinanceProcessor.processFinance", () => {
             expect(fans.category).toBe("MERCH")
             expect(moneyCause(fans.category, fans.description).label).toBe("Fans")
         }
+        // MARKET-07 (2026-11-17): the report names a scouting fee and upkeep as the ledger does.
+        expect(moneyCause("SCOUTING", "Scouting Mission: trypex17").label).toBe("Scouting")
+        expect(moneyCause("FACILITIES", "Facility upkeep").label).toBe("Facilities")
         // Every movement has a row: rows reconcile with the budget change.
         const net = save.financeLedger.reduce((s, e) => s + (e.type === "INCOME" ? e.amount : -e.amount), 0)
         expect(net).toBeCloseTo(team.budget - before, 6)

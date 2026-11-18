@@ -25,6 +25,8 @@ import { recordOfficialMatch } from "@/engine/official-stats"
 import { describeChoice } from "@/components/inbox/inbox-model"
 import { nextStop, type StopSource } from "@/lib/advance-stops"
 import { weekHeadline, type WeekReport } from "@/lib/week-report"
+import * as clubBudget from "@/engine/ai/club-budget"
+import { aiClubsAbleToBid } from "@/engine/ai/transfer-market"
 
 // ---------------------------------------------------------------- fixtures
 
@@ -280,6 +282,42 @@ describe("rising star", () => {
         delete P_(save, "p2").personality!.promise
         for (let i = 0; i < 9; i++) nextWeek(save)
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "KEPT" })
+    })
+})
+
+describe("rising star: MARKET-13 (2026-11-17) counts only clubs that could really bid", () => {
+    const decision = (save: GameSave) => {
+        const p2 = P_(save, "p2")
+        p2.age = 20
+        form(save, "p2", [1.3, 1.2, 1.25, 1.4, 1.1, 1.3])
+        processStorylines(save)
+        nextWeek(save)
+        const arc = arcOf(save, "RISING_STAR")!
+        return { arc, e: eventOf(save, arc)! }
+    }
+    afterEach(() => jest.restoreAllMocks())
+
+    test("no club can fit his wage: the news says so and \"list him\" is not offered", () => {
+        const save = world()
+        jest.spyOn(clubBudget, "aiCommitCheck").mockReturnValue(() => false)
+        const { arc, e } = decision(save)
+        expect(arc.facts.able).toBe(0)
+        expect(e.choices!.map(c => c.id)).toEqual(["promise", "quiet"])
+        expect(String(e.data.message)).toContain("No club can fit p2's wage right now")
+        expect(String(e.data.message)).not.toContain("List him")
+    })
+
+    test("the count is the bid loop's own: clubs ranked above that pass its gates", () => {
+        const save = world()
+        jest.spyOn(clubBudget, "aiCommitCheck").mockReturnValue(() => true)
+        const expected = aiClubsAbleToBid(save, "us", P_(save, "p2")).length
+        const { arc, e } = decision(save)
+        expect(expected).toBe(2)
+        expect(arc.facts.able).toBe(2)
+        expect(e.choices!.map(c => c.id)).toEqual(["promise", "list", "quiet"])
+        // A club without the cash floor, or with a full squad, is not counted.
+        T_(save, "far").budget = 0
+        expect(aiClubsAbleToBid(save, "us", P_(save, "p2")).map(t => t.id)).toEqual(["them"])
     })
 })
 

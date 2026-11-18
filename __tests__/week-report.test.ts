@@ -120,6 +120,18 @@ describe("report view", () => {
         expect(teamRows(report)[0]).toMatchObject({ label: "World rank", change: "#16 → #14", tone: "up" })
     })
 
+    test("MARKET-08 (2026-11-17): a money line booked under another ledger week names that week", () => {
+        const changes: ChangeEntry[] = [
+            ...report.changes,
+            { kind: "money", subjectId: "t", label: "Player salaries", delta: -3_743, cause: { type: "salary", label: "Player wages" }, week: report.week + 1 },
+            { kind: "money", subjectId: "t", label: "Scouting Mission", delta: -3_000, cause: { type: "other", label: "Scouting" }, week: report.week },
+        ]
+        const lines = moneyLines({ ...report, changes })
+        expect(lines.expenses.find(l => l.amount === -3_743)).toMatchObject({ label: "Player salaries", week: report.week + 1 })
+        expect(lines.expenses.find(l => l.amount === -3_000)?.week).toBeUndefined()
+        expect(lines.expenses.find(l => l.amount === -8_000)?.week).toBeUndefined()
+    })
+
     test("HOME-18: no 'Morale (avg) 83 → 83' row when the rounded values match", () => {
         const morale = (m0: number, m1: number) => teamRows({ ...report, kpis: { ...report.kpis, morale: [m0, m1] as [number, number] } }).find(r => r.label === "Morale (avg)")
         expect(morale(83.4, 82.9)).toBeUndefined() // |Δ| = 0.5 but both print as 83

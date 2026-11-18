@@ -157,7 +157,7 @@ describe("hireStaff", () => {
         expect(res.message).toContain("already have someone in the Coach role")
     })
 
-    test("happy path: debits signingFee + writes WAGES_STAFF ledger row + adds to roster + news", () => {
+    test("happy path: debits signingFee + writes a one-off (OTHER) ledger row + adds to roster + news", () => {
         const market = makeMarketStaff("s1", "coach", 4000)
         const h = makeHarness(makeBaseState({
             teams: [makeTeam("player", { budget: 100_000 })],
@@ -174,9 +174,10 @@ describe("hireStaff", () => {
         expect(h.state().staff.length).toBe(1)
         expect(h.state().staff[0].teamId).toBe("player")
         // ledger row
-        const row = h.state().financeLedger.find(e => e.category === "WAGES_STAFF")
+        const row = h.state().financeLedger.find(e => e.category === "OTHER" && e.description.endsWith("Sign-on Fee"))
         expect(row).toBeDefined()
         expect(row!.amount).toBe(8000)
+        expect(h.state().financeLedger.some(e => e.category === "WAGES_STAFF")).toBe(false)
         // contractEndWeek = currentWeek + duration
         expect(h.state().staff[0].contractEndWeek).toBe(5 + 52)
         // team.staffIds updated
@@ -194,7 +195,7 @@ describe("hireStaff", () => {
         slice.hireStaff("s1", { salary: 7000, duration: 26, signingBonus: 1000 })
         expect(h.state().staff[0].salaryPerWeek).toBe(7000)
         expect(h.state().staff[0].contractEndWeek).toBe(5 + 26)
-        const row = h.state().financeLedger.find(e => e.category === "WAGES_STAFF")
+        const row = h.state().financeLedger.find(e => e.category === "OTHER" && e.description.endsWith("Sign-on Fee"))
         expect(row!.amount).toBe(1000)
     })
 })

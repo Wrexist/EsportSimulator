@@ -257,4 +257,6 @@ export const INBOX = {
     "jo.declined": "You declined the offer from {{club}}. Your team appreciates your loyalty.",
     "ib.res.soldElsewhere": "Closed: the player was sold to {{club}}",
     "ib.fx.noSub": "No fit substitute: still plays this week",
+    "ib.res.received": "Received {{amount}}",
+    "ib.res.receivedSellOn": "Received {{amount}}, plus {{pct}}% of the next sale",
 } as const

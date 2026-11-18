@@ -73,7 +73,7 @@ export function manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) 
         week: save.currentWeek,
         teamId: team.id,
         type: "EXPENSE",
-        category: "WAGES_STAFF",
+        category: "OTHER",
         amount: signOnFee,
         description: ledgerText.hiredStaff(newStaff.name, newStaff.role),
         balance: team.budget,

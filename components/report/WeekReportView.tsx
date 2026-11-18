@@ -139,10 +139,12 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                     ) : (
                         <dl className="divide-y divide-line text-[13px]">
                             {[...money.income, ...money.expenses].map(line => (
-                                <div key={`${line.label}-${line.cause}-${line.amount > 0}`} className="flex items-baseline justify-between gap-3 px-4 py-1.5">
+                                <div key={`${line.label}-${line.cause}-${line.amount > 0}-${line.week ?? ""}`} className="flex items-baseline justify-between gap-3 px-4 py-1.5">
                                     <dt className="min-w-0">
                                         <span className="text-ink-1">{line.label}</span>
                                         {line.cause && line.cause !== line.label && <span className="ml-2 text-xs text-ink-3">{line.cause}</span>}
+                                        {/* MARKET-08 (2026-11-17): the ledger (and the /finances chart) books this row under another week. */}
+                                        {line.week !== undefined && <span className="ml-2 text-xs text-ink-3">· {t("common.weekShort", { n: line.week })}</span>}
                                     </dt>
                                     <dd className={cn("shrink-0 font-semibold tabular-nums", line.amount < 0 ? "text-negative" : "text-positive")}>{formatMoney(line.amount, true)}</dd>
                                 </div>
