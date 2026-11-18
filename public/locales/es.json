@@ -5851,7 +5851,7 @@
  "help.rmr.l3": "Hay mucho en juego: la preparación pesa más que en un evento normal.",
  "help.cond.title": "Moral, forma y cansancio",
  "help.cond.desc": "Jugadores en forma y contentos",
- "help.cond.l1": "<b>Forma</b>: la tendencia de los últimos resultados. Una buena racha da una pequeña ventaja de inercia.",
+ "help.cond.l1": "<b>Forma</b>: la tendencia de los últimos resultados y del rating del propio jugador en cada partido. Una buena racha da una pequeña ventaja de inercia.",
  "help.cond.l2": "<b>Moral</b>: lo contento que está un jugador. La moral baja perjudica el rendimiento y puede acabar en quejas; las victorias y el buen trato la suben.",
  "help.cond.l3": "<b>Cansancio</b>: se acumula con partidos y ejercicios. Mucho cansancio sube el riesgo de lesión y resta rendimiento; contrólalo con descanso y tu enfoque semanal.",
  "help.board.title": "Confianza de la directiva",

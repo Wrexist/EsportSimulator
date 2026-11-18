@@ -5851,7 +5851,7 @@
  "help.rmr.l3": "Muita coisa em jogo: a preparação pesa mais do que num evento comum.",
  "help.cond.title": "Moral, forma e cansaço",
  "help.cond.desc": "Jogadores afiados e satisfeitos",
- "help.cond.l1": "<b>Forma</b>: a tendência dos resultados recentes. Boa fase dá uma pequena vantagem de embalo.",
+ "help.cond.l1": "<b>Forma</b>: a tendência dos resultados recentes e do rating do próprio jogador nas partidas. Boa fase dá uma pequena vantagem de embalo.",
  "help.cond.l2": "<b>Moral</b>: o quanto um jogador está satisfeito. Moral baixa prejudica o desempenho e pode gerar reclamações; vitórias e bom tratamento aumentam a moral.",
  "help.cond.l3": "<b>Cansaço</b>: acumula com partidas e treinos específicos. Muito cansaço aumenta o risco de lesão e reduz o desempenho; controle com descanso e o foco semanal.",
  "help.board.title": "Confiança da diretoria",

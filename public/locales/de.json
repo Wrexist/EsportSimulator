@@ -5689,7 +5689,7 @@
  "help.rmr.l3": "Viel steht auf dem Spiel: Vorbereitung zählt hier mehr als bei einem normalen Event.",
  "help.cond.title": "Moral, Form und Müdigkeit",
  "help.cond.desc": "Spieler fit und zufrieden halten",
- "help.cond.l1": "<b>Form</b>: der Trend der letzten Ergebnisse. Gute Form gibt einen kleinen Vorteil durch Schwung.",
+ "help.cond.l1": "<b>Form</b>: der Trend der letzten Ergebnisse und der eigenen Match-Ratings des Spielers. Gute Form gibt einen kleinen Vorteil durch Schwung.",
  "help.cond.l2": "<b>Moral</b>: wie zufrieden ein Spieler ist. Niedrige Moral schadet der Leistung und kann zu Beschwerden führen; Siege und gute Behandlung heben sie.",
  "help.cond.l3": "<b>Müdigkeit</b>: entsteht durch Matches und Drills. Hohe Müdigkeit erhöht das Verletzungsrisiko und kostet Leistung; steuere sie mit Ruhe und deinem Wochenschwerpunkt.",
  "help.board.title": "Vertrauen des Vorstands",

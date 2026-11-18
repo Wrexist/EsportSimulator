@@ -6013,7 +6013,7 @@
  "help.rmr.l3": "Stawka jest wysoka: przygotowanie liczy się bardziej niż na zwykłym wydarzeniu.",
  "help.cond.title": "Morale, forma i zmęczenie",
  "help.cond.desc": "Gracze w formie i zadowoleni",
- "help.cond.l1": "<b>Forma</b>: trend ostatnich wyników. Dobra passa daje niewielką przewagę rozpędu.",
+ "help.cond.l1": "<b>Forma</b>: trend ostatnich wyników i własnego ratingu zawodnika w meczach. Dobra passa daje niewielką przewagę rozpędu.",
  "help.cond.l2": "<b>Morale</b>: zadowolenie gracza. Niskie morale szkodzi występom i może prowadzić do skarg; zwycięstwa i dobre traktowanie je podnoszą.",
  "help.cond.l3": "<b>Zmęczenie</b>: narasta po meczach i ćwiczeniach. Wysokie zmęczenie zwiększa ryzyko kontuzji i obniża formę; kontroluj je odpoczynkiem i kierunkiem tygodnia.",
  "help.board.title": "Zaufanie zarządu",

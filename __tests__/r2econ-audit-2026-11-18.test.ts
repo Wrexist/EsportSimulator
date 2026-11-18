@@ -50,3 +50,58 @@ describe("SQUAD-56: the Gaming PC is worth buying, and a full elite set is still
         expect(EquipmentManager.itemStrengthBonus({ type: "PC", bonus: { value: 1e9 } })).toBeLessThanOrEqual(0.015)
     })
 })
+
+describe("SQUAD-64: form also follows the player's own match rating", () => {
+    // Imported here so the earlier blocks stay independent of the lifecycle module.
+    const { applyFormResult } = jest.requireActual("@/engine/player-lifecycle") as typeof import("@/engine/player-lifecycle")
+    const { CONDITION_TUNING } = jest.requireActual("@/lib/balance-tuning") as typeof import("@/lib/balance-tuning")
+
+    test("same result, different ratings: the better match gives the better form", () => {
+        expect(applyFormResult(70, true, 1, 1.46)).toBeGreaterThan(applyFormResult(70, true, 1, 0.97))
+        expect(applyFormResult(70, true, 1, 1.1)).toBeCloseTo(70 + CONDITION_TUNING.FORM_PER_WIN + 1, 9)
+        expect(applyFormResult(70, false, 1, 0.9)).toBeCloseTo(70 + CONDITION_TUNING.FORM_PER_LOSS - 1, 9)
+        // A 1.0 rating, or no rating at all, is the old result-only rule.
+        expect(applyFormResult(70, true, 1, 1)).toBe(70 + CONDITION_TUNING.FORM_PER_WIN)
+        expect(applyFormResult(70, true, 1)).toBe(70 + CONDITION_TUNING.FORM_PER_WIN)
+        expect(applyFormResult(70, true, 1, Number.NaN)).toBe(70 + CONDITION_TUNING.FORM_PER_WIN)
+    })
+
+    test("the result still dominates: the rating part is capped below the result part", () => {
+        expect(CONDITION_TUNING.FORM_RATING_CAP).toBeLessThan(CONDITION_TUNING.FORM_PER_WIN)
+        // A great game in a loss still loses form; a poor game in a win still gains it.
+        expect(applyFormResult(70, false, 1, 3)).toBeLessThan(70)
+        expect(applyFormResult(70, true, 1, 0)).toBeGreaterThan(70)
+        expect(applyFormResult(99, true, 1, 2)).toBe(100)
+        expect(applyFormResult(1, false, 1, 0)).toBe(0)
+    })
+})
+
+describe("NEWPLAYER-04: a scout's wage follows his report tier", () => {
+    const { StaffGenerator, SCOUT_TIER_SALARY, scoutReportTierOf } = jest.requireActual("@/engine/staff-generator") as typeof import("@/engine/staff-generator")
+    const RANK = ["BASIC", "ADVANCED", "EXPERT", "ELITE"] as const
+
+    test("every generated scout lists inside his tier's band, and a better tier never lists for less", () => {
+        let scouts = 0
+        for (let week = 1; week <= 120; week++) {
+            const market = StaffGenerator.generateWeeklyMarket(week, 20).filter(s => s.role === "scout")
+            for (const s of market) {
+                const band = SCOUT_TIER_SALARY[scoutReportTierOf(s)]
+                expect(s.salaryPerWeek).toBeGreaterThanOrEqual(band.min)
+                expect(s.salaryPerWeek).toBeLessThanOrEqual(band.max)
+                scouts++
+            }
+            for (const a of market) for (const b of market) {
+                if (RANK.indexOf(scoutReportTierOf(a)) < RANK.indexOf(scoutReportTierOf(b))) expect(a.salaryPerWeek).toBeLessThan(b.salaryPerWeek)
+            }
+        }
+        expect(scouts).toBeGreaterThan(200)
+        for (let i = 1; i < RANK.length; i++) expect(SCOUT_TIER_SALARY[RANK[i]].min).toBeGreaterThanOrEqual(SCOUT_TIER_SALARY[RANK[i - 1]].max)
+    })
+
+    test("other roles keep their rarity bands", () => {
+        const coach = StaffGenerator.generateFakeStaff("coach", 77)
+        const again = StaffGenerator.generateFakeStaff("coach", 77)
+        expect(coach.salaryPerWeek).toBe(again.salaryPerWeek)
+        expect(coach.salaryPerWeek).toBeGreaterThanOrEqual(800)
+    })
+})

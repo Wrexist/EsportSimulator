@@ -30,6 +30,14 @@ export const CONDITION_TUNING = {
     FORM_PER_WIN: 3,
     FORM_PER_LOSS: -3,
     /**
+     * SQUAD-64: a player's own match rating moves his form too, by
+     * FORM_PER_RATING x (rating - 1.0), capped at +/-FORM_RATING_CAP, so a
+     * 1.46 starter and a 0.97 starter in the same results no longer share one
+     * form, while the result (+/-3, scaled by the odds) still dominates.
+     */
+    FORM_PER_RATING: 10,
+    FORM_RATING_CAP: 2,
+    /**
      * Morale gains from wins are scaled by (100 - morale) / this, capped at
      * full value: full gain up to morale 50, half at 75, a tenth at 95.
      * Before tuning, S-tier wins (+15, loss -3) pinned winning rosters at 100.
