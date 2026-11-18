@@ -9,7 +9,7 @@
  */
 import {
     ACCEPT_WITHIN, acceptedWage, bandChance, chanceWithCounter, clampFeeOffer, counterOffer, durationWageFactor, FEE_BAND,
-    feeCounterOffer, feeOfferBlock, initialFeeOffer, maxFeeOffer, signingWageAsk, wageChance, wageRange, wageThreshold, WAGE_BAND,
+    feeCounterOffer, feeOfferBlock, parseMoneyInput, initialFeeOffer, maxFeeOffer, signingWageAsk, wageChance, wageRange, wageThreshold, WAGE_BAND,
 } from "@/components/transfer/negotiation-rules"
 import { NO_CLAUSES, type ClauseTerms } from "@/engine/contract-clauses"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
@@ -251,5 +251,14 @@ describe("MARKET-05 (2026-11-17): strategic refusal is known before the offer", 
         expect(strategicRefusalEndsWeek([m(2, "a", "b")], 1, "a", "b")).toBe(3)
         expect(strategicRefusalEndsWeek([m(2, "a", "b"), m(5, "b", "a")], 1, "a", "b")).toBe(6)
         expect(strategicRefusalEndsWeek([], 1, "a", "b")).toBe(1)
+    })
+})
+
+describe("MARKET-14: the money box reads grouped amounts", () => {
+    test("separators, a pasted $ and spaces are ignored; empty is 0", () => {
+        expect(parseMoneyInput("80,000")).toBe(80_000)
+        expect(parseMoneyInput("$80 000")).toBe(80_000)
+        expect(parseMoneyInput("80000")).toBe(80_000)
+        expect(parseMoneyInput("")).toBe(0)
     })
 })

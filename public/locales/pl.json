@@ -7358,5 +7358,7 @@
  "terms.feeAgreedNext": "{{club}}: kwota {{fee}} przyjęta. Teraz uzgodnij kontrakt z zawodnikiem.",
  "fin.merchHype": "Hype wokół twojego klubu mnoży przychody od fanów przez ×{{hype}}.",
  "fin.weekNet": "Netto {{amount}}",
- "fin.olderWeeks": "Pokaż starsze tygodnie"
+ "fin.olderWeeks": "Pokaż starsze tygodnie",
+ "ib.res.received": "Otrzymano {{amount}}",
+ "ib.res.receivedSellOn": "Otrzymano {{amount}} oraz {{pct}}% od kolejnej sprzedaży"
 }

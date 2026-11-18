@@ -141,3 +141,9 @@ export function feeCounterOffer(acceptAt: number, sure: number, limit: number, r
 export function chanceWithCounter(chance: number, offer: number, counter: number | null): number {
     return counter !== null && offer >= counter ? 1 : chance
 }
+
+/** MARKET-14 (2026-11-17): digits only: what a typed or pasted amount ("80,000", "$80 000") means. */
+export function parseMoneyInput(text: string): number {
+    const digits = text.replace(/\D/g, "")
+    return digits ? Number(digits) : 0
+}

@@ -543,6 +543,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             if (!liveEvent || liveEvent.selectedChoiceId) return
             liveEvent.selectedChoiceId = "accept"
             liveEvent.acknowledged = true
+            // MARKET-14 (2026-11-17): the resolved card names what was received
+            // (the fee less the sell-on cut) and the share kept.
+            if (liveEvent.data) {
+                liveEvent.data.receivedFee = offerAmount
+                if (options?.sellOn) liveEvent.data.sellOnPct = CLAUSE_TUNING.SELL_ON_SHARE
+            }
             if (!draft.acknowledgedEventIds.includes(eventId)) {
                 draft.acknowledgedEventIds.push(eventId)
             }
