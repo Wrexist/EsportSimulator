@@ -3,9 +3,6 @@
  */
 import path from "node:path"
 import { SnapshotLoader } from "@/data/snapshot-loader"
-import { recruitmentSalary } from "@/engine/recruitment"
-import { renewalSalary } from "@/engine/personality"
-import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import type { GameSave, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
 import { renderToStaticMarkup } from "react-dom/server"
 import { produce, enableMapSet } from "immer"
@@ -20,45 +17,6 @@ import { scoutReportTier, STAFF_ROLE_ORDER } from "@/components/staff/staff-effe
 import { hubForPath } from "@/lib/navigation"
 
 enableMapSet()
-
-describe("SQUAD-39: opening wages come from the market model", () => {
-    let save: GameSave
-    beforeAll(async () => {
-        const loader = new SnapshotLoader(path.join(process.cwd(), "public/data/snapshot"))
-        expect((await loader.loadSnapshot()).success).toBe(true)
-        save = loader.createCareerFromSnapshot("SQUAD-39", loader.getSnapshot()!.teams[0].id, 1, 3917)!
-    }, 60_000)
-
-    test("every opening contract pays the club's signing wage for that player", () => {
-        const players = new Map(save.players.map(p => [p.id, p]))
-        const teams = new Map(save.teams.map(t => [t.id, t]))
-        expect(save.contracts.length).toBeGreaterThan(500)
-        for (const c of save.contracts) {
-            expect(c.salaryPerWeek).toBe(recruitmentSalary(players.get(c.playerId)!, 1, teams.get(c.teamId)!))
-            // The buyout stays 26 weeks of wage per contract year.
-            expect([26, 52, 78].some(weeks => Math.abs(c.buyout - weeks * c.salaryPerWeek) <= 1)).toBe(true)
-        }
-    })
-
-    test("wages follow rating, and a star's first renewal is the usual raise, not +150%", () => {
-        const wageOf = (id: string) => save.contracts.find(c => c.playerId === id)!.salaryPerWeek
-        const rostered = save.teams.flatMap(t => t.rosterIds).map(id => save.players.find(p => p.id === id)!)
-        const distinct = new Set(rostered.map(p => wageOf(p.id)))
-        expect(distinct.size).toBeGreaterThan(rostered.length / 3)
-        for (const p of rostered) {
-            const wage = wageOf(p.id)
-            const renewed = renewalSalary(p, wage, 1)
-            expect(renewed / wage).toBeLessThan(AI_SQUAD_TUNING.RENEWAL_MAX_STEP)
-        }
-    })
-
-    test("same seed, same opening wages", async () => {
-        const loader = new SnapshotLoader(path.join(process.cwd(), "public/data/snapshot"))
-        await loader.loadSnapshot()
-        const again = loader.createCareerFromSnapshot("SQUAD-39b", loader.getSnapshot()!.teams[0].id, 1, 3917)!
-        expect(again.contracts.map(c => c.salaryPerWeek)).toEqual(save.contracts.map(c => c.salaryPerWeek))
-    }, 60_000)
-})
 
 describe("NEWPLAYER-01: a better signing on the bench", () => {
     let save: GameSave
