@@ -33,7 +33,7 @@ const itemName = (item: { id: string; name: string }) => ITEM_IDS.has(item.id) ?
 const slotName = (type: EquipmentType) => t(`gear.slot.${type}`)
 const tierName = (tier: 1 | 2 | 3) => t(`gear.tier.${tier}`)
 /** Team-strength share of one item, exactly as the match engine applies it. */
-export const gearStrengthPct = (item: { type: string; bonus?: { value: number } }) => EquipmentManager.itemStrengthBonus(item) * 100
+export const gearStrengthPct = (item: { type: string; tier?: number; bonus?: { value: number } }) => EquipmentManager.itemStrengthBonus(item) * 100
 
 function GearTile({ item, equipped, budget, onBuy }: {
     item: EquipmentCatalogItem
