@@ -33,6 +33,8 @@ export interface ChangeEntry {
     /** Signed change. Money in dollars; world rank in places (negative = climbed). */
     delta: number
     cause: ChangeCause
+    /** Money only: the week its ledger row is booked under, when known (MARKET-08). */
+    week?: number
 }
 
 /** Attributes the report tracks, in snapshot order. */
@@ -64,7 +66,7 @@ export interface PlayerSnapshot {
     injury: { name: string; weeks: number } | null
 }
 
-export interface LedgerRowSnapshot { id: string; signed: number; category: string; description: string }
+export interface LedgerRowSnapshot { id: string; signed: number; category: string; description: string; week?: number }
 
 export interface ClubSnapshot {
     teamId: string
@@ -121,7 +123,7 @@ export function snapshotClub(source: ClubSource, teamId: string, playerIndex?: M
     const ledger: LedgerRowSnapshot[] = []
     for (const e of source.financeLedger) {
         if (e.teamId !== teamId || e.week < source.currentWeek - 1) continue
-        ledger.push({ id: e.id, signed: e.type === "INCOME" ? e.amount : -e.amount, category: e.category, description: e.description })
+        ledger.push({ id: e.id, signed: e.type === "INCOME" ? e.amount : -e.amount, category: e.category, description: e.description, week: e.week })
     }
     const board = source.boardState && (!source.boardState.teamId || source.boardState.teamId === teamId)
         ? num(source.boardState.confidence, NaN) : NaN
@@ -229,7 +231,7 @@ export function diffClubs(before: ClubSnapshot | null, after: ClubSnapshot | nul
     for (const row of after.ledger) {
         if (known.has(row.id)) continue
         itemized += row.signed
-        if (row.signed !== 0) push({ kind: "money", subjectId: teamId, label: row.description || "Ledger entry", delta: row.signed }, moneyCause(row.category, row.description))
+        if (row.signed !== 0) push({ kind: "money", subjectId: teamId, label: row.description || "Ledger entry", delta: row.signed, ...(typeof row.week === "number" ? { week: row.week } : {}) }, moneyCause(row.category, row.description))
     }
     const unexplained = Math.round(after.budget - before.budget - itemized)
     if (Math.abs(unexplained) >= 1) push({ kind: "money", subjectId: teamId, label: "Unitemized change", delta: unexplained })
@@ -252,7 +254,7 @@ export function diffClubs(before: ClubSnapshot | null, after: ClubSnapshot | nul
     return out
 }
 
-const entryKey = (e: ChangeEntry) => `${e.kind}|${e.subjectId}|${e.label}|${e.cause.type}|${e.cause.label}`
+const entryKey = (e: ChangeEntry) => `${e.kind}|${e.subjectId}|${e.label}|${e.cause.type}|${e.cause.label}|${e.week ?? ""}`
 
 /** Sum entries that share subject, label and cause; drop ones that cancel out. */
 export function mergeChanges(entries: ChangeEntry[]): ChangeEntry[] {

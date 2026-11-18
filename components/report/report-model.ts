@@ -107,16 +107,18 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
     return groups
 }
 
-export interface MoneyLine { label: string; cause: string; amount: number }
+/** `week`: the ledger week of the line when it is not the report's week (MARKET-08: the closing settlement is booked under the next week). */
+export interface MoneyLine { label: string; cause: string; amount: number; week?: number }
 
 export function moneyLines(report: WeekReport): { income: MoneyLine[]; expenses: MoneyLine[]; net: number } {
     const lines = new Map<string, MoneyLine>()
     for (const e of report.changes) {
         if (e.kind !== "money") continue
-        const key = `${e.label}|${e.cause.label}|${e.delta >= 0 ? "+" : "-"}`
+        const week = typeof e.week === "number" && e.week !== report.week ? e.week : undefined
+        const key = `${e.label}|${e.cause.label}|${e.delta >= 0 ? "+" : "-"}|${week ?? ""}`
         const prev = lines.get(key)
         if (prev) prev.amount += e.delta
-        else lines.set(key, { label: storedText(e.label), cause: storedText(e.cause.label), amount: e.delta })
+        else lines.set(key, { label: storedText(e.label), cause: storedText(e.cause.label), amount: e.delta, ...(week !== undefined ? { week } : {}) })
     }
     const all = [...lines.values()]
     return {
