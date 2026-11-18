@@ -116,11 +116,11 @@ describe("MATCHENGINE-04: 'Struggled' only for a starter rated under 0.90", () =
     })
 })
 
-describe("MATCHENGINE-05: the training prompt needs two weak starters or one well under 0.90", () => {
+describe("MATCHENGINE-05: the training prompt needs a team-wide weak game (three starters under 0.90)", () => {
     const training = (ratings: number[]) => insights(series([busyMap("Mirage", 13, 5)], ratings)).actions.find(a => a.href === "/training")
     test("one starter at 0.85: no prompt", () => expect(training([1.2, 1.1, 1.0, 0.95, 0.85])).toBeUndefined())
-    test("two starters under 0.90: prompt with both counted", () => expect(training([1.2, 1.1, 1.0, 0.88, 0.85])?.reason).toBe("2 starters rated below 0.90"))
-    test("one starter under 0.80: prompt", () => expect(training([1.2, 1.1, 1.0, 0.95, 0.75])?.reason).toBe("1 starter rated below 0.90"))
+    test("two starters under 0.90, one far under: no prompt", () => expect(training([1.2, 1.1, 1.0, 0.88, 0.55])).toBeUndefined())
+    test("three starters under 0.90: prompt with all counted", () => expect(training([1.2, 1.1, 0.89, 0.88, 0.85])?.reason).toBe("3 starters rated below 0.90"))
 })
 
 describe("MATCHENGINE-07: one next-match button when there is no next match", () => {

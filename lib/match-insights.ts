@@ -31,8 +31,12 @@ export const STRUGGLED_RATING = 0.6
 export const STRUGGLED_GAP = 0.4
 /** Below this a starter "had a weak game" (match-reasons calls 0.90+ "a steady game"). */
 export const WEAK_RATING = 0.9
-/** One starter this far down triggers the training prompt on his own; otherwise it takes two under WEAK_RATING. */
-export const VERY_WEAK_RATING = 0.8
+/**
+ * Starters under WEAK_RATING it takes to prompt training (MATCHENGINE-05). Map
+ * ratings spread wide: one under 0.90 happened after about 89% of matches, two
+ * after about half, three after about a third (80 club BO1s, script-v1).
+ */
+export const WEAK_STARTERS_FOR_TRAINING = 3
 /** Key rounds shown on the result screen, shared between the maps of a series. */
 export const KEY_ROUND_LIMIT = 12
 /** Economy key rounds (won on the weaker buy / lost on the stronger one) kept per map. */
@@ -132,10 +136,9 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
     } else tactics.push(t('insight.predates'))
 
     const actions: NextAction[] = []
-    // MATCHENGINE-05: one starter under 0.90 happened after about 89% of matches.
-    // Prompt training for two weak starters, or one well under it.
+    // MATCHENGINE-05: a team-wide weak game, not the usual one or two low map ratings.
     const weak = own.filter(s => s.rating < WEAK_RATING)
-    if (weak.length >= 2 || weak.some(s => s.rating < VERY_WEAK_RATING)) actions.push({ label: t('insight.action.training'), href: '/training', reason: tn('insight.reason.weak', weak.length) })
+    if (weak.length >= WEAK_STARTERS_FOR_TRAINING) actions.push({ label: t('insight.action.training'), href: '/training', reason: tn('insight.reason.weak', weak.length) })
     const buyList = [...buys.values()]
     const fullRec = buyList.find(b => b.buy === 'FULL')
     const poorFullBuys = !!fullRec && fullRec.played >= 5 && fullRec.won / fullRec.played < 0.5
