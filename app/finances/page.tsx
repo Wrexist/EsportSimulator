@@ -24,6 +24,7 @@ import { ECONOMY_CONSTANTS } from "@/lib/constants"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
+import { weekLabel, weekNumberText } from "@/lib/season-week"
 import { incomeDifficulty } from "@/lib/career-difficulty"
 
 const money = (value: number) => formatCurrency(value, "$", false)
@@ -198,7 +199,7 @@ export default function FinancesPage() {
 
       {funds <= 0 && (
         <div role="status" className="rounded-lg border border-negative/30 bg-negative/5 px-4 py-3 text-sm">
-          <p className="font-semibold text-negative">{t("fin.outOfCash", { n: team.consecutiveInsolventWeeks ?? 0, max: 8 })}</p>
+          <p className="font-semibold text-negative">{t("fin.outOfCash", { n: Math.min(team.consecutiveInsolventWeeks ?? 0, 8), max: 8 })}</p>
           <p className="mt-1 text-ink-2">{t("fin.outOfCashBody")}</p>
         </div>
       )}
@@ -226,7 +227,7 @@ export default function FinancesPage() {
           </dl>
         </Panel>
 
-        <Panel title={t("fin.nextSettlement")} actions={<span className="text-xs tabular-nums text-ink-3">{t("common.week", { n: currentWeek + 1 })}</span>}>
+        <Panel title={t("fin.nextSettlement")} actions={<span className="text-xs tabular-nums text-ink-3">{weekLabel(currentWeek + 1, currentWeek)}</span>}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("fin.income")}</p>
           <MoneyBreakdown rows={incomeRows} total={report.income.total} tone="income" />
           {difficultyIncome && (
@@ -270,13 +271,13 @@ export default function FinancesPage() {
                     <tbody>
                       {recentLedger.map(group => [
                         <tr key={`wk-${group.week}`} className="h-9 border-b border-line bg-shell">
-                          <td colSpan={3} className="pl-4 text-xs font-semibold text-ink-2">{t("common.week", { n: group.week })}</td>
+                          <td colSpan={3} className="pl-4 text-xs font-semibold text-ink-2">{weekLabel(group.week, currentWeek)}</td>
                           <td className={cn("px-3 text-right text-xs font-semibold tabular-nums", group.net < 0 ? "text-negative" : "text-positive")}>{t("fin.weekNet", { amount: formatSignedCurrency(group.net, "$", false) })}</td>
                           <td className="pl-3 pr-4" />
                         </tr>,
                         ...group.rows.map(e => (
                           <tr key={e.id} data-slot="table-row" className="h-10 border-b border-line">
-                            <td className="pl-4 text-sm tabular-nums text-ink-3">{e.week}</td>
+                            <td className="pl-4 text-sm tabular-nums text-ink-3">{weekNumberText(e.week, currentWeek)}</td>
                             <td className="max-w-[320px] truncate px-3 text-sm text-ink-1">{storedText(e.description)}</td>
                             <td className="px-3 text-xs text-ink-3">{LEDGER_CATEGORIES.has(e.category) ? t(`fin.cat.${e.category}`) : e.category}</td>
                             <td className={cn("px-3 text-right text-sm tabular-nums", e.type === "INCOME" ? "text-positive" : "text-ink-2")}>

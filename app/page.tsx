@@ -39,6 +39,7 @@ import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-c
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { weekLabelShort, weekNumberText } from "@/lib/season-week"
 import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
+import { cashRunway, roleTrainingCost } from "@/engine/finance-forecast"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { startingFiveOvr, teamOvr as clubOvr } from "@/lib/team-ovr"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
@@ -372,6 +373,9 @@ export default function Page() {
 
   const finance = financialReport
   const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE
+  // SMOKE-A-11: the net and runway /finances shows (role retraining included, runway from today's funds).
+  const homeNet = (finance?.net ?? 0) - (playerTeam ? roleTrainingCost(playerTeam) : 0)
+  const homeRunway = cashRunway(playerTeam?.budget ?? 0, homeNet)
 
   // G7: a Draft Cup run shows its round and record instead of the season.
   const cupBracket = draftCup ? (tournaments.find(t => t.id === draftCup.tournamentId)?.playoffBracket ?? []).filter(m => m.homeTeamId === draftCup.teamId || m.awayTeamId === draftCup.teamId) : []
@@ -555,8 +559,8 @@ export default function Page() {
                 <Kpi
                   className="px-4 py-3"
                   label={t("home.netWeek")}
-                  value={<span className={(finance?.net ?? 0) < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(finance?.net ?? 0)}</span>}
-                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? tn("home.runway", Math.floor(finance.runwayWeeks)) : t("home.projected")}
+                  value={<span className={homeNet < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(homeNet)}</span>}
+                  hint={finance && homeNet < 0 ? tn("home.runway", homeRunway) : t("home.projected")}
                 />
               </div>
               <dl className="grid grid-cols-3 divide-x divide-line text-sm">
