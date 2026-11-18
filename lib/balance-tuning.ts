@@ -702,10 +702,11 @@ export const STORY_TUNING = {
     /**
      * Window: his final year (weeks left). Phase 5 fix: it was 6-12 weeks
      * among the top three, which no prime-age opening deal reached in season 1
-     * (0 standoffs in the 3-seed campaign).
+     * (0 standoffs in the 3-seed campaign). HOME-19 (2026-11-18): the second
+     * half of that year (26), so an agent never goes public with 45+ weeks left.
      */
     STANDOFF_MIN_WEEKS: 6,
-    STANDOFF_MAX_WEEKS: 52,
+    STANDOFF_MAX_WEEKS: 26,
     /** MODES-20: a player the club signed fewer than this many weeks ago is not a standoff (he chose these terms). */
     STANDOFF_MIN_TENURE_WEEKS: 20,
     /** Top-N players by overall rating at the club (the starting-five calibre). */

@@ -215,6 +215,10 @@ describe("contract standoff", () => {
         const later = world(10, { p0: "AMBITIOUS" })
         later.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + S.STANDOFF_MAX_WEEKS + 1
         expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(later))).toEqual([])
+        // HOME-19 / NEWPLAYER-06: 45 weeks left on the deal is not a standoff.
+        later.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + 45
+        expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(later))).toEqual([])
+        expect(S.STANDOFF_MAX_WEEKS).toBe(26)
         // p5 is the sixth-rated player: outside the top five.
         const bench = world(10, { p5: "MERCENARY" })
         bench.contracts.find(c => c.playerId === "p5")!.endWeek = 20
@@ -223,8 +227,8 @@ describe("contract standoff", () => {
 
     test("MODES-20: a player the club signed in the last STANDOFF_MIN_TENURE_WEEKS is not a standoff; an opening deal still is", () => {
         const save = world(10, { p0: "MERCENARY" })
-        save.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + 51
-        // An opening deal (no signing on record) in its final year qualifies, as before.
+        save.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + 20
+        // An opening deal (no signing on record) in the second half of its final year qualifies, as before.
         expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(save)).map(c => c.subject)).toEqual(["p0"])
         // Signed as a free agent in week 1 on a one-year deal: he chose these terms.
         save.transferHistory = [{ id: "t1", week: 1, type: "TRANSFER", playerId: "p0", playerName: "p0", fromTeamId: null, fromTeamName: "Free Agent", toTeamId: "us", toTeamName: "US", fee: 0 }] as never
@@ -236,7 +240,7 @@ describe("contract standoff", () => {
 
     test("Phase 5 fix: the final year of a top-five deal qualifies, and waiting runs out STANDOFF_PATIENCE_WEEKS after the talks", () => {
         const save = world(10, { p4: "AMBITIOUS" })
-        save.contracts.find(c => c.playerId === "p4")!.endWeek = 10 + 40
+        save.contracts.find(c => c.playerId === "p4")!.endWeek = 10 + 24
         processStorylines(save)
         const arc = arcOf(save, "CONTRACT_STANDOFF")!
         expect(arc.playerIds).toEqual(["p4"])
