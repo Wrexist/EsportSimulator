@@ -12,11 +12,9 @@ interface ChemistryMatrixProps {
     players: PlayerSaveData[]
     synergyMatrix?: Record<string, number>
     className?: string
-    /** The team chemistry the match engine uses (team.chemistry). Shown in the centre. */
-    teamChemistry?: number
 }
 
-function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className }: ChemistryMatrixProps) {
+function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMatrixProps) {
     const activePlayers = useMemo(() => players.slice(0, 5), [players]) // Ensure max 5 for the pentagon
 
     const { nodes, links } = useMemo(() => {
@@ -162,15 +160,8 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
                     ))}
                 </svg>
 
-                {/* Central Stats or Logo */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                    <div className="relative rounded-full bg-panel px-5 py-5">
-                        <span className="font-display text-4xl font-bold tabular-nums text-ink-1">
-                            {Math.round(teamChemistry ?? links.reduce((acc, l) => acc + l.value, 0) / (links.length || 1))}%
-                        </span>
-                        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("squad.chem.team")}</p>
-                    </div>
-                </div>
+                {/* SQUAD-58: no centre disc. It cut every diagonal into stubs; the
+                    team figure is the Chemistry KPI in the screen header. */}
             </div>
 
             {/* Legend: what a pair line means */}
