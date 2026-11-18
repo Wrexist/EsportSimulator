@@ -417,6 +417,7 @@ export default function LiveMatchPage() {
                 clock={scorebugClock}
                 ownTeam="home"
                 nextRound={isWaitingForStrategy && gameState.status === "IN_PROGRESS" && !roundBeat ? simState.currentRound : null}
+                onBreak={!!breakCard}
             />
 
             <LiveMatchControlBar

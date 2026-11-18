@@ -64,6 +64,8 @@ interface LiveMatchScoreboardProps {
      * its stopped timer (MATCHDAY-08).
      */
     nextRound?: number | null
+    /** A break card (half time, map end) is on screen: no round timer under it (SMOKE-A-07). */
+    onBreak?: boolean
 }
 
 /** Live clock and the round's bomb times for the scorebug timer. */
@@ -223,7 +225,8 @@ function TimerText({ seconds, planted, paused }: { seconds: number; planted: boo
             "ml-1 font-display text-[22px] font-bold normal-case leading-none tracking-normal tabular-nums",
             paused ? "text-ink-3" : planted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
         )} data-round-timer="">
-            {planted && <span className="mr-1.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-[0.08em]">{t("scoreboard.bomb")}</span>}
+            {/* SMOKE-A-07: an icon, not the word, so the planted timer does not widen the centre and cut the club names. */}
+            {planted && <Bomb size={14} strokeWidth={2.5} role="img" aria-label={t("scoreboard.bomb")} className="mr-1 inline-block align-[-1px]" />}
             {Math.floor(seconds / 60)}:{(seconds % 60).toString().padStart(2, '0')}
         </span>
     )
@@ -268,6 +271,7 @@ function LiveMatchScoreboardImpl({
     awayLossLevel,
     clock,
     nextRound,
+    onBreak = false,
 }: LiveMatchScoreboardProps) {
     // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
     // game-time tick when no roundTime is provided so existing callers keep
@@ -279,7 +283,7 @@ function LiveMatchScoreboardImpl({
             : Math.max(0, gameState.time))
     const buyPhase = nextRound != null && nextRound > 0
     const shownRound = buyPhase ? nextRound : gameState.round
-    const showTimer = gameState.time >= 0 && !buyPhase
+    const showTimer = gameState.time >= 0 && !buyPhase && !onBreak
     const reduceMotion = useAppReducedMotion()
     const finished = gameState.status === "FINISHED"
     const toWin = mapsToWinForFormat(matchFormat)
