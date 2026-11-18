@@ -111,4 +111,7 @@ export const SUPPORT = {
     "teamPage.notFound": "Club not found",
     "teamPage.notFoundBody": "This club isn't in your game world. It may have folded or been renamed.",
     "teamPage.backToRankings": "Back to rankings",
+    "search.g.squad": "Your squad",
+    "search.g.clubs": "Clubs",
+    "search.g.commands": "Commands",
 } as const

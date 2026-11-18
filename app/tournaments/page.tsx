@@ -32,7 +32,7 @@ import {
 } from "@/engine/tournament-qualification"
 import { getSeasonFromWeek, getSeasonFromTournamentId, buildInstanceId, isQualificationForTournament, resolveTournamentIdentity } from "@/engine/circuit-engine"
 import { currentSeasonInstance, instanceName, seasonStartWeek } from "@/lib/tournament-instances"
-import { registerBlockText } from "@/engine/tournament/qualification-path"
+import { entryPathText, registerBlockText } from "@/engine/tournament/qualification-path"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { pressable } from "@/lib/accessibility"
@@ -190,6 +190,11 @@ export default function TournamentsPage() {
             ? registerBlockText({ tournamentQualifications: qualificationStatuses, teams, tournaments }, playerTeam, tournament, rowSeason, def => instanceName(def, rowSeason, gameStartDate))
             : null
         const isLocked = (eligibility && QualificationEngine.isTournamentLocked(tournament, eligibility)) || !!entryBlock
+        // What the club still has to do to get in (COMP-22). A club short of
+        // five players hears that first.
+        const entryPath = playerTeam && isLocked && !entryBlock && new Set(playerTeam.rosterIds ?? []).size >= 5
+            ? entryPathText({ tournamentQualifications: qualificationStatuses, teams, tournaments }, playerTeam, tournament, rowSeason, currentWeek - (rowSeason - 1) * 52, def => instanceName(def, rowSeason, gameStartDate))
+            : null
         const isQualified = qualificationStatuses.some(
             qs => qs.teamId === playerTeam?.id && qs.status === "QUALIFIED" && isQualificationForTournament(qs, instanceId, currentWeek)
         )
@@ -244,7 +249,7 @@ export default function TournamentsPage() {
                         : isQualified ? { key: "qualified", tone: "good" }
                             : isRegistered ? { key: "registered", tone: "good" }
                                 : isOnSchedule ? { key: "onSchedule", tone: "neutral" }
-                                    : isLocked ? { key: tournament.entryType === "INVITE" ? "inviteOnly" : "locked", tone: "muted", detail: entryBlock ? t(entryBlock.key, entryBlock.params.region !== undefined ? { region: eventRegionName(entryBlock.params.region) } : entryBlock.params) : eligibility?.reason }
+                                    : isLocked ? { key: tournament.entryType === "INVITE" ? "inviteOnly" : "locked", tone: "muted", detail: entryBlock ? t(entryBlock.key, entryBlock.params.region !== undefined ? { region: eventRegionName(entryBlock.params.region) } : entryBlock.params) : entryPath ? t(entryPath.key, entryPath.params) : eligibility?.reason }
                                         : { key: "open", tone: "neutral" }
 
         const teamsEntered = liveTournament?.teamIds?.length || 0

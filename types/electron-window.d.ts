@@ -50,8 +50,6 @@ declare global {
                 /** @deprecated use unlockAchievement */
                 setAchievement: (name: string) => Promise<boolean>;
                 isAchievementUnlocked: (name: string) => Promise<boolean>;
-                // leaderboards
-                setLeaderboardScore: (name: string, score: number) => Promise<boolean>;
                 // rich presence
                 setRichPresence: (key: string, value: string) => Promise<boolean>;
                 getRichPresence: (key: string) => Promise<string | null>;

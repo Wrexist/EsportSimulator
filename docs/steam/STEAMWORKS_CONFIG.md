@@ -60,19 +60,6 @@ Steamworks → Stats & Achievements → Stats. Type **INT**, Set by **Client**, 
 | `stat_players_developed` | No: reserved, safe to leave out of Steamworks |
 | `stat_prize_money` | Yes |
 
-## Leaderboards
-
-Steamworks → Stats & Achievements → Leaderboards. Display type **Numeric**, community name and sort method as below.
-
-| API name | Community name | Sort |
-|---|---|---|
-| `lead_world_ranking` | Peak Elo rating | Descending |
-| `lead_major_wins` | Major wins | Descending |
-| `lead_fastest_stier` | Fastest rise to S-Tier (career weeks) | Ascending (lower is better) |
-| `lead_total_earnings` | Career income | Descending |
-| `lead_win_streak` | Longest win streak | Descending |
-| `lead_tournaments_won` | Titles won | Descending |
-
 ## Rich Presence
 
 Steamworks → Community → Rich Presence: upload each file below (one per language). The game sets `team`, `season`, `week`, `rank` (in a career) or `team`, `opponent` (during a live match), then `steam_display`; without these files Steam shows only the game name.

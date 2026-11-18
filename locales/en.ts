@@ -86,7 +86,7 @@ export const EN = {
     "search.description": "Search destinations. Use arrow keys to select and Enter to navigate.",
     "search.inputLabel": "Search game screens",
     "search.placeholder": "Where would you like to go?",
-    "search.empty": "No screens found. Try squad, week or finances.",
+    "search.empty": "Nothing found. Try a screen such as squad or finances, a player or a club.",
     "search.preferences": "Preferences",
     "search.footer": "Type to find a screen \u00b7 Enter to open \u00b7 Esc to close",
 

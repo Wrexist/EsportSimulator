@@ -1,7 +1,8 @@
 // Text of the native dialogs the main process shows (exit timeout, renderer
-// crash, folder picker, launch error). The renderer reports the active UI
-// language over 'app-set-ui-language'; before it does (or when it cannot,
-// e.g. a launch error) the OS language is used when it is one of ours.
+// crash, folder picker, launch error) and of the boot-failure page. The
+// renderer reports the active UI language over 'app-set-ui-language'; before
+// it does (a boot failure), electron/main.js uses the language saved in the
+// game's settings, else the OS language when it is one of ours.
 const UI_LANGUAGES = ['en', 'de', 'es', 'fr', 'pl', 'pt-BR', 'ru'];
 
 const STRINGS = {
@@ -19,6 +20,9 @@ const STRINGS = {
         modFolderTitle: 'Choose community database folder',
         launchErrorTitle: 'Launch error',
         launchErrorMessage: 'Failed to start the game:',
+        errorPageHeading: 'Failed to launch',
+        errorPageDetail: 'The game engine could not start.',
+        errorPageHint: 'Try verifying the game files in Steam: right-click the game > Properties > Installed Files > Verify integrity of game files.',
     },
     de: {
         closeTitle: 'Das Spiel reagiert nicht',
@@ -34,6 +38,9 @@ const STRINGS = {
         modFolderTitle: 'Ordner der Community-Datenbank wählen',
         launchErrorTitle: 'Startfehler',
         launchErrorMessage: 'Das Spiel konnte nicht gestartet werden:',
+        errorPageHeading: 'Start fehlgeschlagen',
+        errorPageDetail: 'Die Spiel-Engine konnte nicht starten.',
+        errorPageHint: 'Prüfe die Spieldateien in Steam: Rechtsklick auf das Spiel > Eigenschaften > Installierte Dateien > Spieldateien auf Fehler überprüfen.',
     },
     es: {
         closeTitle: 'El juego no responde',
@@ -49,6 +56,9 @@ const STRINGS = {
         modFolderTitle: 'Elige la carpeta de la base de datos de la comunidad',
         launchErrorTitle: 'Error de inicio',
         launchErrorMessage: 'No se pudo iniciar el juego:',
+        errorPageHeading: 'No se pudo iniciar',
+        errorPageDetail: 'El motor del juego no pudo arrancar.',
+        errorPageHint: 'Prueba a verificar los archivos en Steam: clic derecho en el juego > Propiedades > Archivos instalados > Verificar integridad de los archivos del juego.',
     },
     fr: {
         closeTitle: 'Le jeu ne répond pas',
@@ -64,6 +74,9 @@ const STRINGS = {
         modFolderTitle: 'Choisis le dossier de la base de données communautaire',
         launchErrorTitle: 'Erreur de lancement',
         launchErrorMessage: 'Impossible de lancer le jeu :',
+        errorPageHeading: 'Échec du lancement',
+        errorPageDetail: "Le moteur du jeu n'a pas pu démarrer.",
+        errorPageHint: "Essaie de vérifier les fichiers dans Steam : clic droit sur le jeu > Propriétés > Fichiers installés > Vérifier l'intégrité des fichiers du jeu.",
     },
     pl: {
         closeTitle: 'Gra nie odpowiada',
@@ -79,6 +92,9 @@ const STRINGS = {
         modFolderTitle: 'Wybierz folder bazy danych społeczności',
         launchErrorTitle: 'Błąd uruchamiania',
         launchErrorMessage: 'Nie udało się uruchomić gry:',
+        errorPageHeading: 'Nie udało się uruchomić gry',
+        errorPageDetail: 'Silnik gry nie mógł wystartować.',
+        errorPageHint: 'Spróbuj zweryfikować pliki w Steam: kliknij grę prawym przyciskiem > Właściwości > Zainstalowane pliki > Zweryfikuj spójność plików gry.',
     },
     'pt-BR': {
         closeTitle: 'O jogo não está respondendo',
@@ -94,6 +110,9 @@ const STRINGS = {
         modFolderTitle: 'Escolha a pasta do banco de dados da comunidade',
         launchErrorTitle: 'Erro ao iniciar',
         launchErrorMessage: 'Não foi possível iniciar o jogo:',
+        errorPageHeading: 'Falha ao iniciar',
+        errorPageDetail: 'O motor do jogo não conseguiu iniciar.',
+        errorPageHint: 'Tente verificar os arquivos na Steam: clique com o botão direito no jogo > Propriedades > Arquivos instalados > Verificar integridade dos arquivos do jogo.',
     },
     ru: {
         closeTitle: 'Игра не отвечает',
@@ -109,6 +128,9 @@ const STRINGS = {
         modFolderTitle: 'Выбери папку базы данных сообщества',
         launchErrorTitle: 'Ошибка запуска',
         launchErrorMessage: 'Не удалось запустить игру:',
+        errorPageHeading: 'Не удалось запустить игру',
+        errorPageDetail: 'Движок игры не смог запуститься.',
+        errorPageHint: 'Попробуй проверить файлы в Steam: правый клик по игре > Свойства > Установленные файлы > Проверить целостность файлов игры.',
     },
 };
 

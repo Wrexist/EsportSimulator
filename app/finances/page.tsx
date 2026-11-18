@@ -24,6 +24,7 @@ import { ECONOMY_CONSTANTS } from "@/lib/constants"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
+import { incomeDifficulty } from "@/lib/career-difficulty"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 const HISTORY_WEEKS = 12
@@ -56,8 +57,9 @@ function weeksLabel(weeks: number) {
 }
 
 export default function FinancesPage() {
-  const { currentWeek, players, staff, contracts, academyCount, financeLedger, upgradeMerchStore, toggleMerchItem } = useGameStore(useShallow(state => ({
+  const { currentWeek, players, staff, contracts, academyCount, financeLedger, upgradeMerchStore, toggleMerchItem, careerDifficulty } = useGameStore(useShallow(state => ({
     academyCount: state.academyPlayers.length,
+    careerDifficulty: state.difficulty,
     currentWeek: state.currentWeek,
     players: state.players,
     staff: state.staff,
@@ -133,6 +135,8 @@ export default function FinancesPage() {
   const upgradeCost = MERCH_UPGRADE_BASE * Math.pow(2, merchLevel - 1)
   const fanZone = team.facilities?.find(f => f.type === "FANZONE")?.level ?? 0
   const hypeFactor = merchHypeMultiplier(team)
+  // MODES-17: the difficulty's income multiplier, so a lower income has its reason on screen.
+  const difficultyIncome = incomeDifficulty(team, careerDifficulty)
   // MARKET-12 (2026-11-17): whole weeks, newest first, each with its net, instead of the last 18 rows.
   const ledgerWeekList = [...new Set(ledger.map(e => e.week))].sort((a, b) => b - a)
   const recentLedger = ledgerWeekList.slice(0, ledgerWeekCount).map(week => {
@@ -225,6 +229,11 @@ export default function FinancesPage() {
         <Panel title={t("fin.nextSettlement")} actions={<span className="text-xs tabular-nums text-ink-3">{t("common.week", { n: currentWeek + 1 })}</span>}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("fin.income")}</p>
           <MoneyBreakdown rows={incomeRows} total={report.income.total} tone="income" />
+          {difficultyIncome && (
+            <p className="mt-1 text-xs text-ink-3" data-testid="fin-difficulty">
+              {t("fin.in.difficulty", { difficulty: difficultyIncome.label, factor: difficultyIncome.factor.toLocaleString(intlLocale()) })}
+            </p>
+          )}
           <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("fin.expenses")}</p>
           <MoneyBreakdown rows={expenseRows} total={expensesTotal} tone="expense" />
           <div className="mt-3 flex items-baseline justify-between border-t border-line-strong pt-3">

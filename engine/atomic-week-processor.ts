@@ -1,5 +1,5 @@
 import { DATE_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
-import { eventText } from "@/lib/news-ref"
+import { choiceText, eventText } from "@/lib/news-ref"
 import { generateCareerDecision } from "./career-decisions"
 import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
 import { isProActive, processProWeek, handClubDecisionsToStaff } from "./pro-career"
@@ -73,7 +73,7 @@ import { queueMoment, seasonReviewMoment } from "./moments"
 import { closeStint } from "./manager-timeline"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { buildEventField } from "./tournament/event-field"
-import { hasRankedInvites, inviteLeadWeeks, withdrawFromQualifiers } from "./tournament/qualification-path"
+import { hasRankedInvites, inviteClash, inviteLeadWeeks, withdrawFromQualifiers, type ClubEvent } from "./tournament/qualification-path"
 import { eventDisplayName, instanceName, seasonStartWeek } from "@/lib/tournament-instances"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
 import { ManagerProgression } from "./manager-progression"
@@ -1067,17 +1067,33 @@ export class AtomicWeekProcessor {
 
                 if (!alreadyNotified) {
                     const eventName = getDynamicTournamentName(def.name, seasonStartWeek(def, inviteSeason), save.gameStartDate, def.duration)
+                    const weeks = { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek }
+                    // Owner decision 3: an invite in the same weeks as a heavier
+                    // or lighter event of the club asks which to play. Computer
+                    // clubs pass up the lighter one by themselves.
+                    const clash = inviteClash(save, playerTeamId, instanceId)
+                    const nameOf = (e: ClubEvent) => getDynamicTournamentName(e.def.name, e.from, save.gameStartDate, e.def.duration)
+                    const other = clash ? (clash.light.id === instanceId ? clash.heavy : clash.light) : null
                     save.eventsLog.push({
                         id: inviteEventId,
                         type: "TOURNAMENT",
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
-                            ...eventText({ key: "evn.invite.t" }, { key: "evn.invite.m", params: { event: eventName, weeks: { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek } } }),
-                            severity: "success",
+                            ...eventText({ key: "evn.invite.t" }, clash && other
+                                ? { key: "evn.invite.clashM", params: { event: eventName, weeks, other: nameOf(other), light: nameOf(clash.light) } }
+                                : { key: "evn.invite.m", params: { event: eventName, weeks } }),
+                            severity: clash ? "warning" : "success",
                             tournamentId: def.id,
-                            tier: def.tier
-                        }
+                            tier: def.tier,
+                            ...(clash ? { skipInstanceId: clash.light.id } : {}),
+                        },
+                        ...(clash ? {
+                            choices: [
+                                { id: "both", ...choiceText({ key: "evn.invite.both" }), effects: {} },
+                                { id: "skip", ...choiceText({ key: "evn.invite.skip", params: { event: nameOf(clash.light) } }), effects: { follows: { key: "evn.invite.skipFollows" } } },
+                            ],
+                        } : {}),
                     })
                     eventIdSet?.add(inviteEventId)
                 }

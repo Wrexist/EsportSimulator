@@ -40,6 +40,7 @@ import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 import { ProGoalVerdict, useProGoal } from "@/components/pro/ProMatchGoal"
 import { staleActiveMatch } from "@/app/match/match-centre"
+import { FIRST_WIN_MILESTONE } from "@/engine/milestone-checker"
 
 // Confetti in the v2 palette: trophy gold, white, win green.
 const CONFETTI_COLORS = ['#F2B53A', '#F2F4F7', '#3DD68C']
@@ -64,6 +65,8 @@ export default function MatchResultPage() {
         gameStartDate: state.gameStartDate,
     })))
     const [match, setMatch] = useState<CompletedMatchSaveData | null>(null)
+    // NEWPLAYER-12: this match was the club's first official win (recorded with the result).
+    const firstWin = useGameStore(state => state.eventsLog.some(e => e.id === FIRST_WIN_MILESTONE && (e.data as { matchId?: string } | undefined)?.matchId === id))
     const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview")
     const [selectedMapIndex, setSelectedMapIndex] = useState(0)
     const confettiTriggered = useRef(false)
@@ -493,6 +496,7 @@ export default function MatchResultPage() {
                             ))}
                         </div>
                         {tournamentLine && <p className={cn("mt-3 text-sm font-semibold", tournamentTone)}>{tournamentLine}</p>}
+                        {firstWin && <p className="mt-2 text-sm font-semibold text-gold" data-testid="result-first-win">{t("evn.ms.firstWin")}</p>}
                     </div>
                     {crest(rightTeam, "right", !leftWon)}
                 </div>

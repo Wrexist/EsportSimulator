@@ -417,4 +417,5 @@ export const STORED = {
     "svd.p.legend.majorMvp.one": "{{count}}x Major MVP",
     "svd.p.legend.majorMvp.other": "{{count}}x Major MVP",
     "svd.p.answered": "{{title}}: {{choice}}",
+    "svd.dec.inviteClash": "Tournament invitation",
 } as const

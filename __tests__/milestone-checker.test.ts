@@ -1,11 +1,11 @@
 import { checkMilestones } from "@/engine/milestone-checker"
 import type { GameSave } from "@/engine/save-types"
 
-function win(week: number) {
-    return { week, homeTeamId: "t1", awayTeamId: "x", result: { homeScore: 16, awayScore: 5 } }
+function win(week: number, tournamentId = "league_eu") {
+    return { week, homeTeamId: "t1", awayTeamId: "x", tournamentId, result: { homeScore: 16, awayScore: 5 } }
 }
 function loss(week: number) {
-    return { week, homeTeamId: "t1", awayTeamId: "x", result: { homeScore: 5, awayScore: 16 } }
+    return { week, homeTeamId: "t1", awayTeamId: "x", tournamentId: "league_eu", result: { homeScore: 5, awayScore: 16 } }
 }
 
 function makeSave(opts: {
@@ -34,6 +34,11 @@ describe("milestone checker", () => {
         const hits = checkMilestones(makeSave({ matches: [win(1)] }), new Set())
         expect(ids(hits)).toContain("ms_win_1")
         expect(ids(hits)).not.toContain("ms_win_10")
+    })
+
+    it("counts official wins only: a scrim win is not the first win (NEWPLAYER-12)", () => {
+        expect(ids(checkMilestones(makeSave({ matches: [win(1, "SCRIM")] }), new Set()))).not.toContain("ms_win_1")
+        expect(ids(checkMilestones(makeSave({ matches: [{ ...win(1, ""), tournamentId: undefined }] }), new Set()))).not.toContain("ms_win_1")
     })
 
     it("dedups against already-fired ids", () => {

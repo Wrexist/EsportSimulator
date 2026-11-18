@@ -17,7 +17,7 @@ import { useGameStore } from "@/store/game-store"
 import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-career-draft"
 import { recordNewCampaign } from "@/engine/manager-career-profile"
 import { calculateTeamTier } from "@/engine/tier-system"
-import { PRO_ROLES, proNicknameTaken } from "@/engine/pro-career"
+import { PRO_ROLES, proNicknameTaken, proRival } from "@/engine/pro-career"
 import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
 import type { GameSave } from "@/engine/save-types"
 import { snapshotLoader } from "@/data"
@@ -106,17 +106,22 @@ export default function ProCareerSetupPage() {
     }, [amateurs, region, deal])
     useEffect(() => { setClubId(offers[0]?.id ?? null) }, [offers])
 
-    /** START-70: what each offer gives to compare: team OVR and the players already in the chosen role. */
+    /**
+     * START-70: what each offer gives to compare: team OVR and the players already in the chosen role.
+     * MODES-19: and the starter the pro has to pass in that role, with his OVR.
+     */
     const offerStats = useMemo(() => {
-        const out = new Map<string, { ovr: number; sameRole: number }>()
+        const out = new Map<string, { ovr: number; sameRole: number; rival: { name: string; ovr: number } | null }>()
         if (!world) return out
         const byId = new Map(world.players.map(p => [p.id, p]))
         for (const tm of offers) {
             const club = world.teams.find(c => c.id === tm.id)
             const preview = club ? previewClubStart(world, club.id, "normal", byId) : null
             if (!club || !preview) continue
-            const sameRole = club.rosterIds.map(id => byId.get(id)).filter(p => p && !p.isRetired && p.role === role).length
-            out.set(tm.id, { ovr: preview.ovr, sameRole })
+            const roster = club.rosterIds.map(id => byId.get(id)).filter((p): p is NonNullable<typeof p> => !!p)
+            const sameRole = roster.filter(p => !p.isRetired && p.role === role).length
+            const rival = proRival(roster, role, world.currentWeek)
+            out.set(tm.id, { ovr: preview.ovr, sameRole, rival: rival ? { name: rival.player.nickname, ovr: rival.ovr } : null })
         }
         return out
     }, [world, offers, role])
@@ -197,6 +202,13 @@ export default function ProCareerSetupPage() {
                                         {offerStats.has(tm.id) && rankById.has(tm.id) && (
                                             <span className="block text-xs tabular-nums text-ink-2">
                                                 {t("common.worldRank", { rank: rankById.get(tm.id)! })} · {t("pro.offerStats", { ovr: offerStats.get(tm.id)!.ovr, n: offerStats.get(tm.id)!.sameRole })}
+                                            </span>
+                                        )}
+                                        {offerStats.has(tm.id) && (
+                                            <span className="block truncate text-xs tabular-nums text-ink-2" data-testid="pro-rival">
+                                                {offerStats.get(tm.id)!.rival
+                                                    ? t("pro.rival", { name: offerStats.get(tm.id)!.rival!.name, ovr: offerStats.get(tm.id)!.rival!.ovr })
+                                                    : t("pro.noRival")}
                                             </span>
                                         )}
                                     </span>

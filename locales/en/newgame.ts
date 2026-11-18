@@ -55,8 +55,8 @@ export const NEWGAME = {
     "ng.search": "Search clubs",
     "ng.filterTier": "Filter by tier",
     "ng.sandbox": "Sandbox",
-    "ng.sandboxHint": "Opens every club. A club above your level starts a sandbox career: no achievements, Steam stats or leaderboard scores.",
-    "ng.sandboxCareer": "This club is above your level, so the career starts with the sandbox editor on: no achievements, Steam stats or leaderboard scores.",
+    "ng.sandboxHint": "Opens every club. A club above your level starts a sandbox career: no achievements or Steam stats.",
+    "ng.sandboxCareer": "This club is above your level, so the career starts with the sandbox editor on: no achievements or Steam stats.",
     "ng.col.rank": "Rank",
     "ng.col.club": "Club",
     "ng.col.region": "Region",
@@ -320,4 +320,6 @@ export const NEWGAME = {
     "lg.deleteSave": "Delete save",
     "lg.imported": "Imported",
     "dc.namesShort": "Manager name, team name and tag need two characters or more.",
+    "pro.rival": "Your rival: {{name}} · OVR {{ovr}}",
+    "pro.noRival": "Nobody in your role is in their starting five yet",
 } as const

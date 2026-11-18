@@ -76,12 +76,12 @@ export class SteamService {
     private pendingAchievements = new Set<string>()
     private unlockFlights = new Map<string, Promise<boolean>>()
     private activeSaveId: string | null = null
-    /** C9: a sandbox save (edited by hand) earns no achievements, stats or leaderboard scores. */
+    /** C9: a sandbox save (edited by hand) earns no achievements or Steam stats. */
     private sandboxed = false
 
     private constructor() { }
 
-    /** C9: block achievements, stats and leaderboards while a sandbox save is loaded. */
+    /** C9: block achievements and stats while a sandbox save is loaded. */
     setSandboxed(on: boolean): void {
         this.sandboxed = on
     }
@@ -178,35 +178,6 @@ export class SteamService {
         if (stats.prizeMoney !== undefined) await this.electronBridge.setStat("stat_prize_money", Math.max(0, Math.min(2147483647, Math.round(stats.prizeMoney))))
 
         await this.electronBridge.storeStats()
-    }
-
-    async pushLeaderboardStats(stats: {
-        maxElo?: number
-        majorWins?: number
-        weeksToSTier?: number
-        totalEarnings?: number
-        longestWinStreak?: number
-        tournamentsWon?: number
-    }) {
-        if (!this.electronBridge || this.sandboxed) return
-        if (stats.maxElo !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_world_ranking", stats.maxElo)
-        }
-        if (stats.majorWins !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_major_wins", stats.majorWins)
-        }
-        if (stats.weeksToSTier !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_fastest_stier", stats.weeksToSTier)
-        }
-        if (stats.totalEarnings !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_total_earnings", stats.totalEarnings)
-        }
-        if (stats.longestWinStreak !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_win_streak", stats.longestWinStreak)
-        }
-        if (stats.tournamentsWon !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_tournaments_won", stats.tournamentsWon)
-        }
     }
 
     async unlockAchievement(achievementId: string): Promise<boolean> {
