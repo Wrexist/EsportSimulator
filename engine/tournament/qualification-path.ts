@@ -220,7 +220,8 @@ export function registerBlockText(
  * What the club still has to do to get into this event, as text to show, or
  * null when there is nothing to say (COMP-22): wait for the invite its
  * ranking earns, play the first qualifier still open to it, or climb into
- * the ranking's invite places. `weekInSeason` is today's week of the season;
+ * the ranking's invite places (once they are sent, the line says where
+ * they went). `weekInSeason` is today's week of the season;
  * weeks in the text are weeks of the season, like the list's Start column.
  */
 export function entryPathText(
@@ -250,8 +251,10 @@ export function entryPathText(
         })
         .sort((a, b) => a.startWeek - b.startWeek || a.id.localeCompare(b.id))[0]
     if (open) return { key: "tm.path.qualify", params: { event: eventName(open), week: open.startWeek } }
-    if (hasRankedInvites(def) && !invitesIssued(rows, instanceId)) {
-        return { key: "tm.path.rank", params: { n: def.inviteSlots ?? 0, rank: team.worldRanking ?? 999 } }
+    if (hasRankedInvites(def)) {
+        return invitesIssued(rows, instanceId)
+            ? { key: "tm.path.invited", params: { n: def.inviteSlots ?? 0 } }
+            : { key: "tm.path.rank", params: { n: def.inviteSlots ?? 0, rank: team.worldRanking ?? 999 } }
     }
     return null
 }

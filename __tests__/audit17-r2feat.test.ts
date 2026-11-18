@@ -233,6 +233,9 @@ describe("COMP-22: a locked event's row says what the club still has to do", () 
     test("with the qualifiers gone or closed to its region, the ranking is what is left", () => {
         // Week 3: the open qualifier has begun and the EU closed one is not for an NA club.
         expect(entryPathText(save(), teams[15], katowice, 1, 3, name)).toEqual({ key: "tm.path.rank", params: { n: 12, rank: 16 } })
+        // Once the invites are out, the line says where they went.
+        const sent = [{ tournamentId: "iem_katowice_s1", instanceId: "iem_katowice_s1", teamId: "t1", status: "QUALIFIED", qualifiedVia: "Direct Invite" }]
+        expect(entryPathText(save(sent), teams[15], katowice, 1, 3, name)).toEqual({ key: "tm.path.invited", params: { n: 12 } })
     })
 
     test("a club already entered gets no line", () => {

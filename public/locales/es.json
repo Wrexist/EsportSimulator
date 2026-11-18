@@ -7335,5 +7335,6 @@
  "tm.path.qualify": "Clasifícate en {{event}} (semana {{week}})",
  "tm.path.rank": "Las invitaciones van al top {{n}} mundial. Estás en el puesto {{rank}}.",
  "tm.block.declined": "Rechazaste la invitación a {{event}}",
- "tm.qual.DECLINED": "invitación rechazada"
+ "tm.qual.DECLINED": "invitación rechazada",
+ "tm.path.invited": "Las invitaciones fueron para el top {{n}} mundial"
 }

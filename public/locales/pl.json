@@ -7577,5 +7577,6 @@
  "tm.path.qualify": "Awans przez {{event}} (tydzień {{week}})",
  "tm.path.rank": "Zaproszenia dostaje top {{n}} rankingu. Twoja drużyna jest na {{rank}}. miejscu.",
  "tm.block.declined": "Twoja drużyna odrzuciła zaproszenie na {{event}}",
- "tm.qual.DECLINED": "zaproszenie odrzucone"
+ "tm.qual.DECLINED": "zaproszenie odrzucone",
+ "tm.path.invited": "Zaproszenia dostał top {{n}} rankingu"
 }
