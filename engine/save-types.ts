@@ -1044,6 +1044,12 @@ export interface TournamentSaveData {
     // Tournament MVP (calculated when tournament ends)
     mvpPlayerId?: string
     mvpRating?: number
+    /** 24-club Major: the 8 clubs that join in Swiss stage 2 (set when the event starts). */
+    swissInvites?: string[]
+    /** 24-club Major: the final stage-1 Swiss table, kept once stage 2 starts. */
+    swissStage1?: TournamentStandingSaveData[]
+    /** 24-club Major: round number (in match ids) of the first stage-2 round. */
+    swissStage2Round?: number
 }
 
 export interface TournamentGroupSaveData {

@@ -110,7 +110,7 @@ export function TournamentDetailsModal({
             onClose={onClose}
             titleId="modal-title-tournament-details"
             title={getDynamicTournamentName(tournament.name, seasonalTournament?.startWeek ?? seasonStartWeek(tournament, getSeasonFromWeek(currentWeek)), gameStartDate, tournament.duration)}
-            subtitle={`${t(`common.tier.${tournament.tier}`)} · ${getEntryTypeLabel(tournament.entryType)} · ${t("tm.weekRange", { from: tournament.startWeek, to: endWeek })} · ${t("sch.td.prizePool", { amount: formatPrizePool(tournament.prizePool) })}`}
+            subtitle={`${t(`common.tier.${tournament.tier}`)} · ${getEntryTypeLabel(tournament.entryType, tournament.id)} · ${t("tm.weekRange", { from: tournament.startWeek, to: endWeek })} · ${t("sch.td.prizePool", { amount: formatPrizePool(tournament.prizePool) })}`}
             closeLabel={t("sch.td.close")}
             className={activeTab === "bracket" ? "max-w-[90vw]" : "max-w-3xl"}
         >

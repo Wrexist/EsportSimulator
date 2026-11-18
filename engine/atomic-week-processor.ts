@@ -287,6 +287,12 @@ export class AtomicWeekProcessor {
             if (save.currentWeek < transaction.weekNumber) {
                 save.currentWeek++
             }
+            // Daily calendar: the tick opens the new week on its first day (the
+            // store commits currentDay 0 afterwards). Leaving last week's Sunday
+            // here made every fixture this tick schedules for the new week
+            // (first rounds, next rounds after day-0 results) skip to Sunday or
+            // a week later, so qualifiers overran into their main event (COMP-01).
+            if (save.timeMode === "HYBRID_DAILY") save.currentDay = 0
             // C6: this module instance (a worker, or the main thread) plays
             // the save's season pool. The first tick of a new season benches
             // its map before any of the season's matches are played.

@@ -3711,7 +3711,7 @@
  "tm.viewSeason": "Ergebnisse von Saison {{n}} ansehen",
  "tm.unknownWinner": "Sieger unbekannt",
  "tm.leagueStandings": "Ligatabelle",
- "tm.leagueStandingsNote": "Jeder gegen jeden · die besten Teams ziehen in die Playoffs ein",
+ "tm.leagueStandingsNote": "Jeder gegen jeden · Platzierung nach Punkten",
  "tm.col.played": "Sp.",
  "tm.col.playedLong": "Gespielte Matches",
  "tm.col.pts": "Pkt.",
@@ -7063,5 +7063,14 @@
  "roster.series": "Serie",
  "roster.seriesTitle": "Kills, Tode, Assists und ADR über die ganze bisherige Serie, nicht nur diese Map.",
  "veto.comfortYou": "Du: {{label}}",
- "veto.comfortThem": "Sie: {{label}}"
+ "veto.comfortThem": "Sie: {{label}}",
+ "tm.swiss.stage1": "Stage 1",
+ "tm.swiss.stage2": "Stage 2",
+ "tm.swiss.majorNote": "Stage 1: die 16 RMR-Teams, die besten 8 ziehen weiter. Stage 2: sie treffen auf die 8 eingeladenen Teams, die besten 8 spielen die Playoffs.",
+ "tm.block.region": "Nur Teams aus {{region}} können teilnehmen",
+ "tm.block.in_main": "Du bist schon bei {{event}} dabei",
+ "tm.block.invited": "Du stehst für eine Einladung zu {{event}} an",
+ "tm.block.sibling": "Du spielst schon eine andere Qualifikation für {{event}}",
+ "tm.entry.RANKED": "Einladungen + Rangliste",
+ "tm.entry.RANKING": "Weltrangliste"
 }

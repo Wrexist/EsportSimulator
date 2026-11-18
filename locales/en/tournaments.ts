@@ -136,7 +136,7 @@ export const TOURNAMENTS: Record<string, string> = {
     "tm.viewSeason": "View season {{n}} results",
     "tm.unknownWinner": "Unknown winner",
     "tm.leagueStandings": "League standings",
-    "tm.leagueStandingsNote": "Round robin · top teams advance to playoffs",
+    "tm.leagueStandingsNote": "Round robin · places by points",
     "tm.col.played": "P",
     "tm.col.playedLong": "Matches played",
     "tm.col.pts": "Pts",
@@ -220,4 +220,14 @@ export const TOURNAMENTS: Record<string, string> = {
     "tm.yourResults": "Results",
     "tm.col.date": "Date",
     "tm.openPrep": "Open match prep vs {{team}}",
+    // Audit 2026-11-17 competition fixes
+    "tm.swiss.stage1": "Stage 1",
+    "tm.swiss.stage2": "Stage 2",
+    "tm.swiss.majorNote": "Stage 1: the 16 RMR clubs, the best 8 go on. Stage 2: they meet the 8 invited clubs, and the best 8 play the playoffs.",
+    "tm.block.region": "Only clubs from {{region}} can enter",
+    "tm.block.in_main": "You're already in {{event}}",
+    "tm.block.invited": "You're in line for an invite to {{event}}",
+    "tm.block.sibling": "You already play another qualifier for {{event}}",
+    "tm.entry.RANKED": "Invites + ranking",
+    "tm.entry.RANKING": "World ranking",
 }

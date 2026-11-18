@@ -3901,7 +3901,7 @@
  "tm.viewSeason": "Результаты сезона {{n}}",
  "tm.unknownWinner": "Чемпион неизвестен",
  "tm.leagueStandings": "Таблица лиги",
- "tm.leagueStandingsNote": "Круговая система · лучшие команды выходят в плей-офф",
+ "tm.leagueStandingsNote": "Круговая система · места по очкам",
  "tm.col.played": "И",
  "tm.col.playedLong": "Сыграно матчей",
  "tm.col.pts": "О",
@@ -7547,5 +7547,14 @@
  "roster.series": "Серия",
  "roster.seriesTitle": "Убийства, смерти, помощь и ADR за всю серию на данный момент, а не только за эту карту.",
  "veto.comfortYou": "Ты: {{label}}",
- "veto.comfortThem": "Они: {{label}}"
+ "veto.comfortThem": "Они: {{label}}",
+ "tm.swiss.stage1": "Этап 1",
+ "tm.swiss.stage2": "Этап 2",
+ "tm.swiss.majorNote": "Этап 1: 16 команд из RMR, 8 лучших проходят дальше. Этап 2: они встречаются с 8 приглашёнными командами, 8 лучших играют плей-офф.",
+ "tm.block.region": "Записаться могут только команды из региона {{region}}",
+ "tm.block.in_main": "Твоя команда уже участвует в {{event}}",
+ "tm.block.invited": "Твоей команде положено приглашение на {{event}}",
+ "tm.block.sibling": "Твоя команда уже играет другую квалификацию на {{event}}",
+ "tm.entry.RANKED": "Приглашения + рейтинг",
+ "tm.entry.RANKING": "Мировой рейтинг"
 }

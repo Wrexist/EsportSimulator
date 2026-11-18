@@ -11,7 +11,7 @@
  */
 import { FULL_TOURNAMENT_CALENDAR, type TournamentDefinition } from "@/data/tournament-calendar"
 import type { GameSave, QualificationStatus, TeamSaveData } from "../save-types"
-import { buildInstanceId, isQualificationForTournament } from "../circuit-engine"
+import { buildInstanceId, getSeasonFromTournamentId, getSeriesIdFromTournamentId, isQualificationForTournament } from "../circuit-engine"
 
 /** Club region -> regional qualifier region (RMRs exist for EU, NA and ASIA). */
 export const QUALIFIER_REGION: Record<string, string> = { CIS: "EU", MENA: "EU", BR: "NA", SA: "NA", OCE: "ASIA", OCEANIA: "ASIA" }
@@ -138,4 +138,76 @@ export function withdrawFromQualifiers(save: GameSave, mainDef: TournamentDefini
             !(leaving.has(q.teamId) && q.status === "REGISTERED" && isQualificationForTournament(q, instanceId)))
         if (instance) instance.teamIds = instance.teamIds.filter(id => !leaving.has(id))
     }
+}
+
+const TIER_WEIGHT: Record<string, number> = { S_TIER: 4, A_TIER: 3, B_TIER: 2, C_TIER: 1 }
+
+/** What an event weighs when a club's events clash: a qualifier weighs what the event it leads to does. */
+export function eventWeight(def: TournamentDefinition): number {
+    const chain = downstreamEvents(def)
+    return TIER_WEIGHT[(chain[chain.length - 1] ?? def).tier] ?? 0
+}
+
+/** An unfinished event a club plays or is entered in, with its first and last week. */
+export interface ClubEvent { id: string; def: TournamentDefinition; from: number; to: number }
+
+/**
+ * Every unfinished event each club plays (started events: their field) or is
+ * entered in (events still to start: invites, places, sign-ups), by club.
+ * League-format events run alongside everything and are left out.
+ */
+export function clubEventWindows(save: Pick<GameSave, "tournaments" | "tournamentQualifications">): Map<string, ClubEvent[]> {
+    const out = new Map<string, ClubEvent[]>()
+    const add = (teamId: string, event: ClubEvent) => {
+        const list = out.get(teamId) ?? []
+        if (!list.some(e => e.id === event.id)) list.push(event)
+        out.set(teamId, list)
+    }
+    const byId = new Map(save.tournaments.map(t => [t.id, t]))
+    for (const t of save.tournaments) {
+        if (t.isCompleted || t.currentStage === "Registration" || t.format === "league") continue
+        const def = definition(getSeriesIdFromTournamentId(t.id))
+        if (!def) continue
+        const event = { id: t.id, def, from: t.startWeek, to: Math.max(t.startWeek, (t.endWeek || t.startWeek + def.duration) - 1) }
+        for (const teamId of t.teamIds) add(teamId, event)
+    }
+    for (const q of save.tournamentQualifications ?? []) {
+        if (!ENTERED.has(q.status)) continue
+        const id = q.instanceId || q.tournamentId
+        const instance = byId.get(id)
+        if (instance && (instance.isCompleted || instance.currentStage !== "Registration")) continue
+        const def = definition(getSeriesIdFromTournamentId(id))
+        if (!def || def.format === "league") continue
+        const season = getSeasonFromTournamentId(id) ?? q.seasonNumber ?? 1
+        const from = instance?.startWeek ?? (season - 1) * 52 + def.startWeek
+        add(q.teamId, { id, def, from, to: from + Math.max(1, def.duration) - 1 })
+    }
+    return out
+}
+
+/** Does one of these events (other than `instanceId`) overlap the weeks and weigh at least `minWeight`? */
+export function clashes(events: ClubEvent[] | undefined, instanceId: string, from: number, to: number, minWeight = 0): boolean {
+    return !!events?.some(e => e.id !== instanceId && e.from <= to && from <= e.to && eventWeight(e.def) >= minWeight)
+}
+
+/**
+ * Why the managed club may not sign up for this qualifier, as text to show,
+ * or null when it may (COMP-07). The same rules as automatic entry and the
+ * computer clubs: its region's qualifiers only, none for an event it is in or
+ * about to be invited to, one qualifier per event.
+ */
+export function registerBlockText(
+    save: Pick<GameSave, "tournamentQualifications" | "teams" | "tournaments">,
+    team: Pick<TeamSaveData, "id" | "region">,
+    def: TournamentDefinition,
+    season: number,
+    eventName: (def: TournamentDefinition) => string,
+): { key: string; params: Record<string, string> } | null {
+    if (!def.qualifierFor) return null
+    if (!regionAllows(def, team)) return { key: "tm.block.region", params: { region: def.region ?? "" } }
+    const block = qualifierEntryBlock(save, team.id, def, season)
+    if (!block) return null
+    const chain = downstreamEvents(def)
+    const target = block === "sibling" ? chain[0] : chain[chain.length - 1]
+    return { key: `tm.block.${block}`, params: { event: target ? eventName(target) : "" } }
 }

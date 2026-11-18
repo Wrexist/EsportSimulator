@@ -377,7 +377,7 @@ export function RecordsPage({ headingId }: { headingId: string }) {
                                 </div>
                                 <p className="mt-2 font-display text-[52px] font-extrabold leading-none tabular-nums text-ink-1">{r.value}</p>
                                 <p className={cn("mt-2 truncate text-base font-semibold", r.ours ? "text-gold" : "text-ink-1")}>{r.holder}{r.holder !== r.teamName ? <span className="font-normal text-ink-3"> · {r.teamName}</span> : null}</p>
-                                <p className="mt-0.5 truncate text-xs text-ink-3" title={r.detail}>{r.detail}</p>
+                                <p className="mt-0.5 line-clamp-2 break-words text-xs text-ink-3" title={r.detail}>{r.detail}</p>
                             </Card>
                         </li>
                     ))}

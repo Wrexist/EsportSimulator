@@ -200,7 +200,7 @@ export const STORYLINES = {
     "sl.riv.nextRound": "the next round",
     "sl.riv.newsTitle": "{{club}} v {{opp}}: the rivalry resumes",
     "sl.riv.newsBody": "{{club}} and {{opp}} meet for the {{nth}} time in Week {{week}} ({{where}}). {{club}} {{h2h}} in the head-to-head. Rivalry: {{intensity}}.",
-    "sl.riv.log": "{{club}} {{h2h}} against {{opp}} before meeting {{n}} in Week {{week}}.",
+    "sl.riv.log": "{{club}} {{h2h}} against {{opp}} before meeting no. {{n}} in Week {{week}}.",
     "sl.riv.forfeit": "{{club}} win the derby by forfeit.",
     "sl.riv.wonTitle": "{{club}} take the derby {{score}}",
     "sl.riv.lostTitle": "{{opp}} take the derby, {{club}} lose {{score}}",

@@ -182,7 +182,13 @@ export function formatPrizePool(amount: number): string {
     return `$${amount}`
 }
 
-export function getEntryTypeLabel(entryType: EntryType): string {
+export function getEntryTypeLabel(entryType: EntryType, tournamentId?: string): string {
+    // A "qualifier" event that no qualifier feeds fills its field from
+    // invites and the world ranking (the Showdowns): say so (COMP-20).
+    const baseId = tournamentId?.replace(/_s\d+$/, "")
+    if (entryType === "QUALIFIER" && baseId && getQualifiersFor(baseId).length === 0) {
+        return (getTournamentById(baseId)?.inviteSlots ?? 0) > 0 ? t("tm.entry.RANKED") : t("tm.entry.RANKING")
+    }
     return ["OPEN", "INVITE", "QUALIFIER", "POINTS", "LEAGUE"].includes(entryType) ? t(`tm.entry.${entryType}`) : t("common.unknown")
 }
 

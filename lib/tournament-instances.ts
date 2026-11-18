@@ -34,14 +34,25 @@ export function seasonStartWeek(definition: Pick<TournamentDefinition, "startWee
 }
 
 /**
- * Stored name of a season instance: the year the event is played in when the
- * data name carries one ("Winter Open Katova 2027"), else a season suffix from
- * season 2 on ("PlayOn Academy League S2"). Inbox messages, trophies and the
- * prize ledger copy this name, so it must already be right when stored.
+ * Stored name of a season instance (COMP-15): a name with an edition number
+ * counts on per season ("Global Pro League Season 22 Finals"); every other
+ * event carries the year it is played in, as the Majors do ("Winter Open
+ * Katova 2027", "Northern Major Asia RMR 2028"). Inbox messages, trophies and
+ * the prize ledger copy this name, so it must already be right when stored.
  */
-export function instanceName(definition: Pick<TournamentDefinition, "name" | "startWeek" | "duration">, season: number, gameStartDate?: string | null): string {
-    if (/\b20\d{2}\b/.test(definition.name)) return getDynamicTournamentName(definition.name, seasonStartWeek(definition, season), gameStartDate, definition.duration)
-    return season > 1 ? `${definition.name} S${season}` : definition.name
+export function instanceName(definition: Pick<TournamentDefinition, "name" | "startWeek" | "duration"> & { qualifierFor?: string }, season: number, gameStartDate?: string | null): string {
+    const edition = /\bSeason (\d+)\b/.exec(definition.name)
+    if (edition) return definition.name.replace(edition[0], `Season ${Number(edition[1]) + Math.max(1, season) - 1}`)
+    const yeared = /\b20\d{2}\b/.test(definition.name) ? definition.name : `${definition.name} 2025`
+    // A qualifier carries the year of the event it leads to ("Winter Open
+    // Katova Open Qualifier 2027" for Winter Open Katova 2027).
+    let dated: Pick<TournamentDefinition, "startWeek" | "duration"> & { qualifierFor?: string } = definition
+    for (let hops = 0; dated.qualifierFor && hops < 4; hops++) {
+        const next = getTournamentById(dated.qualifierFor)
+        if (!next) break
+        dated = next
+    }
+    return getDynamicTournamentName(yeared, seasonStartWeek(dated, season), gameStartDate, dated.duration)
 }
 
 /**

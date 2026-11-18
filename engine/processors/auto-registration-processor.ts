@@ -25,7 +25,7 @@ import {
     normalizeQualificationStatus,
 } from "../circuit-engine"
 import { seniorRosterEligibility } from "../recruitment"
-import { QUALIFIER_REGION, qualifierEntryBlock } from "../tournament/qualification-path"
+import { QUALIFIER_REGION, clashes, clubEventWindows, eventWeight, qualifierEntryBlock } from "../tournament/qualification-path"
 import { QualificationEngine } from "../tournament-qualification"
 import { logger } from "@/lib/logger"
 import { eventDisplayName, instanceName } from "@/lib/tournament-instances"
@@ -105,6 +105,10 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
                 && (tournamentDef.tier === "QUALIFIER" || myTeam.leagueTier !== "S_TIER")
             if (!(tournamentDef.entryType === "INVITE" || tournamentDef.entryType === "POINTS" || isOpen)) return
             if (isOpen && openEntryBlocked(save, myTeam.id, tournamentDef, t.seasonNumber || getSeasonFromWeek(t.startWeek || save.currentWeek))) return
+            // Not into an event in weeks the club already plays a bigger one
+            // (COMP-05); the Register button stays the manager's call.
+            const from = t.startWeek || save.currentWeek
+            if (clashes(clubEventWindows(save).get(myTeam.id), t.id, from, from + Math.max(1, tournamentDef.duration) - 1, eventWeight(tournamentDef) + 1)) return
 
             const isRegistered = save.tournamentQualifications.some(
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

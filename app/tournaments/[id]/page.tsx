@@ -30,12 +30,16 @@ type DisplayTournament = TournamentDefinition & {
     seriesId?: string
     instanceId?: string
     seasonNumber?: number
+    swissInvites?: string[]
+    swissStage1?: TournamentSaveData['standings']
 }
 import { FULL_TOURNAMENT_CALENDAR, getQualifiersFor, getTournamentById, getEntryTypeLabel } from "@/data/tournament-calendar"
 import { QualificationEngine } from "@/engine/tournament-qualification"
 import { TournamentManager } from "@/engine/tournament-manager"
+import { prizeSplit } from "@/engine/processors/standings-processor"
 import { buildInstanceId, getSeasonFromTournamentId, getSeasonFromWeek, isQualificationForTournament } from "@/engine/circuit-engine"
 import { instanceName, instanceSeason, instancesOfSeries, seasonStartWeek } from "@/lib/tournament-instances"
+import { registerBlockText } from "@/engine/tournament/qualification-path"
 import {
     Trophy,
     Calendar,
@@ -62,16 +66,10 @@ import TournamentStats from "@/components/tournament/TournamentStats"
 import { TeamLink } from "@/components/ui/EntityLink"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 
-// Prize split by placement — mirrors PRIZE_DISTRIBUTION_8 / _16 in
-// engine/processors/standings-processor.ts (deep fields use the 16-place
-// table). The old screen always showed the top-8 split and a "club share"
-// the engine never pays.
-const PRIZE_SPLIT_8: Record<number, number> = { 1: 0.40, 2: 0.20, 3: 0.10, 4: 0.10, 5: 0.05, 6: 0.05, 7: 0.05, 8: 0.05 }
-const PRIZE_SPLIT_16: Record<number, number> = {
-    1: 0.36, 2: 0.18, 3: 0.09, 4: 0.09, 5: 0.04, 6: 0.04, 7: 0.04, 8: 0.04,
-    9: 0.02, 10: 0.02, 11: 0.02, 12: 0.02, 13: 0.01, 14: 0.01, 15: 0.01, 16: 0.01,
-}
-const prizeSplitFor = (slots: number | undefined) => ((slots ?? 0) > 8 ? PRIZE_SPLIT_16 : PRIZE_SPLIT_8)
+// Prize split by placement: the engine's own table for the field size
+// (engine/processors/standings-processor.ts prizeSplit), so a 12-club event
+// shows 12 paid places and the whole pool (COMP-11).
+const prizeSplitFor = (fieldSize: number | undefined) => prizeSplit(fieldSize ?? 0)
 /** Collapse equal consecutive shares into rows like "5th–8th · 4% each". */
 function splitRows(split: Record<number, number>): { label: string; pct: number; count: number }[] {
     const places = Object.keys(split).map(Number).sort((a, b) => a - b)
@@ -147,6 +145,14 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[], ovrs?:
     // Improve data resolution: Check if match is actually completed/scheduled elsewhere
     const completedMatch = completedMatches.find(cm => cm.id === m.id)
     const activeMatch = m.result ? m : (completedMatch || m)
+    // An older result has left the capped completedMatches list: the bracket
+    // row still holds its score and winner (COMP-09).
+    const rowScore = (side: "home" | "away"): number | undefined => activeMatch.result
+        ? (side === "home" ? activeMatch.result.homeScore : activeMatch.result.awayScore)
+        : (m.isCompleted ? (side === "home" ? m.homeScore : m.awayScore) : undefined)
+    const rowWinner = (teamId: string): boolean => activeMatch.result
+        ? (teamId === activeMatch.homeTeamId ? activeMatch.result.homeScore > activeMatch.result.awayScore : activeMatch.result.awayScore > activeMatch.result.homeScore)
+        : !!m.isCompleted && m.winnerId === teamId
 
     const team1 = teams.find(t => t.id === activeMatch.homeTeamId)
     const team2 = teams.find(t => t.id === activeMatch.awayTeamId)
@@ -173,8 +179,8 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[], ovrs?:
         team1: team1 ? {
             id: team1.id,
             name: team1.name,
-            score: activeMatch.result?.homeScore,
-            isWinner: (activeMatch.isCompleted || activeMatch.result) && activeMatch.result && activeMatch.result.homeScore > activeMatch.result.awayScore,
+            score: rowScore("home"),
+            isWinner: rowWinner(team1.id),
             logo: team1.logoPath,
             recentForm: getForm(team1.id),
             branding: team1.branding,
@@ -184,8 +190,8 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[], ovrs?:
         team2: team2 ? {
             id: team2.id,
             name: team2.name,
-            score: activeMatch.result?.awayScore,
-            isWinner: (activeMatch.isCompleted || activeMatch.result) && activeMatch.result && activeMatch.result.awayScore > activeMatch.result.homeScore,
+            score: rowScore("away"),
+            isWinner: rowWinner(team2.id),
             logo: team2.logoPath,
             recentForm: getForm(team2.id),
             branding: team2.branding,
@@ -302,6 +308,13 @@ export default function TournamentDetailPage() {
         circuitPoints as any,
         tournamentQualifications
     ) : null
+    // A qualifier the club may not sign up for: another region's, or one for
+    // an event it is in or about to be invited to (COMP-07).
+    const entryBlock = definition && playerTeam
+        ? registerBlockText({ tournamentQualifications, teams, tournaments }, playerTeam, definition, displaySeason, def => instanceName(def, displaySeason, gameStartDate))
+        : null
+    const entryBlockText = entryBlock ? t(entryBlock.key, entryBlock.params.region !== undefined ? { region: eventRegionName(entryBlock.params.region) } : entryBlock.params) : null
+    const canRegister = !!eligibility?.canRegister && !entryBlock
 
     const pathToEvent = useMemo<PathTimelineNode[]>(() => {
         if (!definition) return []
@@ -420,7 +433,7 @@ export default function TournamentDetailPage() {
         Math.max(1, qualifierDest?.slots || 1),
     )
     const prizePool = displayTournament.prizePool || 0
-    const split = prizeSplitFor(displayTournament.slots)
+    const split = prizeSplitFor(Math.min(displayTournament.slots || 0, tournament?.teamIds.length || displayTournament.slots || 0))
 
     // Check if player was eliminated from this bracket tournament
     const isPlayerEliminated = !!playerTeamId && definition?.format === "bracket" && completedMatches.some(
@@ -442,11 +455,16 @@ export default function TournamentDetailPage() {
 
     // Tabs depend on the format.
     const format = displayTournament.format
+    // The bracket proper: the playoff, without the Swiss rounds and GSL group
+    // matches that share playoffBracket (they have their own tab, COMP-08).
+    const playoffRows = (displayTournament.playoffBracket ?? []).filter(m => !m.id.includes("_swiss_r") && !/^Group /.test(m.stage))
+    // A Swiss qualifier (RMR) is decided by its Swiss table: no bracket.
+    const swissOnly = format === "swiss" && isQualifierEvent && playoffRows.length === 0
     const tabs: { id: typeof activeTab; label: string }[] = [{ id: "overview", label: t("tm.tab.overview") }]
     // Only formats that have a stage before the bracket get the tab: the
     // Swiss stage of Majors/RMRs, and GSL groups when the event has them.
     if (format !== "league" && (format === "swiss" || (displayTournament.groups?.length ?? 0) > 0)) tabs.push({ id: "groups", label: format === "swiss" ? t("tm.swissStage") : t("stage.groupStage") })
-    if (format !== "league") tabs.push({ id: "playoffs", label: t("tm.tab.bracket") })
+    if (format !== "league" && !swissOnly) tabs.push({ id: "playoffs", label: t("tm.tab.bracket") })
     if (format === "league") tabs.push({ id: "groups", label: t("tm.tab.standings") })
     tabs.push({ id: "schedule", label: format === "league" ? t("tm.schedule") : t("tm.tab.allMatches") })
     tabs.push({ id: "history", label: t("tm.tab.yours") })
@@ -538,7 +556,7 @@ export default function TournamentDetailPage() {
                         {!isStarted && (
                             isRegistered ? (
                                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-positive"><CheckCircle2 size={16} aria-hidden="true" /> {t("tm.status.registered")}</span>
-                            ) : eligibility?.canRegister ? (
+                            ) : canRegister ? (
                                 <Button onClick={() => registerForTournament(displayTournament?.id || definition?.id || (id as string))} className="h-11 px-6 text-base">
                                     {t("tm.registerTeam")}
                                 </Button>
@@ -548,7 +566,7 @@ export default function TournamentDetailPage() {
                     <div className="grid grid-cols-2 divide-x divide-line border-t border-line md:grid-cols-4">
                         <Kpi className="px-6 py-3" label={isQualifierEvent ? t("tm.reward") : t("tm.col.prizePool")} value={isQualifierEvent ? `${t("tm.spot", { event: qualifierDest?.shortName ?? t("tm.nextStageShort") })}${prizePool > 0 ? ` · ${formatCurrency(prizePool, "$", false)}` : ""}` : formatCurrency(prizePool, "$", false)} />
                         <Kpi className="px-6 py-3" label={isStarted ? t("tm.col.teams") : t("tm.registeredCount")} value={<>{participantCount}<span className="text-ink-3"> / {displayTournament.slots}</span></>} />
-                        <Kpi className="px-6 py-3" label={t("tm.stage")} value={displayTournament.currentStage ? stageName(displayTournament.currentStage) : (isStarted ? t("tm.inProgress") : t("tm.notStarted"))} valueClassName="text-[22px]" />
+                        <Kpi className="px-6 py-3" label={t("tm.stage")} value={isCompleted ? t("tm.status.completed") : displayTournament.currentStage ? stageName(displayTournament.currentStage) : (isStarted ? t("tm.inProgress") : t("tm.notStarted"))} valueClassName="text-[22px]" />
                         <Kpi className="px-6 py-3" label={t("tm.format")} value={formatDisplayName(displayTournament.format)} valueClassName="text-[22px]" />
                     </div>
                     {currentWeek >= startWeek && (
@@ -574,9 +592,9 @@ export default function TournamentDetailPage() {
                             <Panel title={t("tm.about")}>
                                 <p className="max-w-3xl text-sm leading-relaxed text-ink-2">{displayTournament.description || t("tm.noDescription")}</p>
                                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
-                                    <div><dt className={overline}>{t("tm.col.entry")}</dt><dd className="mt-0.5 text-ink-1">{getEntryTypeLabel(displayTournament.entryType)}</dd></div>
+                                    <div><dt className={overline}>{t("tm.col.entry")}</dt><dd className="mt-0.5 text-ink-1">{getEntryTypeLabel(displayTournament.entryType, displayTournament.id)}</dd></div>
                                     <div><dt className={overline}>{t("tm.region")}</dt><dd className="mt-0.5 text-ink-1">{eventRegionName(displayTournament.region)}</dd></div>
-                                    <div><dt className={overline}>{t("tm.col.status")}</dt><dd className="mt-0.5 text-ink-1">{isCompleted ? t("tm.status.completed") : isStarted ? t("tm.inProgress") : (isRegistered || eligibility?.canRegister) ? t("tm.registrationOpen") : displayTournament.entryType === "INVITE" ? t("tm.status.inviteOnly") : t("tm.status.locked")}</dd></div>
+                                    <div><dt className={overline}>{t("tm.col.status")}</dt><dd className="mt-0.5 text-ink-1">{isCompleted ? t("tm.status.completed") : isStarted ? t("tm.inProgress") : (isRegistered || canRegister) ? t("tm.registrationOpen") : displayTournament.entryType === "INVITE" ? t("tm.status.inviteOnly") : t("tm.status.locked")}</dd></div>
                                     <div><dt className={overline}>{t("tm.format")}</dt><dd className="mt-0.5 text-ink-1">{formatDisplayName(displayTournament.format)}</dd></div>
                                 </dl>
                             </Panel>
@@ -593,7 +611,7 @@ export default function TournamentDetailPage() {
                                                         <p className="mt-1 text-sm font-semibold text-ink-1">{node.tournament.shortName}</p>
                                                         <p className="mt-0.5 text-xs tabular-nums text-ink-3">{weekStart === weekEnd ? t("common.week", { n: weekStart }) : t("tm.weekRange", { from: weekStart, to: weekEnd })} · <span className={node.status === "LIVE" ? "text-negative" : undefined}>{t(`tm.node.${node.status}`)}</span></p>
                                                         {node.incomingQualifierCount > 1 && <p className="mt-0.5 text-xs text-ink-3">{tn("tm.feeders", node.incomingQualifierCount)}</p>}
-                                                        {node.playerStatus && <p className="mt-1 text-xs font-semibold text-positive">{t("tm.you", { status: qualStatusLabel(node.playerStatus) })}</p>}
+                                                        {node.playerStatus && <p className={cn("mt-1 text-xs font-semibold", node.playerStatus === "ELIMINATED" ? "text-negative" : ENTERED_STATUSES.has(node.playerStatus) ? "text-positive" : "text-ink-3")}>{t("tm.you", { status: qualStatusLabel(node.playerStatus) })}</p>}
                                                     </li>
                                                     {index < pathToEvent.length - 1 && <ChevronRight className="h-4 w-4 shrink-0 self-center text-ink-3" aria-hidden="true" />}
                                                 </React.Fragment>
@@ -693,8 +711,10 @@ export default function TournamentDetailPage() {
                             {/* Registration */}
                             {tournament && !isStarted && !isRegistered && (
                                 <Panel title={t("tm.col.entry")}>
-                                    {eligibility?.canRegister ? (
+                                    {canRegister ? (
                                         <p className="text-sm text-ink-2">{t("tm.canEnter", { week: startWeek })}</p>
+                                    ) : entryBlockText ? (
+                                        <p className="text-sm text-ink-2">{entryBlockText}</p>
                                     ) : eligibility?.eligible ? (
                                         <p className="text-sm text-ink-2"><Trans k="tm.invitePending" tags={{ b: x => <span className="font-semibold text-ink-1">{x}</span> }} /></p>
                                     ) : (
@@ -737,59 +757,94 @@ export default function TournamentDetailPage() {
                     displayTournament?.format === "swiss" ? (
                         (displayTournament.standings?.length ?? 0) > 0 ? (
                         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-                        <Panel title={t("tm.swissStage")} actions={<span className="text-xs text-ink-3">{t("tm.swissNote")}</span>} padded={false}>
-                            {(() => {
-                                // The engine's Swiss table (wins → head-to-head → map/round diff).
-                                const playoffTeams = new Set((displayTournament.playoffBracket ?? [])
-                                    .filter(m => !m.id.includes("swiss"))
-                                    .flatMap(m => [m.homeTeamId, m.awayTeamId]))
+                        <div className="min-w-0 space-y-4">
+                        {(() => {
+                            type SwissRow = NonNullable<DisplayTournament["standings"]>[number]
+                            type SwissStatus = "advanced" | "out" | null
+                            // Clubs in the playoff: every other club of the final Swiss table is out.
+                            const playoffTeams = new Set(playoffRows.flatMap(m => [m.homeTeamId, m.awayTeamId]).filter(Boolean))
+                            // A Swiss qualifier's places once its table is final (COMP-03).
+                            const qualifierPlaces = swissOnly && isCompleted && tournament
+                                ? new Set(TournamentManager.calculatePlacements({ teams } as any, tournament).filter(p => p.position <= advanceSlots).map(p => p.teamId))
+                                : null
+                            const statusOf = (st: SwissRow): SwissStatus => {
+                                if (playoffTeams.size > 0) return playoffTeams.has(st.teamId) ? "advanced" : "out"
+                                if (qualifierPlaces) return qualifierPlaces.has(st.teamId) ? "advanced" : "out"
+                                // While a qualifier with fewer than 8 places runs, a 3-2 club is not sure of one yet.
+                                if (st.wins >= 3 && (!swissOnly || advanceSlots >= 8 || st.losses < 2)) return "advanced"
+                                return st.losses >= 3 ? "out" : null
+                            }
+                            const swissTable = (rows: SwissRow[], status: (st: SwissRow) => SwissStatus) => (
+                                <table data-slot="table" className="w-full border-collapse text-left">
+                                    <thead data-slot="table-header">
+                                        <tr className="border-b border-line">
+                                            <th data-slot="table-head" className="w-14 pl-4">#</th>
+                                            <th data-slot="table-head">{t("rk.col.team")}</th>
+                                            <th data-slot="table-head" className="px-3 text-right">{t("common.win.short")}</th>
+                                            <th data-slot="table-head" className="px-3 text-right">{t("common.loss.short")}</th>
+                                            <th data-slot="table-head" className="px-3 text-right" title={t("tm.col.rdLong")}>{t("tm.col.rd")}</th>
+                                            <th data-slot="table-head" className="pr-4 text-right">{t("tm.col.status")}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {/* Record (W−L) first, then wins, then round diff; the
+                                            engine's order breaks the remaining ties. */}
+                                        {[...rows].sort((a, b) =>
+                                            (b.wins - b.losses) - (a.wins - a.losses) || b.wins - a.wins || b.roundDiff - a.roundDiff,
+                                        ).map((st, idx) => {
+                                            const team = teamsById.get(st.teamId)
+                                            const own = st.teamId === playerTeamId
+                                            const result = status(st)
+                                            const out = result === "out"
+                                            return (
+                                                <tr key={st.teamId} data-slot="table-row" className={cn("h-11 border-b border-line last:border-b-0", own && "bg-gold/[0.05] shadow-[inset_2px_0_0_var(--gold)]", out && "text-ink-3")}>
+                                                    <td className="pl-4 text-sm font-semibold tabular-nums text-ink-3">{idx + 1}</td>
+                                                    <td>
+                                                        <span className="flex items-center gap-2.5">
+                                                            <TeamLogoImage src={team?.logoPath} alt="" size={22} team={team} />
+                                                            {team ? <TeamLink id={team.id} className={cn("text-sm font-semibold", out ? "text-ink-3" : "text-ink-1")}>{team.name}</TeamLink> : <span className="text-sm text-ink-3">{t("tm.unknownTeam")}</span>}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-1">{st.wins}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-2">{st.losses}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-2">{st.roundDiff > 0 ? `+${st.roundDiff}` : st.roundDiff}</td>
+                                                    <td className="pr-4 text-right text-sm">
+                                                        {result === "advanced" ? <span className="font-semibold text-positive">{t("tm.swiss.advanced")}</span>
+                                                            : out ? <span className="text-negative">{t("tm.status.eliminated")}</span>
+                                                                : <span className="text-ink-3">—</span>}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            )
+                            const note = <span className="text-xs text-ink-3">{t("tm.swissNote")}</span>
+                            // A 24-club Major: stage 1 (the RMR clubs), then stage 2 with the invited clubs.
+                            if (displayTournament.swissInvites?.length) {
+                                const stage1 = displayTournament.swissStage1
+                                const inStage2 = new Set(displayTournament.standings!.map(st => st.teamId))
                                 return (
-                                    <table data-slot="table" className="w-full border-collapse text-left">
-                                        <thead data-slot="table-header">
-                                            <tr className="border-b border-line">
-                                                <th data-slot="table-head" className="w-14 pl-4">#</th>
-                                                <th data-slot="table-head">{t("rk.col.team")}</th>
-                                                <th data-slot="table-head" className="px-3 text-right">{t("common.win.short")}</th>
-                                                <th data-slot="table-head" className="px-3 text-right">{t("common.loss.short")}</th>
-                                                <th data-slot="table-head" className="px-3 text-right" title={t("tm.col.rdLong")}>{t("tm.col.rd")}</th>
-                                                <th data-slot="table-head" className="pr-4 text-right">{t("tm.col.status")}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {/* Record (W−L) first, then wins, then round diff; the
-                                                engine's order breaks the remaining ties. */}
-                                            {[...displayTournament.standings!].sort((a, b) =>
-                                                (b.wins - b.losses) - (a.wins - a.losses) || b.wins - a.wins || b.roundDiff - a.roundDiff,
-                                            ).map((st, idx) => {
-                                                const team = teamsById.get(st.teamId)
-                                                const own = st.teamId === playerTeamId
-                                                const advanced = st.wins >= 3 || playoffTeams.has(st.teamId)
-                                                const out = !advanced && st.losses >= 3
-                                                return (
-                                                    <tr key={st.teamId} data-slot="table-row" className={cn("h-11 border-b border-line last:border-b-0", own && "bg-gold/[0.05] shadow-[inset_2px_0_0_var(--gold)]", out && "text-ink-3")}>
-                                                        <td className="pl-4 text-sm font-semibold tabular-nums text-ink-3">{idx + 1}</td>
-                                                        <td>
-                                                            <span className="flex items-center gap-2.5">
-                                                                <TeamLogoImage src={team?.logoPath} alt="" size={22} team={team} />
-                                                                {team ? <TeamLink id={team.id} className={cn("text-sm font-semibold", out ? "text-ink-3" : "text-ink-1")}>{team.name}</TeamLink> : <span className="text-sm text-ink-3">{t("tm.unknownTeam")}</span>}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-3 text-right text-sm tabular-nums text-ink-1">{st.wins}</td>
-                                                        <td className="px-3 text-right text-sm tabular-nums text-ink-2">{st.losses}</td>
-                                                        <td className="px-3 text-right text-sm tabular-nums text-ink-2">{st.roundDiff > 0 ? `+${st.roundDiff}` : st.roundDiff}</td>
-                                                        <td className="pr-4 text-right text-sm">
-                                                            {advanced ? <span className="font-semibold text-positive">{t("tm.swiss.advanced")}</span>
-                                                                : out ? <span className="text-negative">{t("tm.status.eliminated")}</span>
-                                                                    : <span className="text-ink-3">—</span>}
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            })}
-                                        </tbody>
-                                    </table>
+                                    <>
+                                        <Panel title={stage1 ? t("tm.swiss.stage2") : t("tm.swiss.stage1")} actions={note} padded={false}>
+                                            {swissTable(displayTournament.standings!, statusOf)}
+                                            <p className="border-t border-line px-4 py-3 text-xs text-ink-3">{t("tm.swiss.majorNote")}</p>
+                                        </Panel>
+                                        {stage1 && (
+                                            <Panel title={t("tm.swiss.stage1")} actions={note} padded={false}>
+                                                {swissTable(stage1, st => (inStage2.has(st.teamId) ? "advanced" : "out"))}
+                                            </Panel>
+                                        )}
+                                    </>
                                 )
-                            })()}
-                        </Panel>
+                            }
+                            return (
+                                <Panel title={t("tm.swissStage")} actions={note} padded={false}>
+                                    {swissTable(displayTournament.standings!, statusOf)}
+                                </Panel>
+                            )
+                        })()}
+                        </div>
                         {prizeSplitPanel}
                         </div>
                         ) : emptyBlock(LayoutGrid, t("tm.noStandings"), t("tm.noStandingsBody"))
@@ -919,13 +974,13 @@ export default function TournamentDetailPage() {
                 )}
 
                 {activeTab === "playoffs" && (
-                    displayTournament?.playoffBracket && displayTournament?.playoffBracket.length > 0 ? (
+                    playoffRows.length > 0 ? (
                         <Panel title={t("tm.tab.bracket")} padded={false}>
                             <div className="overflow-x-auto">
                                 <div className="min-w-max">
                                     {(() => {
                                         // TournamentBracket sorts the stages (RO32 → Final).
-                                        const bracketMatches = displayTournament?.playoffBracket || []
+                                        const bracketMatches = playoffRows
                                         const uniqueStages = [...new Set(bracketMatches.map((m: any) => m.stage).filter(Boolean))] as string[]
                                         const bracketIds = new Set(bracketMatches.flatMap((m: any) => [m.homeTeamId, m.awayTeamId]))
                                         const bracketOvrs = teamOvrMap(teams.filter(t => bracketIds.has(t.id)), players)

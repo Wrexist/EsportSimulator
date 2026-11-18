@@ -24,6 +24,7 @@ import { calculateTeamTier, getTierStyle } from "@/engine/tier-system"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { CountryFlag } from "@/components/ui/CountryFlag"
+import { clubRegionName } from "@/lib/display-names"
 import { LeagueEngine, LeagueTier } from "@/engine/league-engine"
 import { isUnrankedTeamId, seasonEndTierMove } from "@/engine/world-ranking"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
@@ -54,6 +55,15 @@ type RankingsRowProps = {
 
 const GRID = "grid-cols-[72px_minmax(240px,1fr)_96px_90px_72px_128px_120px_40px]"
 const ordinal = (n: number) => ordinalLabel(n)
+/**
+ * A club's region as the same small label for every region: "BR" is a
+ * region here, not Brazil's flag (COMP-21).
+ */
+const RegionBadge = ({ region }: { region: string }) => (
+    <span title={clubRegionName(region)} className="inline-flex h-[11px] min-w-[14px] items-center justify-center rounded-[2px] bg-hover px-0.5 text-[9px] font-bold uppercase leading-none tracking-wider text-ink-2">
+        {region === "un" ? "INT" : region}
+    </span>
+)
 /** Club tier label (tier-system TierLevel). */
 const teamTierLabel = (tier: string) => {
     const key = `rk.teamTier.${tier}`
@@ -121,7 +131,7 @@ const RankingsRow = React.memo(function RankingsRow({
                         )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
-                        <CountryFlag country={teamFlag} showName={false} size={14} />
+                        <RegionBadge region={teamFlag} />
                         <span>{teamTierLabel(team.tier)}</span>
                     </div>
                 </div>
@@ -654,7 +664,7 @@ function RankingsPageInner() {
                                             <span aria-hidden="true">·</span>
                                             <span>{teamTierLabel(selectedTeam.tier)}</span>
                                             <span aria-hidden="true">·</span>
-                                            <CountryFlag country={selectedTeam.region} showName={false} size={14} />
+                                            <RegionBadge region={selectedTeam.region || "un"} />
                                         </div>
                                     </div>
                                 </div>
