@@ -558,6 +558,17 @@ export function safeTeamName(name: string): string {
     return premiumTeamName(name.trim()).name
 }
 
+/**
+ * A map key as a whole word, case-insensitive: letters or digits may not touch
+ * it on either side, so "OG" never rewrites the middle of "Cologne" or
+ * "recognition" (SMOKE-B-06). Underscores and dots still separate words, so
+ * the "iem" of an id like "iem_katowice_2025" is rewritten as before.
+ */
+function wholeWord(key: string): RegExp {
+    const esc = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    return new RegExp(`(?<![A-Za-z0-9])${esc}(?![A-Za-z0-9])`, "gi")
+}
+
 export function safeTournamentName(name: string): string {
     if (!name) return name
     // Tournament names can embed team / sponsor / event trademarks — apply
@@ -567,10 +578,7 @@ export function safeTournamentName(name: string): string {
     const allMaps: Record<string, string>[] = [TOURNAMENT_NAME_MAP, SPONSOR_NAME_MAP, TEAM_NAME_MAP]
     for (const map of allMaps) {
         const keys = Object.keys(map).sort((a, b) => b.length - a.length)
-        for (const k of keys) {
-            const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-            replaced = replaced.replace(new RegExp(esc, "gi"), map[k])
-        }
+        for (const k of keys) replaced = replaced.replace(wholeWord(k), map[k])
     }
     for (const [re, rep] of PHRASE_REPLACEMENTS) replaced = replaced.replace(re, rep)
     return replaced
@@ -696,10 +704,7 @@ export function safeDescription(text: string): string {
     const allMaps: Record<string, string>[] = [TOURNAMENT_NAME_MAP, TEAM_NAME_MAP, SPONSOR_NAME_MAP]
     for (const map of allMaps) {
         const keys = Object.keys(map).sort((a, b) => b.length - a.length)
-        for (const k of keys) {
-            const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-            out = out.replace(new RegExp(esc, "gi"), map[k])
-        }
+        for (const k of keys) out = out.replace(wholeWord(k), map[k])
     }
     return out
 }

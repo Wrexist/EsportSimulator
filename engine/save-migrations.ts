@@ -475,6 +475,18 @@ export function runMigrationLadder(save: unknown): GameSave {
             }
         }
     }
+    // SMOKE-B-06: the branding pass rewrote the "og" inside "Cologne" and
+    // "recognition"; tournaments created from that data keep the names.
+    if (Array.isArray(migrated.tournaments)) {
+        for (const tour of migrated.tournaments as TournamentSaveData[]) {
+            for (const field of ["name", "shortName", "description"] as const) {
+                const v = (tour as unknown as Record<string, unknown>)?.[field]
+                if (typeof v === "string" && v.includes("OverGrowth")) {
+                    (tour as unknown as Record<string, unknown>)[field] = v.replace(/ColOverGrowthne/g, "Colone").replace(/recOverGrowthnition/g, "recognition")
+                }
+            }
+        }
+    }
 
     return {
         ...migrated,

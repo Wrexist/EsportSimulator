@@ -269,7 +269,7 @@
     "startWeek": 31,
     "duration": 1,
     "entryType": "QUALIFIER",
-    "description": "European tournament showcasing rising talent and established mid-tier teams. 12 teams compete: 4 direct invites and 8 qualifier winners. Single-elimination bracket with best-of-3 matches. A key opportunity for B-tier teams to earn recOverGrowthnition and prize money.",
+    "description": "European tournament showcasing rising talent and established mid-tier teams. 12 teams compete: 4 direct invites and 8 qualifier winners. Single-elimination bracket with best-of-3 matches. A key opportunity for B-tier teams to earn recognition and prize money.",
     "inviteSlots": 4,
     "qualifierSlots": 8,
     "color": "#06b6d4",
@@ -580,7 +580,7 @@
   {
     "id": "iem_cologne_open",
     "name": "Summer Open Colone Open Qualifier",
-    "shortName": "ColOverGrowthne Open",
+    "shortName": "Colone Open",
     "tier": "QUALIFIER",
     "region": "INTERNATIONAL",
     "format": "bracket",
@@ -599,7 +599,7 @@
   {
     "id": "iem_cologne_closed",
     "name": "Summer Open Colone Closed Qualifier",
-    "shortName": "ColOverGrowthne Qual",
+    "shortName": "Colone Qual",
     "tier": "QUALIFIER",
     "region": "EU",
     "format": "bracket",
