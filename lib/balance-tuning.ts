@@ -272,12 +272,13 @@ export const LEAGUE_TUNING = {
 /**
  * Career difficulty for a club you take over (the new-game picker). It moves
  * the same levers a custom club's difficulty does: starting cash and the
- * club's recurring income, fans and prize money (team.difficultySettings).
+ * club's recurring income (team.difficultySettings). MODES-18: the unused
+ * fans and prize-money multipliers were removed.
  */
 export const CAREER_DIFFICULTY = {
-    easy: { label: "Relaxed", hint: "More starting cash and more income every week. Room for mistakes.", cash: 1.5, incomeMultiplier: 1.2, fansMultiplier: 1.25, tournamentPrizeMultiplier: 1 },
-    normal: { label: "Normal", hint: "The club as it is.", cash: 1, incomeMultiplier: 1, fansMultiplier: 1, tournamentPrizeMultiplier: 1 },
-    hard: { label: "Hard", hint: "Less starting cash and less income. Every wage matters.", cash: 0.6, incomeMultiplier: 0.85, fansMultiplier: 0.85, tournamentPrizeMultiplier: 1 },
+    easy: { label: "Relaxed", hint: "More starting cash and more income every week. Room for mistakes.", cash: 1.5, incomeMultiplier: 1.2 },
+    normal: { label: "Normal", hint: "The club as it is.", cash: 1, incomeMultiplier: 1 },
+    hard: { label: "Hard", hint: "Less starting cash and less income. Every wage matters.", cash: 0.6, incomeMultiplier: 0.85 },
 } as const
 export type CareerDifficulty = keyof typeof CAREER_DIFFICULTY
 

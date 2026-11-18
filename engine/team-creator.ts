@@ -134,8 +134,6 @@ export function generateCustomTeamData(data: CustomTeamData, teamId: string): Pa
         },
         difficultySettings: {
             incomeMultiplier: settings.incomeMultiplier,
-            fansMultiplier: settings.fansMultiplier,
-            tournamentPrizeMultiplier: settings.tournamentPrizeMultiplier,
         }
     }
 }
