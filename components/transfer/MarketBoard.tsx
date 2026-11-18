@@ -25,7 +25,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { ALL_REGIONS } from "@/engine/scouting-helpers"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
-import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
+import { SENIOR_ROSTER_MAX, strategicRefusalWeek } from "@/engine/roster-rules"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { ScoutedRating } from "./ScoutedRating"
@@ -197,7 +197,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     const {
         players, teams, playerTeamId, scoutedPlayers, academyPlayers, academyPendingProspects, contracts,
         currentWeek, watchlistedPlayerIds, activeScoutingMission, staff, boardState, saveId, transferHistory,
-        savedSearches, saveMarketSearch, deleteMarketSearch, toggleMarketSearchAlerts,
+        savedSearches, saveMarketSearch, deleteMarketSearch, toggleMarketSearchAlerts, scheduledMatches,
     } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
@@ -217,6 +217,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
         saveMarketSearch: state.saveMarketSearch,
         deleteMarketSearch: state.deleteMarketSearch,
         toggleMarketSearchAlerts: state.toggleMarketSearchAlerts,
+        scheduledMatches: state.scheduledMatches,
     })))
 
     // The server renders without a career; match it on the first client render.
@@ -347,7 +348,12 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     const pageRows = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
     // Docked panel follows the selection; before any click it shows the top row
     // the club can pay for (NEWPLAYER-03: never an Icon far above its means).
-    const activeId = (selectedId && market.some(r => r.player.id === selectedId)) ? selectedId : pageRows.find(withinReach)?.player.id ?? null
+    // Nor a player whose club won't sell before playing you (MARKET-05), when another row will do.
+    const refusingClubs = useMemo(() => new Set(playerTeamId
+        ? teams.filter(tm => tm.id !== playerTeamId && strategicRefusalWeek(scheduledMatches, currentWeek, tm.id, playerTeamId) !== null).map(tm => tm.id)
+        : []), [teams, scheduledMatches, currentWeek, playerTeamId])
+    const activeId = (selectedId && market.some(r => r.player.id === selectedId)) ? selectedId
+        : (pageRows.find(r => withinReach(r) && !(r.team && refusingClubs.has(r.team.id))) ?? pageRows.find(withinReach))?.player.id ?? null
 
     // MARKET-20: below xl the deal panel sits under the table; bring it into
     // view when a player is picked, so the click visibly does something.
