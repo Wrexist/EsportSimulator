@@ -39,6 +39,16 @@
       "source": "@fontsource/barlow-condensed 5.3.0 (npm), file of the same name"
     },
     {
+      "path": "app/fonts/inter-cyrillic-ext-wght-normal.woff2",
+      "sha256": "ca157063339ac4ad418f214f3abfed119b0798ab4d377386ce5c9e5a7a435ebd",
+      "source": "@fontsource-variable/inter 5.3.0 (npm), file of the same name"
+    },
+    {
+      "path": "app/fonts/inter-cyrillic-wght-normal.woff2",
+      "sha256": "71d5ee93cc1e9f1d520a3a8b66456de18c7879d8df09d57fcd2eaff75fef0075",
+      "source": "@fontsource-variable/inter 5.3.0 (npm), file of the same name"
+    },
+    {
       "path": "app/fonts/inter-latin-ext-wght-normal.woff2",
       "sha256": "34b9c504cab7a73e37b746343a449132e56cf7b5481af2cb81dc74dcff25c956",
       "source": "@fontsource-variable/inter 5.3.0 (npm), file of the same name"
