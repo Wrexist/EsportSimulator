@@ -4,6 +4,13 @@
  * (automatic entry, computer registrations, the week tick, then every
  * fixture of the week on its day). Runs a whole season and into the next.
  *
+ * The day cursor moves as in the store (audit 2026-11-17, COMP-01): the tick
+ * runs with last week's Sunday still on the cursor (advanceToWeekEnd sets 6
+ * before advanceWeek), then advanceDay sets `currentDay` to each day before
+ * that day's fixtures are played. A test whose cursor never moved let late
+ * rounds take days that had already passed, which hid qualifiers overrunning
+ * into their main event's week.
+ *
  * Slow (about three minutes): one world is simulated once and every test
  * reads it.
  */
@@ -20,6 +27,7 @@ import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-c
 import { playAutoMatch } from "@/engine/processors/auto-match"
 import { feederEvents, hasRankedInvites } from "@/engine/tournament/qualification-path"
 import { isMajorTournament } from "@/engine/official-stats"
+import { swissOrder } from "@/engine/tournament/swiss-handlers"
 import type { GameSave, TournamentSaveData } from "@/engine/save-types"
 
 enableMapSet()
@@ -33,6 +41,8 @@ const ranksAtStart = new Map<string, Map<string, number>>()
 const rankWhenInvited = new Map<string, number>()
 /** World ranking of every club on the week an event's first invites went out. */
 const ranksAtInvite = new Map<string, Map<string, number>>()
+/** Circuit points of every club when each event's field was built. */
+const pointsAtStart = new Map<string, Map<string, number>>()
 
 beforeAll(async () => {
     // Some engine paths still draw from Math.random: seed it so every run
@@ -59,6 +69,9 @@ beforeAll(async () => {
         TournamentManager.simulateWeeklyRegistrationsV2(save, save.currentWeek, rng)
         // The ranking the tick's invites are sent by (it is updated later in the tick).
         const ranksBefore = new Map(save.teams.map(c => [c.id, c.worldRanking ?? 999]))
+        const pointsBefore = new Map((save.circuitPoints ?? []).map(c => [c.teamId, c.points]))
+        // The store runs the tick from last week's Sunday (advanceToWeekEnd).
+        if (i > 0) save.currentDay = 6
         const before = new Set(save.tournaments.filter(t => t.teamIds.length && t.currentStage !== "Registration").map(t => t.id))
         const r = await computeWeek(save, { playerTeamId: save.playerTeamId!, trainingFocus: new Map([[save.playerTeamId!, { focus: TrainingFocus.AIM, intensity: 5 }]]) }, rng.getState())
         if (!r.result.success) throw Error(r.result.error)
@@ -71,10 +84,13 @@ beforeAll(async () => {
         }
         for (const t of save.tournaments) {
             if (!before.has(t.id) && t.teamIds.length && !ranksAtStart.has(t.id)) ranksAtStart.set(t.id, new Map(save.teams.map(c => [c.id, c.worldRanking ?? 999])))
+            if (!before.has(t.id) && t.teamIds.length && !pointsAtStart.has(t.id)) pointsAtStart.set(t.id, pointsBefore)
         }
         // The week's days: every due fixture on its day (store timedDaySim), the managed club's too.
         const prng = new SeededRNG(save.lastRngSeed)
         for (let day = 0; day <= 6; day++) {
+            // advanceDay moves the cursor before the day's fixtures are played.
+            save.currentDay = day
             for (let pass = 0; pass < 8; pass++) {
                 const removed = new Set<string>()
                 const due = save.scheduledMatches.filter(m => m.week <= save.currentWeek && (m.day ?? 6) <= day)
@@ -159,6 +175,65 @@ describe("a headless season of the qualification path", () => {
             const invited = save.tournamentQualifications.filter(q => q.tournamentId === t.id && q.qualifiedVia === "Direct Invite").map(q => q.teamId)
             expect(invited).toHaveLength(major.inviteSlots!)
             for (const id of invited) expect([id, rankWhenInvited.get(`${t.id}|${id}`)! <= 16]).toEqual([id, true])
+        }
+    })
+
+    test("the Majors play two 16-club Swiss stages to the end (COMP-02)", () => {
+        for (const major of FULL_TOURNAMENT_CALENDAR.filter(d => isMajorTournament(`${d.id}_s1`))) {
+            const t = s1(major.id)
+            const invited = save.tournamentQualifications.filter(q => q.tournamentId === t.id && q.qualifiedVia === "Direct Invite").map(q => q.teamId)
+            // Stage 1: the 16 clubs that came through the RMRs.
+            expect(t.swissStage1).toHaveLength(16)
+            expect(t.swissStage1!.filter(r => invited.includes(r.teamId))).toEqual([])
+            // Stage 2: the 8 invited clubs and the 8 best of stage 1.
+            expect(t.standings).toHaveLength(16)
+            expect([...invited].sort()).toEqual([...t.swissInvites!].sort())
+            for (const id of invited) expect(t.standings.some(r => r.teamId === id)).toBe(true)
+            // Both stages are played out: every club has 3 wins or 3 losses.
+            for (const r of [...t.swissStage1!, ...t.standings]) expect([major.id, r.teamId, r.wins === 3 || r.losses === 3]).toEqual([major.id, r.teamId, true])
+            // The 8 three-win clubs of stage 2 are the playoff, seeded in Swiss order.
+            const playoff = (t.playoffBracket ?? []).filter(m => !m.id.includes("_swiss_r"))
+            const inPlayoff = new Set(playoff.flatMap(m => [m.homeTeamId, m.awayTeamId]).filter(Boolean))
+            expect([...inPlayoff].sort()).toEqual(t.standings.filter(r => r.wins === 3).map(r => r.teamId).sort())
+            // It fits its weeks and every club of the field is placed.
+            expect(lastMatchWeek(t.id)).toBeLessThan(t.startWeek + major.duration)
+            expect(TournamentManager.calculatePlacements(save, t)).toHaveLength(24)
+        }
+    })
+
+    test("an RMR is decided by its Swiss table: its places go to the 3-win clubs in Swiss order (COMP-03)", () => {
+        for (const rmr of FULL_TOURNAMENT_CALENDAR.filter(d => d.qualifierFor && d.format === "swiss")) {
+            const t = s1(rmr.id)
+            expect((t.playoffBracket ?? []).filter(m => !m.id.includes("_swiss_r"))).toEqual([])
+            const expected = swissOrder(t.standings).slice(0, rmr.qualifierSlots).map(r => r.teamId)
+            const via = save.tournamentQualifications.filter(q => q.tournamentId === `${rmr.qualifierFor}_s1` && q.qualifiedVia === `Via ${rmr.shortName}`).map(q => q.teamId)
+            expect([rmr.id, [...via].sort()]).toEqual([rmr.id, [...expected].sort()])
+            for (const id of expected) expect(t.standings.find(r => r.teamId === id)!.wins).toBe(3)
+        }
+    })
+
+    test("the Elite World Final is the top 8 of the circuit points table (COMP-04)", () => {
+        const t = s1("blast_world_final")
+        const points = pointsAtStart.get(t.id)!
+        const ranks = ranksAtStart.get(t.id)!
+        const top8 = [...save.teams].map(c => c.id)
+            .sort((a, b) => (points.get(b) ?? 0) - (points.get(a) ?? 0) || (ranks.get(a) ?? 999) - (ranks.get(b) ?? 999) || a.localeCompare(b))
+            .slice(0, 8)
+        expect([...t.teamIds].sort()).toEqual([...top8].sort())
+    })
+
+    test("a computer club in a Major is not put into a smaller event in the same weeks (COMP-05)", () => {
+        for (const major of FULL_TOURNAMENT_CALENDAR.filter(d => isMajorTournament(`${d.id}_s1`))) {
+            const t = s1(major.id)
+            const majorWeeks = [t.startWeek, lastMatchWeek(t.id)]
+            for (const other of save.tournaments.filter(x => /_s1$/.test(x.id) && x.id !== t.id && x.format !== "league" && x.tier !== "S_TIER" && x.tier !== "QUALIFIER")) {
+                // Events whose own weeks overlap the Major's (the field is built
+                // for those weeks; a final that overran by a week is not a clash).
+                if (other.startWeek > majorWeeks[1] || other.startWeek + other.duration - 1 < majorWeeks[0]) continue
+                const via = new Set(save.tournamentQualifications.filter(q => q.tournamentId === other.id && q.qualifiedVia?.startsWith("Via ")).map(q => q.teamId))
+                const both = other.teamIds.filter(id => t.teamIds.includes(id) && id !== save.playerTeamId && !via.has(id))
+                expect([major.id, other.id, both]).toEqual([major.id, other.id, []])
+            }
         }
     })
 

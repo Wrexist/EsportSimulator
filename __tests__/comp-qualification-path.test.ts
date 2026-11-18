@@ -36,7 +36,7 @@ const row = (tournamentId: string, teamId: string, status: QualificationStatus["
 
 /** Weeks a qualifier needs at one round a week. */
 function weeksNeeded(d: TournamentDefinition): number {
-    if (d.format === "swiss") return 5 + Math.log2(8) // five Swiss rounds, an 8-team playoff
+    if (d.format === "swiss") return 5 // five Swiss rounds; an RMR has no playoff (COMP-03)
     return Math.ceil(Math.log2(d.slots))
 }
 
@@ -47,7 +47,7 @@ describe("calendar: the qualifier path fits", () => {
         const q = def(id), target = def(q.qualifierFor!)
         expect(weeksNeeded(q)).toBeLessThanOrEqual(q.duration)
         expect(q.startWeek + weeksNeeded(q) - 1).toBeLessThan(target.startWeek)
-        // A Swiss qualifier hands out no more places than its playoff has teams.
+        // A Swiss qualifier hands out no more places than its 16-club Swiss stage has 3-win clubs.
         if (q.format === "swiss") expect(q.qualifierSlots ?? 0).toBeLessThanOrEqual(8)
     })
 

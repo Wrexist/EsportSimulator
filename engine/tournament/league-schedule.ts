@@ -73,7 +73,8 @@ export function setupLeagueSchedule(
     const canSpread = startWeek + (numRounds - 1) <= seasonEnd
     if (canSpread && numRounds > 0) {
         // Extend the window so completion/standings span all the spread rounds.
-        tournament.endWeek = Math.max(tournament.endWeek, startWeek + (numRounds - 1))
+        // (endWeek is the week after the last round, as start + duration is.)
+        tournament.endWeek = Math.max(tournament.endWeek, startWeek + numRounds)
     }
 
     let currentMatchIndex = 0
