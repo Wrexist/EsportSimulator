@@ -1,9 +1,9 @@
-import { DATE_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
+import { DATE_REF, STORED_REF, isTextRef, tRefEn, type TextRef } from "@/lib/i18n"
 import { choiceText, eventText } from "@/lib/news-ref"
 import { generateCareerDecision } from "./career-decisions"
 import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
 import { isProActive, processProWeek, handClubDecisionsToStaff } from "./pro-career"
-import { expireDecisions, normalizeDecisions } from "./decision-deadlines"
+import { expireDecisions, expiredDecisionCause, normalizeDecisions } from "./decision-deadlines"
 import { processStorylines } from "./storylines"
 import { createPressConference } from "./storylines/press"
 /**
@@ -111,12 +111,13 @@ export interface WeekProcessorResult {
     changes?: ChangeEntry[]
 }
 
-/** Title-ish text of an event, for report causes. */
-function eventCauseLabel(event: GameEventSaveData): string {
-    const d = (event.data ?? {}) as { title?: unknown; headline?: unknown; description?: unknown; message?: unknown }
+/** Title-ish text of an event, for report causes; its title's translation key when the title names it (SMOKE-B-04). */
+function eventCause(event: GameEventSaveData): ChangeCause {
+    const d = (event.data ?? {}) as { title?: unknown; headline?: unknown; description?: unknown; message?: unknown; titleRef?: unknown }
     const text = [d.title, d.headline, d.description, d.message].find(v => typeof v === "string" && v.trim()) as string | undefined
     const clean = (text ?? String(event.type)).replace(/[^\p{L}\p{N}\s.,:;'!?()&+\-–—$%#/]/gu, "").trim()
-    return clean.length > 70 ? `${clean.slice(0, 67)}...` : clean
+    const label = clean.length > 70 ? `${clean.slice(0, 67)}...` : clean
+    return { type: "event", label, ...(text === d.title && isTextRef(d.titleRef) ? { ref: d.titleRef } : {}) }
 }
 
 /**
@@ -311,7 +312,7 @@ export class AtomicWeekProcessor {
             // Unanswered decisions (Phase 4.9): a request whose deadline has
             // passed gets the default it stated, through the same effects as
             // answering it by hand; the report names it "Unanswered: …".
-            expireDecisions(save, d => mark({ type: "decision", label: `Unanswered: ${d.label}` }))
+            expireDecisions(save, d => mark(expiredDecisionCause(d, "unanswered")))
 
             // Expired players/staff cannot train, receive wages, or appear in
             // cached match rosters. Build the indexes from the surviving contracts.
@@ -524,7 +525,7 @@ export class AtomicWeekProcessor {
                 for (const e of save.eventsLog) {
                     if (eventIdsBefore.has(e.id)) continue
                     const pid = (e.data as { playerId?: unknown } | undefined)?.playerId
-                    const cause: ChangeCause = { type: "event", label: eventCauseLabel(e) }
+                    const cause = eventCause(e)
                     if (typeof pid === "string" && !freshByPlayer.has(pid)) freshByPlayer.set(pid, cause)
                     else if (!pid && !teamEvent && (e.data as { teamId?: unknown } | undefined)?.teamId === config.playerTeamId) teamEvent = cause
                 }
@@ -758,7 +759,7 @@ export class AtomicWeekProcessor {
             if (isProActive(save)) processProWeek(save)
             normalizeDecisions(save)
             if (handClubDecisionsToStaff(save) > 0) {
-                expireDecisions(save, d => mark({ type: "decision", label: `Staff answered: ${d.label}` }))
+                expireDecisions(save, d => mark(expiredDecisionCause(d, "staff")))
                 normalizeDecisions(save)
             }
             result.changes = changes.result()

@@ -115,8 +115,8 @@ describe("weekly report", () => {
     })
     test("HOME-09: a whole-point gain, a loss or prize money still are", () => {
         expect(weekHeadline(report([gain(1.2)]))).toContain("k1ncu's Pistol +1.2")
-        expect(weekHeadline(report([settle(-900)]))).toContain("finances −$900")
-        expect(weekHeadline(report([settle(5000, "prize")]))).toContain("finances +$5.0k")
+        expect(weekHeadline(report([settle(-900)]))).toContain("finances −\u2060$900") // SMOKE-B-21: the sign stays on the amount
+        expect(weekHeadline(report([settle(5000, "prize")]))).toContain("finances +\u2060$5.0k")
     })
     test("HOME-14: a plain first word reads lower case after the story label", () => {
         const story = { kind: "RISING_STAR", label: "Rising star", text: "You promised ace a starting place." }

@@ -23,6 +23,7 @@ import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "./eve
 import { isPendingDecisionEvent, isTransferRumor } from "@/lib/event-format"
 import { isTextRef, STORED_REF, type TextRef } from "@/lib/i18n"
 import { weekOfSeason } from "@/lib/season-week"
+import type { ChangeCause } from "@/lib/week-changes"
 
 export interface DecisionRule {
     /** Dedup and cooldown key, together with the subject. */
@@ -225,6 +226,25 @@ function reportLabel(r: DecisionRule, e: EventLike, save: NameSource): string {
     return name && r.consequence.includes("{name}") && !r.label.includes(name) ? `${r.label} (${name})` : r.label
 }
 
+/** SMOKE-B-02: the job offer and bid labels as translation keys (the others are known stored text). */
+function reportLabelRef(r: DecisionRule, e: EventLike, save: NameSource): TextRef | undefined {
+    if (r === JOB_OFFER_RULE) {
+        const club = dataOf(e).offeringTeamName
+        return typeof club === "string" && club ? { key: "svd.p.jobOfferFrom", params: { club } } : { key: "svd.dec.jobOfferOther" }
+    }
+    if (r === BID_RULE) {
+        const name = playerName(e, save)
+        return name ? { key: "svd.p.bidFor", params: { name } } : { key: "svd.dec.bidOther" }
+    }
+    return undefined
+}
+
+/** The report cause of a settled decision: "Unanswered: …" or "Staff answered: …", in the active language when it has a key. */
+export function expiredDecisionCause(d: ExpiredDecision, by: "unanswered" | "staff"): ChangeCause {
+    const label = `${by === "staff" ? "Staff answered" : "Unanswered"}: ${d.label}`
+    return { type: "decision", label, ...(d.labelRef ? { ref: { key: by === "staff" ? "svd.p.staffAnswered" : "svd.p.unanswered", params: { what: d.labelRef } } } : {}) }
+}
+
 export interface NormalizeResult {
     /** Open requests that gained a deadline and default. */
     assigned: number
@@ -335,6 +355,9 @@ export interface ExpiredDecision {
     outcome: string
     /** True when the default's effects were applied. */
     applied: boolean
+    /** SMOKE-B-01/02: the label and the applied answer as translation keys, when they have one. */
+    labelRef?: TextRef
+    outcomeRef?: TextRef
 }
 
 type ExpirySave = DecisionSave & ChoiceTarget & Pick<GameSave, "acknowledgedEventIds">
@@ -369,10 +392,14 @@ export function expireDecisions(save: ExpirySave, each?: (expired: ExpiredDecisi
         })
         e.selectedChoiceId = applied && choice ? choice.id : "expired"
         const outcome = applied && choice ? choice.text : "Lapsed"
-        e.data = { ...data, resolvedWeek: save.currentWeek, unanswered: { week: save.currentWeek, label, outcome } }
+        const labelRef = r ? reportLabelRef(r, e, save) : undefined
+        const choiceRef = (choice as { ref?: unknown } | undefined)?.ref
+        const outcomeRef = applied && isTextRef(choiceRef) ? choiceRef : undefined
+        const refs = { ...(labelRef ? { labelRef } : {}), ...(outcomeRef ? { outcomeRef } : {}) }
+        e.data = { ...data, resolvedWeek: save.currentWeek, unanswered: { week: save.currentWeek, label, outcome, ...refs } }
         e.acknowledged = true
         if (!save.acknowledgedEventIds.includes(e.id)) save.acknowledgedEventIds.push(e.id)
-        const expired = { eventId: e.id, label, outcome, applied }
+        const expired: ExpiredDecision = { eventId: e.id, label, outcome, applied, ...refs }
         out.push(expired)
         each?.(expired)
     }

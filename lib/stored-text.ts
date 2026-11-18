@@ -60,7 +60,24 @@ const RULES: Rule[] = [
     [/^(.+): (.+), (\d+) weeks? out$/, m => plural(Number(m[3]), "svd.p.injuredOut", { name: m[1], injury: segment(m[2]) })],
     [/^(.+) left the club \((.+)\)$/, m => t("svd.p.leftClub", { name: m[1], cause: segment(m[2].charAt(0).toUpperCase() + m[2].slice(1)) })],
     [/^Finances: (.+)$/, m => t("svd.p.finances", { state: t(`svd.fin.${m[1].toUpperCase()}`) })],
+    // SMOKE-B-03: the live-match split adds " this week" (engine/ranking-report.ts).
+    [/^Other clubs' results this week(.*)$/, m => t("svd.p.otherResultsWeek") + (m[1] ? others(m[1]) : "")],
     [/^Other clubs' results(.*)$/, m => t("svd.p.otherResults") + (m[1] ? others(m[1]) : "")],
+    // SMOKE-B-02: unanswered job offers and bids saved before they carried keys
+    [/^Job offer from (.+)$/, m => t("svd.p.jobOfferFrom", { club: m[1] })],
+    [/^Bid for (.+)$/, m => t("svd.p.bidFor", { name: m[1] })],
+    // SMOKE-B-01: a pro's default answer to a club offer
+    [/^Stay at (.+)$/, m => t("pcr.offer.stay", { club: m[1] })],
+    // SMOKE-B-04: event titles named as a week cause before causes carried keys
+    [/^Happy birthday, (.+)!$/, m => t("rnd.birthday.t", { name: m[1] })],
+    [/^Interview request: (.+)$/, m => t("rnd.interview.t", { outlet: m[1] })],
+    [/^Fan milestone: (.+) followers!$/, m => t("rnd.fans.t", { count: m[1] })],
+    [/^Rivalry heats up: (.+)$/, m => t("rnd.rivalry.t", { club: m[1] })],
+    [/^(.+) equipment deal$/, m => t("rnd.gear.t", { brand: m[1] })],
+    [/^Coaching offer: (.+)$/, m => t("leg.coach.t", { legend: m[1] })],
+    [/^Injury report: (.+)$/, m => t("ev.injury.t", { name: m[1] })],
+    [/^(.+)'s workload is high$/, m => t("ev.workload.t", { name: m[1] })],
+    [/^(.+) has a knock: (.+)$/, m => t("ev.knock.t", { name: m[1], injury: segment(m[2]) })],
     // Ledger lines
     [/^Transfer Fee: (.+)$/, m => t("svd.p.transferFee", { name: m[1] })],
     [/^Signing Bonus: (.+)$/, m => t("svd.p.signingBonus", { name: m[1] })],
@@ -163,6 +180,33 @@ const RULES: Rule[] = [
     [/^(.+?) ([+−-][\d.]+%?)$/, m => `${segment(m[1])} ${localNumber(m[2])}`],
 ]
 
+/**
+ * SMOKE-B-01: answers older builds wrote into the save as English (the
+ * report's "Unanswered" outcome, effects already cut off), by their key.
+ */
+const LEGACY_CHOICES: Record<string, string> = {
+    "One-on-One Talk": "rnd.c.talk",
+    "Performance Bonus": "rnd.c.bonus",
+    "Ignore": "rnd.c.ignore",
+    "Team Dinner": "rnd.c.dinner",
+    "Stay Focused": "rnd.c.focus",
+    "Crisis Meeting": "rnd.c.crisis",
+    "Roster Shakeup Warning": "rnd.c.shakeup",
+    "Host Fan Meetup": "rnd.c.fanMeet",
+    "Social Media Campaign": "rnd.c.social",
+    "Focus purely on practice": "rnd.c.practice",
+    "Negotiate Performance Bonus": "rnd.c.negotiateBonus",
+    "Standard Progress Report": "rnd.c.report",
+    "Accept Interview": "rnd.c.acceptInterview",
+    "Decline Politely": "rnd.c.declinePolitely",
+    "Throw a Party": "rnd.c.party",
+    "Send a Gift": "rnd.c.gift",
+    "Send Wishes": "rnd.c.wishes",
+    "Accept Deal": "rnd.c.acceptDeal",
+    "Counter-Offer": "rnd.c.counter",
+    "Decline": "rnd.c.decline",
+}
+
 const LEAGUE_STATE: Record<string, string> = { "On track": "onTrack", "Behind target": "behind", "League objective met": "met", "League objective missed": "missed" }
 
 /** ": passed by X; Y dropped behind" after "Other clubs' results". */
@@ -196,7 +240,7 @@ function known(key: string, fallback: string): string {
 function segment(s: string): string {
     const text = s.trim()
     if (!text) return s
-    const key = reverseIndex().get(text)
+    const key = reverseIndex().get(text) ?? LEGACY_CHOICES[text]
     if (key) return t(key)
     for (const [re, fn] of RULES) {
         const m = text.match(re)

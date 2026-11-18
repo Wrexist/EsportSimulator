@@ -7,7 +7,7 @@
 import type { ChangeEntry } from "@/lib/week-changes"
 import { causeText, fmtDelta, formatMoney, moneyNet, signedDelta, weekHeadline, type WeekReport } from "@/lib/week-report"
 import { choiceLabel } from "@/components/inbox/inbox-model"
-import { getLocale, t, tn } from "@/lib/i18n"
+import { getLocale, isTextRef, t, tn, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 export type Tone = "up" | "down" | "neutral"
@@ -194,9 +194,10 @@ export function topPlayerChanges(report: WeekReport, max = 3): { name: string; c
 
 /** Unanswered decisions with the default the club applied, without the inline effect note. */
 export function unansweredRows(report: WeekReport): { label: string; outcome: string }[] {
+    // SMOKE-B-01/02: the keys the decision stored; older reports keep only the English.
     return (report.unanswered ?? []).map(u => ({
-        label: storedText(u.label),
-        outcome: u.outcome === "Lapsed" ? t("wr.lapsed") : storedText(choiceLabel({ id: "", text: u.outcome })),
+        label: isTextRef(u.labelRef) ? tRef(u.labelRef) : storedText(u.label),
+        outcome: u.outcome === "Lapsed" ? t("wr.lapsed") : isTextRef(u.outcomeRef) ? tRef(u.outcomeRef) : storedText(choiceLabel({ id: "", text: u.outcome })),
     }))
 }
 

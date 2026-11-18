@@ -11,6 +11,7 @@
 import type { CompletedMatchSaveData, GameSave } from "./save-types"
 import type { ChangeCause, ChangeEntry } from "@/lib/week-changes"
 import { eventDisplayName } from "@/lib/tournament-instances"
+import { JOIN_REF, STORED_REF, type TextParam, type TextRef } from "@/lib/i18n"
 import { IMPORTANCE_LABEL, isPlayoffStage, matchImportance, rankMovement, type RankMovement } from "./world-ranking"
 
 type MatchRef = Pick<CompletedMatchSaveData, "tournamentId" | "stage">
@@ -67,16 +68,39 @@ function resultsSinceRefresh(save: ReportSave, teamId: string): CompletedMatchSa
 
 /** "Your results: beat X · IEM Cologne (S-Tier playoffs), Elo +14; lost to Y · ... (League), Elo −5". */
 export function ownResultsLabel(save: ReportSave, teamId: string): string {
+    return ownResults(save, teamId).label
+}
+
+/** The own-results cause, with its translation key (SMOKE-B-03). */
+function ownResults(save: ReportSave, teamId: string): ChangeCause {
     const results = resultsSinceRefresh(save, teamId)
-    const parts = results.slice(0, 3).map(m => {
+    const parts: string[] = []
+    const refs: Record<string, TextParam> = { sep: "; " }
+    results.slice(0, 3).forEach((m, i) => {
         const home = m.homeTeamId === teamId
         const opp = save.teams.find(t => t.id === (home ? m.awayTeamId : m.homeTeamId))?.name ?? "opponent"
         const elo = home ? m.eloChange?.home : m.eloChange?.away
         const won = m.result?.winnerId === teamId
-        return `${won ? "beat" : "lost to"} ${opp}${competitionLabel(save, m)}${typeof elo === "number" ? `, Elo ${signed(elo)}` : ""}`
+        const competition = competitionLabel(save, m)
+        const eloText = typeof elo === "number" ? `, Elo ${signed(elo)}` : ""
+        parts.push(`${won ? "beat" : "lost to"} ${opp}${competition}${eloText}`)
+        refs[`r${i}`] = {
+            key: JOIN_REF,
+            params: {
+                sep: "",
+                result: { key: won ? "svd.p.beatTeam" : "svd.p.lostToTeam", params: { opp } },
+                competition: competition ? { key: JOIN_REF, params: { sep: "", dot: " · ", name: { key: STORED_REF, params: { text: competition.replace(/^ · /, "") } } } } : "",
+                elo: eloText,
+            },
+        }
     })
-    if (results.length > 3) parts.push(`${results.length - 3} more`)
-    return parts.length ? `Your results: ${parts.join("; ")}` : "Your results"
+    if (results.length > 3) {
+        parts.push(`${results.length - 3} more`)
+        refs.more = { key: "wr.more", params: { n: results.length - 3 } }
+    }
+    return parts.length
+        ? { type: "match", label: `Your results: ${parts.join("; ")}`, ref: { key: "svd.p.yourResults", params: { list: { key: JOIN_REF, params: refs } } } }
+        : { type: "match", label: "Your results", ref: { key: "svd.yourResults" } }
 }
 
 /** "Other clubs' results: passed by A, B; C dropped behind". */
@@ -87,11 +111,20 @@ export function othersResultsLabel(save: Pick<GameSave, "teams">, move: Pick<Ran
     return `Other clubs' results${suffix}${bits.length ? `: ${bits.join("; ")}` : ""}`
 }
 
+/** The same cause as a translation key (SMOKE-B-03: " this week" was left in English). */
+function othersResultsRef(save: Pick<GameSave, "teams">, move: Pick<RankMovement, "passedBy" | "droppedBehind">, suffix: string): TextRef {
+    const head: TextRef = { key: suffix ? "svd.p.otherResultsWeek" : "svd.p.otherResults" }
+    const bits: Record<string, TextParam> = { sep: "; " }
+    if (move.passedBy.length) bits.passed = { key: "svd.p.passedBy", params: { names: names(save, move.passedBy) } }
+    if (move.droppedBehind.length) bits.behind = { key: "svd.p.droppedBehind", params: { names: names(save, move.droppedBehind) } }
+    return Object.keys(bits).length > 1 ? { key: JOIN_REF, params: { sep: "", head, colon: ": ", bits: { key: JOIN_REF, params: bits } } } : head
+}
+
 /** The two "World rank" entries of a movement (only the non-zero parts). */
 export function rankEntries(save: Pick<GameSave, "teams">, teamId: string, move: RankMovement, ownCause: ChangeCause, othersSuffix = ""): ChangeEntry[] {
     const out: ChangeEntry[] = []
     if (move.own !== 0) out.push({ kind: "ranking", subjectId: teamId, label: RANK_LABEL, delta: move.own, cause: ownCause })
-    if (move.others !== 0) out.push({ kind: "ranking", subjectId: teamId, label: RANK_LABEL, delta: move.others, cause: { type: "world", label: othersResultsLabel(save, move, othersSuffix) } })
+    if (move.others !== 0) out.push({ kind: "ranking", subjectId: teamId, label: RANK_LABEL, delta: move.others, cause: { type: "world", label: othersResultsLabel(save, move, othersSuffix), ref: othersResultsRef(save, move, othersSuffix) } })
     return out
 }
 
@@ -102,7 +135,7 @@ export function rankEntries(save: Pick<GameSave, "teams">, teamId: string, move:
 export function rankMovementEntries(save: ReportSave, teamId: string): ChangeEntry[] {
     const move = rankMovement(save, teamId)
     if (!move) return []
-    return rankEntries(save, teamId, move, { type: "match", label: ownResultsLabel(save, teamId) })
+    return rankEntries(save, teamId, move, ownResults(save, teamId))
 }
 
 /**

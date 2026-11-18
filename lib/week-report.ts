@@ -64,6 +64,9 @@ export interface ReportUnanswered {
     label: string
     /** The default applied, as the choice reads ("Focus purely on practice (Morale +2)"), or "Lapsed". */
     outcome: string
+    /** SMOKE-B-01/02: the same label and answer as translation keys (reports from older builds have none). */
+    labelRef?: import("@/lib/i18n").TextRef
+    outcomeRef?: import("@/lib/i18n").TextRef
 }
 
 export interface ReportKpis {
@@ -286,9 +289,13 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
 function unansweredThisTick(state: ReportStateSource): ReportUnanswered[] {
     const out: ReportUnanswered[] = []
     for (const e of state.eventsLog ?? []) {
-        const u = (e.data as { unanswered?: { week?: unknown; label?: unknown; outcome?: unknown } } | undefined)?.unanswered
+        const u = (e.data as { unanswered?: { week?: unknown; label?: unknown; outcome?: unknown; labelRef?: unknown; outcomeRef?: unknown } } | undefined)?.unanswered
         if (!u || u.week !== state.currentWeek || typeof u.label !== "string") continue
-        out.push({ label: u.label, outcome: typeof u.outcome === "string" ? u.outcome : "Lapsed" })
+        out.push({
+            label: u.label, outcome: typeof u.outcome === "string" ? u.outcome : "Lapsed",
+            ...(isTextRef(u.labelRef) ? { labelRef: u.labelRef } : {}),
+            ...(isTextRef(u.outcomeRef) ? { outcomeRef: u.outcomeRef } : {}),
+        })
     }
     return out
 }
@@ -345,14 +352,16 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     const growth = report.changes.filter(e => e.kind === "attribute" && e.delta >= HEADLINE_MIN_GROWTH).sort((a, b) => b.delta - a.delta)[0]
     if (growth && clauses.length < 3) {
         const cause = isTextRef(growth.cause.ref) ? tRef(growth.cause.ref) : storedText(growth.cause.label.split(" · ")[0])
-        clauses.push(t("wr.h.growth", { name: report.names[growth.subjectId] ?? t("wr.aPlayer"), attr: storedText(growth.label), n: fmtDelta(growth.delta), cause: en ? cause.toLowerCase() : cause }))
+        // SMOKE-B-19: only the first letter reads lower case mid-sentence ("drill: VOD review"), never the whole cause.
+        clauses.push(t("wr.h.growth", { name: report.names[growth.subjectId] ?? t("wr.aPlayer"), attr: storedText(growth.label), n: fmtDelta(growth.delta), cause: en ? cause.charAt(0).toLowerCase() + cause.slice(1) : cause }))
     }
 
     // HOME-09: the same weekly settlement is not news; a loss or a one-off
     // (prize money, a transfer, a board grant) is.
     const net = moneyNet(report)
     const oneOff = report.changes.some(e => e.kind === "money" && ONE_OFF_MONEY.has(e.cause.type))
-    if (!report.moneyless && clauses.length < 3 && Math.abs(net) >= 1 && (net < 0 || oneOff)) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
+    // SMOKE-B-21: a word joiner keeps the sign on the amount's line ("−" and "$" are both break opportunities).
+    if (!report.moneyless && clauses.length < 3 && Math.abs(net) >= 1 && (net < 0 || oneOff)) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true).replace(/^([+−])/, "$1\u2060") }))
 
     const join = listJoin
     const lowerFirst = (x: string) => x.charAt(0).toLowerCase() + x.slice(1)
