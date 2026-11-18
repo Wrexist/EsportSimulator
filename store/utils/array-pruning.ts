@@ -5,7 +5,7 @@
  */
 
 import { ARRAY_CAPS } from "@/engine/constants"
-import { compactFinanceLedger } from "@/engine/processors/save-compactor"
+import { compactEventsLog, compactFinanceLedger } from "@/engine/processors/save-compactor"
 export { ARRAY_CAPS }
 
 /**
@@ -35,8 +35,10 @@ export function pruneGameState(state: {
   if (state.completedMatches.length > ARRAY_CAPS.completedMatches) {
     state.completedMatches = state.completedMatches.slice(-ARRAY_CAPS.completedMatches)
   }
+  // Most writers unshift (newest first): keep the newest weeks, as the
+  // week-tick compactor does, never the oldest (ENGINE-04).
   if (state.eventsLog.length > ARRAY_CAPS.eventsLog) {
-    state.eventsLog = state.eventsLog.slice(-ARRAY_CAPS.eventsLog)
+    state.eventsLog = compactEventsLog(state.eventsLog, ARRAY_CAPS.eventsLog)
   }
   if (state.financeLedger.length > ARRAY_CAPS.financeLedger) {
     state.financeLedger = compactFinanceLedger(state.financeLedger, state.playerTeamId, ARRAY_CAPS.financeLedger)

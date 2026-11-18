@@ -35,4 +35,17 @@ function fitBoundsToWorkArea(bounds, workArea, limits) {
     return fitted;
 }
 
-module.exports = { clampWindowSize, fitBoundsToWorkArea };
+// The window's minimum size (CROSSCUT-05, 2026-11-17): the UI minimum, but
+// never more than the size the window opened at. That size is already clamped
+// to the work area, so on a screen smaller than the minimum (a 1366x768 laptop
+// at 125% scaling) BrowserWindow does not grow the window under the taskbar.
+function windowMinimumSize(bounds, limits) {
+    const width = Math.floor(Number(bounds && bounds.width));
+    const height = Math.floor(Number(bounds && bounds.height));
+    return {
+        minWidth: Number.isFinite(width) && width > 0 ? Math.min(limits.minWidth, width) : limits.minWidth,
+        minHeight: Number.isFinite(height) && height > 0 ? Math.min(limits.minHeight, height) : limits.minHeight,
+    };
+}
+
+module.exports = { clampWindowSize, fitBoundsToWorkArea, windowMinimumSize };

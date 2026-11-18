@@ -1,0 +1,11 @@
+"lang"
+{
+	"language"	"polish"
+	"tokens"
+	{
+		"#Status_Managing"	"Prowadzi %team% - sezon %season%, tydzień %week%"
+		"#Status_Ranked"	"Prowadzi %team% (ranking światowy #%rank%) - sezon %season%, tydzień %week%"
+		"#Status_Menu"	"W menu głównym"
+		"#Status_Match"	"Gra mecz: %team% kontra %opponent%"
+	}
+}

@@ -26,10 +26,12 @@ import {
 } from "@/engine/circuit-engine"
 import { seniorRosterEligibility } from "@/engine/recruitment"
 import { QualificationEngine } from "@/engine/tournament-qualification"
-import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
+import { checkAchievements } from "@/engine/steam-service"
 import { nextDeterministicId } from "@/store/utils/helpers"
 import { eventText, newsText } from "@/lib/news-ref"
 import { instanceName } from "@/lib/tournament-instances"
+import { eventRegionName } from "@/lib/display-names"
+import { registerBlockText } from "@/engine/tournament/qualification-path"
 
 export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get) => ({
     registerForTournament: (tournamentId: string) => {
@@ -69,6 +71,11 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
             q => q.teamId === state.playerTeamId && isQualificationForTournament(q, instanceId, state.currentWeek)
         )
         if (existing) return { success: false, message: "Already registered or qualified" }
+
+        // Region, a projected invite, the main event or a sibling qualifier
+        // (the rules automatic entry and the computer clubs follow, COMP-07).
+        const block = registerBlockText(state, team, definition, seasonNumber, eventName)
+        if (block) return { success: false, message: liveText(block.params.region !== undefined ? { key: block.key, params: { region: eventRegionName(block.params.region) } } : block) }
 
         // Qualifier double-entry guard: can't enter a qualifier if you're
         // already in the main event, or in a sibling qualifier for it.
@@ -246,7 +253,6 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                     const isMajor = tournamentDef?.tier === "S_TIER"
                     if (isMajor) {
                         state.managerDetails.championships = (state.managerDetails.championships || 0) + 1
-                        steamAchievements.pushLeaderboardStats({ majorWins: state.managerDetails.championships })
                     }
                     // Silent fail for achievements — they're cosmetic only.
                     try { checkAchievements({ wonTournament: true }) } catch { /* ignore */ }
@@ -261,7 +267,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                     ),
                     category: "TOURNAMENT",
                     teamId: teamId,
-                    week: state.currentWeek,
+                    week: state.currentWeek, day: state.currentDay,
                 })
                 if (state.newsFeed.length > 50) state.newsFeed.pop()
             }

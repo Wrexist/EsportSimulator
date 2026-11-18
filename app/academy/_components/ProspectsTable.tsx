@@ -7,6 +7,7 @@ import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import type { AcademyPlayer, AcademyTrainingFocus, AcademyWeeklyReport } from "@/types/academy"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { visibleAcademyPotential } from "@/engine/academy-engine"
+import { potentialOvr } from "@/lib/potential-ovr"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -84,7 +85,8 @@ export function ProspectsTable({ rows, team, academyLevel, currentWeek, academyR
                 <tbody>
                     {rows.map(({ prospect, player }) => {
                         const ovr = evaluatePlayer(player, undefined, undefined, currentWeek).overallRating
-                        const potential = visibleAcademyPotential(prospect, player)
+                        // SQUAD-62: on the OVR scale, as the profile and the squad panel show it (the reveal rule is unchanged).
+                        const potential = visibleAcademyPotential(prospect, player) != null ? potentialOvr(player, currentWeek) : null
                         const weeksIn = Math.max(0, currentWeek - prospect.enrolledWeek)
                         const weeksToReveal = Math.max(0, revealWeeks - weeksIn)
                         const tired = Math.round(prospect.energy ?? 100) < FATIGUE_THRESHOLD

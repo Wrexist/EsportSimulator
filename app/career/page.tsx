@@ -16,6 +16,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { CareerLegacyCard } from "@/components/career/CareerLegacyCard"
 import { LegacyGoalsPanel } from "@/components/career/LegacyGoalsPanel"
 import { ClubTimelinePanel, ReputationPanel, stintTitles } from "@/components/career/ManagerRecord"
+import { ProCareerPanel } from "@/components/pro/ProCareerPanel"
 import { ManagerProgression } from "@/engine/manager-progression"
 import type { SaveSlotMetadata } from "@/engine/save-types"
 import { toast } from "@/lib/toast"
@@ -24,10 +25,14 @@ import { stripEmoji } from "@/components/inbox/inbox-model"
 import { formatCurrency } from "@/lib/utils-extended"
 import { t, tn, intlLocale, isTextRef, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
+import { DIGEST_TYPE, digestItems } from "@/lib/inbox-digest"
+import { weekNumberText, weekOfSeason } from "@/lib/season-week"
 
 /** A log row in the active language: the saved translation key first (as the inbox reads it), else the stored English through stored-text. */
 function eventText(event: { type: string; data?: unknown }): string {
     const d = (event.data ?? {}) as Record<string, unknown>
+    // The weekly round-up is named as in the inbox (I18N-04), not by its stored English title.
+    if (event.type === DIGEST_TYPE) return tn("ib.subj.digest", digestItems(event as Parameters<typeof digestItems>[0]).length)
     const stored = d.description ?? d.message ?? d.text ?? d.title
     const text = isTextRef(d.messageRef) ? tRef(d.messageRef) : isTextRef(d.titleRef) ? tRef(d.titleRef) : typeof stored === "string" ? storedText(stored) : ""
     // Same plain-text rule as the inbox: no emoji headings in UI text.
@@ -39,7 +44,7 @@ export default function CareerPage() {
     const router = useRouter()
     const {
         playerTeamId, currentWeek, eventsLog, saveId: currentSaveId,
-        listSaves, switchSave, deleteSaveInSlot, managerDetails, teams, hydrated, isLoading,
+        listSaves, switchSave, deleteSaveInSlot, managerDetails, teams, hydrated, isLoading, proActive,
     } = useGameStore(useShallow(state => ({
         hydrated: state._hasHydrated,
         isLoading: state.isLoading,
@@ -52,6 +57,8 @@ export default function CareerPage() {
         deleteSaveInSlot: state.deleteSaveInSlot,
         managerDetails: state.managerDetails,
         teams: state.teams,
+        // Audit 17 MODES-15: a pro is not the manager: no manager level, reputation or legacy goals.
+        proActive: !!state.proCareer && state.proCareer.retiredWeek == null,
     })))
 
     const [saves, setSaves] = useState<SaveSlotMetadata[]>([])
@@ -124,30 +131,30 @@ export default function CareerPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow={team ? t("car.eyebrowClub", { club: team.name }) : t("car.eyebrow")}
+                eyebrow={proActive ? [t("pro.panelTitle"), team?.name].filter(Boolean).join(" · ") : team ? t("car.eyebrowClub", { club: team.name }) : t("car.eyebrow")}
                 title={managerDetails?.name || t("car.profile")}
                 subtitle={t("car.subtitle")}
                 aside={
                     <KpiStrip>
-                        <Kpi label={t("car.kpi.level")} value={level} hint={t("car.kpi.xp", { xp: xp.toLocaleString(intlLocale()), next: xpNext.toLocaleString(intlLocale()) })} />
-                        <Kpi label={t("car.kpi.reputation")} value={Math.round(managerDetails?.reputation ?? 0)} hint={t("car.kpi.of100")} />
+                        {!proActive && <Kpi label={t("car.kpi.level")} value={level} hint={t("car.kpi.xp", { xp: xp.toLocaleString(intlLocale()), next: xpNext.toLocaleString(intlLocale()) })} />}
+                        {!proActive && <Kpi label={t("car.kpi.reputation")} value={Math.round(managerDetails?.reputation ?? 0)} hint={t("car.kpi.of100")} />}
                         <Kpi label={t("tro.kpi.record")} value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={t(record.official ? "car.kpi.recordHintOfficial" : "car.kpi.recordHint", { rate: record.rate })} />
                         <Kpi label={t("tro.kpi.titles")} value={titles} valueClassName={titles > 0 ? "text-gold" : undefined} hint={majors > 0 ? tn("car.kpi.majors", majors) : undefined} />
-                        <Kpi label={t("car.kpi.season")} value={seasons} hint={t("car.kpi.week", { week: currentWeek })} />
+                        <Kpi label={t("car.kpi.season")} value={seasons} hint={t("car.kpi.week", { week: weekOfSeason(currentWeek) })} />
                     </KpiStrip>
                 }
             />
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_440px]">
                 <div className="min-w-0 space-y-4">
-                    <Panel title={t("car.levelN", { level })} actions={<span className="text-xs tabular-nums text-ink-3">{t("car.xpToLevel", { xp: (xpNext - xp).toLocaleString(intlLocale()), level: level + 1 })}</span>}>
+                    {proActive ? <ProCareerPanel /> : <Panel title={t("car.levelN", { level })} actions={<span className="text-xs tabular-nums text-ink-3">{t("car.xpToLevel", { xp: (xpNext - xp).toLocaleString(intlLocale()), level: level + 1 })}</span>}>
                         <Meter value={xpNext > 0 ? (xp / xpNext) * 100 : 0} label={t("car.xpNextAria")} tone="neutral" showValue={false} trackClassName="w-full h-2" />
                         <p className="mt-2 text-xs text-ink-3">{t("car.xpNote")}</p>
-                    </Panel>
+                    </Panel>}
 
                     <ClubTimelinePanel />
 
-                    <LegacyGoalsPanel />
+                    {!proActive && <LegacyGoalsPanel />}
 
                     <CareerLegacyCard />
 
@@ -163,7 +170,7 @@ export default function CareerPage() {
                                 <tbody>
                                     {log.map(e => (
                                         <tr key={e.id} data-slot="table-row" className="border-b border-line">
-                                            <td className="py-2 pl-4 align-top text-sm tabular-nums text-ink-3">{e.week}</td>
+                                            <td className="py-2 pl-4 align-top text-sm tabular-nums text-ink-3">{weekNumberText(e.week, currentWeek)}</td>
                                             <td className={cn("py-2 pr-4 text-sm", e.type === "TOURNAMENT_WIN" ? "text-gold" : "text-ink-1")}>
                                                 <span className="line-clamp-2" title={eventText(e)}>{eventText(e)}</span>
                                             </td>
@@ -176,7 +183,7 @@ export default function CareerPage() {
                 </div>
 
                 <div className="min-w-0 space-y-4 self-start">
-                <ReputationPanel />
+                {!proActive && <ReputationPanel />}
 
                 <Panel
                     title={t("car.saves")}
@@ -209,9 +216,9 @@ export default function CareerPage() {
                                                 {slot.isCorrupted && <span className="text-xs font-normal text-negative">{t("car.damaged")}</span>}
                                             </p>
                                             <p className="mt-0.5 text-xs tabular-nums text-ink-3">
-                                                {t("car.kpi.week", { week: slot.currentWeek || 1 })} · {w}–{l}
+                                                {t("car.kpi.week", { week: weekNumberText(slot.currentWeek || 1) })} · {w}–{l}
                                                 {slot.stats?.tournamentsWon ? ` · ${tn("tro.review.titles", slot.stats.tournamentsWon)}` : ""}
-                                                {slot.budget !== undefined ? ` · ${formatCurrency(slot.budget, "$", true)}` : ""}
+                                                {slot.budget !== undefined && !slot.draftCup && !slot.pro ? ` · ${formatCurrency(slot.budget, "$", true)}` : ""}
                                             </p>
                                         </div>
                                         {!active && id && (

@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
 import { trophyArtFor, trophyKindForTournament } from "@/lib/trophy-art"
 import { isMajorTournament, isOfficialMatch } from "@/engine/official-stats"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
-import { t, t as tr, tn, ordinalLabel } from "@/lib/i18n"
+import { t, t as tr, tn, ordinalLabel, formatPercent } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-types"
 import { TeamLink } from "@/components/ui/EntityLink"
@@ -35,7 +35,7 @@ const weekLabel = (week: number) => t("common.seasonWeekShort", { s: Math.ceil(w
 const baseId = (id: string) => id.replace(/_s\d+$/, "")
 
 export default function TrophyRoomPage() {
-    const { teams, playerTeamId, players, completedMatches, gameStartDate, currentWeek, tournaments, recordBook, managerDetails } = useGameStore(useShallow(state => ({
+    const { teams, playerTeamId, players, completedMatches, gameStartDate, currentWeek, tournaments, recordBook, managerDetails, draftCup } = useGameStore(useShallow(state => ({
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         players: state.players,
@@ -45,6 +45,7 @@ export default function TrophyRoomPage() {
         tournaments: state.tournaments,
         recordBook: state.recordBook,
         managerDetails: state.managerDetails,
+        draftCup: state.draftCup,
     })))
 
     const team = teams.find(t => t.id === playerTeamId)
@@ -71,7 +72,9 @@ export default function TrophyRoomPage() {
                     calId: cal?.id ?? null,
                     name: displayName(t.tournamentName || cal?.name || tr("tro.tournament")),
                     tier,
-                    tierLabel: isLeagueMatchId(t.tournamentId) ? tr("common.league") : tierLabel(tier),
+                    // MODES-06/08 (audit 17): a Draft Cup title is labelled by its difficulty, not its internal C_TIER.
+                    tierLabel: isLeagueMatchId(t.tournamentId) ? tr("common.league")
+                        : draftCup && t.tournamentId === draftCup.tournamentId ? tr(`dc.diff.${draftCup.difficulty}`) : tierLabel(tier),
                     art: trophyArtFor(trophyArtKind({ tournamentId: t.tournamentId ?? "", tier })),
                     major: isMajorTournament(t.tournamentId),
                     week: t.week || 0,
@@ -80,7 +83,7 @@ export default function TrophyRoomPage() {
                 }
             })
             .sort((a, b) => b.week - a.week)
-    }, [team?.trophies, players, startDate, tournaments])
+    }, [team?.trophies, players, startDate, tournaments, draftCup])
 
     // The cabinet: every title on the calendar, gold only where you've won it.
     const cabinet = useMemo(() => {
@@ -163,7 +166,7 @@ export default function TrophyRoomPage() {
                         <Kpi label={tr("tro.kpi.titles")} value={titles.length} valueClassName={titles.length > 0 ? "text-gold" : undefined} />
                         <Kpi label={tr("hof.col.majors")} value={majors} valueClassName={majors > 0 ? "text-gold" : undefined} />
                         <Kpi label={tr("tro.kpi.record")} value={<span>{clubRecord.wins}<span className="text-ink-3">–</span>{clubRecord.losses}</span>} hint={tr(clubRecord.hint)} />
-                        <Kpi label={tr("tro.kpi.winRate")} value={`${clubRecord.rate}%`} />
+                        <Kpi label={tr("tro.kpi.winRate")} value={formatPercent(clubRecord.rate)} />
                     </KpiStrip>
                 }
             />

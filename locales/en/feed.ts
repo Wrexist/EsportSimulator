@@ -48,7 +48,7 @@ export const FEED = {
     "commentary.ROUND_WIN_CT.10": "The retake pays off for the CT side.",
     "commentary.ROUND_WIN_CT.11": "Defense wins this exchange.",
 
-    "feed.roundEnd": "{{line}} (Winner: {{team}})",
+    "feed.roundEnd": "{{team}} · {{line}}",
     "feed.buy": "{{team}}: {{buy}}",
     "feed.regroup": "Regroup: losing-streak pressure eased this round",
     "feed.plantedAt": "Bomb planted at {{site}}",
@@ -87,8 +87,8 @@ export const FEED = {
     "insight.kr.runOpp": "Opponent run of {{n}} rounds (rounds {{from}}-{{to}})",
     "insight.kr.overtime": "Map went to overtime",
     "insight.kr.decider": "Map-deciding round",
-    "insight.style.advantage": "Playstyle {{style}} countered the scouted opponent style (+4% base strength).",
-    "insight.style.disadvantage": "Playstyle {{style}} was countered by the scouted opponent style (-3% base strength).",
+    "insight.style.advantage": "Playstyle {{style}} countered the scouted opponent style (+{{pct}}% base strength).",
+    "insight.style.disadvantage": "Playstyle {{style}} was countered by the scouted opponent style (-{{pct}}% base strength).",
     "insight.style.none": "Playstyle {{style}} had no counter matchup.",
     "insight.style.unscouted": "Playstyle {{style}}; opponent style was not scouted, so the matchup is unknown.",
     "insight.economy.calls.one": "Economy plan {{plan}}; you made {{count}} buy call.",
@@ -169,4 +169,6 @@ export const FEED = {
     "insight.favouredLosses.one": "{{count}} lost with the stronger one",
     "insight.favouredLosses.other": "{{count}} lost with the stronger one",
     "feed.finalMap": "Final: {{team}} win {{score}} on {{map}}",
+    "insight.style.advantageCapped": "Playstyle {{style}} countered the scouted opponent style, but staff bonuses already fill the +10% cap, so it added nothing.",
+    "insight.style.disadvantageCapped": "Playstyle {{style}} was countered by the scouted opponent style, but staff bonuses above the +10% cap absorbed it, so it cost nothing.",
 } as const

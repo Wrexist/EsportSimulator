@@ -26,6 +26,7 @@ import { Sparkline } from "@/src/components/ui/Sparkline"
 import { MapDataPanel } from "@/components/stats/MapDataPanel"
 import { getTournamentById } from "@/data/tournament-calendar"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
+import { seasonOfWeek, weekLabelShort, weekOfSeason } from "@/lib/season-week"
 
 /** Chart styling from the v2 tokens (app/premium-ui.css custom properties). */
 const AXIS = { stroke: "var(--border-subtle)", tick: { fill: "var(--text-muted)", fontSize: 11 }, axisLine: false, tickLine: false } as const
@@ -86,14 +87,20 @@ export default function StatsPage() {
     const team = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     const teamById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
 
+    // Newest first: by week, then day, then the order the results came in
+    // (a semi-final before its grand final on the same day) (COMP-19).
     const teamMatches = useMemo(() => completedMatches
-        .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-        .sort((a, b) => (b.week || 0) - (a.week || 0)),
+        .map((m, order) => ({ m, order }))
+        .filter(({ m }) => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+        .sort((a, b) => (b.m.week || 0) - (a.m.week || 0) || (b.m.day ?? 0) - (a.m.day ?? 0) || b.order - a.order)
+        .map(({ m }) => m),
     [completedMatches, playerTeamId])
 
+    // Official matches only: scrims never count toward a record, as on Home (SMOKE-A-08).
     const record = useMemo(() => {
+        const official = teamMatches.filter(m => !m.isScrim)
         let w = 0, mapW = 0, mapL = 0
-        for (const m of teamMatches) {
+        for (const m of official) {
             if (won(m, playerTeamId)) w++
             const home = ourSide(m, playerTeamId)
             for (const map of m.result.maps || []) {
@@ -102,7 +109,7 @@ export default function StatsPage() {
                 if (mapWon) mapW++; else mapL++
             }
         }
-        return { w, l: teamMatches.length - w, mapW, mapL, rate: teamMatches.length ? Math.round((w / teamMatches.length) * 100) : 0 }
+        return { w, l: official.length - w, mapW, mapL, rate: official.length ? Math.round((w / official.length) * 100) : 0 }
     }, [teamMatches, playerTeamId])
 
     // Per-player lines from this club's matches only (oldest → newest for the trend).
@@ -130,7 +137,7 @@ export default function StatsPage() {
     const trend = useMemo(() => teamMatches.slice(0, 12).reverse().map(m => {
         const own = (m.result.lineups?.[playerTeamId ?? ""] ?? team?.rosterIds ?? [])
         const stats = Object.entries(m.result.playerStats || {}).filter(([pid]) => own.includes(pid)).map(([, s]) => s.rating || 0)
-        return { week: t("sx.weekShort", { n: m.week }), rating: stats.length ? Number((stats.reduce((a, b) => a + b, 0) / stats.length).toFixed(2)) : null }
+        return { week: t("sx.weekShort", { n: weekOfSeason(m.week) }), rating: stats.length ? Number((stats.reduce((a, b) => a + b, 0) / stats.length).toFixed(2)) : null }
     }), [teamMatches, playerTeamId, team])
 
     const maps = useMemo(() => {
@@ -297,6 +304,8 @@ export default function StatsPage() {
                                                 const home = ourSide(m, playerTeamId)
                                                 const opp = teamById.get(home ? m.awayTeamId : m.homeTeamId)
                                                 const w = won(m, playerTeamId)
+                                                // A result with no maps was settled by forfeit (as the League page shows it).
+                                                const forfeit = !(m.result.maps?.length) && !m.isScrim
                                                 const isOpen = expanded === m.id
                                                 return (
                                                     <Fragment key={m.id}>
@@ -305,7 +314,7 @@ export default function StatsPage() {
                                                             onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(isOpen ? null : m.id) } }}
                                                             className="h-12 cursor-pointer border-b border-line outline-none focus-visible:bg-hover">
                                                             <td className="pl-4 text-ink-3">{isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</td>
-                                                            <td className="px-3 text-sm tabular-nums text-ink-2">{t("sx.weekShort", { n: m.week })}</td>
+                                                            <td className="px-3 text-sm tabular-nums text-ink-2">{seasonOfWeek(m.week) === seasonOfWeek(currentWeek) ? t("sx.weekShort", { n: weekOfSeason(m.week) }) : weekLabelShort(m.week, currentWeek)}</td>
                                                             <td className="px-3">
                                                                 <span className="flex items-center gap-2 text-sm font-semibold text-ink-1">
                                                                     {opp && <TeamLogoDisplay team={opp} size={20} />}{opp?.name ?? t("sx.unknown")}
@@ -324,9 +333,10 @@ export default function StatsPage() {
                                                             </td>
                                                             <td className="px-3 text-center text-sm tabular-nums">
                                                                 <span className={cn("mr-2 font-semibold", w ? "text-positive" : "text-ink-3")}>{w ? t("sx.win") : t("sx.loss")}</span>
-                                                                <span className="text-ink-1">{home ? m.result.homeScore : m.result.awayScore}–{home ? m.result.awayScore : m.result.homeScore}</span>
+                                                                <span className="text-ink-1">{forfeit ? t("league.forfeitShort") : `${home ? m.result.homeScore : m.result.awayScore}–${home ? m.result.awayScore : m.result.homeScore}`}</span>
                                                             </td>
                                                             <td className="px-3 text-sm tabular-nums text-ink-3">
+                                                                {forfeit && t("wr.forfeit")}
                                                                 {(m.result.maps || []).map((map, i) => {
                                                                     const s = mapScore(map)
                                                                     return <span key={i} className="mr-3 whitespace-nowrap">{String(map.map)} {home ? s.home : s.away}–{home ? s.away : s.home}</span>
@@ -415,7 +425,9 @@ function roundTitle(n: number, weWon: boolean, winType: unknown): string {
 }
 
 function MatchBreakdown({ match, teamId }: { match: CompletedMatchSaveData; teamId: string | null }) {
-    const firstMap = match.result.maps?.[0]
+    // Every played map's round strip (MATCHENGINE-09: a BO3 showed map 1 only under a series summary).
+    const home = ourSide(match, teamId)
+    const played = (match.result.maps ?? []).filter(map => map.rounds?.length)
     return (
         <div className="space-y-4">
             {match.analysis ? (
@@ -435,22 +447,26 @@ function MatchBreakdown({ match, teamId }: { match: CompletedMatchSaveData; team
                 </div>
             ) : <p className="text-sm text-ink-3">{t("sx.noAnalysis")}</p>}
 
-            {firstMap?.rounds?.length ? (
-                <div>
-                    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sx.rounds", { map: String(firstMap.map) })}</p>
-                    <div className="flex flex-wrap gap-0.5" aria-label={t("sx.roundsAria")}>
-                        {firstMap.rounds.map((round, i) => {
-                            // The round stores the winning side and that round's side assignment.
-                            const winnerId = round.winningTeamId ?? (round.winner === "ct" ? round.ctTeam : round.tTeam)
-                            const weWon = winnerId === teamId
-                            return (
-                                <span key={i} title={roundTitle(i + 1, weWon, round.winType)}
-                                    className={cn("h-5 w-2.5 rounded-sm", weWon ? "bg-positive/70" : "bg-hover")} />
-                            )
-                        })}
+            {played.map((map, mapIndex) => {
+                const s = mapScore(map)
+                const label = `${String(map.map)} ${home ? s.home : s.away}–${home ? s.away : s.home}`
+                return (
+                    <div key={mapIndex}>
+                        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sx.rounds", { map: label })}</p>
+                        <div className="flex flex-wrap gap-0.5" aria-label={t("sx.roundsAria", { map: label })}>
+                            {map.rounds.map((round, i) => {
+                                // The round stores the winning side and that round's side assignment.
+                                const winnerId = round.winningTeamId ?? (round.winner === "ct" ? round.ctTeam : round.tTeam)
+                                const weWon = winnerId === teamId
+                                return (
+                                    <span key={i} title={roundTitle(i + 1, weWon, round.winType)}
+                                        className={cn("h-5 w-2.5 rounded-sm", weWon ? "bg-positive/70" : "bg-hover")} />
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
-            ) : null}
+                )
+            })}
         </div>
     )
 }

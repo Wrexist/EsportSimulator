@@ -11,7 +11,7 @@
  *
  *   - hireStaff — sign a market staff member with negotiated terms.
  *     Caps roster at 5 total and 1 per role. Logs the sign-on fee as
- *     a WAGES_STAFF expense, posts a news item.
+ *     an OTHER expense (a one-off, not a wage), posts a news item.
  *
  *   - renewStaffContract — extend an existing staff member's contract
  *     with validated bounds.
@@ -197,7 +197,8 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
                 week: state.currentWeek,
                 teamId: team.id,
                 type: "EXPENSE",
-                category: "WAGES_STAFF",
+                // MARKET-14 (2026-11-17): a one-off fee, not a wage; the description names it.
+                category: "OTHER",
                 amount: signingFee,
                 description: `Hired ${staffMember.name} (${staffMember.role}) - Sign-on Fee`,
                 balance: team.budget,
@@ -228,7 +229,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
                 contentRef: hiredBody,
                 category: "STAFF",
                 teamId: team.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
                 engagement: {
                     likes: nextRandomInt(state, 200, 1199),
                     views: nextRandomInt(state, 1000, 10999),
@@ -340,7 +341,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
                 contentRef: leftBody,
                 category: "STAFF",
                 teamId: team?.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
                 engagement: {
                     likes: nextRandomInt(state, 20, 219),
                     views: nextRandomInt(state, 200, 2199),

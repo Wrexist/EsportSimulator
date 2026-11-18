@@ -8,6 +8,7 @@ import { findTeamIdentity } from "@/lib/team-identity"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay";
 import { PlayerPortraitFrame, type PlayerPortraitVariant } from "@/components/ui/player-portrait-frame";
 import { playerPortraitSource } from "@/lib/player-portrait-source";
+import { countryName } from "@/lib/country";
 
 interface PlayerImageProps {
     playerName: string;
@@ -49,7 +50,7 @@ export function PlayerImage({
             {showFlag && flagUrl && (
                 <Image
                     src={flagUrl}
-                    alt={country || ""}
+                    alt={countryName(country)}
                     width={16}
                     height={12}
                     className="absolute -bottom-1 -right-1 rounded-sm border border-line-strong"
@@ -144,7 +145,7 @@ export function CountryFlag({
     return (
         <Image
             src={flagUrl}
-            alt={country}
+            alt={countryName(country)}
             width={w}
             height={h}
             className={cn("inline-block rounded-sm", className)}

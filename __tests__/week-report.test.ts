@@ -14,6 +14,9 @@ import type { GameSave, StaffSaveData } from "@/engine/save-types"
 import type { ChangeEntry } from "@/lib/week-changes"
 import { moneyNet, weekHeadline, WEEK_REPORT_HISTORY } from "@/lib/week-report"
 import { refreshWorldRankings } from "@/engine/world-ranking"
+import { readFileSync } from "fs"
+import { join } from "path"
+import { registerLocale, setLocale, tRef } from "@/lib/i18n"
 import { moneyLines, playerGroups, teamRows } from "@/components/report/report-model"
 
 jest.mock("@/engine/worker/week-processor-bridge", () => {
@@ -117,6 +120,18 @@ describe("report view", () => {
         expect(teamRows(report)[0]).toMatchObject({ label: "World rank", change: "#16 → #14", tone: "up" })
     })
 
+    test("MARKET-08 (2026-11-17): a money line booked under another ledger week names that week", () => {
+        const changes: ChangeEntry[] = [
+            ...report.changes,
+            { kind: "money", subjectId: "t", label: "Player salaries", delta: -3_743, cause: { type: "salary", label: "Player wages" }, week: report.week + 1 },
+            { kind: "money", subjectId: "t", label: "Scouting Mission", delta: -3_000, cause: { type: "other", label: "Scouting" }, week: report.week },
+        ]
+        const lines = moneyLines({ ...report, changes })
+        expect(lines.expenses.find(l => l.amount === -3_743)).toMatchObject({ label: "Player salaries", week: report.week + 1 })
+        expect(lines.expenses.find(l => l.amount === -3_000)?.week).toBeUndefined()
+        expect(lines.expenses.find(l => l.amount === -8_000)?.week).toBeUndefined()
+    })
+
     test("HOME-18: no 'Morale (avg) 83 → 83' row when the rounded values match", () => {
         const morale = (m0: number, m1: number) => teamRows({ ...report, kpis: { ...report.kpis, morale: [m0, m1] as [number, number] } }).find(r => r.label === "Morale (avg)")
         expect(morale(83.4, 82.9)).toBeUndefined() // |Δ| = 0.5 but both print as 83
@@ -202,5 +217,35 @@ describe("store weekly report", () => {
         const saveBytes = JSON.stringify(snapshot).length
         expect(reportBytes).toBeLessThan(48_000)
         expect(saveBytes - JSON.stringify(withoutReports).length).toBe(reportBytes + '"weekReports":,'.length)
+    })
+
+    test("I18N-16: a decision's cause keeps the English and a ref, so the report follows a language change", () => {
+        const save = loadIntoStore("WEEKLY", false)
+        const p = save.players.find(x => x.id === "p_a5")!
+        const ev = {
+            id: "ev_i18n16", type: "MORALE", week: save.currentWeek, acknowledged: false,
+            data: { playerId: p.id, titleRef: { key: "ev.workload.t", params: { name: p.nickname } } },
+            choices: [{ id: "rest", text: "Rest him this week", ref: { key: "ev.workload.rest" }, effects: { morale: 6 } }],
+        }
+        useGameStore.setState(st => { st.eventsLog.push(ev as never) })
+        useGameStore.getState().resolveEventChoice("ev_i18n16", "rest")
+        const entry = useGameStore.getState().weekReports!.tracker!.changes.find(e => e.cause.type === "event")
+        expect(entry?.cause.label).toBe(`${p.nickname}'s workload is high: Rest him this week`)
+        expect(entry?.cause.ref).toEqual({ key: "svd.p.answered", params: { title: ev.data.titleRef, choice: { key: "ev.workload.rest" } } })
+        registerLocale("de", JSON.parse(readFileSync(join(__dirname, "..", "public", "locales", "de.json"), "utf8")))
+        setLocale("de")
+        try {
+            const report = {
+                v: 1 as const, week: save.currentWeek, teamId: save.playerTeamId!, headline: "", names: { [p.id]: p.nickname }, matches: [], warnings: [],
+                kpis: { budget: [0, 0] as [number, number], rank: [1, 1] as [number, number], elo: [0, 0] as [number, number], board: [0, 0] as [number, number], chemistry: [0, 0] as [number, number], morale: [0, 0] as [number, number], reputation: [0, 0] as [number, number] },
+                changes: [entry!],
+            }
+            const cause = playerGroups(report).flatMap(g => g.rows).map(r => r.cause).join(" | ")
+            expect(cause).toContain(tRef(ev.data.titleRef))
+            expect(cause).toContain(tRef({ key: "ev.workload.rest" }))
+            expect(cause).not.toContain("Rest him")
+        } finally {
+            setLocale("en")
+        }
     })
 })

@@ -67,8 +67,10 @@ describe("inbox entry points", () => {
         expect(INBOX_TOGGLE_KEY).toBe("i")
         expect(NUMBER_KEY_ROUTES["2"]).toBeUndefined()
         const nav = SHORTCUT_GROUPS.find(g => g.label === "shortcuts.group.navigation")!.shortcuts
-        expect(t(nav.find(s => s.keys[0] === "2")!.description)).toMatch(/inbox/i)
-        expect(t(nav.find(s => s.keys[0] === "I")!.description)).toMatch(/inbox/i)
+        // START-62: one row for the inbox, "I or 2".
+        const inbox = nav.filter(s => /inbox/i.test(t(s.description)))
+        expect(inbox).toHaveLength(1)
+        expect(inbox[0]).toMatchObject({ keys: ["I"], altKeys: ["2"] })
     })
 
     test("drawer store: open on a tab, toggle, switching tab clears the selection", () => {

@@ -2,7 +2,7 @@ import { t } from "@/lib/i18n"
 import { memo } from "react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { ArrowLeft, Play, Pause, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon, ChevronsRight } from "lucide-react"
+import { ArrowLeft, Play, Pause, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon, ChevronRight, ChevronsRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { LIVE_SPEED_PRESETS } from "@/lib/live-match-builders"
 import { PACING, PACING_MODES, pacingModeLabel, type PacingMode } from "@/lib/live-match-pacing"
@@ -32,6 +32,8 @@ interface LiveMatchControlBarProps {
     /** Pause and go to the match hub (unset once the match is over). */
     onLeave?: () => void
     onBeforeLeave?: () => void
+    /** The final board: "Continue to results" takes the skip buttons' place (the dock is always on screen, MATCHDAY-10). */
+    onFinish?: () => void
 }
 
 const segment = (active: boolean) => cn(
@@ -63,6 +65,7 @@ function LiveMatchControlBarComponent({
     onSimulateMatch,
     onLeave,
     onBeforeLeave,
+    onFinish,
 }: LiveMatchControlBarProps) {
     const inProgress = gameState.status === "IN_PROGRESS"
     // Paused mid-round is the state the player must notice; between rounds
@@ -210,10 +213,10 @@ function LiveMatchControlBarComponent({
                     {t("dock.keyRounds")}
                 </button>
 
-                {/* What the clock is doing right now */}
+                {/* What the clock is doing right now (dropped on a narrow dock so it stays one row, MATCHDAY-11) */}
                 <span
                     className={cn(
-                        "inline-flex min-w-[118px] items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
+                        "hidden min-w-[118px] items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em] @min-[72rem]/dock:inline-flex",
                         pacingMode === "moments" && fastForward && isPlaying && !betweenRounds ? "text-ink-2" : "text-ink-3",
                     )}
                     aria-live="off"
@@ -225,7 +228,12 @@ function LiveMatchControlBarComponent({
                 </span>
             </div>
 
-            {/* Right: skip round / match */}
+            {/* Right: skip round / match; on the final board, the way on to the result */}
+            {onFinish ? (
+                <Button onClick={onFinish} className="h-8 min-h-8 gap-1 rounded px-3 text-xs font-semibold" data-dock-finish="">
+                    {t("live.toResults")} <ChevronRight size={14} aria-hidden="true" />
+                </Button>
+            ) : (
             <div className="flex items-center gap-1.5">
                 <Button
                     size="sm"
@@ -261,6 +269,7 @@ function LiveMatchControlBarComponent({
                     </Button>
                 </ConfirmDialog>
             </div>
+            )}
         </div>
     )
 }

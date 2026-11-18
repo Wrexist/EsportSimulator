@@ -128,8 +128,11 @@ export class EconomyManager {
     // ROUND_ECONOMY_TUNING: FULL as soon as a rifle + helmet is affordable
     // (was $4,500, so the default bought a Galil with full-buy money and the
     // manager's "FULL" call looked dominant).
+    // Never "PISTOL": that buy resets every weapon to the starting pistol and is
+    // for half starts only (the series runner forces it on rounds 1 and 13). A
+    // low-cash team mid-half saves (ECO) and keeps rifles it saved (AUDIT17
+    // MATCHENGINE-01: a $0 time-loss save used to lose its AK-47s here).
     const T = ROUND_ECONOMY_TUNING
-    if (aveCash <= 800) return "PISTOL"
     if (aveCash < T.FORCE_MIN_AVG_CASH + modifier) return "ECO"
     if (aveCash < T.SEMIBUY_MIN_AVG_CASH + modifier) return "FORCE"
     if (aveCash < T.FULL_MIN_AVG_CASH + modifier) return "SEMIBUY"

@@ -1,5 +1,6 @@
 "use client"
-import { intlLocale, t, tn } from "@/lib/i18n"
+import { intlLocale, t, tn, tRef } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
 import { Award, Trophy, Crosshair, Zap, Star, Flame, Crown, Skull } from "lucide-react"
 import type { PlayerSaveData } from "@/engine/save-types"
@@ -159,7 +160,7 @@ export function PlayerSignatureMoments({ player }: PlayerSignatureMomentsProps) 
                 <li key={`stored-${idx}`} className="flex items-start gap-3 px-4 py-3">
                     <Award size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
                     <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-ink-1">{a.description}</p>
+                        <p className="text-sm font-semibold text-ink-1">{a.ref ? tRef(a.ref) : storedText(a.description)}</p>
                         <p className="mt-0.5 text-xs text-ink-3">{t("common.week", { n: a.week })}</p>
                     </div>
                 </li>

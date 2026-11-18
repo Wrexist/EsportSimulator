@@ -37,6 +37,7 @@ import { applyReputationLift } from "@/engine/player-evaluation"
 import { ensurePersonality, spreadPlaceholderAmicability } from "@/engine/personality"
 import { spreadPlaceholderAttributes } from "@/engine/placeholder-attributes"
 import { startingPotential, startingWeaponMastery } from "@/engine/development-rates"
+import { MIN_ASKING_WAGE, recruitmentSalary } from "@/engine/recruitment"
 
 /**
  * Auto-calculate an initial prestige score for players with empty proHistory.
@@ -116,6 +117,30 @@ function isLegendActiveInSnapshot(
     const normalized = normalizeNickname(legend.nickname)
     if (activeNicknames.has(normalized)) return true
     return false
+}
+
+/**
+ * Opening wages (SQUAD-39): every opening contract pays
+ * AI_SQUAD_TUNING.OPENING_WAGE_SHARE of what the club would pay to sign the
+ * player today (engine/recruitment.ts recruitmentSalary, the wage model
+ * behind signings and the renewal floor), once ratings, the reputation lift
+ * and personalities are final. The snapshot formula floored almost every
+ * player at $250, so a star's first renewal jumped +150% and the first
+ * signing at a market wage made the starters jealous. The buyout keeps its
+ * multiple of the weekly wage (26 weeks per contract year). Never below the
+ * minimum asking wage. No RNG draws.
+ */
+function priceOpeningContracts(contracts: ContractSaveData[], players: PlayerSaveData[], teams: TeamSaveData[], startWeek: number): void {
+    const playerById = new Map(players.map(p => [p.id, p]))
+    const teamById = new Map(teams.map(t => [t.id, t]))
+    for (const contract of contracts) {
+        const player = playerById.get(contract.playerId)
+        const team = teamById.get(contract.teamId)
+        if (!player || !team || !(contract.salaryPerWeek > 0)) continue
+        const salary = Math.max(MIN_ASKING_WAGE, Math.round(recruitmentSalary(player, startWeek, team) * AI_SQUAD_TUNING.OPENING_WAGE_SHARE))
+        contract.buyout = Math.round(contract.buyout / contract.salaryPerWeek * salary)
+        contract.salaryPerWeek = salary
+    }
 }
 
 // ===== SNAPSHOT LOADER =====
@@ -354,6 +379,7 @@ export class SnapshotLoader {
         spreadPlaceholderAmicability(save.players)
         // Leadership, endurance, health and loyalty are placeholders too (SQUAD-10).
         spreadPlaceholderAttributes(save.players)
+        priceOpeningContracts(save.contracts, save.players, teams, startWeek)
 
         return save
     }

@@ -31,6 +31,7 @@ import { useSettingsStore } from "@/lib/settings-store"
 import { LEGEND_CONTRACT_WEEKS, LEGEND_MIN_RUNWAY_WEEKS, legendSalary, quoteLegendSigning } from "@/lib/legend-signing"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { proRunsNoClub } from "@/store/utils/pro-guard"
 // Low-value toast types suppressed when the "Notifications" setting is off.
 // Meaningful types (achievement, level_up, warning, error) always show.
 const LOW_PRIORITY_TOASTS = new Set(["info", "xp_gain"])
@@ -101,6 +102,8 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         const activity = WEEKLY_ACTIVITIES[type]
         const team = state.teams.find(t => t.id === state.playerTeamId)
         if (!activity || !team || (activity.cost > 0 && activity.cost > team.budget) || state.gameOverReason) return
+        // Audit 17 MODES-12: in a pro career the staff plan the club's week (and pay for it).
+        if (proRunsNoClub(state)) return
         state.selectedWeeklyActivity = type
         if (state.firstSession?.status === "active") { state.firstSession = reviewFirstSession(restoreFirstSession(state.firstSession), "decision"); if (state.firstSession.status === "complete") { state.onboardingCompleted = true; state.tutorialCompleted = true } }
     }); if (get().isInitialized && get().selectedWeeklyActivity === type) void get().saveGame?.() },

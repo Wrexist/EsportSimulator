@@ -109,7 +109,10 @@ export function DraftCupResult() {
                         {runs.map((r, i) => (
                             <li key={`${r.saveId}-${r.at}`} className={cn("flex h-10 items-center gap-3 border-b border-line px-4 text-sm last:border-b-0", r.saveId === saveId && "bg-raised")}>
                                 <span className="w-6 text-right tabular-nums text-ink-3">{i + 1}</span>
-                                <span className="min-w-0 flex-1 truncate font-semibold text-ink-1">{r.teamName}</span>
+                                <span className="min-w-0 flex-1 truncate font-semibold text-ink-1">
+                                    {r.teamName}
+                                    {r.sandbox && <span className="ml-2 rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution">{t("ng.sandbox")}</span>}
+                                </span>
                                 <span className="text-xs text-ink-3">{t(`dc.diff.${r.difficulty}`)} · {t(`dc.finish.${r.finish}`)}</span>
                                 <span className="w-14 text-right font-semibold tabular-nums text-ink-1">{r.score}</span>
                             </li>

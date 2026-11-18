@@ -521,6 +521,15 @@ describe("contracts", () => {
         expect(contractDemandLines("LOYAL", 50)[0]).toContain("−10%")
     })
 
+    test("MARKET-04 (2026-11-17): the demand lines don't repeat the archetype chip beside them", () => {
+        for (const a of ["LOYAL", "MERCENARY", "AMBITIOUS", "PROFESSIONAL"] as const) {
+            const line = contractDemandLines(a, 65, { leagueTier: "C_TIER" })[0]
+            expect(line.startsWith(ARCHETYPE_INFO[a].label)).toBe(false)
+            expect(line).not.toContain("{{")
+        }
+        expect(contractDemandLines("PROFESSIONAL", 65)[0]).toBe("His personality does not change his demands.")
+    })
+
     test("preferred length and renewals by archetype; AI renewals use the same rule", () => {
         expect(contractLengthFactor("LOYAL")).toBe(T.LENGTH_LOYAL)
         expect(contractLengthFactor("MERCENARY")).toBe(T.LENGTH_MERCENARY)

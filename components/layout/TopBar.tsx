@@ -8,6 +8,7 @@ import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { usePathname } from "next/navigation"
 import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { formatGameCalendarDate, formatGameCalendarRange } from "@/lib/game-calendar"
+import { weekOfSeason } from "@/lib/season-week"
 import { MoreHorizontal, Settings } from "lucide-react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
@@ -203,7 +204,7 @@ export function TopBar() {
     const pathname = usePathname()
     // C10: a pro career hides the club-running screens (the staff run the club).
     const hubs = navHubsFor(pro, draftCup, betweenClubs)
-    const pathHub = hubForPath(pathname)
+    const pathHub = hubForPath(pathname, playerTeamId)
     const activeHub = pathHub ? hubs.find(h => h.id === pathHub.id) ?? null : null
 
     const currentDate = useMemo(() => {
@@ -338,7 +339,13 @@ export function TopBar() {
                     {/* START-43: "Go to…" lists career screens, so it needs a career. */}
                     {!hideCareerControls && <NavigationSearch compact disabled={false} pro={pro} draftCup={draftCup} betweenClubs={betweenClubs} />}
 
-                    {!hideCareerControls && !betweenClubs && !pro && (
+                    {/* Below 80rem (Steam Deck width) the funds stay as one compact value without the label (NEWPLAYER-22). No funds in a Draft Cup: no money to manage (SMOKE-B-09). */}
+                    {!hideCareerControls && !betweenClubs && !pro && !draftCup && (
+                        <span suppressHydrationWarning className="whitespace-nowrap text-sm font-semibold tabular-nums text-ink-1 @min-[80rem]/topbar:hidden" title={`${t("topbar.funds")}: ${formatCurrency(budget, "$", false)}`}>
+                            {formatCurrency(budget)}
+                        </span>
+                    )}
+                    {!hideCareerControls && !betweenClubs && !pro && !draftCup && (
                         <div className="hidden flex-col items-end leading-none @min-[80rem]/topbar:flex" title={t("topbar.funds")}>
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("topbar.funds")}</span>
                             {isMounted ? (
@@ -359,10 +366,10 @@ export function TopBar() {
                     {!hideCareerControls && <div className="hidden h-8 w-px bg-line @min-[80rem]/topbar:block" aria-hidden="true" />}
 
                     {!hideCareerControls && <div className="flex flex-col items-end leading-none">
-                        <span suppressHydrationWarning className="topbar-date whitespace-nowrap text-sm font-semibold text-ink-1">
+                        <span suppressHydrationWarning className="topbar-date whitespace-nowrap text-sm font-semibold tabular-nums text-ink-1">
                             {/* Weekly mode: the whole week, so results already played this week are never "in the future" (HOME-18). */}
                             {timeMode === "HYBRID_DAILY"
-                                ? formatGameCalendarDate(currentDate, { weekday: "short", day: "2-digit", month: "short", year: "numeric" })
+                                ? formatGameCalendarDate(currentDate, { weekday: "short", day: "numeric", month: "short", year: "numeric" })
                                 : formatGameCalendarRange(currentDate, weekEnd, { day: "numeric", month: "short", year: "numeric" })}
                         </span>
                         <button
@@ -372,8 +379,8 @@ export function TopBar() {
                             className="mt-1 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 hover:text-ink-1"
                         >
                             {timeMode === "HYBRID_DAILY"
-                                ? t("topbar.weekDayLine", { week: currentWeek, day: currentDay + 1, mode: t("common.daily") })
-                                : t("topbar.weekLine", { week: currentWeek, mode: t("common.weekly") })}
+                                ? t("topbar.weekDayLine", { week: weekOfSeason(currentWeek), day: currentDay + 1, mode: t("common.daily") })
+                                : t("topbar.weekLine", { week: weekOfSeason(currentWeek), mode: t("common.weekly") })}
                         </button>
                     </div>}
 

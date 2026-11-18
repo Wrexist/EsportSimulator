@@ -5,9 +5,9 @@
  */
 
 import type { ChangeEntry } from "@/lib/week-changes"
-import { fmtDelta, formatMoney, moneyNet, signedDelta, weekHeadline, type WeekReport } from "@/lib/week-report"
+import { causeText, fmtDelta, formatMoney, moneyNet, signedDelta, weekHeadline, type WeekReport } from "@/lib/week-report"
 import { choiceLabel } from "@/components/inbox/inbox-model"
-import { getLocale, t, tn } from "@/lib/i18n"
+import { getLocale, isTextRef, t, tn, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 export type Tone = "up" | "down" | "neutral"
@@ -24,6 +24,11 @@ export interface PlayerGroup {
     id: string
     name: string
     rows: ChangeRow[]
+    /**
+     * NEWPLAYER-23: the row the short view shows for this player: an injury or
+     * contract, else his condition (morale, form, energy), else his stats.
+     */
+    lead: number
 }
 
 const CONDITION_ORDER = ["morale", "form", "energy", "fatigue"] as const
@@ -39,13 +44,16 @@ function toneOf(kind: string, delta: number): Tone {
 function causeParts(entries: ChangeEntry[], withDelta: boolean, max = 3): string {
     const byCause = new Map<string, number>()
     for (const e of entries) {
-        const label = storedText(e.cause.label)
+        const label = causeText(e.cause)
         byCause.set(label, (byCause.get(label) ?? 0) + e.delta)
     }
     const parts = [...byCause.entries()].filter(([, d]) => Math.abs(d) >= 0.05).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
     const shown = parts.slice(0, max).map(([label, d]) => (withDelta ? `${label} ${signedDelta(d)}` : label))
     return shown.join(" · ") + (parts.length > max ? ` · ${t("wr.more", { n: parts.length - max })}` : "")
 }
+
+/** Smallest stat move the report lists on its own row (NEWPLAYER-23). */
+export const REPORT_MIN_STAT_CHANGE = 0.5
 
 export function playerGroups(report: WeekReport): PlayerGroup[] {
     const byPlayer = new Map<string, ChangeEntry[]>()
@@ -63,23 +71,26 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
         const rows: ChangeRow[] = []
         for (const e of entries.filter(x => x.kind === "injury")) {
             rows.push(e.delta > 0
-                ? { change: `${storedText(e.label)} · ${tn("wr.outWeeks", e.delta)}`, cause: storedText(e.cause.label), tone: "down" }
-                : { change: e.label.startsWith("Recovered") ? storedText(e.label) : `${storedText(e.label)} · ${tn("wr.weeksCloser", Math.abs(e.delta), { n: fmtDelta(e.delta) })}`, cause: storedText(e.cause.label), tone: "up" })
+                ? { change: `${storedText(e.label)} · ${tn("wr.outWeeks", e.delta)}`, cause: causeText(e.cause), tone: "down" }
+                : { change: e.label.startsWith("Recovered") ? storedText(e.label) : `${storedText(e.label)} · ${tn("wr.weeksCloser", Math.abs(e.delta), { n: fmtDelta(e.delta) })}`, cause: causeText(e.cause), tone: "up" })
         }
         for (const e of entries.filter(x => x.kind === "contract")) {
-            rows.push({ change: storedText(e.label), cause: storedText(e.cause.label), tone: e.delta < 0 ? "down" : "up" })
+            rows.push({ change: storedText(e.label), cause: causeText(e.cause), tone: e.delta < 0 ? "down" : "up" })
         }
         // Attributes: one row per cause, listing every stat it moved.
+        // NEWPLAYER-23: moves under REPORT_MIN_STAT_CHANGE are counted, not listed.
         const attrByCause = new Map<string, ChangeEntry[]>()
-        for (const e of entries.filter(x => x.kind === "attribute")) {
+        const attributes = entries.filter(x => x.kind === "attribute")
+        const smallStats = attributes.filter(x => Math.abs(x.delta) < REPORT_MIN_STAT_CHANGE).length
+        for (const e of attributes.filter(x => Math.abs(x.delta) >= REPORT_MIN_STAT_CHANGE)) {
             const list = attrByCause.get(e.cause.label) ?? []
             list.push(e)
             attrByCause.set(e.cause.label, list)
         }
-        for (const [cause, list] of attrByCause) {
+        for (const list of attrByCause.values()) {
             const sorted = [...list].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
             const total = sorted.reduce((s, e) => s + e.delta, 0)
-            rows.push({ change: sorted.map(e => `${storedText(e.label)} ${signedDelta(e.delta)}`).join(" · "), cause: storedText(cause), tone: toneOf("attribute", total) })
+            rows.push({ change: sorted.map(e => `${storedText(e.label)} ${signedDelta(e.delta)}`).join(" · "), cause: causeText(list[0].cause), tone: toneOf("attribute", total) })
         }
         // Condition values: net change with its causes; values that share
         // exactly the same causes (e.g. morale and form both drifting) share a row.
@@ -101,22 +112,28 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
                 conditionRows.push({ change: text, cause, tone })
             }
         }
+        const firstCondition = rows.length
         rows.push(...conditionRows)
-        if (rows.length) groups.push({ id, name: report.names[id] ?? t("wr.player"), rows })
+        if (smallStats > 0) rows.push({ change: tn("wr.smallStats", smallStats), cause: t("wr.smallStatsCause"), tone: "neutral" })
+        const injuryOrContract = entries.some(x => x.kind === "injury" || x.kind === "contract")
+        const lead = !injuryOrContract && conditionRows.length ? firstCondition : 0
+        if (rows.length) groups.push({ id, name: report.names[id] ?? t("wr.player"), rows, lead })
     }
     return groups
 }
 
-export interface MoneyLine { label: string; cause: string; amount: number }
+/** `week`: the ledger week of the line when it is not the report's week (MARKET-08: the closing settlement is booked under the next week). */
+export interface MoneyLine { label: string; cause: string; amount: number; week?: number }
 
 export function moneyLines(report: WeekReport): { income: MoneyLine[]; expenses: MoneyLine[]; net: number } {
     const lines = new Map<string, MoneyLine>()
     for (const e of report.changes) {
         if (e.kind !== "money") continue
-        const key = `${e.label}|${e.cause.label}|${e.delta >= 0 ? "+" : "-"}`
+        const week = typeof e.week === "number" && e.week !== report.week ? e.week : undefined
+        const key = `${e.label}|${e.cause.label}|${e.delta >= 0 ? "+" : "-"}|${week ?? ""}`
         const prev = lines.get(key)
         if (prev) prev.amount += e.delta
-        else lines.set(key, { label: storedText(e.label), cause: storedText(e.cause.label), amount: e.delta })
+        else lines.set(key, { label: storedText(e.label), cause: causeText(e.cause), amount: e.delta, ...(week !== undefined ? { week } : {}) })
     }
     const all = [...lines.values()]
     return {
@@ -170,16 +187,17 @@ export function topPlayerChanges(report: WeekReport, max = 3): { name: string; c
     return picked.map(e => ({
         name: report.names[e.subjectId] ?? t("wr.player"),
         change: e.kind === "injury" ? t("wr.injuredWk", { n: e.delta }) : `${storedText(e.label)} ${signedDelta(e.delta)}`,
-        cause: storedText(e.cause.label),
+        cause: causeText(e.cause),
         tone: e.kind === "injury" ? "down" : toneOf(e.kind, e.delta),
     }))
 }
 
 /** Unanswered decisions with the default the club applied, without the inline effect note. */
 export function unansweredRows(report: WeekReport): { label: string; outcome: string }[] {
+    // SMOKE-B-01/02: the keys the decision stored; older reports keep only the English.
     return (report.unanswered ?? []).map(u => ({
-        label: storedText(u.label),
-        outcome: u.outcome === "Lapsed" ? t("wr.lapsed") : storedText(choiceLabel({ id: "", text: u.outcome })),
+        label: isTextRef(u.labelRef) ? tRef(u.labelRef) : storedText(u.label),
+        outcome: u.outcome === "Lapsed" ? t("wr.lapsed") : isTextRef(u.outcomeRef) ? tRef(u.outcomeRef) : storedText(choiceLabel({ id: "", text: u.outcome })),
     }))
 }
 

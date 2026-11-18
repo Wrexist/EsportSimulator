@@ -32,13 +32,12 @@ test('literal staging keys preserve the primary through actual storage handlers'
 })
 test('every actual handler rejects foreign contents, child frames and wrong origins before side effects',async()=>{
   const args: Record<string, unknown[]> = {
-    'window-set-fullscreen':[true], 'window-set-size':[1280,720], 'gpu-set-mode':['compatibility'],
+    'app-set-ui-language':['ru'], 'window-set-fullscreen':[true], 'window-set-size':[1280,720], 'gpu-set-mode':['compatibility'],
     'log-write-error':[{message:'valid report'}], 'storage-get-item':['esports_save_test'],
     'storage-set-item':['esports_save_test','changed'], 'storage-remove-item':['esports_save_test'],
     'mod-install':['{"players":[]}'], 'mod-read':['players.json'], 'mod-write':['players.json','[]'],
     'steam-get-stat':['stat_total_wins'], 'steam-set-stat':['stat_total_wins',1],
     'steam-set-achievement':['FIRST_WIN'], 'steam-is-achievement-unlocked':['FIRST_WIN'],
-    'steam-set-leaderboard-score':['lead_world_ranking',1],
     'steam-set-rich-presence':['status','QA'], 'steam-get-rich-presence':['status'],
     'steam-cloud-read':['save_test.json'], 'steam-cloud-write':['save_test.json','{}'], 'steam-cloud-delete':['save_test.json'],
     'workshop-set-active':[{source:'community'}], 'community-share-major':[{teamName:'Team',tournamentName:'Major'}], 'workshop-subscribe':['123'], 'workshop-unsubscribe':['123'], 'workshop-open':['123'],
@@ -79,7 +78,7 @@ test('invalid types, extra arguments, UTF-8 overflow and dangerous Steam identif
     ['mod-write',['../players.json','[]']], ['steam-cloud-write',['save_a.json',{}]],
     ['steam-cloud-read',['save_a.json:secret']], ['steam-cloud-delete',['../save_a.json']],
     ['steam-set-rich-presence',['unbounded-key','value']], ['steam-set-rich-presence',['status',{}]],
-    ['steam-set-leaderboard-score',['lead_world_ranking',1.5]], ['workshop-subscribe',['1e9']],
+    ['workshop-subscribe',['1e9']],
     ['workshop-open',['https://evil.example/123']], ['workshop-set-active',[{source:'workshop',workshopId:'18446744073709551616'}]],
   ] as Array<[string, unknown[]]>) expect(await harness.invoke(channel,...args)).toEqual(contracts[channel].fallback)
   expect(fs.readdirSync(directory)).toEqual([])
@@ -115,4 +114,13 @@ test('actual Steam cloud handlers preserve SDK rejection and acknowledgement',as
   success=true
   expect(await h.invoke('steam-cloud-write','save_test.json','{}')).toBe(true)
   expect(await h.invoke('steam-cloud-delete','save_test.json')).toBe(true)
+})
+
+test('CROSSCUT-02: no Steam leaderboard channel (steamworks.js 0.4 has no leaderboard API)',()=>{
+  expect(Object.keys(contracts)).not.toContain('steam-set-leaderboard-score')
+  expect(harness.handlers.has('steam-set-leaderboard-score')).toBe(false)
+  const preload=fs.readFileSync(path.join(__dirname,'../electron/preload.js'),'utf8')
+  expect(preload).not.toMatch(/leaderboard/i)
+  const service=fs.readFileSync(path.join(__dirname,'../engine/steam-service.ts'),'utf8')
+  expect(service).not.toMatch(/pushLeaderboardStats|setLeaderboardScore/)
 })

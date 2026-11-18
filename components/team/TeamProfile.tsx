@@ -17,7 +17,9 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { cn } from "@/lib/utils"
 import { formatScoutedRating, fuzzyBand } from "@/engine/scouting-system"
+import { captainId } from "@/engine/personality"
 import { t, tn } from "@/lib/i18n"
+import { weekLabelShort } from "@/lib/season-week"
 
 const RESULTS_SHOWN = 10
 const TIER_KEYS = new Set(["ELITE", "PRO", "SEMI_PRO", "AMATEUR"])
@@ -28,14 +30,16 @@ const TIER_KEYS = new Set(["ELITE", "PRO", "SEMI_PRO", "AMATEUR"])
  * managed club. Opened from any club name.
  */
 export function TeamProfile({ team }: { team: TeamSaveData }) {
-    const { teams, players, playerTeamId, completedMatches, tournaments, isPlayerScouted } = useGameStore(useShallow(s => ({
+    const { teams, players, playerTeamId, completedMatches, tournaments, isPlayerScouted, currentWeek } = useGameStore(useShallow(s => ({
         teams: s.teams, players: s.players, playerTeamId: s.playerTeamId, completedMatches: s.completedMatches,
-        tournaments: s.tournaments, isPlayerScouted: s.isPlayerScouted,
+        tournaments: s.tournaments, isPlayerScouted: s.isPlayerScouted, currentWeek: s.currentWeek,
     })))
     const teamById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
     const playerById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
     const tournamentById = useMemo(() => new Map(tournaments.map(t => [t.id, t])), [tournaments])
     const isOwn = team.id === playerTeamId
+    // SQUAD-55: the captain gets the same "C" as on /squad.
+    const captain = captainId(team, id => playerById.get(id))
 
     const results = useMemo(() => completedMatches
         .filter(m => !m.isScrim && m.result && (m.homeTeamId === team.id || m.awayTeamId === team.id))
@@ -109,6 +113,9 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                                 </span>
                                                 <CountryFlag country={player.nationality} size={14} />
                                                 <span className="truncate text-sm font-semibold">{player.nickname}</span>
+                                                {player.id === captain && (
+                                                    <span title={t("squad.row.captainTitle")} aria-label={t("squad.row.captain")} className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-gold/60 text-[11px] font-bold leading-none text-gold">C</span>
+                                                )}
                                             </PlayerLink>
                                         </td>
                                         <td className="px-3"><RoleTag role={(player.role || "Rifler").split(",")[0]} /></td>
@@ -150,7 +157,7 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                                     {competition && <> <span className="text-ink-3">·</span> <TournamentLink id={competition.id} className="text-ink-3">{competition.name}</TournamentLink></>}
                                                 </span>
                                                 <span className="shrink-0 text-xs tabular-nums text-ink-3">
-                                                    {involvesYou ? <Link href={`/match/${m.id}/result`} className="hover:text-gold">{t("common.weekShort", { n: m.week })}</Link> : t("common.weekShort", { n: m.week })}
+                                                    {involvesYou ? <Link href={`/match/${m.id}/result`} className="hover:text-gold">{weekLabelShort(m.week, currentWeek)}</Link> : weekLabelShort(m.week, currentWeek)}
                                                 </span>
                                             </li>
                                         )
@@ -169,7 +176,7 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                             <TournamentLink id={tournamentById.has(tr.tournamentId) ? tr.tournamentId : null} className="min-w-0 truncate font-semibold text-ink-1">{tr.tournamentName}</TournamentLink>
                                             <span className="shrink-0 text-xs text-ink-3">
                                                 {tr.mvpId && playerById.get(tr.mvpId) && <>MVP <PlayerLink id={tr.mvpId} className="text-ink-2">{playerById.get(tr.mvpId)!.nickname}</PlayerLink> · </>}
-                                                {t("common.weekShort", { n: tr.week })}
+                                                {weekLabelShort(tr.week, currentWeek)}
                                             </span>
                                         </li>
                                     ))}

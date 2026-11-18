@@ -11,12 +11,15 @@
  */
 import { FULL_TOURNAMENT_CALENDAR, type TournamentDefinition } from "@/data/tournament-calendar"
 import type { GameSave, QualificationStatus, TeamSaveData } from "../save-types"
-import { buildInstanceId, isQualificationForTournament } from "../circuit-engine"
+import { buildInstanceId, getSeasonFromTournamentId, getSeriesIdFromTournamentId, isQualificationForTournament } from "../circuit-engine"
 
 /** Club region -> regional qualifier region (RMRs exist for EU, NA and ASIA). */
 export const QUALIFIER_REGION: Record<string, string> = { CIS: "EU", MENA: "EU", BR: "NA", SA: "NA", OCE: "ASIA", OCEANIA: "ASIA" }
 
 const ENTERED: ReadonlySet<QualificationStatus["status"]> = new Set(["QUALIFIED", "REGISTERED", "INVITED"])
+
+/** `qualifiedVia` of an invite the managed club turned down (owner decision 3); its status is ELIMINATED. */
+export const DECLINED_INVITE = "Declined invite"
 
 function definition(id: string): TournamentDefinition | undefined {
     return FULL_TOURNAMENT_CALENDAR.find(d => d.id === id)
@@ -105,12 +108,13 @@ export function qualifierEntryBlock(
     teamId: string,
     def: TournamentDefinition,
     season: number,
-): "in_main" | "invited" | "sibling" | null {
+): "in_main" | "invited" | "declined" | "sibling" | null {
     if (!def.qualifierFor) return null
     const rows = save.tournamentQualifications ?? []
     for (const target of downstreamEvents(def)) {
         const instanceId = buildInstanceId(target.id, season)
         if (isEnteredIn(rows, teamId, instanceId)) return "in_main"
+        if (rows.some(q => q.teamId === teamId && q.qualifiedVia === DECLINED_INVITE && isQualificationForTournament(q, instanceId))) return "declined"
         if (hasRankedInvites(target) && !invitesIssued(rows, instanceId) && rankedInvitees(target, save.teams).includes(teamId)) return "invited"
     }
     for (const sibling of FULL_TOURNAMENT_CALENDAR) {
@@ -138,4 +142,172 @@ export function withdrawFromQualifiers(save: GameSave, mainDef: TournamentDefini
             !(leaving.has(q.teamId) && q.status === "REGISTERED" && isQualificationForTournament(q, instanceId)))
         if (instance) instance.teamIds = instance.teamIds.filter(id => !leaving.has(id))
     }
+}
+
+const TIER_WEIGHT: Record<string, number> = { S_TIER: 4, A_TIER: 3, B_TIER: 2, C_TIER: 1 }
+
+/** What an event weighs when a club's events clash: a qualifier weighs what the event it leads to does. */
+export function eventWeight(def: TournamentDefinition): number {
+    const chain = downstreamEvents(def)
+    return TIER_WEIGHT[(chain[chain.length - 1] ?? def).tier] ?? 0
+}
+
+/** An unfinished event a club plays or is entered in, with its first and last week. */
+export interface ClubEvent { id: string; def: TournamentDefinition; from: number; to: number }
+
+/**
+ * Every unfinished event each club plays (started events: their field) or is
+ * entered in (events still to start: invites, places, sign-ups), by club.
+ * League-format events run alongside everything and are left out.
+ */
+export function clubEventWindows(save: Pick<GameSave, "tournaments" | "tournamentQualifications">): Map<string, ClubEvent[]> {
+    const out = new Map<string, ClubEvent[]>()
+    const add = (teamId: string, event: ClubEvent) => {
+        const list = out.get(teamId) ?? []
+        if (!list.some(e => e.id === event.id)) list.push(event)
+        out.set(teamId, list)
+    }
+    const byId = new Map(save.tournaments.map(t => [t.id, t]))
+    for (const t of save.tournaments) {
+        if (t.isCompleted || t.currentStage === "Registration" || t.format === "league") continue
+        const def = definition(getSeriesIdFromTournamentId(t.id))
+        if (!def) continue
+        const event = { id: t.id, def, from: t.startWeek, to: Math.max(t.startWeek, (t.endWeek || t.startWeek + def.duration) - 1) }
+        for (const teamId of t.teamIds) add(teamId, event)
+    }
+    for (const q of save.tournamentQualifications ?? []) {
+        if (!ENTERED.has(q.status)) continue
+        const id = q.instanceId || q.tournamentId
+        const instance = byId.get(id)
+        if (instance && (instance.isCompleted || instance.currentStage !== "Registration")) continue
+        const def = definition(getSeriesIdFromTournamentId(id))
+        if (!def || def.format === "league") continue
+        const season = getSeasonFromTournamentId(id) ?? q.seasonNumber ?? 1
+        const from = instance?.startWeek ?? (season - 1) * 52 + def.startWeek
+        add(q.teamId, { id, def, from, to: from + Math.max(1, def.duration) - 1 })
+    }
+    return out
+}
+
+/** Does one of these events (other than `instanceId`) overlap the weeks and weigh at least `minWeight`? */
+export function clashes(events: ClubEvent[] | undefined, instanceId: string, from: number, to: number, minWeight = 0): boolean {
+    return !!events?.some(e => e.id !== instanceId && e.from <= to && from <= e.to && eventWeight(e.def) >= minWeight)
+}
+
+/**
+ * Why the managed club may not sign up for this qualifier, as text to show,
+ * or null when it may (COMP-07). The same rules as automatic entry and the
+ * computer clubs: its region's qualifiers only, none for an event it is in or
+ * about to be invited to, one qualifier per event.
+ */
+export function registerBlockText(
+    save: Pick<GameSave, "tournamentQualifications" | "teams" | "tournaments">,
+    team: Pick<TeamSaveData, "id" | "region">,
+    def: TournamentDefinition,
+    season: number,
+    eventName: (def: TournamentDefinition) => string,
+): { key: string; params: Record<string, string> } | null {
+    if (!def.qualifierFor) return null
+    if (!regionAllows(def, team)) return { key: "tm.block.region", params: { region: def.region ?? "" } }
+    const block = qualifierEntryBlock(save, team.id, def, season)
+    if (!block) return null
+    const chain = downstreamEvents(def)
+    const target = block === "sibling" ? chain[0] : chain[chain.length - 1]
+    return { key: `tm.block.${block}`, params: { event: target ? eventName(target) : "" } }
+}
+
+/**
+ * What the club still has to do to get into this event, as text to show, or
+ * null when there is nothing to say (COMP-22): wait for the invite its
+ * ranking earns, play the first qualifier still open to it, or climb into
+ * the ranking's invite places (once they are sent, the line says where
+ * they went). `weekInSeason` is today's week of the season;
+ * weeks in the text are weeks of the season, like the list's Start column.
+ */
+export function entryPathText(
+    save: Pick<GameSave, "tournamentQualifications" | "teams" | "tournaments">,
+    team: Pick<TeamSaveData, "id" | "region" | "worldRanking">,
+    def: TournamentDefinition,
+    season: number,
+    weekInSeason: number,
+    eventName: (def: TournamentDefinition) => string,
+): { key: string; params: Record<string, string | number> } | null {
+    const rows = save.tournamentQualifications ?? []
+    const instanceId = buildInstanceId(def.id, season)
+    if (isEnteredIn(rows, team.id, instanceId)) return null
+    if (hasRankedInvites(def) && !invitesIssued(rows, instanceId) && rankedInvitees(def, save.teams).includes(team.id)) {
+        return { key: "tm.path.invite", params: { week: Math.max(weekInSeason, def.startWeek - inviteLeadWeeks(def)), n: def.inviteSlots ?? 0 } }
+    }
+    const feeders = feederEvents(def.id)
+    // A qualifier the club already plays or is entered in leads the way.
+    const entered = feeders.find(f => isEnteredIn(rows, team.id, buildInstanceId(f.id, season)))
+    if (entered) return { key: "tm.path.qualify", params: { event: eventName(entered), week: entered.startWeek } }
+    const open = feeders
+        .filter(f => {
+            if (f.startWeek < weekInSeason || !regionAllows(f, team)) return false
+            const instance = save.tournaments.find(t => t.id === buildInstanceId(f.id, season))
+            if (instance && instance.currentStage !== "Registration") return false
+            return qualifierEntryBlock(save, team.id, f, season) === null
+        })
+        .sort((a, b) => a.startWeek - b.startWeek || a.id.localeCompare(b.id))[0]
+    if (open) return { key: "tm.path.qualify", params: { event: eventName(open), week: open.startWeek } }
+    if (hasRankedInvites(def)) {
+        return invitesIssued(rows, instanceId)
+            ? { key: "tm.path.invited", params: { n: def.inviteSlots ?? 0 } }
+            : { key: "tm.path.rank", params: { n: def.inviteSlots ?? 0, rank: team.worldRanking ?? 999 } }
+    }
+    return null
+}
+
+/** May the club still pull out of this event: entered, not through a qualifier, and not started? */
+function canWithdraw(save: Pick<GameSave, "tournamentQualifications" | "tournaments">, teamId: string, instanceId: string): boolean {
+    const instance = save.tournaments.find(t => t.id === instanceId)
+    if (instance && (instance.isCompleted || instance.currentStage !== "Registration")) return false
+    const rows = (save.tournamentQualifications ?? []).filter(q => q.teamId === teamId && ENTERED.has(q.status) && isQualificationForTournament(q, instanceId))
+    return rows.length > 0 && rows.every(q => !q.qualifiedVia?.startsWith("Via "))
+}
+
+/**
+ * The managed club was just invited to `instanceId`: does it run in the same
+ * weeks as another event of the club that weighs more or less (owner
+ * decision 3)? Computer clubs pass up the lighter one by themselves; the
+ * manager is asked instead. `light` is the event the club could skip; it is
+ * only offered while the club can still pull out of it. Equal weights are
+ * not a clash here (owner decision 2).
+ */
+export function inviteClash(
+    save: Pick<GameSave, "tournaments" | "tournamentQualifications">,
+    teamId: string,
+    instanceId: string,
+): { light: ClubEvent; heavy: ClubEvent } | null {
+    const events = clubEventWindows(save).get(teamId) ?? []
+    const invited = events.find(e => e.id === instanceId)
+    if (!invited) return null
+    const weight = eventWeight(invited.def)
+    let best: { light: ClubEvent; heavy: ClubEvent } | null = null
+    for (const e of events) {
+        if (e.id === instanceId || e.to < invited.from || invited.to < e.from) continue
+        const w = eventWeight(e.def)
+        const pair = w > weight ? { light: invited, heavy: e } : w < weight && canWithdraw(save, teamId, e.id) ? { light: e, heavy: invited } : null
+        if (!pair) continue
+        if (!best || eventWeight(pair.heavy.def) - eventWeight(pair.light.def) > eventWeight(best.heavy.def) - eventWeight(best.light.def)) best = pair
+    }
+    return best
+}
+
+/**
+ * The manager skips an event it was invited or signed up to (owner decision
+ * 3): an invite is marked declined (its place goes to the next club in the
+ * ranking, and the club stays out of the event's qualifiers), a sign-up is
+ * removed. False, with nothing changed, once the club can no longer pull out.
+ */
+export function withdrawFromEvent(save: GameSave, teamId: string, instanceId: string): boolean {
+    if (!canWithdraw(save, teamId, instanceId)) return false
+    save.tournamentQualifications = save.tournamentQualifications.flatMap(q => {
+        if (q.teamId !== teamId || !ENTERED.has(q.status) || !isQualificationForTournament(q, instanceId)) return [q]
+        return q.qualifiedVia === "Direct Invite" ? [{ ...q, status: "ELIMINATED" as const, qualifiedVia: DECLINED_INVITE }] : []
+    })
+    const instance = save.tournaments.find(t => t.id === instanceId)
+    if (instance) instance.teamIds = instance.teamIds.filter(id => id !== teamId)
+    return true
 }

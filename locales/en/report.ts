@@ -75,4 +75,9 @@ export const REPORT = {
     "wr.toastTitle": "Week {{week}} report",
     "wr.dismiss": "Dismiss",
     "wr.view": "View report",
+    "wr.smallStats.one": "{{count}} small stat change",
+    "wr.smallStats.other": "{{count}} small stat changes",
+    "wr.smallStatsCause": "Under 0.5 each: all on the player page",
+    "wr.showAll": "Show all changes",
+    "wr.showMain": "Main changes only",
 } as const

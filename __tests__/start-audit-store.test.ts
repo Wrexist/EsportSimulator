@@ -10,6 +10,7 @@ import { useGameStore } from "@/store/game-store"
 import { saveManager } from "@/engine"
 import { PlayerRole } from "@/types"
 import type { GameSave } from "@/engine/save-types"
+import { merchHypeMultiplier } from "@/engine/economy-engine"
 
 jest.mock("@/data", () => {
     const actual = jest.requireActual("@/data")
@@ -71,6 +72,8 @@ test("START-10: a created club cannot take a world club's name or tag", async ()
     expect(club.worldRanking).toBe(teams.length + 1)
     // START-12: the crest is seeded the way the setup preview draws it.
     expect(club.customTeamData?.emblemSeed).toBe("created:Brand New Club")
+    // MARKET-10 (round 2): a created club starts at neutral hype, so fan income is not halved.
+    expect(merchHypeMultiplier(club)).toBe(1)
 }, 120_000)
 
 test("START-03: deleting the loaded career closes it and nothing writes it back", async () => {

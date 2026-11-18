@@ -59,13 +59,23 @@ function Countdown({ ms, restart }: { ms: number; restart: unknown }) {
     return <>{left}</>
 }
 
+// Below 720 px of window height the card opens folded, so the calls and the
+// timeout fit above the fold (MATCHDAY-24); a fold / unfold the manager makes
+// is kept for the next rounds of the session.
+let foldPreference: boolean | null = null
+const startFolded = () => foldPreference ?? (typeof window !== "undefined" && window.innerHeight < 720)
+
 export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, timeout, overtimeNote }: DecisionCardProps) {
     const reduceMotion = useAppReducedMotion()
     const sideCT = preview.side === "CT"
     const recommended = preview.options.find(o => o.id === preview.auto)?.id
     const counting = auto.on && !auto.hold
     // Folded: only the calls (the radar and its round scrubber stay visible).
-    const [folded, setFolded] = useState(false)
+    const [folded, setFolded] = useState(startFolded)
+    const toggleFolded = () => {
+        foldPreference = !folded
+        setFolded(!folded)
+    }
     // A call that buys exactly what another one buys is a note, not a column (fewer, wider choices).
     const calls = preview.options.filter(o => !o.sameAs)
     const same = preview.options.filter(o => o.sameAs)
@@ -104,7 +114,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                     </span>
                     <button
                         type="button"
-                        onClick={() => setFolded(f => !f)}
+                        onClick={toggleFolded}
                         aria-expanded={!folded}
                         className="flex h-7 items-center gap-1 rounded px-1.5 text-xs font-semibold text-ink-3 hover:bg-hover hover:text-ink-1"
                         title={folded ? t("decision.unfoldTitle") : t("decision.foldTitle")}
@@ -159,7 +169,8 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                                         )}
                                     >
                                         <span className={cn("whitespace-nowrap text-sm font-semibold leading-none @max-[52rem]:whitespace-normal @max-[52rem]:text-xs @max-[52rem]:leading-tight", isRec ? "text-gold-on" : "text-ink-1")}>{label}</span>
-                                        <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums @max-[52rem]:text-[11px]", isRec ? "text-gold-on/80" : "text-ink-3")}>
+                                        {/* SMOKE-B-15: a narrow card wraps a long "No spend" (German "Keine Ausgaben") instead of clipping it, as the call name does. */}
+                                        <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums @max-[52rem]:whitespace-normal @max-[52rem]:text-[11px] @max-[52rem]:leading-tight", isRec ? "text-gold-on/80" : "text-ink-3")}>
                                             {isRec && counting ? <>{t("decision.autoIn")} <Countdown ms={auto.durationMs} restart={auto.key} /> {t("decision.seconds")}</> : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> {t("decision.total")}</span></> : t("decision.noSpend")}
                                         </span>
                                     </Button>

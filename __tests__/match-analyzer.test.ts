@@ -214,12 +214,15 @@ describe("MatchAnalyzer — edge cases", () => {
 describe("MatchAnalyzer — summary reads rounds, not the series score", () => {
     const roster = (prefix: string) => Object.fromEntries([1, 2, 3, 4, 5].map(i => [`${prefix}${i}`, makePlayerStats()]))
     const ids = (prefix: string) => [1, 2, 3, 4, 5].map(i => ({ id: `${prefix}${i}` }))
-    /** One map; `pistolWinner` takes rounds 1 and 13, the others go to whoever still has rounds left. */
+    /**
+     * One map; `pistolWinner` takes rounds 1 and 13 and converts them (rounds 2-3
+     * and 14-15, MATCHENGINE-10 of 2026-11-17), the others go to whoever still has rounds left.
+     */
     function map(home: number, away: number, pistolWinner?: "home" | "away") {
         const winners: ("home" | "away")[] = []
         let h = home, a = away
         for (let i = 0; i < home + away; i++) {
-            const forced = (i === 0 || i === 12) ? pistolWinner : undefined
+            const forced = [0, 1, 2, 12, 13, 14].includes(i) ? pistolWinner : undefined
             const pick = forced === "home" && h > 0 ? "home"
                 : forced === "away" && a > 0 ? "away"
                 : (forced === "home" ? a > 0 : !(h > 0 && (forced === "away" || h >= a))) ? "away" : "home"

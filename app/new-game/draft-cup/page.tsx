@@ -14,7 +14,7 @@ import { ArrowLeft, Check, Loader2, RefreshCw } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-career-draft"
 import { buildDraftCupWorld } from "@/lib/draft-cup-world"
-import { clearDraftCupBoard, dealFitsWorld, loadDraftCupBoard, saveDraftCupBoard } from "@/lib/draft-cup-board"
+import { clearDraftCupBoard, dealFitsWorld, loadDraftCupBoard, saveDraftCupBoard, type DraftCupDeal } from "@/lib/draft-cup-board"
 import {
     buildDraftPool, clubStrength, draftSpent, pickCupField,
     DRAFT_BUDGET, DRAFT_CUP_DIFFICULTIES, DRAFT_CUP_DIFFICULTY, DRAFT_REROLLS, DRAFT_ROLES,
@@ -22,6 +22,7 @@ import {
 } from "@/engine/draft-cup"
 import type { DraftCupSetup } from "@/engine/draft-cup-setup"
 import { generateSeed } from "@/engine/rng"
+import { clubIdentityClash } from "@/engine/team-creator"
 import type { GameSave } from "@/engine/save-types"
 import { PRESET_COLORS } from "@/types/team-creator"
 import { Button } from "@/components/ui/button"
@@ -38,6 +39,17 @@ import { goBackOr } from "@/lib/navigation-back"
 const SWATCHES = PRESET_COLORS.slice(0, 8)
 
 type Picks = Partial<Record<DraftRole, DraftOption>>
+
+/** A stored deal's picks, as the options they name. */
+const picksOf = (deal: DraftCupDeal): Picks => {
+    const picked: Picks = {}
+    for (const role of DRAFT_ROLES) {
+        const option = deal.pool[role].find(o => o.playerId === deal.picks[role])
+        if (option) picked[role] = option
+    }
+    return picked
+}
+const pickIds = (picks: Picks) => Object.fromEntries(DRAFT_ROLES.filter(r => picks[r]).map(r => [r, picks[r]!.playerId]))
 
 export default function DraftCupPage() {
     const router = useRouter()
@@ -64,6 +76,8 @@ export default function DraftCupPage() {
     const [worldSeed, setWorldSeed] = useState(() => generateSeed())
     /** The stored board has been read (nothing is written over it before that). */
     const [restored, setRestored] = useState(false)
+    /** START-50: the team name or tag is already a club in the world (so in the bracket too). */
+    const [clash, setClash] = useState({ name: false, tag: false })
 
     // A reload reopens the setup or the draft board where the player left it.
     useEffect(() => {
@@ -88,17 +102,17 @@ export default function DraftCupPage() {
         buildDraftCupWorld(board.worldSeed).then(w => {
             if (cancelled) return
             setWorld(w)
-            if (dealFitsWorld(stored, new Set(w.players.map(p => p.id)), new Set(w.teams.map(tm => tm.id)))) {
-                const picked: Picks = {}
-                for (const role of DRAFT_ROLES) {
-                    const option = stored.pool[role].find(o => o.playerId === stored.picks[role])
-                    if (option) picked[role] = option
-                }
+            const playerIds = new Set(w.players.map(p => p.id)), teamIds = new Set(w.teams.map(tm => tm.id))
+            if (dealFitsWorld(stored, playerIds, teamIds)) {
                 setOpponentIds(stored.opponentIds)
                 setPool(stored.pool)
-                setPicks(picked)
+                setPicks(picksOf(stored))
                 setDealtFor(stored.difficulty)
                 setStep(board.step)
+                // MODES-01 (audit 17): the other difficulties' deals come back too.
+                for (const other of Object.values(board.otherDeals ?? {})) {
+                    if (other && dealFitsWorld(other, playerIds, teamIds)) dealsRef.current[other.difficulty] = { opponentIds: other.opponentIds, pool: other.pool, picks: picksOf(other) }
+                }
             }
         }).catch(err => {
             debug.error("Draft Cup world failed:", err)
@@ -112,9 +126,15 @@ export default function DraftCupPage() {
 
     useEffect(() => {
         if (!restored || startingRef.current) return
+        // dealsRef is updated before the state that triggers this save (startDraft).
+        const otherDeals = Object.fromEntries(DRAFT_CUP_DIFFICULTIES.filter(d => d !== dealtFor && dealsRef.current[d]).map(d => {
+            const other = dealsRef.current[d]!
+            return [d, { difficulty: d, opponentIds: other.opponentIds, pool: other.pool, picks: pickIds(other.picks) }]
+        }))
         saveDraftCupBoard({
             version: 1, step, worldSeed, managerName, teamName, shortName, swatch, difficulty, rerolls,
-            ...(pool && dealtFor ? { deal: { difficulty: dealtFor, opponentIds, pool, picks: Object.fromEntries(DRAFT_ROLES.filter(r => picks[r]).map(r => [r, picks[r]!.playerId])) } } : {}),
+            ...(pool && dealtFor ? { deal: { difficulty: dealtFor, opponentIds, pool, picks: pickIds(picks) } } : {}),
+            ...(Object.keys(otherDeals).length ? { otherDeals } : {}),
         })
     }, [restored, step, worldSeed, managerName, teamName, shortName, swatch, difficulty, rerolls, pool, dealtFor, opponentIds, picks])
 
@@ -146,6 +166,10 @@ export default function DraftCupPage() {
         try {
             const w = world ?? await buildDraftCupWorld(worldSeed)
             setWorld(w)
+            // The placeholder club is replaced by the drafted side, so its name is free.
+            const found = clubIdentityClash(teamName, shortName, w.teams.filter(tm => tm.id !== w.playerTeamId))
+            setClash(found)
+            if (found.name || found.tag) return
             // A new difficulty needs a new field; the reroll count carries over.
             // A difficulty dealt before gets its old deal back (no free reroll).
             if (!pool || dealtFor !== difficulty) {
@@ -213,15 +237,16 @@ export default function DraftCupPage() {
     if (step === "setup") {
         return (
             <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8 [@media(max-height:800px)]:gap-4 [@media(max-height:800px)]:py-6">
-                {/* START-40: back to where the player came from (main menu or New career), never out of the app. */}
-                <button type="button" onClick={() => { saveCareerDraft({ step: "welcome" }); clearDraftCupBoard(); goBackOr(router, "/main-menu") }} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
+                {/* START-40: back to where the player came from (main menu or New career), never out of the app.
+                    MODES-01 (audit 17): the board is kept, so coming back is not a fresh pool. */}
+                <button type="button" onClick={() => { saveCareerDraft({ step: "welcome" }); goBackOr(router, "/main-menu") }} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                     <ArrowLeft size={16} /> {t("ng.back")}
                 </button>
                 <ScreenHeader eyebrow={t("dc.step1")} title={t("dc.title")}
                     subtitle={t("dc.subtitle", { budget: DRAFT_BUDGET })} />
 
                 <Panel title={t("dc.yourSide")}>
-                    <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
+                    <div className="grid gap-4 sm:grid-cols-[1fr_160px]">
                         <label className="space-y-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.managerName")}</span>
                             <Input value={managerName} maxLength={32} onChange={e => setManagerName(e.target.value)} placeholder={t("ng.namePlaceholder")} className="h-10" />
@@ -229,11 +254,15 @@ export default function DraftCupPage() {
                         <div />
                         <label className="space-y-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ct.teamName")}</span>
-                            <Input value={teamName} maxLength={28} onChange={e => setTeamName(e.target.value)} className="h-10" />
+                            <Input value={teamName} maxLength={28} aria-invalid={clash.name || undefined} onChange={e => { setTeamName(e.target.value); if (clash.name) setClash(c => ({ ...c, name: false })) }} className="h-10" />
+                            {clash.name && <span className="block text-xs font-medium text-negative">{t("ct.err.teamTaken")}</span>}
                         </label>
                         <label className="space-y-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dc.tag")}</span>
-                            <Input value={shortName} maxLength={5} onChange={e => setShortName(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} className="h-10 uppercase" />
+                            {/* START-66: filter first, then cap at five. */}
+                            <Input value={shortName} aria-invalid={clash.tag || undefined} onChange={e => { setShortName(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5)); if (clash.tag) setClash(c => ({ ...c, tag: false })) }} className="h-10 uppercase" />
+                            <span className="block text-xs text-ink-3">{t("ct.tagHint")}</span>
+                            {clash.tag && <span className="block text-xs font-medium text-negative">{t("ct.err.tagTaken")}</span>}
                         </label>
                     </div>
                     <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -343,7 +372,8 @@ export default function DraftCupPage() {
                     ))}
                 </div>
 
-                {/* START-41: the opponents keep about four rows; on a short window the column scrolls. */}
+                {/* START-41 / MODES-02 (audit 17): only the opponents list scrolls, so the budget and
+                    Start the cup stay on screen down to 1024x640. */}
                 <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto">
                     <Panel className="shrink-0" title={teamName} actions={<span className="text-xs text-ink-3">{shortName}</span>}>
                         <div>
@@ -370,7 +400,7 @@ export default function DraftCupPage() {
                         </p>
                     </Panel>
 
-                    <Panel title={t("dc.opponents")} padded={false} className="min-h-[200px] flex-1 overflow-hidden" bodyClassName="max-h-full overflow-y-auto">
+                    <Panel title={t("dc.opponents")} padded={false} className="flex min-h-0 flex-1 flex-col overflow-hidden" bodyClassName="min-h-0 flex-1 overflow-y-auto">
                         <ul>
                             {opponentIds.map(id => {
                                 const club = teamsById.get(id)

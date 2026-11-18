@@ -53,6 +53,11 @@ export function weeklyUpkeep(report: Pick<WeeklyFinancialReport, "expenses"> | n
     return (e.total ?? 0) - (e.playerWages ?? 0) - (e.staffWages ?? 0)
 }
 
+/** Fan income's hype factor (merchHype / 10; every club starts at 10, ×1: MARKET-10). /finances states it (MARKET-10). */
+export function merchHypeMultiplier(team: Pick<TeamSaveData, "merchHype">): number {
+    return Math.max(0, Math.min(100, team.merchHype || 10)) / 10
+}
+
 export class EconomyEngine {
 
     /**
@@ -191,7 +196,7 @@ export class EconomyEngine {
         // Phase 24: Use followers and merchLevel
         const followers = team.followers ?? ((team.fanbase ?? 0) * 7)
         const merchLevel = team.merchStoreLevel || 1
-        const hypeMultiplier = Math.max(0, Math.min(100, team.merchHype || 10)) / 10
+        const hypeMultiplier = merchHypeMultiplier(team)
 
         // Phase 18: Fan Zone Facility Bonus (20% revenue boost per level)
         const fanZoneFacility = team.facilities?.find(f => f.type === "FANZONE")

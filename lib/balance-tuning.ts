@@ -30,6 +30,14 @@ export const CONDITION_TUNING = {
     FORM_PER_WIN: 3,
     FORM_PER_LOSS: -3,
     /**
+     * SQUAD-64: a player's own match rating moves his form too, by
+     * FORM_PER_RATING x (rating - 1.0), capped at +/-FORM_RATING_CAP, so a
+     * 1.46 starter and a 0.97 starter in the same results no longer share one
+     * form, while the result (+/-3, scaled by the odds) still dominates.
+     */
+    FORM_PER_RATING: 10,
+    FORM_RATING_CAP: 2,
+    /**
      * Morale gains from wins are scaled by (100 - morale) / this, capped at
      * full value: full gain up to morale 50, half at 75, a tenth at 95.
      * Before tuning, S-tier wins (+15, loss -3) pinned winning rosters at 100.
@@ -172,6 +180,14 @@ export const AI_SQUAD_TUNING = {
     INITIAL_CONTRACT_STAGGER_WEEKS: 26,
     INITIAL_CONTRACT_MIN_WEEKS: 26,
     /**
+     * SQUAD-39: an opening contract pays this share of what the club would
+     * pay to sign the player today (recruitmentSalary): an existing deal,
+     * signed before he was worth today's price. The snapshot floored almost
+     * everyone at $250, so a star's first renewal jumped +150%; the full
+     * market wage left small clubs with a star at -$5.7k a week.
+     */
+    OPENING_WAGE_SHARE: 0.75,
+    /**
      * Weekly chance an AI club with an open, eligible sponsor slot reviews
      * offers, and its slot count (human cap 3). Pass 2: 0.05 -> 0.25;
      * Phase 4.6: every week (the managed club can look every week too).
@@ -272,12 +288,13 @@ export const LEAGUE_TUNING = {
 /**
  * Career difficulty for a club you take over (the new-game picker). It moves
  * the same levers a custom club's difficulty does: starting cash and the
- * club's recurring income, fans and prize money (team.difficultySettings).
+ * club's recurring income (team.difficultySettings). MODES-18: the unused
+ * fans and prize-money multipliers were removed.
  */
 export const CAREER_DIFFICULTY = {
-    easy: { label: "Relaxed", hint: "More starting cash and more income every week. Room for mistakes.", cash: 1.5, incomeMultiplier: 1.2, fansMultiplier: 1.25, tournamentPrizeMultiplier: 1 },
-    normal: { label: "Normal", hint: "The club as it is.", cash: 1, incomeMultiplier: 1, fansMultiplier: 1, tournamentPrizeMultiplier: 1 },
-    hard: { label: "Hard", hint: "Less starting cash and less income. Every wage matters.", cash: 0.6, incomeMultiplier: 0.85, fansMultiplier: 0.85, tournamentPrizeMultiplier: 1 },
+    easy: { label: "Relaxed", hint: "More starting cash and more income every week. Room for mistakes.", cash: 1.5, incomeMultiplier: 1.2 },
+    normal: { label: "Normal", hint: "The club as it is.", cash: 1, incomeMultiplier: 1 },
+    hard: { label: "Hard", hint: "Less starting cash and less income. Every wage matters.", cash: 0.6, incomeMultiplier: 0.85 },
 } as const
 export type CareerDifficulty = keyof typeof CAREER_DIFFICULTY
 
@@ -702,10 +719,11 @@ export const STORY_TUNING = {
     /**
      * Window: his final year (weeks left). Phase 5 fix: it was 6-12 weeks
      * among the top three, which no prime-age opening deal reached in season 1
-     * (0 standoffs in the 3-seed campaign).
+     * (0 standoffs in the 3-seed campaign). HOME-19 (2026-11-18): the second
+     * half of that year (26), so an agent never goes public with 45+ weeks left.
      */
     STANDOFF_MIN_WEEKS: 6,
-    STANDOFF_MAX_WEEKS: 52,
+    STANDOFF_MAX_WEEKS: 26,
     /** MODES-20: a player the club signed fewer than this many weeks ago is not a standoff (he chose these terms). */
     STANDOFF_MIN_TENURE_WEEKS: 20,
     /** Top-N players by overall rating at the club (the starting-five calibre). */
@@ -826,3 +844,26 @@ export const STORY_TUNING = {
     /** Weeks between press conferences, finals excepted (a top club met a top-10 side most weeks: 27 a season). */
     PRESS_MIN_WEEKS_BETWEEN: 4,
 } as const
+
+/**
+ * Fatigue a match adds to every player who plays it, by format. COMP-10
+ * (2026-11-18): a round-robin league now plays inside its listed weeks, up
+ * to four BO1 rounds a week (Global Pro League Finals, Conference, Perfect
+ * Realm), and at 10 a BO1 its clubs averaged fatigue 67-74 through the event.
+ * A league BO1 (stage "League Match") costs LEAGUE_BO1; every other match is
+ * unchanged.
+ */
+export const MATCH_FATIGUE_TUNING = {
+    BO1: 10,
+    BO3: 15,
+    BO5: 25,
+    LEAGUE_BO1: 3,
+} as const
+
+/** Fatigue one match adds to each player who played it (both the week tick and the managed club's match). */
+export function matchFatigueCost(format: string | undefined, stage?: string | null): number {
+    const f = (format || "BO1").toUpperCase()
+    if (f === "BO5") return MATCH_FATIGUE_TUNING.BO5
+    if (f === "BO3") return MATCH_FATIGUE_TUNING.BO3
+    return stage === "League Match" ? MATCH_FATIGUE_TUNING.LEAGUE_BO1 : MATCH_FATIGUE_TUNING.BO1
+}

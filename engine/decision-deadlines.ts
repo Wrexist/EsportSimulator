@@ -22,6 +22,8 @@ import type { GameEventSaveData, GameSave } from "./save-types"
 import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "./event-choice"
 import { isPendingDecisionEvent, isTransferRumor } from "@/lib/event-format"
 import { isTextRef, STORED_REF, type TextRef } from "@/lib/i18n"
+import { weekOfSeason } from "@/lib/season-week"
+import type { ChangeCause } from "@/lib/week-changes"
 
 export interface DecisionRule {
     /** Dedup and cooldown key, together with the subject. */
@@ -88,6 +90,9 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
     ["transfer_request_", rule({ family: "transfer_request", label: "Transfer request", window: 2, cooldown: 0, defaultChoiceId: "refuse", consequence: "refuses {name}'s transfer request (his morale and loyalty drop)" })],
     // Phase 5.3: a press conference before a big match; the deadline is match day.
     ["press_", rule({ family: "press", label: "Press conference", window: 0, cooldown: 0, defaultChoiceId: "no_one", consequence: "sends no one to the press conference: no effect" })],
+    // Owner decision 3: an invite that clashes with another event of the club.
+    // Each invite is its own question; unanswered, the club plays both.
+    ["invite_notif_", rule({ family: "invite_clash", label: "Tournament invitation", window: 2, cooldown: 0, defaultChoiceId: "both", consequence: "plays both events", dedupe: false })],
 ]
 
 /**
@@ -196,16 +201,20 @@ function playerName(e: EventLike, save: NameSource): string | null {
     return save.players.find(p => p.id === String(id))?.nickname || (typeof dataOf(e).playerName === "string" ? dataOf(e).playerName : null)
 }
 
-/** "If you don't answer by Week 9, the club skips the meetup …". */
+/**
+ * "If you don't answer by Week 9, the club skips the meetup …". The note shows
+ * only while the decision is open (a week or two), so it names the season's
+ * week, never the career's absolute week (HOME-22).
+ */
 export function unansweredNote(r: DecisionRule, deadline: number, name: string | null): string {
-    return `If you don't answer by Week ${deadline}, ${r.you ? "you" : "the club"} ${r.consequence.replace("{name}", name ?? "the player")}.`
+    return `If you don't answer by Week ${weekOfSeason(deadline)}, ${r.you ? "you" : "the club"} ${r.consequence.replace("{name}", name ?? "the player")}.`
 }
 
 /** The same note as a translation key, so it shows in the active language. */
 export function unansweredNoteRef(r: DecisionRule, deadline: number, name: string | null): TextRef | undefined {
     if (!r.consequenceRef) return undefined
     const consequence: TextRef = { ...r.consequenceRef, params: { ...r.consequenceRef.params, name: name ?? { key: "dl.thePlayer" } } }
-    return { key: r.you ? "dl.noteYou" : "dl.note", params: { week: deadline, consequence } }
+    return { key: r.you ? "dl.noteYou" : "dl.note", params: { week: weekOfSeason(deadline), consequence } }
 }
 
 /** Report label for an unanswered decision: "Unhappy player (ace)". */
@@ -213,7 +222,27 @@ function reportLabel(r: DecisionRule, e: EventLike, save: NameSource): string {
     if (r === JOB_OFFER_RULE) return `Job offer from ${dataOf(e).offeringTeamName ?? "another club"}`
     if (r === BID_RULE) return `Bid for ${playerName(e, save) ?? "your player"}`
     const name = playerName(e, save)
-    return name && r.consequence.includes("{name}") ? `${r.label} (${name})` : r.label
+    // A storyline's label already names him ("Slump (k1ncu)"): never twice (HOME-24).
+    return name && r.consequence.includes("{name}") && !r.label.includes(name) ? `${r.label} (${name})` : r.label
+}
+
+/** SMOKE-B-02: the job offer and bid labels as translation keys (the others are known stored text). */
+function reportLabelRef(r: DecisionRule, e: EventLike, save: NameSource): TextRef | undefined {
+    if (r === JOB_OFFER_RULE) {
+        const club = dataOf(e).offeringTeamName
+        return typeof club === "string" && club ? { key: "svd.p.jobOfferFrom", params: { club } } : { key: "svd.dec.jobOfferOther" }
+    }
+    if (r === BID_RULE) {
+        const name = playerName(e, save)
+        return name ? { key: "svd.p.bidFor", params: { name } } : { key: "svd.dec.bidOther" }
+    }
+    return undefined
+}
+
+/** The report cause of a settled decision: "Unanswered: …" or "Staff answered: …", in the active language when it has a key. */
+export function expiredDecisionCause(d: ExpiredDecision, by: "unanswered" | "staff"): ChangeCause {
+    const label = `${by === "staff" ? "Staff answered" : "Unanswered"}: ${d.label}`
+    return { type: "decision", label, ...(d.labelRef ? { ref: { key: by === "staff" ? "svd.p.staffAnswered" : "svd.p.unanswered", params: { what: d.labelRef } } } : {}) }
 }
 
 export interface NormalizeResult {
@@ -326,6 +355,9 @@ export interface ExpiredDecision {
     outcome: string
     /** True when the default's effects were applied. */
     applied: boolean
+    /** SMOKE-B-01/02: the label and the applied answer as translation keys, when they have one. */
+    labelRef?: TextRef
+    outcomeRef?: TextRef
 }
 
 type ExpirySave = DecisionSave & ChoiceTarget & Pick<GameSave, "acknowledgedEventIds">
@@ -360,10 +392,14 @@ export function expireDecisions(save: ExpirySave, each?: (expired: ExpiredDecisi
         })
         e.selectedChoiceId = applied && choice ? choice.id : "expired"
         const outcome = applied && choice ? choice.text : "Lapsed"
-        e.data = { ...data, resolvedWeek: save.currentWeek, unanswered: { week: save.currentWeek, label, outcome } }
+        const labelRef = r ? reportLabelRef(r, e, save) : undefined
+        const choiceRef = (choice as { ref?: unknown } | undefined)?.ref
+        const outcomeRef = applied && isTextRef(choiceRef) ? choiceRef : undefined
+        const refs = { ...(labelRef ? { labelRef } : {}), ...(outcomeRef ? { outcomeRef } : {}) }
+        e.data = { ...data, resolvedWeek: save.currentWeek, unanswered: { week: save.currentWeek, label, outcome, ...refs } }
         e.acknowledged = true
         if (!save.acknowledgedEventIds.includes(e.id)) save.acknowledgedEventIds.push(e.id)
-        const expired = { eventId: e.id, label, outcome, applied }
+        const expired: ExpiredDecision = { eventId: e.id, label, outcome, applied, ...refs }
         out.push(expired)
         each?.(expired)
     }

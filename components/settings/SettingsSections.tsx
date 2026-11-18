@@ -56,8 +56,9 @@ export function SettingSelect<T extends string | number>({ id, value, onChange, 
                 const match = options.find(o => String(o.value) === raw)
                 if (match) onChange(match.value)
             }}
-            // Grows to its longest option (up to 18rem) so a translation such as "Программная (по умолчанию)" is not cut (I18N-16).
-            className="h-9 w-auto min-w-52 max-w-72 rounded-md border border-line bg-shell px-3 text-sm! text-ink-1 outline-none transition-colors hover:border-line-strong focus-visible:border-gold disabled:opacity-40"
+            // One width (15rem) so the selects line up (START-61); grows to its longest option (up to 18rem)
+            // only when a translation such as "Программная (по умолчанию)" does not fit (I18N-16).
+            className="h-9 w-auto min-w-60 max-w-72 rounded-md border border-line bg-shell px-3 text-sm! text-ink-1 outline-none transition-colors hover:border-line-strong focus-visible:border-gold disabled:opacity-40"
         >
             {options.map(o => <option key={String(o.value)} value={o.value} className="bg-panel">{o.label}</option>)}
         </select>
@@ -185,7 +186,7 @@ export function AudioSettings() {
                 <Switch id="set-sound" checked={s.soundEnabled} onCheckedChange={s.setSoundEnabled} />
             </SettingRow>
             <SettingRow label={t("settings.masterVolume")}>
-                {/* START-38: with sound off the volumes do nothing, like Hover sounds. */}
+                {/* START-38/61: with sound off the volumes and the sound switches below do nothing. */}
                 <SettingSlider label={t("settings.masterVolume")} value={s.masterVolume} min={0} max={100} step={1} disabled={!s.soundEnabled}
                     onChange={(v) => { s.setMasterVolume(v); soundManager.setMasterVolume(v) }} />
             </SettingRow>
@@ -198,13 +199,13 @@ export function AudioSettings() {
                     onChange={(v) => { s.setSfxVolume(v); soundManager.setSfxVolume(v) }} />
             </SettingRow>
             <SettingRow id="set-ui-sounds" label={t("settings.uiSounds")} hint={t("settings.uiSoundsHint")}>
-                <Switch id="set-ui-sounds" checked={s.uiSounds} onCheckedChange={(v) => { s.setUiSounds(v); soundManager.setUiSounds(v) }} />
+                <Switch id="set-ui-sounds" checked={s.uiSounds} disabled={!s.soundEnabled} onCheckedChange={(v) => { s.setUiSounds(v); soundManager.setUiSounds(v) }} />
             </SettingRow>
             <SettingRow id="set-hover-sounds" label={t("settings.hoverSounds")} hint={t("settings.hoverSoundsHint")}>
-                <Switch id="set-hover-sounds" checked={s.hoverSounds} disabled={!s.uiSounds} onCheckedChange={(v) => { s.setHoverSounds(v); soundManager.setHoverSounds(v) }} />
+                <Switch id="set-hover-sounds" checked={s.hoverSounds} disabled={!s.soundEnabled || !s.uiSounds} onCheckedChange={(v) => { s.setHoverSounds(v); soundManager.setHoverSounds(v) }} />
             </SettingRow>
             <SettingRow id="set-mute-unfocused" label={t("settings.muteUnfocused")} hint={t("settings.muteUnfocusedHint")}>
-                <Switch id="set-mute-unfocused" checked={s.muteWhenUnfocused} onCheckedChange={(v) => { s.setMuteWhenUnfocused(v); soundManager.setMuteWhenUnfocused(v) }} />
+                <Switch id="set-mute-unfocused" checked={s.muteWhenUnfocused} disabled={!s.soundEnabled} onCheckedChange={(v) => { s.setMuteWhenUnfocused(v); soundManager.setMuteWhenUnfocused(v) }} />
             </SettingRow>
         </div>
     )

@@ -205,6 +205,9 @@ describe("FinanceProcessor.processFinance", () => {
             expect(fans.category).toBe("MERCH")
             expect(moneyCause(fans.category, fans.description).label).toBe("Fans")
         }
+        // MARKET-07 (2026-11-17): the report names a scouting fee and upkeep as the ledger does.
+        expect(moneyCause("SCOUTING", "Scouting Mission: trypex17").label).toBe("Scouting")
+        expect(moneyCause("FACILITIES", "Facility upkeep").label).toBe("Facilities")
         // Every movement has a row: rows reconcile with the budget change.
         const net = save.financeLedger.reduce((s, e) => s + (e.type === "INCOME" ? e.amount : -e.amount), 0)
         expect(net).toBeCloseTo(team.budget - before, 6)
@@ -423,5 +426,24 @@ describe("FinanceProcessor.processFinance — replay/resume idempotency (ledger 
         FinanceProcessor.processFinance(save, "t1", eventIdSet, ledgerIdSet)
 
         expect(save.eventsLog.filter(e => e.type === "BUDGET_WARNING").length).toBe(1)
+    })
+
+    test("I18N-03: a budget warning keeps translation keys and the same English text", () => {
+        const team = makeTeam({ id: "t1", budget: 20_000, reputation: 10, fanbase: 100, rosterIds: ["p1", "p2", "p3", "p4", "p5"], staffIds: ["s1"] })
+        team._prevFinancialState = "STABLE"
+        const contracts: ContractSaveData[] = ["p1", "p2", "p3", "p4", "p5"].map((pid, i) => ({
+            id: `c${i}`, playerId: pid, teamId: "t1", salaryPerWeek: 5000, startWeek: 1, endWeek: 52, buyout: 0,
+        } as any))
+        const staff: StaffSaveData[] = [
+            { id: "s1", teamId: "t1", name: "Coach", role: "coach", salaryPerWeek: 2000, level: 1, contractEndWeek: 52, stats: {} as any, unlockedTalentIds: [] } as any,
+        ]
+        const save = makeSave(team, "t1", { contracts, staff })
+        FinanceProcessor.processFinance(save, "t1")
+        const warning = save.eventsLog.find(e => e.type === "BUDGET_WARNING")!
+        const data = warning.data as Record<string, any>
+        expect(data.messageRef.key).toMatch(/^evn\.budget\.(TIGHT|RISK|CRISIS|INSOLVENT)$/)
+        expect(data.titleRef).toEqual({ key: "evn.budget.t" })
+        expect(data.title).toBe("Budget warning")
+        expect(data.description).toMatch(/runway|insolvency|INSOLVENT/)
     })
 })

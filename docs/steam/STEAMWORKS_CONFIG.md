@@ -60,22 +60,25 @@ Steamworks → Stats & Achievements → Stats. Type **INT**, Set by **Client**, 
 | `stat_players_developed` | No: reserved, safe to leave out of Steamworks |
 | `stat_prize_money` | Yes |
 
-## Leaderboards
-
-Steamworks → Stats & Achievements → Leaderboards. Display type **Numeric**, community name and sort method as below.
-
-| API name | Community name | Sort |
-|---|---|---|
-| `lead_world_ranking` | Peak Elo rating | Descending |
-| `lead_major_wins` | Major wins | Descending |
-| `lead_fastest_stier` | Fastest rise to S-Tier (career weeks) | Ascending (lower is better) |
-| `lead_total_earnings` | Career income | Descending |
-| `lead_win_streak` | Longest win streak | Descending |
-| `lead_tournaments_won` | Titles won | Descending |
-
 ## Rich Presence
 
-Steamworks → Community → Rich Presence: upload each file below (one per language). The game sets `team`, `season`, `week`, `rank` and then `steam_display`; without these files Steam shows only the game name.
+Steamworks → Community → Rich Presence: upload each file below (one per language). The game sets `team`, `season`, `week`, `rank` (in a career) or `team`, `opponent` (during a live match), then `steam_display`; without these files Steam shows only the game name.
+
+### brazilian.vdf
+
+```vdf
+"lang"
+{
+	"language"	"brazilian"
+	"tokens"
+	{
+		"#Status_Managing"	"Comanda %team% - Temporada %season%, semana %week%"
+		"#Status_Ranked"	"Comanda %team% (ranking mundial #%rank%) - Temporada %season%, semana %week%"
+		"#Status_Menu"	"No menu principal"
+		"#Status_Match"	"Jogando uma partida: %team% x %opponent%"
+	}
+}
+```
 
 ### english.vdf
 
@@ -87,6 +90,88 @@ Steamworks → Community → Rich Presence: upload each file below (one per lang
 	{
 		"#Status_Managing"	"Managing %team% - Season %season%, Week %week%"
 		"#Status_Ranked"	"Managing %team% (World #%rank%) - Season %season%, Week %week%"
+		"#Status_Menu"	"In the main menu"
+		"#Status_Match"	"Playing a match: %team% vs %opponent%"
+	}
+}
+```
+
+### french.vdf
+
+```vdf
+"lang"
+{
+	"language"	"french"
+	"tokens"
+	{
+		"#Status_Managing"	"Dirige %team% - Saison %season%, semaine %week%"
+		"#Status_Ranked"	"Dirige %team% (classement mondial #%rank%) - Saison %season%, semaine %week%"
+		"#Status_Menu"	"Dans le menu principal"
+		"#Status_Match"	"Joue un match : %team% contre %opponent%"
+	}
+}
+```
+
+### german.vdf
+
+```vdf
+"lang"
+{
+	"language"	"german"
+	"tokens"
+	{
+		"#Status_Managing"	"Leitet %team% - Saison %season%, Woche %week%"
+		"#Status_Ranked"	"Leitet %team% (Weltrangliste #%rank%) - Saison %season%, Woche %week%"
+		"#Status_Menu"	"Im Hauptmenü"
+		"#Status_Match"	"Spielt ein Match: %team% gegen %opponent%"
+	}
+}
+```
+
+### polish.vdf
+
+```vdf
+"lang"
+{
+	"language"	"polish"
+	"tokens"
+	{
+		"#Status_Managing"	"Prowadzi %team% - sezon %season%, tydzień %week%"
+		"#Status_Ranked"	"Prowadzi %team% (ranking światowy #%rank%) - sezon %season%, tydzień %week%"
+		"#Status_Menu"	"W menu głównym"
+		"#Status_Match"	"Gra mecz: %team% kontra %opponent%"
+	}
+}
+```
+
+### russian.vdf
+
+```vdf
+"lang"
+{
+	"language"	"russian"
+	"tokens"
+	{
+		"#Status_Managing"	"Руководит %team% - сезон %season%, неделя %week%"
+		"#Status_Ranked"	"Руководит %team% (мировой рейтинг #%rank%) - сезон %season%, неделя %week%"
+		"#Status_Menu"	"В главном меню"
+		"#Status_Match"	"Играет матч: %team% против %opponent%"
+	}
+}
+```
+
+### spanish.vdf
+
+```vdf
+"lang"
+{
+	"language"	"spanish"
+	"tokens"
+	{
+		"#Status_Managing"	"Dirige a %team% - Temporada %season%, semana %week%"
+		"#Status_Ranked"	"Dirige a %team% (puesto mundial #%rank%) - Temporada %season%, semana %week%"
+		"#Status_Menu"	"En el menú principal"
+		"#Status_Match"	"Jugando un partido: %team% contra %opponent%"
 	}
 }
 ```
@@ -101,6 +186,8 @@ Steamworks → Community → Rich Presence: upload each file below (one per lang
 	{
 		"#Status_Managing"	"Leder %team% - säsong %season%, vecka %week%"
 		"#Status_Ranked"	"Leder %team% (världsranking #%rank%) - säsong %season%, vecka %week%"
+		"#Status_Menu"	"I huvudmenyn"
+		"#Status_Match"	"Spelar en match: %team% mot %opponent%"
 	}
 }
 ```

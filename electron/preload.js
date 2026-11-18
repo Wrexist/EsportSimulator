@@ -15,8 +15,6 @@ contextBridge.exposeInMainWorld('electron', {
         // Back-compat alias for call sites that used the old name.
         setAchievement: (name) => ipcRenderer.invoke('steam-set-achievement', name),
         isAchievementUnlocked: (name) => ipcRenderer.invoke('steam-is-achievement-unlocked', name),
-        // leaderboards
-        setLeaderboardScore: (name, score) => ipcRenderer.invoke('steam-set-leaderboard-score', name, score),
         // rich presence
         setRichPresence: (key, value) => ipcRenderer.invoke('steam-set-rich-presence', key, value),
         getRichPresence: (key) => ipcRenderer.invoke('steam-get-rich-presence', key),
@@ -55,6 +53,8 @@ contextBridge.exposeInMainWorld('electron', {
     },
     app: {
         getUserDataPath: () => ipcRenderer.invoke('app-get-user-data-path'),
+        // Active UI language, so native dialogs (exit, crash, launch error) match it.
+        setUiLanguage: (code) => ipcRenderer.invoke('app-set-ui-language', code),
     },
     gpu: {
         getMode: () => ipcRenderer.invoke('gpu-get-mode'),

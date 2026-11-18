@@ -59,10 +59,12 @@ const LogRow = memo(function LogRow({ l, clockText, bomb }: { l: LogEntry; clock
         return (
             // Killer and victim keep their names; on a narrow feed (1280 px) the
             // assister shrinks to "+" (name in the tooltip) and the location
-            // drops first (MATCHDAY-17).
+            // drops first (MATCHDAY-17). Names keep at least six letters; on a
+            // very narrow feed (1024 px) a tag shrinks to a dot (word in the
+            // tooltip) instead of cutting the names to two letters (MATCHDAY-12).
             <li className="flex h-7 items-center gap-2 rounded-[3px] bg-raised px-2 text-[13px]">
                 {time}
-                <span className={cn("min-w-[3ch] shrink truncate font-semibold", sideText(l.killerSide))} title={l.killerName}>{l.killerName}</span>
+                <span className={cn("min-w-[7ch] shrink truncate font-semibold", sideText(l.killerSide))} title={l.killerName}>{l.killerName}</span>
                 {l.assisterName && (
                     <span className="flex min-w-0 shrink-[8] items-center gap-0.5 text-xs text-ink-3" title={`${l.isFlashAssist ? t("feed.flashAssist") : t("feed.assist")}: ${l.assisterName}`}>
                         <span className="shrink-0">+</span>{l.isFlashAssist && <ZapIcon className="h-3 w-3 shrink-0 text-ink-2" aria-label={t("feed.flashAssist")} />}<span className="min-w-0 truncate @max-[26rem]:sr-only">{l.assisterName}</span>
@@ -72,12 +74,15 @@ const LogRow = memo(function LogRow({ l, clockText, bomb }: { l: LogEntry; clock
                     <WeaponGlyph weapon={l.weapon} className="h-3 w-8" />
                     {l.isHeadshot && <HeadshotMark className="text-ink-1" />}
                 </span>
-                <span className={cn("min-w-[3ch] shrink truncate font-semibold", sideText(otherSide(l.killerSide)))} title={l.victimName}>{l.victimName}</span>
+                <span className={cn("min-w-[7ch] shrink truncate font-semibold", sideText(otherSide(l.killerSide)))} title={l.victimName}>{l.victimName}</span>
                 {(l.location || tags.length > 0) && (
                     <span className="ml-auto flex shrink-0 items-center gap-1.5">
                         {l.location && <span className="whitespace-nowrap text-[11px] text-ink-3 @max-[26rem]:hidden" data-kill-location="">{l.location}</span>}
                         {tags.map(tag => (
-                            <span key={tag.label} title={tag.title} className={cn("rounded-sm border px-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.04em]", tag.tone)}>{tag.label}</span>
+                            <span key={tag.label} title={tag.title} className={cn("rounded-sm border px-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.04em] @max-[20rem]:border-0 @max-[20rem]:px-0", tag.tone)}>
+                                <span className="@max-[20rem]:sr-only">{tag.label}</span>
+                                <span className="hidden h-1.5 w-1.5 rounded-full bg-current @max-[20rem]:block" aria-hidden="true" />
+                            </span>
                         ))}
                     </span>
                 )}

@@ -10,6 +10,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # onnxruntime-node's install script downloads optional CUDA binaries on Linux;
+  # that GitHub release asset now 404s and breaks `npm ci`. The game never uses CUDA.
+  npm_config_onnxruntime_node_install_cuda: skip
+
 jobs:
   source-checks:
     runs-on: ubuntu-latest

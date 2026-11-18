@@ -15,6 +15,7 @@
 import { signFreeAgent } from "@/engine/ai/roster-management"
 import { AIManager } from "@/engine/ai-manager"
 import { SeededRNG } from "@/engine/rng"
+import { evaluatePlayer } from "@/engine/player-evaluation"
 import type { GameSave, TeamSaveData, PlayerSaveData } from "@/engine/save-types"
 
 const PLAYER_TEAM_ID = "player"
@@ -274,11 +275,12 @@ describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
         expect(aiTeam.budget).toBe(budgetBefore) // wages are charged only by weekly settlement
     })
 
-    test("3.4 — an AI↔AI transfer fee honors the seller's contract buyout", () => {
-        // A listed low-skill star (skill*2000 fallback = 80k) with a 5M buyout.
-        // Pre-fix the buyer paid the 80k fallback; post-fix it must pay the buyout.
-        let executed = false
-        for (let seed = 1; seed <= 300 && !executed; seed++) {
+    // Audit 11-17 ENGINE-03: the fee follows the player's market value; the
+    // seller's buyout is only a ceiling. Charging the buyout itself (and
+    // giving the new contract a buyout of twice the fee) doubled the price of
+    // the same bench player with every resale.
+    function aiToAiSale(buyout: number, seedFrom = 1) {
+        for (let seed = seedFrom; seed <= 300; seed++) {
             const seller = makeTeam("seller", { rosterIds: ["star", "s2", "s3", "s4", "s5", "s6"], budget: 100_000 })
             const buyer = makeTeam("buyer", { rosterIds: ["b1", "b2", "b3"], budget: 50_000_000, ...INCOME })
             const players: PlayerSaveData[] = [
@@ -289,18 +291,71 @@ describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
             const save = makeSave([makeTeam(PLAYER_TEAM_ID), seller, buyer], players)
             save.contracts = [{
                 id: "c_star", playerId: "star", teamId: "seller",
-                salaryPerWeek: 1000, startWeek: 1, endWeek: 60, buyout: 5_000_000,
+                salaryPerWeek: 1000, startWeek: 1, endWeek: 60, buyout,
             } as never]
-            const buyerBudgetBefore = buyer.budget
-
+            const value = evaluatePlayer(players[0], undefined, undefined, save.currentWeek).transferValue
+            const before = { buyer: buyer.budget, seller: seller.budget }
             AIManager.processAIToAITransfers(save, PLAYER_TEAM_ID, new SeededRNG(seed))
+            if (buyer.rosterIds.includes("star")) return { save, buyer, seller, value, paid: before.buyer - buyer.budget, received: seller.budget - before.seller }
+        }
+        throw new Error("no seed triggered the transfer")
+    }
 
-            if (buyer.rosterIds.includes("star")) {
-                executed = true
-                expect(buyerBudgetBefore - buyer.budget).toBe(5_000_000) // buyout, not skill*2000
+    test("3.4 / ENGINE-03 — an AI↔AI fee is the player's value, never an inflated buyout", () => {
+        const { value, paid, received } = aiToAiSale(5_000_000)
+        expect(value).toBeGreaterThan(0)
+        expect(value).toBeLessThan(5_000_000)
+        expect(paid).toBe(Math.round(value)) // not the 5M buyout
+        expect(received).toBe(paid)
+    })
+
+    test("ENGINE-03 — a buyout below his value caps the fee", () => {
+        const probe = aiToAiSale(0)
+        const cap = Math.max(1, Math.floor(probe.value / 2))
+        const { paid } = aiToAiSale(cap)
+        expect(paid).toBe(cap)
+    })
+
+    test("ENGINE-03 — a resale costs his value again, not twice the last fee", () => {
+        const { save, buyer, value, paid } = aiToAiSale(5_000_000)
+        // The new contract keeps the doubled buyout as a ceiling...
+        expect(save.contracts.find(c => c.playerId === "star" && c.teamId === "buyer")!.buyout).toBe(paid * 2)
+        // ...and once the move is older than the hold period, a third club
+        // pays his value for him, not that buyout.
+        buyer.rosterIds.push("b4", "b5", "b6")
+        save.players.push(makePlayer("b4"), makePlayer("b5"), makePlayer("b6"))
+        const third = makeTeam("third", { rosterIds: ["t1", "t2", "t3"], budget: 50_000_000, ...INCOME })
+        save.players.push(makePlayer("t1"), makePlayer("t2"), makePlayer("t3"))
+        save.teams = save.teams.filter(t => t.id !== "seller").concat(third)
+        save.currentWeek += 8
+        let resold = false
+        for (let seed = 1; seed <= 300 && !resold; seed++) {
+            const before = third.budget
+            AIManager.processAIToAITransfers(save, PLAYER_TEAM_ID, new SeededRNG(seed))
+            if (third.rosterIds.includes("star")) {
+                resold = true
+                expect(before - third.budget).toBe(Math.round(evaluatePlayer(save.players.find(p => p.id === "star")!, undefined, undefined, save.currentWeek).transferValue))
+                expect(before - third.budget).toBeLessThan(paid * 2)
             }
         }
-        expect(executed).toBe(true) // at least one seed triggered the transfer
+        expect(resold).toBe(true)
+        expect(value).toBeGreaterThan(0)
+    })
+
+    test("ENGINE-03 — a club does not dump a bench player who joined it in the last 8 weeks", () => {
+        const { save, buyer } = aiToAiSale(5_000_000)
+        buyer.rosterIds.push("b4", "b5", "b6")
+        save.players.push(makePlayer("b4"), makePlayer("b5"), makePlayer("b6"))
+        save.players.find(p => p.id === "star")!.forSale = false
+        const third = makeTeam("third", { rosterIds: ["t1", "t2", "t3"], budget: 50_000_000, ...INCOME })
+        save.players.push(makePlayer("t1"), makePlayer("t2"), makePlayer("t3"))
+        save.teams = save.teams.filter(t => t.id !== "seller").concat(third)
+        save.currentWeek += 7
+        for (let seed = 1; seed <= 300; seed++) AIManager.processAIToAITransfers(save, PLAYER_TEAM_ID, new SeededRNG(seed))
+        expect(buyer.rosterIds).toContain("star")
+        save.currentWeek += 1
+        for (let seed = 1; seed <= 300 && buyer.rosterIds.includes("star"); seed++) AIManager.processAIToAITransfers(save, PLAYER_TEAM_ID, new SeededRNG(seed))
+        expect(third.rosterIds).toContain("star")
     })
 })
 
@@ -376,5 +431,37 @@ describe("processAITransferMarket — MARKET-11: clubs bid only for players who 
 
     test("control: the same club does bid for a cheap player at its level", () => {
         expect(offersOver30Weeks(88)).toBeGreaterThan(0)
+    })
+})
+
+import { aiClubsAbleToBid } from "@/engine/ai/transfer-market"
+
+describe("aiClubsAbleToBid — MARKET-13 (2026-11-17): the news and profile count with the bid loop's gates", () => {
+    const attrs = (v: number) => ({ rifle: v, awp: v, pistol: v, grenades: v, creativity: v, clutch: v, tactic: v, leader: v, teamwork: v, reaction: v, eyesight: v, skill: v })
+    function listedSave(listedRating: number) {
+        const listed = makePlayer("listed", { ...attrs(listedRating), age: 26, potential: 50, forSale: true, transferListingPrice: 1_000 } as any)
+        const stars = Array.from({ length: 5 }, (_, i) => makePlayer(`star${i}`, attrs(88) as any))
+        const playerTeam = makeTeam("player", { rosterIds: ["listed"] })
+        const elite = makeTeam("elite", { budget: 50_000_000, worldRanking: 2, rosterIds: stars.map(p => p.id), ...INCOME })
+        const broke = makeTeam("broke", { budget: 10_000, worldRanking: 3, ...INCOME })
+        return makeSave([playerTeam, elite, broke], [listed, ...stars])
+    }
+
+    test("a club the quality gate or the cash floor rules out is not counted; one that bids is", () => {
+        expect(aiClubsAbleToBid(listedSave(40), "player", listedSave(40).players[0]).map(t => t.id)).toEqual([])
+        const save = listedSave(88)
+        expect(aiClubsAbleToBid(save, "player", save.players[0]).map(t => t.id)).toEqual(["elite"])
+    })
+
+    test("every club that makes a real bid is one the count includes", () => {
+        for (const rating of [40, 88]) {
+            for (let w = 1; w <= 20; w++) {
+                const save = listedSave(rating)
+                save.currentWeek = w
+                const able = new Set(aiClubsAbleToBid(save, "player", save.players[0]).map(t => t.id))
+                processAITransferMarket(save, "player", new SeededRNG(w * 31 + 7))
+                for (const e of save.eventsLog.filter(x => x.type === "TRANSFER_OFFER")) expect(able.has(String(e.data?.teamId))).toBe(true)
+            }
+        }
     })
 })

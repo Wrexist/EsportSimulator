@@ -13,9 +13,9 @@ export interface DifficultySettings {
     description: string
     startingBudget: number
     startingReputation: number
+    /** Scales the created club's starting fanbase (engine/team-creator.ts). */
     fansMultiplier: number
     incomeMultiplier: number
-    tournamentPrizeMultiplier: number
 }
 
 /** Longest name a created club may have (START-13; the Draft Cup team name uses the same limit). */
@@ -51,7 +51,6 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
         startingReputation: 50,
         fansMultiplier: 1.5,
         incomeMultiplier: 1.5,
-        tournamentPrizeMultiplier: 1.25,
     },
     normal: {
         id: 'normal',
@@ -61,7 +60,6 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
         startingReputation: 25,
         fansMultiplier: 1.0,
         incomeMultiplier: 1.0,
-        tournamentPrizeMultiplier: 1.0,
     },
     hard: {
         id: 'hard',
@@ -71,7 +69,6 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
         startingReputation: 10,
         fansMultiplier: 0.75,
         incomeMultiplier: 0.8,
-        tournamentPrizeMultiplier: 1.0,
     },
     impossible: {
         id: 'impossible',
@@ -81,7 +78,6 @@ export const DIFFICULTY_SETTINGS: Record<GameDifficulty, DifficultySettings> = {
         startingReputation: 0,
         fansMultiplier: 0.5,
         incomeMultiplier: 0.6,
-        tournamentPrizeMultiplier: 1.0,
     },
 }
 

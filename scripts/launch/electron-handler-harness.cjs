@@ -29,7 +29,7 @@ function loadHandlers({directory, ipcMain, contents, nativeApp, nativeWindow, st
         return context.module.exports;
     }
     load('main.js');
-    vm.runInContext('mainWindow = testWindow; store = testStore;'+(saveFs?' saveFsLayer = testSaveFs;':''),contexts['main.js']);
+    vm.runInContext('mainWindow = testWindow; store = testStore; rendererBooted = true;'+(saveFs?' saveFsLayer = testSaveFs;':''),contexts['main.js']);
     const event={sender:webContents,senderFrame:webContents.mainFrame};
     const attachCloseHandler=()=>{
         const source=fs.readFileSync(path.join(root,'electron/main.js'),'utf8');

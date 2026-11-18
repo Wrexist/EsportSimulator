@@ -125,7 +125,25 @@ export function counterOffer(acceptAt: number, sure: number, roll: number): numb
     return Math.max(floor, Math.min(rounded, Math.ceil(sure)))
 }
 
+/**
+ * MARKET-03 (2026-11-17): the club's fee counter. When the club would take a
+ * fee the manager may offer (`limit`: funds and the board's sanction), the
+ * counter is never above it, so it never tells him to give up on a deal he
+ * can make. `reachable` is false when even the club's lowest price is beyond
+ * the limit (the panel then says so).
+ */
+export function feeCounterOffer(acceptAt: number, sure: number, limit: number, roll: number): { counter: number; reachable: boolean } {
+    const reachable = Math.ceil(acceptAt) <= limit
+    return { counter: counterOffer(acceptAt, reachable ? Math.min(sure, limit) : sure, roll), reachable }
+}
+
 /** The shown chance: a counter on the table is a sure yes at or above it (MARKET-07). */
 export function chanceWithCounter(chance: number, offer: number, counter: number | null): number {
     return counter !== null && offer >= counter ? 1 : chance
+}
+
+/** MARKET-14 (2026-11-17): digits only: what a typed or pasted amount ("80,000", "$80 000") means. */
+export function parseMoneyInput(text: string): number {
+    const digits = text.replace(/\D/g, "")
+    return digits ? Number(digits) : 0
 }

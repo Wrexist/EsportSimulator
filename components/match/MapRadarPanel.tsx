@@ -213,7 +213,11 @@ function MapRadarPanelComponent({
     const alive = headerScene ? sceneAliveCounts(headerScene) : { CT: 0, T: 0 }
     const ctAlive = alive.CT
     const tAlive = alive.T
-    const shownOver = reviewUi.active ? !reviewingLive || roundOver : roundOver
+    // No round loaded yet (map start, a freeze time after the buy): the radar
+    // says freeze time like the scorebug, not the end of a round it never
+    // showed, and no "0 / 0 at round end" (NEWPLAYER-20).
+    const preRound = !reviewUi.active && !activeScript && !headerScene
+    const shownOver = reviewUi.active ? !reviewingLive || roundOver : roundOver && !preRound
 
     // Clutch detection (live rounds only: after the round ends it would
     // label the end-of-round survivors, e.g. "1v4" after a bomb win).
@@ -232,6 +236,7 @@ function MapRadarPanelComponent({
             if (bomb.phase === "defusing") return { label: `${t("radar.defusing")}${site}`, color: "#5AA9FF" }
             if (bomb.phase === "planted") return { label: `${t("radar.planted")}${site}`, color: "#FF5468" }
         }
+        if (preRound && roundOver) return { label: t("radar.freeze"), color: "#5AA9FF" }
         if (shownOver && !reviewUi.active) return { label: t("radar.roundOver"), color: "#AEB6C2" }
         if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#AEB6C2" }
         if (!reviewUi.active && currentTime != null && currentTime < FREEZE_LABEL_SECONDS) return { label: t("radar.freeze"), color: "#5AA9FF" }
@@ -317,7 +322,11 @@ function MapRadarPanelComponent({
     const scrubberRound = reviewUi.active ? reviewUi.round : activeScript?.round ?? null
     const scrubberPrep = reviewUi.active ? reviewPrep : livePrep
     const source = activeScript ? "round-script" : radarDots ? "snapshot" : undefined
-    const floorLabel = isDualLevel ? (shownFloor === "upper" ? t("radar.upperFloor") : t("radar.lowerFloor")) : t("radar.singleLevel")
+    // Footer note (MATCHDAY-05): the floor on a two-level map, and "Estimated
+    // positions" when there is no round script; nothing for the normal case.
+    const floorLabel = isDualLevel ? (shownFloor === "upper" ? t("radar.upperFloor") : t("radar.lowerFloor")) : null
+    const sourceLabel = activeScript || positionSource === 'physical-replay' ? null : t("radar.estimated")
+    const footerNote = [sourceLabel, floorLabel].filter(Boolean).join(" · ")
     const ariaLabel = `${t("radar.aria", { map: mapName })}${headerScene ? `: ${t("radar.ariaAlive", { ct: ctAlive, t: tAlive })}` : ""}${roundPhase ? `, ${roundPhase.label.toLowerCase()}` : reviewUi.active ? "" : `, ${t("radar.ariaLive")}`}`
 
     return (
@@ -429,10 +438,10 @@ function MapRadarPanelComponent({
                             />
                         )}
                         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-line px-3 py-2 text-xs text-ink-3">
-                            <span className="flex items-center gap-3"><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>{shownOver ? t("radar.atRoundEnd") : t("radar.alive")}</span></span>
-                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : activeScript ? t("radar.scriptTitle") : t("radar.estimatedTitle")}>
-                                {positionSource === 'physical-replay' ? 'Recorded positions' : activeScript ? t("radar.script") : t("radar.estimated")} · {floorLabel}
-                            </span>
+                            {preRound ? <span /> : (
+                                <span className="flex items-center gap-3" title={activeScript ? t("radar.scriptTitle") : undefined}><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>{shownOver ? t("radar.atRoundEnd") : t("radar.alive")}</span></span>
+                            )}
+                            {footerNote && <span title={sourceLabel ? t("radar.estimatedTitle") : undefined}>{footerNote}</span>}
                         </div>
                     </motion.div>
                 )}

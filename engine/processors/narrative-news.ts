@@ -29,6 +29,11 @@ import { finalPreview } from "../storylines/narrative"
 import { LIST_REF, type TextParam, type TextRef } from "@/lib/i18n"
 import { divisionRef, newsText } from "@/lib/news-ref"
 import { sideScore } from "@/lib/week-changes"
+import { weekOfSeason } from "@/lib/season-week"
+import { isOfficialMatch } from "../personality"
+
+/** Round margin on a single map that a headline may call domination (HOME-10). */
+export const DOMINANT_ROUND_MARGIN = 7
 
 export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
     // 1. Monthly Power Rankings
@@ -42,7 +47,8 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                     { key: "nw.power.t", params: { team: topTeam.name } },
                     { key: "nw.power.c", params: { team: topTeam.name, list: { key: LIST_REF, params: Object.fromEntries(topTeams.map((t, i) => [`t${i}`, t.name])) } } },
                 ),
-                category: "ACHIEVEMENT",
+                // HOME-15: a ranking table is not an achievement of the club on top.
+                category: "TOURNAMENT",
                 teamId: topTeam.id,
                 week: save.currentWeek,
                 engagement: { likes: 1200 + Math.floor(rng.next() * 800), views: 15000 + Math.floor(rng.next() * 5000) },
@@ -81,7 +87,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
     // 3. Post-Match Headlines: last week's two most notable results (the
     //    manager's own match first, then the biggest upsets and the biggest
     //    clubs), not simply the first two played.
-    const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1 && m.tournamentId && m.result?.winnerId)
+    const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1 && m.tournamentId && isOfficialMatch(m) && m.result?.winnerId)
     const eloOf = (id: string) => (idx?.teamIndex.get(id) ?? save.teams.find(t => t.id === id))?.elo ?? 0
     const notability = (m: (typeof recentMatches)[number]) => {
         const own = m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId ? 1000 : 0
@@ -132,9 +138,16 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             const isUpset = (loser?.elo || 0) > (winner?.elo || 0) + 100
 
             const names = { winner: winner.name, loser: loser.name }
+            // HOME-10: "dominate" only for a one-sided result (7+ rounds on one
+            // map, or a series without a map lost); a close win is "clinical".
+            const lopsided = match.result.maps?.length === 1
+                ? Math.abs((match.result.maps[0].homeScore || 0) - (match.result.maps[0].awayScore || 0)) >= DOMINANT_ROUND_MARGIN
+                : Math.min(homeScore, awayScore) === 0 && Math.max(homeScore, awayScore) >= 2
             const headlines: TextRef[] = isUpset
                 ? [{ key: "nw.head.upset", params: names }, { key: "nw.head.miracle", params: names }]
-                : [{ key: "nw.head.dominates", params: names }, { key: "nw.head.clinical", params: names }]
+                : lopsided
+                    ? [{ key: "nw.head.dominates", params: names }, { key: "nw.head.clinical", params: names }]
+                    : [{ key: "nw.head.clinical", params: names }]
 
             const id = `headline_${match.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`
             const title = headlines[Math.floor(rng.next() * headlines.length)]
@@ -252,9 +265,10 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 id: `rivalry_${upcomingRivalry.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
                 ...newsText(
                     { key: "nw.rivalry.t", params: { home: home.name, away: away.name } },
+                    // HOME-15: worded for the week it is read in, not "this week".
                     h2hMatches.length === 0
-                        ? { key: "nw.rivalry.first", params: { home: home.name, away: away.name } }
-                        : { key: "nw.rivalry.c", params: { home: home.name, away: away.name, homeWins, awayWins } },
+                        ? { key: "nw.rivalry.first", params: { home: home.name, away: away.name, week: weekOfSeason(upcomingRivalry.week) } }
+                        : { key: "nw.rivalry.c", params: { home: home.name, away: away.name, homeWins, awayWins, week: weekOfSeason(upcomingRivalry.week) } },
                 ),
                 category: "MATCH",
                 teamId: home.id,

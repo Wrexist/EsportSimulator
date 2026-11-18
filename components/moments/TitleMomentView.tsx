@@ -72,11 +72,13 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
     const reveal = useReveal()
     const scale = moment.major ? "major" : "minor"
     useTitleConfetti(moment.key, scale)
-    const { financeLedger, playerTeamId, draftCupScore, managerName, teamName } = useGameStore(useShallow(s => ({
+    const { financeLedger, playerTeamId, draftCupScore, draftCupTitle, managerName, teamName } = useGameStore(useShallow(s => ({
         financeLedger: s.financeLedger, playerTeamId: s.playerTeamId,
         managerName: s.managerDetails?.name, teamName: s.teams.find(t => t.id === s.playerTeamId)?.name,
         // G7: a Draft Cup title shows the run score; the run ends here, so no prize or reputation follows.
         draftCupScore: s.draftCup?.tournamentId === moment.tournamentId ? draftCupOutcome(s as never)?.score ?? null : null,
+        // MODES-06 (audit 17): the Draft Cup's tier is internal, not a C-Tier event.
+        draftCupTitle: s.draftCup?.tournamentId === moment.tournamentId,
     })))
     // The prize actually booked for this title, once the week tick has paid it.
     const booked = financeLedger.find(e => e.teamId === playerTeamId && e.type === "INCOME" && e.category === "PRIZE" && e.id.startsWith(`prize_${moment.tournamentId}_`))
@@ -98,7 +100,7 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
             <TrophyArt kind={trophyKindForTournament(moment.tier, { major: isMajor })} size={scale} />
             <motion.div {...reveal(0.35)} className="mt-8 flex items-center gap-3">
                 <MomentOverline>{isMajor ? t("mo.majorChampions") : t("mo.champions")}</MomentOverline>
-                <TierTag tier={moment.tier} />
+                {!draftCupTitle && <TierTag tier={moment.tier} />}
             </motion.div>
             <motion.h2
                 {...reveal(0.45, 22)}

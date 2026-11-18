@@ -71,7 +71,7 @@ function Lineup({ players, align }: { players: IntroLineupPlayer[]; align: "left
             {players.slice(0, 5).map(p => (
                 <li key={p.id} className={cn("flex items-center gap-2.5", right && "flex-row-reverse")}>
                     <RoleTag role={p.role} className="w-[74px] justify-center" />
-                    <span className="truncate font-display text-[22px] font-bold uppercase leading-none text-ink-1">{p.nickname}</span>
+                    <span className="truncate font-display text-[22px] font-bold leading-none text-ink-1">{p.nickname}</span>
                 </li>
             ))}
         </ol>

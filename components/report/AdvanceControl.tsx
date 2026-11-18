@@ -17,14 +17,16 @@ import { useShallow } from "zustand/react/shallow"
 import { ArrowRight, ChevronDown, Loader2, Play, Swords, X } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { selectPlayableMatchId } from "@/lib/playable-match"
-import { advanceStopStillOpen, forfeitStops, type StopSource } from "@/lib/advance-stops"
+import { advanceStopStillOpen, forfeitStops, stopActionText, stopReasonText, type StopSource } from "@/lib/advance-stops"
 import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import { demoWeekCapReached } from "@/lib/edition"
 import { t } from "@/lib/i18n"
+import { weekOfSeason } from "@/lib/season-week"
 import { liveMatchInProgress } from "@/app/match/match-centre"
+import { requiresCareer } from "@/lib/career-routes"
 
 /**
  * The match a stop notice was last restored for in this page session, so a
@@ -108,7 +110,7 @@ export function AdvanceControl() {
                 <span className="flex h-10 items-center gap-2 rounded-lg border border-line bg-raised px-3 text-xs font-semibold text-ink-2">
                     <Loader2 size={14} className="animate-spin text-gold" />
                     <span className="whitespace-nowrap tabular-nums">
-                        {t("advance.running", { when: daily ? t("common.day", { n: currentDay + 1 }) : t("common.week", { n: currentWeek }) })}
+                        {t("advance.running", { when: daily ? t("common.day", { n: currentDay + 1 }) : t("common.week", { n: weekOfSeason(currentWeek) }) })}
                     </span>
                 </span>
                 <Button
@@ -180,12 +182,16 @@ export function AdvanceControl() {
     // (MATCHDAY-06); it shows again elsewhere while the match is due.
     const stopMatchPath = advanceStop?.kind === "match" ? advanceStop.href?.match(/^\/match\/[^/]+\//)?.[0] : undefined
     const onStopMatch = !!stopMatchPath && !!pathname?.startsWith(stopMatchPath)
+    // START-52: Load game, Settings and Credits are outside the career; the notice
+    // covered their header buttons, and the top bar's own action stays in view.
+    const offCareerScreen = !!pathname && !requiresCareer(pathname)
 
     return (
         <div className="relative shrink-0">
             {control}
-            {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20). */}
-            {advanceStop && !running && !onStopMatch && !stopAnswered && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
+            {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20);
+                a match already being played offers no "Prepare / Sim match" (MATCHDAY-02). */}
+            {advanceStop && !running && !onStopMatch && !offCareerScreen && !stopAnswered && !(advanceStop.kind === "match" && (!pendingMatchId || pendingIsLive)) && <StopNotice />}
         </div>
     )
 }
@@ -253,7 +259,7 @@ function StopNotice() {
             <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                     <p className={cn("text-[11px] font-semibold uppercase tracking-[0.08em]", stop.kind === "match" ? "text-gold" : "text-ink-3")}>{headline}</p>
-                    <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{stop.kind === "cancelled" ? t("advance.youPaused") : stop.reason}</p>
+                    <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{stop.kind === "cancelled" ? t("advance.youPaused") : stopReasonText(stop)}</p>
                 </div>
                 <button type="button" onClick={dismiss} aria-label={t("advance.dismiss")} className="-mr-1 -mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1">
                     <X size={14} />
@@ -266,7 +272,7 @@ function StopNotice() {
                     onClick={dismiss}
                     className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline"
                 >
-                    {stop.actionLabel} <ArrowRight size={12} />
+                    {stopActionText(stop)} <ArrowRight size={12} />
                 </Link>
             )}
         </div>

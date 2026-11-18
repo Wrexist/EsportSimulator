@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { WEEKLY_ACTIVITIES, WeeklyActivityType, weeklyActivityXpBonus } from '@/types/activities'
 import { Button } from '@/components/ui/button'
 import { HelpCircle, ChevronRight } from 'lucide-react'
@@ -8,6 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { LOSS_XP_BASE, WIN_XP_BASE } from '@/engine/processors/match-manager-xp'
 import { t } from '@/lib/i18n'
 import { Trans } from '@/lib/trans'
+import { formatCurrency } from '@/lib/utils-extended'
+
+/** A scouting mission's fee (store/slices/scouting-slice.ts SCOUTING_COST_BASIC), in the game's money format (SMOKE-B-13). */
+const SCOUTING_MISSION_COST = 3000
 
 type Category = 'gameplay' | 'management' | 'tactics' | 'progression' | 'competition'
 
@@ -57,6 +61,9 @@ function topic(id: string, key: string, category: Category, blocks: () => Block[
 const TIERS = ["newcomer", "contender", "dynasty", "eraDefining", "goat"] as const
 
 export const helpTopics: HelpTopic[] = [
+    topic("first-week", "week1", "gameplay", () => [
+        { p: "help.week1.p1" }, { ul: ["help.week1.l1", "help.week1.l2", "help.week1.l3", "help.week1.l4"] }, { note: "help.week1.note" },
+    ]),
     topic("reading-stats", "stats", "gameplay", () => [
         { p: "help.stats.p1" }, { p: "help.stats.p2" }, { p: "help.stats.p3" }, { p: "help.stats.p4" }, { p: "help.stats.p5" },
     ]),
@@ -92,6 +99,10 @@ export const helpTopics: HelpTopic[] = [
     topic("condition", "cond", "gameplay", () => [
         { ul: ["help.cond.l1", "help.cond.l2", "help.cond.l3"] },
     ]),
+    topic("transfers", "transfers", "management", () => [
+        { p: "help.transfers.p1" }, { ul: ["help.transfers.l1", "help.transfers.l2"] },
+        { h: "help.transfers.h1" }, { ul: [["help.transfers.l3", { cost: formatCurrency(SCOUTING_MISSION_COST, "$", false) }], "help.transfers.l4"] },
+    ]),
     topic("board", "board", "management", () => [
         { p: "help.board.p1" }, { ul: ["help.board.l1", "help.board.l2", "help.board.l3"] },
     ]),
@@ -117,6 +128,9 @@ export const helpTopics: HelpTopic[] = [
     ]),
 ]
 
+/** Window event that opens the help dialog (the Ctrl K search's "Help and game guide"; HOME-28). */
+export const OPEN_HELP_EVENT = "esm:open-help"
+
 /**
  * Help System Component
  * Contextual help and documentation
@@ -133,11 +147,15 @@ export function HelpSystem() {
         } catch { /* localStorage unavailable — just skip the pulse */ }
     }, [])
 
-    const openHelp = () => {
+    const openHelp = useCallback(() => {
         setIsOpen(true)
         setShowPulse(false)
         try { localStorage.setItem("esim_help_opened", "1") } catch { /* ignore */ }
-    }
+    }, [])
+    useEffect(() => {
+        window.addEventListener(OPEN_HELP_EVENT, openHelp)
+        return () => window.removeEventListener(OPEN_HELP_EVENT, openHelp)
+    }, [openHelp])
 
     const categories: Category[] = ['gameplay', 'competition', 'management', 'tactics', 'progression']
 

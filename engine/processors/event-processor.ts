@@ -5,6 +5,7 @@ import { SaveManager } from "../save-manager"
 import { LEGEND_RETIREMENT_AGE, hallOfFameAchievements, inductIntoHallOfFame, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"
 import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
+import { benchSubstitute } from "../event-choice"
 import { newsText } from "@/lib/news-ref"
 import { LIST_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 
@@ -22,38 +23,44 @@ export class EventProcessor {
         const team = save.teams.find(t => t.id === playerTeamId)
         if (!team) return 0
         const generated = new Set(transaction.generatedEventIds)
-        let eventsGenerated = 0
-        for (const pid of team.rosterIds) {
-            const player = save.players.find(p => p.id === pid)
-            // The medical team flags a player whose weekly injury chance has
-            // reached WORKLOAD_TUNING.WARN_RISK. The decision family's cooldown
-            // keeps it to one open warning.
-            if (!player || !needsWorkloadWarning(player)) continue
-            const eventId = `workload_${player.id}_${save.currentWeek}`
-            if (generated.has(eventId)) continue
-            const risk = riskPct(injuryRiskPerWeek(player))
-            const rested = Math.max(0, Math.round(player.fatigue) - WORKLOAD_TUNING.REST_FATIGUE)
-            save.eventsLog.push({
-                id: eventId,
-                type: EventType.INJURY,
-                week: save.currentWeek,
-                data: {
-                    playerId: player.id,
-                    load: Math.round(player.fatigue),
-                    risk,
-                    ...titled({ key: "ev.workload.t", params: { name: player.nickname } }),
-                    ...messaged({ key: "ev.workload.m", params: { name: player.nickname, fatigue: Math.round(player.fatigue), risk, rested } }),
-                },
-                acknowledged: false,
-                choices: [
-                    { id: "rest", ...choiceText({ key: "ev.workload.rest" }), effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE } } },
-                    { id: "play", ...choiceText({ key: "ev.workload.play" }), effects: { follows: { key: "ev.workload.follows", params: { risk } } } },
-                ],
-            })
-            await saveManager.recordEventGenerated(transaction, eventId)
-            eventsGenerated++
-        }
-        return eventsGenerated
+        // One open warning at a time, for the most loaded player (HOME-21): five
+        // identical cards in one week buried the panel. The decision family's
+        // cooldown is per player, so the open check here covers the squad.
+        // Recent only: an old save's warning left open without a deadline must not block it for good.
+        const open = save.eventsLog.some(e => e.id.startsWith("workload_") && e.selectedChoiceId === undefined && save.currentWeek - e.week <= 2 && !(e.data as { isWithdrawn?: boolean } | undefined)?.isWithdrawn)
+        if (open) return 0
+        const player = team.rosterIds
+            .map(pid => save.players.find(p => p.id === pid))
+            .filter((p): p is PlayerSaveData => !!p && needsWorkloadWarning(p))
+            .sort((a, b) => injuryRiskPerWeek(b) - injuryRiskPerWeek(a) || b.fatigue - a.fatigue || a.id.localeCompare(b.id))[0]
+        // The medical team flags a player whose weekly injury chance has
+        // reached WORKLOAD_TUNING.WARN_RISK.
+        if (!player) return 0
+        const eventId = `workload_${player.id}_${save.currentWeek}`
+        if (generated.has(eventId)) return 0
+        const risk = riskPct(injuryRiskPerWeek(player))
+        const rested = Math.max(0, Math.round(player.fatigue) - WORKLOAD_TUNING.REST_FATIGUE)
+        // A starter with no fit substitute still plays when rested: the answer says so.
+        const noSub = !benchSubstitute(team, player.id, id => save.players.find(p => p.id === id))
+        save.eventsLog.push({
+            id: eventId,
+            type: EventType.INJURY,
+            week: save.currentWeek,
+            data: {
+                playerId: player.id,
+                load: Math.round(player.fatigue),
+                risk,
+                ...titled({ key: "ev.workload.t", params: { name: player.nickname } }),
+                ...messaged({ key: "ev.workload.m", params: { name: player.nickname, fatigue: Math.round(player.fatigue), risk, rested } }),
+            },
+            acknowledged: false,
+            choices: [
+                { id: "rest", ...choiceText({ key: "ev.workload.rest" }), effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE, ...(noSub ? { noSub: true } : {}) } } },
+                { id: "play", ...choiceText({ key: "ev.workload.play" }), effects: { follows: { key: "ev.workload.follows", params: { risk } } } },
+            ],
+        })
+        await saveManager.recordEventGenerated(transaction, eventId)
+        return 1
     }
 
     static async generateEvents(
@@ -138,7 +145,8 @@ export class EventProcessor {
             // One prompt per winning run: the career "momentum" decision
             // (engine/career-decisions.ts) asks the same question (HOME-06).
             const momentumAsked = save.eventsLog.some(e => e.id.startsWith("career_decision_") && e.id.endsWith("_momentum") && e.week > save.currentWeek - 8)
-            if (winStreak === 3 && !momentumAsked) { // Trigger on exactly 3 to avoid spam
+            // Audit 17 MODES-04: a Draft Cup has no club business (money, reputation) to decide.
+            if (winStreak === 3 && !momentumAsked && !save.draftCup) { // Trigger on exactly 3 to avoid spam
                 const eventId = `streak_win_${save.currentWeek}`
                 if (!transaction.generatedEventIds.includes(eventId)) {
                     save.eventsLog.push({
@@ -157,7 +165,7 @@ export class EventProcessor {
                 }
             }
 
-            if (lossStreak === 3) {
+            if (lossStreak === 3 && !save.draftCup) {
                 const eventId = `streak_loss_${save.currentWeek}`
                 if (!transaction.generatedEventIds.includes(eventId)) {
                     save.eventsLog.push({
@@ -177,8 +185,8 @@ export class EventProcessor {
             }
         }
 
-        // 5. Fan Interactions (Phase 21)
-        if (playerTeam && rng.bool(0.15)) {
+        // 5. Fan Interactions (Phase 21). Rolled in a Draft Cup too, so the RNG stream is unchanged.
+        if (playerTeam && rng.bool(0.15) && !save.draftCup) {
             const eventId = `fan_meet_${save.currentWeek}`
             if (!transaction.generatedEventIds.includes(eventId)) {
                 save.eventsLog.push({
@@ -204,7 +212,7 @@ export class EventProcessor {
         // EconomyEngine.calculateSponsorIncome pays deals. The roll comes
         // first so the RNG stream is the same either way.
         const activeDeals = (playerTeam?.sponsors ?? []).filter(sp => sp.remainingWeeks === undefined || sp.remainingWeeks > 0).length
-        if (playerTeam && rng.bool(0.10) && activeDeals > 0) {
+        if (playerTeam && rng.bool(0.10) && activeDeals > 0 && !save.draftCup) {
             const eventId = `sponsor_review_${save.currentWeek}`
             if (!transaction.generatedEventIds.includes(eventId)) {
                 save.eventsLog.push({

@@ -46,7 +46,8 @@ function managedHarness(matchPatch: Partial<MatchSaveData>) {
     const save = createLaunchFixture('first-week')
     save.scheduledMatches[0] = { ...save.scheduledMatches[0], maps: ['Nuke'], ...matchPatch }
     save.teams[0].sponsors = [sponsor()]
-    let state = { ...save, saveId: save.saveId, managerDetails: save.managerDetails, newsFeed: [] } as unknown as StoreState
+    // The full store has the UI slice; saveMatchResult toasts the first official win (NEWPLAYER-12).
+    let state = { ...save, saveId: save.saveId, managerDetails: save.managerDetails, newsFeed: [], addToast: () => {} } as unknown as StoreState
     const set = (fn: Partial<StoreState> | ((s: StoreState) => void)) => { state = typeof fn === 'function' ? produce(state, fn) : { ...state, ...fn } }
     const slice = createMatchSimulationSlice(set, () => state)
     return { read: () => state, slice, match: state.scheduledMatches[0], teamId: save.teams[0].id }

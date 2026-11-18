@@ -25,7 +25,7 @@
  * actions live in the same slice.
  */
 
-import { liveText } from "@/lib/i18n"
+import { liveText, type TextParam, type TextRef } from "@/lib/i18n"
 import { adaptHabits } from "@/engine/match/habits"
 import { autoVetoMaps } from "@/lib/auto-veto"
 import type { SliceCreator } from "@/store/types"
@@ -75,9 +75,15 @@ import {
 } from "@/store/utils/helpers"
 
 import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
-import { eventText, newsText } from "@/lib/news-ref"
+import { divisionRef, eventText, newsText } from "@/lib/news-ref"
+import { eventDisplayName } from "@/lib/tournament-instances"
 import { sideScore } from "@/lib/week-changes"
+import { matchFatigueCost } from "@/lib/balance-tuning"
+import { firstWinMilestone, FIRST_WIN_MILESTONE, type MilestoneHit } from "@/engine/milestone-checker"
+import { claimMilestoneToast } from "@/lib/celebration-toasts"
 const NEWS_FEED_CAP = 50
+/** Pre-match odds under which the own result gets the upset headline (NEWPLAYER-15). */
+const UPSET_NEWS_EXPECTED = 0.25
 
 export interface MatchSimulationActions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MatchResult shape lives in @/types but is loosely typed
@@ -89,6 +95,8 @@ export interface MatchSimulationActions {
 
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
     saveMatchResult: (matchId, result) => {
+        // NEWPLAYER-12: the first official win, toasted once the result is stored.
+        let firstWin: MilestoneHit | null = null
         set((state) => {
             if (state.completedMatches.some(m => m.id === matchId)) return
             if (!result || result.engineVersion && !isEngineVersion(result.engineVersion)) return
@@ -385,8 +393,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     if (!player) return
 
                     player.matchesPlayed++
-                    // Fatigue scales by format (BO1=10, BO3=15, BO5=25).
-                    const fatigueCost = match.format === "BO5" ? 25 : match.format === "BO3" ? 15 : 10
+                    // Fatigue scales by format (BO1=10, BO3=15, BO5=25; a league BO1 less, COMP-10).
+                    const fatigueCost = matchFatigueCost(match.format, match.stage)
                     player.fatigue = Math.min(100, (player.fatigue || 0) + fatigueCost)
                     // Morale swing scales by tournament tier.
                     const moraleChange = (() => {
@@ -399,7 +407,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                         }
                     })()
                     player.morale = applyMoraleResult(player.morale ?? 50, playerResultMorale(player, moraleChange * surprise, shield))
-                    player.form = applyFormResult(player.form, won, surprise)
+                    player.form = applyFormResult(player.form, won, surprise, result.playerStats[pid]?.rating)
 
                     const stats = result.playerStats[pid]
                     if (!stats) return
@@ -511,6 +519,24 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     underdogWin: achievementFlags.underdogWin,
                 })
 
+                // NEWPLAYER-12: the first official win gets its moment now (the week
+                // tick's milestone check skips it once recorded here). The match id
+                // lets the result screen say so.
+                if (pWon && isOfficialMatch(match)) {
+                    const fired = new Set<string>([...state.acknowledgedEventIds, ...state.eventsLog.map(e => e.id)].filter(id => id === FIRST_WIN_MILESTONE))
+                    firstWin = firstWinMilestone(state as unknown as GameSave, fired)
+                    if (firstWin) {
+                        state.eventsLog.unshift({
+                            id: firstWin.id,
+                            week: state.currentWeek,
+                            type: "MILESTONE",
+                            data: { description: firstWin.message, messageRef: firstWin.ref, importance: "MEDIUM", matchId: match.id },
+                            acknowledged: true,
+                        })
+                        if (!state.acknowledgedEventIds.includes(firstWin.id)) state.acknowledgedEventIds.push(firstWin.id)
+                    }
+                }
+
                 // Same base and analyst talent bonus as a match the week auto-plays.
                 const xpMultiplier = state.playerTeamId ? getAnalystXpMultiplier(state as unknown as GameSave, state.playerTeamId) : 1
                 ManagerProgression.gainXP(state, Math.round((pWon ? WIN_XP_BASE : LOSS_XP_BASE) * xpMultiplier))
@@ -575,25 +601,39 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             state.activeMatchId = null
             state.activeMatchState = null
 
-            // Post-match news headline (player team's perspective).
-            const winner = homeWon ? homeTeam : awayTeam
-            const loser = homeWon ? awayTeam : homeTeam
-            // Rounds for a single map, maps for a series, as the result screen shows it (HOME-07).
-            const scoreStr = sideScore(result, homeWon)
-            state.newsFeed.unshift({
-                id: nextDeterministicId(state, "news_match"),
-                ...newsText(
-                    { key: "nw.match.t", params: { winner: winner.name, loser: loser.name, score: scoreStr } },
-                    { key: "nw.match.c", params: { winner: winner.name, loser: loser.name, score: scoreStr } },
-                ),
-                category: "MATCH",
-                teamId: winner.id,
-                matchId: match.id,
-                week: state.currentWeek,
-                ...(typeof match.day === "number" ? { day: match.day } : {}),
-            })
-            if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
+            // Post-match news headline (player team's perspective). A scrim is
+            // practice, not news (HOME-10).
+            if (isOfficialMatch(match)) {
+                const winner = homeWon ? homeTeam : awayTeam
+                const loser = homeWon ? awayTeam : homeTeam
+                // Rounds for a single map, maps for a series, as the result screen shows it (HOME-07).
+                const scoreStr = sideScore(result, homeWon)
+                const names = { winner: winner.name, loser: loser.name, score: scoreStr }
+                // NEWPLAYER-15: a result the odds gave under 25% gets its own headline.
+                const winnerRank = homeWon ? oldHomeRank : oldAwayRank
+                const loserRank = homeWon ? oldAwayRank : oldHomeRank
+                const upset = !isDraw && (homeWon ? homeExpected : 1 - homeExpected) < UPSET_NEWS_EXPECTED
+                const title: TextRef = !upset ? { key: "nw.match.t", params: names }
+                    : winnerRank < 999 && loserRank < 999 ? { key: "nw.match.giant", params: { ...names, wr: winnerRank, lr: loserRank } }
+                        : { key: "nw.head.upset", params: names }
+                // The body names the competition (HOME-10): "… in CIS Division 5".
+                const division = match.tournamentId?.startsWith("league_") ? match.stage?.split(" · ")[0]?.trim() : undefined
+                const eventTournament = state.tournaments.find(tm => tm.id === match.tournamentId)
+                const event: TextParam | undefined = division ? divisionRef(division) : eventTournament?.name ? eventDisplayName(eventTournament.name) : undefined
+                state.newsFeed.unshift({
+                    id: nextDeterministicId(state, "news_match"),
+                    ...newsText(title, event ? { key: "nw.match.cIn", params: { ...names, event } } : { key: "nw.match.c", params: names }),
+                    category: "MATCH",
+                    teamId: winner.id,
+                    matchId: match.id,
+                    week: state.currentWeek,
+                    ...(typeof match.day === "number" ? { day: match.day } : {}),
+                })
+                if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
+            }
         })
+        const hit = firstWin as MilestoneHit | null
+        if (hit && claimMilestoneToast(hit.id)) get().addToast({ message: liveText(hit.ref), type: "achievement" })
     },
 
     prepAndSimMatch: async (matchId: string) => {
@@ -629,7 +669,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         if (state.completedMatches.some(m => m.id === matchId)) return true
         const match = state.scheduledMatches.find(m => m.id === matchId)
         if (!match) {
-            get().addToast({ message: 'That match is no longer on your schedule.', type: 'warning' })
+            get().addToast({ message: 'That match is no longer on your calendar.', type: 'warning' })
             return false
         }
         if (!state.playerTeamId) return false
@@ -703,7 +743,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // slice and was spread into the StoreState alongside us.
         get().saveMatchResult(matchId, result)
         if (!get().completedMatches.some(m => m.id === matchId)) {
-            get().addToast({ message: "The match result couldn't be recorded. Your match is still on the schedule.", type: 'error' })
+            get().addToast({ message: "The match result couldn't be recorded. Your match is still on the calendar.", type: 'error' })
             return false
         }
 

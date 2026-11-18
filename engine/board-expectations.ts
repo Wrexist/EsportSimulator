@@ -175,12 +175,13 @@ export function getBoardSanctionedFee(
     board: BoardState | undefined,
     budget: number,
 ): { maxFee: number; fraction: number } {
-    if (!board) return { maxFee: budget, fraction: 1 }
+    if (!board) return { maxFee: Math.max(0, budget), fraction: 1 }
     const fraction = board.onNotice || board.confidence < 25 ? 0.4
         : board.confidence < 40 ? 0.6
         : board.confidence < 70 ? 0.8
         : 1
-    return { maxFee: Math.floor(budget * fraction), fraction }
+    // SMOKE-A-13: no fee at all on empty or negative funds, never a negative cap.
+    return { maxFee: Math.max(0, Math.floor(budget * fraction)), fraction }
 }
 
 /** Trophies the player's club lifted within a given season window. */
@@ -306,7 +307,12 @@ export function objectiveProgressNow(save: ObjectiveProgressSource, o: BoardObje
     if (o.id === "ranking") return { current: team.worldRanking, status: (team.worldRanking ?? 999) <= o.target ? "ON_TRACK" : "AT_RISK" }
     if (o.id === "trophies") {
         const current = trophiesInSeason(save, getSeasonNumber(save.currentWeek))
-        return { current, status: current >= o.target ? "MET" : "AT_RISK" }
+        if (current >= o.target) return { current, status: "MET" }
+        // Titles come through the season: behind only once the first quarter
+        // has passed and the club is short of a steady pace (COMP-18).
+        const wos = weekOfSeason(save.currentWeek)
+        const behind = wos > 13 && current < o.target * wos / 52
+        return { current, status: behind ? "AT_RISK" : "ON_TRACK" }
     }
     return { current: Math.round(team.budget), status: team.budget >= o.target ? "ON_TRACK" : "AT_RISK" }
 }

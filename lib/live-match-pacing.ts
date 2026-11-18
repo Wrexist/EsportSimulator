@@ -238,3 +238,15 @@ export function defaultLiveSpeed(mode: PacingMode, setting: "normal" | "fast" | 
     if (mode === "moments") return setting === "very-fast" ? 8 : setting === "fast" ? 4 : 2
     return setting === "very-fast" ? 4 : setting === "fast" ? 2 : 1
 }
+
+/**
+ * MATCHDAY-08: the "Live match speed" setting a speed picked in the dock
+ * stands for (the inverse of defaultLiveSpeed), so the next match and a
+ * resumed one start at it. A speed below or above the setting's range
+ * (1× with key moments, 8× with full rounds) leaves the setting as it is.
+ */
+export function liveSpeedSetting(mode: PacingMode, speed: number): "normal" | "fast" | "very-fast" | null {
+    const order = mode === "moments" ? [2, 4, 8] : [1, 2, 4]
+    const i = order.indexOf(speed)
+    return i < 0 ? null : (["normal", "fast", "very-fast"] as const)[i]
+}

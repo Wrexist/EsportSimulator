@@ -67,7 +67,7 @@ describe('per-match accumulation', () => {
     test('managed path: a committed official result writes real per-map numbers once; the friendly does not count', () => {
         const save = createLaunchFixture('first-week', 51001)
         const friendly = save.scheduledMatches[0]
-        let state = { ...save, saveId: save.saveId, managerDetails: save.managerDetails, newsFeed: [] } as unknown as StoreState
+        let state = { ...save, saveId: save.saveId, managerDetails: save.managerDetails, newsFeed: [], addToast: () => {} } as unknown as StoreState
         const set = (fn: Partial<StoreState> | ((s: StoreState) => void)) => { state = typeof fn === 'function' ? produce(state, fn) : { ...state, ...fn } }
         const slice = createMatchSimulationSlice(set, () => state)
 

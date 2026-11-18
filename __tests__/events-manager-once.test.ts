@@ -44,8 +44,13 @@ function pruneLog(save: GameSave): void {
 describe("fan milestones fire once per club (ENGINE-02)", () => {
     test("a milestone whose event was trimmed from the log does not fire again or pay reputation twice", () => {
         const save = makeSave()
-        EventsManager.generateModernEvents(save, new SeededRNG(99))
         const club = save.teams[0]
+        // The manager's first week at the club, under 10K; the club then passes it.
+        club.followers = 9_000
+        EventsManager.generateModernEvents(save, new SeededRNG(99))
+        expect(save.eventsLog.some(e => e.type === "FAN")).toBe(false)
+        club.followers = 12_000
+        EventsManager.generateModernEvents(save, new SeededRNG(99))
         expect(save.eventsLog.filter(e => e.type === "FAN").map(e => e.id)).toEqual(["fan_milestone_player_10000"])
         expect(club.reputation).toBe(32)
         expect(save.acknowledgedEventIds).toContain(onceId.fan("player", 10_000))
@@ -68,10 +73,44 @@ describe("fan milestones fire once per club (ENGINE-02)", () => {
 
     test("a new club after a job change gets its own milestone", () => {
         const save = makeSave({ acknowledgedEventIds: [onceId.fan("player", 10_000)] })
-        save.teams[1].followers = 15_000
+        save.teams[1].followers = 9_000
         save.playerTeamId = "rival"
         EventsManager.generateModernEvents(save, new SeededRNG(99))
+        save.teams[1].followers = 15_000
+        EventsManager.generateModernEvents(save, new SeededRNG(99))
         expect(save.eventsLog.some(e => e.id === "fan_milestone_rival_10000")).toBe(true)
+    })
+
+    test("11-17 ENGINE-02: a new career or a new job announces no threshold the club had passed before the manager arrived", () => {
+        // New career at a club with 35K followers: no 10K mail, no reputation.
+        const save = makeSave({ managerDetails: { tenureStartWeek: 1 } })
+        save.currentWeek = 2
+        save.teams[0].followers = 35_000
+        EventsManager.generateModernEvents(save, new SeededRNG(99))
+        expect(save.eventsLog.some(e => e.type === "FAN")).toBe(false)
+        expect(save.teams[0].reputation).toBe(30)
+        expect(save.acknowledgedEventIds).toContain(onceId.fan("player", 10_000))
+        // 50K reached under the manager is announced.
+        save.teams[0].followers = 51_000
+        save.currentWeek = 3
+        EventsManager.generateModernEvents(save, new SeededRNG(99))
+        expect(save.eventsLog.filter(e => e.type === "FAN").map(e => e.id)).toEqual(["fan_milestone_player_50000"])
+        expect(save.teams[0].reputation).toBe(32)
+        // New job at a club with 24.8K followers: silent in his first week there...
+        save.playerTeamId = "rival"
+        save.managerDetails.tenureStartWeek = 16
+        save.currentWeek = 16
+        save.teams[1].followers = 24_793
+        EventsManager.generateModernEvents(save, new SeededRNG(99))
+        expect(save.eventsLog.some(e => e.id === "fan_milestone_rival_10000")).toBe(false)
+        expect(save.teams[1].reputation).toBe(30)
+        // ...and back at his first club in a later stint, its growth while he was away stays silent too.
+        save.teams[0].followers = 120_000
+        save.playerTeamId = "player"
+        save.managerDetails.tenureStartWeek = 60
+        save.currentWeek = 60
+        EventsManager.generateModernEvents(save, new SeededRNG(99))
+        expect(save.eventsLog.some(e => e.id === "fan_milestone_player_100000")).toBe(false)
     })
 })
 

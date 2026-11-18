@@ -1,9 +1,9 @@
-import { DATE_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
-import { eventText } from "@/lib/news-ref"
+import { DATE_REF, STORED_REF, isTextRef, tRefEn, type TextRef } from "@/lib/i18n"
+import { choiceText, eventText } from "@/lib/news-ref"
 import { generateCareerDecision } from "./career-decisions"
 import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
 import { isProActive, processProWeek, handClubDecisionsToStaff } from "./pro-career"
-import { expireDecisions, normalizeDecisions } from "./decision-deadlines"
+import { expireDecisions, expiredDecisionCause, normalizeDecisions } from "./decision-deadlines"
 import { processStorylines } from "./storylines"
 import { createPressConference } from "./storylines/press"
 /**
@@ -73,8 +73,8 @@ import { queueMoment, seasonReviewMoment } from "./moments"
 import { closeStint } from "./manager-timeline"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { buildEventField } from "./tournament/event-field"
-import { hasRankedInvites, inviteLeadWeeks, withdrawFromQualifiers } from "./tournament/qualification-path"
-import { instanceName, seasonStartWeek } from "@/lib/tournament-instances"
+import { hasRankedInvites, inviteClash, inviteLeadWeeks, withdrawFromQualifiers, type ClubEvent } from "./tournament/qualification-path"
+import { eventDisplayName, instanceName, seasonStartWeek } from "@/lib/tournament-instances"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
 import { ManagerProgression } from "./manager-progression"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
@@ -111,12 +111,13 @@ export interface WeekProcessorResult {
     changes?: ChangeEntry[]
 }
 
-/** Title-ish text of an event, for report causes. */
-function eventCauseLabel(event: GameEventSaveData): string {
-    const d = (event.data ?? {}) as { title?: unknown; headline?: unknown; description?: unknown; message?: unknown }
+/** Title-ish text of an event, for report causes; its title's translation key when the title names it (SMOKE-B-04). */
+function eventCause(event: GameEventSaveData): ChangeCause {
+    const d = (event.data ?? {}) as { title?: unknown; headline?: unknown; description?: unknown; message?: unknown; titleRef?: unknown }
     const text = [d.title, d.headline, d.description, d.message].find(v => typeof v === "string" && v.trim()) as string | undefined
     const clean = (text ?? String(event.type)).replace(/[^\p{L}\p{N}\s.,:;'!?()&+\-–—$%#/]/gu, "").trim()
-    return clean.length > 70 ? `${clean.slice(0, 67)}...` : clean
+    const label = clean.length > 70 ? `${clean.slice(0, 67)}...` : clean
+    return { type: "event", label, ...(text === d.title && isTextRef(d.titleRef) ? { ref: d.titleRef } : {}) }
 }
 
 /**
@@ -287,6 +288,12 @@ export class AtomicWeekProcessor {
             if (save.currentWeek < transaction.weekNumber) {
                 save.currentWeek++
             }
+            // Daily calendar: the tick opens the new week on its first day (the
+            // store commits currentDay 0 afterwards). Leaving last week's Sunday
+            // here made every fixture this tick schedules for the new week
+            // (first rounds, next rounds after day-0 results) skip to Sunday or
+            // a week later, so qualifiers overran into their main event (COMP-01).
+            if (save.timeMode === "HYBRID_DAILY") save.currentDay = 0
             // C6: this module instance (a worker, or the main thread) plays
             // the save's season pool. The first tick of a new season benches
             // its map before any of the season's matches are played.
@@ -305,7 +312,7 @@ export class AtomicWeekProcessor {
             // Unanswered decisions (Phase 4.9): a request whose deadline has
             // passed gets the default it stated, through the same effects as
             // answering it by hand; the report names it "Unanswered: …".
-            expireDecisions(save, d => mark({ type: "decision", label: `Unanswered: ${d.label}` }))
+            expireDecisions(save, d => mark(expiredDecisionCause(d, "unanswered")))
 
             // Expired players/staff cannot train, receive wages, or appear in
             // cached match rosters. Build the indexes from the surviving contracts.
@@ -518,7 +525,7 @@ export class AtomicWeekProcessor {
                 for (const e of save.eventsLog) {
                     if (eventIdsBefore.has(e.id)) continue
                     const pid = (e.data as { playerId?: unknown } | undefined)?.playerId
-                    const cause: ChangeCause = { type: "event", label: eventCauseLabel(e) }
+                    const cause = eventCause(e)
                     if (typeof pid === "string" && !freshByPlayer.has(pid)) freshByPlayer.set(pid, cause)
                     else if (!pid && !teamEvent && (e.data as { teamId?: unknown } | undefined)?.teamId === config.playerTeamId) teamEvent = cause
                 }
@@ -752,7 +759,7 @@ export class AtomicWeekProcessor {
             if (isProActive(save)) processProWeek(save)
             normalizeDecisions(save)
             if (handClubDecisionsToStaff(save) > 0) {
-                expireDecisions(save, d => mark({ type: "decision", label: `Staff answered: ${d.label}` }))
+                expireDecisions(save, d => mark(expiredDecisionCause(d, "staff")))
                 normalizeDecisions(save)
             }
             result.changes = changes.result()
@@ -1061,17 +1068,33 @@ export class AtomicWeekProcessor {
 
                 if (!alreadyNotified) {
                     const eventName = getDynamicTournamentName(def.name, seasonStartWeek(def, inviteSeason), save.gameStartDate, def.duration)
+                    const weeks = { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek }
+                    // Owner decision 3: an invite in the same weeks as a heavier
+                    // or lighter event of the club asks which to play. Computer
+                    // clubs pass up the lighter one by themselves.
+                    const clash = inviteClash(save, playerTeamId, instanceId)
+                    const nameOf = (e: ClubEvent) => getDynamicTournamentName(e.def.name, e.from, save.gameStartDate, e.def.duration)
+                    const other = clash ? (clash.light.id === instanceId ? clash.heavy : clash.light) : null
                     save.eventsLog.push({
                         id: inviteEventId,
                         type: "TOURNAMENT",
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
-                            ...eventText({ key: "evn.invite.t" }, { key: "evn.invite.m", params: { event: eventName, weeks: { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek } } }),
-                            severity: "success",
+                            ...eventText({ key: "evn.invite.t" }, clash && other
+                                ? { key: "evn.invite.clashM", params: { event: eventName, weeks, other: nameOf(other), light: nameOf(clash.light) } }
+                                : { key: "evn.invite.m", params: { event: eventName, weeks } }),
+                            severity: clash ? "warning" : "success",
                             tournamentId: def.id,
-                            tier: def.tier
-                        }
+                            tier: def.tier,
+                            ...(clash ? { skipInstanceId: clash.light.id } : {}),
+                        },
+                        ...(clash ? {
+                            choices: [
+                                { id: "both", ...choiceText({ key: "evn.invite.both" }), effects: {} },
+                                { id: "skip", ...choiceText({ key: "evn.invite.skip", params: { event: nameOf(clash.light) } }), effects: { follows: { key: "evn.invite.skipFollows" } } },
+                            ],
+                        } : {}),
                     })
                     eventIdSet?.add(inviteEventId)
                 }
@@ -1135,7 +1158,7 @@ export class AtomicWeekProcessor {
                     week: save.currentWeek,
                     acknowledged: false,
                     data: {
-                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: tournament.name } }),
+                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: eventDisplayName(tournament.name) } }),
                         severity: "info",
                         tournamentId: definition.id
                     }

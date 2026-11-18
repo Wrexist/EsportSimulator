@@ -1,6 +1,6 @@
 "use client"
 
-import { liveText, STORED_REF } from "@/lib/i18n"
+import { isTextRef, liveText, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 import { applyMapRotation } from "@/engine/season/map-rotation"
 import { newFirstSession, restoreFirstSession, restoreWeeklyPlan } from '@/lib/first-session'
 import { createDefaultTactics } from "@/engine/default-tactics"
@@ -36,7 +36,6 @@ import {
   TournamentManager,
   QualificationStatus,
   CircuitPointsEntry,
-  SynergyCalculator,
   type SaveErrorCode
 } from "@/engine"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
@@ -517,7 +516,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Equipment Shop
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   // Squad Management
-  swapRosterPositions: (teamId: string, index1: number, index2: number) => void
+  swapRosterPositions: (teamId: string, index1: number, index2: number) => boolean
   promotePlayer: (playerId: string) => void
   // Dressing room (Phase 5.2)
   setCaptain: (playerId: string | null) => { success: boolean; message: string }
@@ -733,7 +732,13 @@ function weekRecordedActions(set: unknown, get: unknown) {
   const s = set as Parameters<typeof recordWeekChanges>[1]
   const slice = <T,>(create: (set: never, get: never) => T): T => create(set as never, get as never)
   const store = (st: TrackingState) => st as unknown as Store
-  const short = (text: string) => (text.length > 70 ? `${text.slice(0, 67)}...` : text)
+  const short = (text: string) => (text.length > 70 ? `${text.slice(0, 69)}…` : text)
+  const stored = (text: string): TextRef => ({ key: STORED_REF, params: { text } })
+  // The cause keeps the English (grouping, older readers) and a ref the report shows in the active language.
+  const titleOf = (event: GameEventSaveData): { en: string; ref: TextRef } => {
+    const ref = (event.data as { titleRef?: unknown } | undefined)?.titleRef
+    return isTextRef(ref) ? { en: tRefEn(ref), ref } : { en: getEventTitle(event), ref: stored(getEventTitle(event)) }
+  }
 
   const matchCause = (st: TrackingState, matchId: string): ChangeCause | null => {
     const state = store(st)
@@ -762,12 +767,16 @@ function weekRecordedActions(set: unknown, get: unknown) {
     resolveEventChoice: recordWeekChanges(g, s, events.resolveEventChoice, (st, eventId: string, choiceId: string) => {
       const event = store(st).eventsLog.find(e => e.id === eventId)
       if (!event) return null
-      const choice = (event as unknown as { choices?: { id: string; text?: string }[] }).choices?.find(c => c.id === choiceId)
-      return { type: "event", label: short(`${getEventTitle(event)}: ${choice?.text ?? choiceId}`) }
+      const choice = (event as unknown as { choices?: { id: string; text?: string; ref?: TextRef }[] }).choices?.find(c => c.id === choiceId)
+      const title = titleOf(event)
+      const answer = isTextRef(choice?.ref) ? choice.ref : stored(choice?.text ?? choiceId)
+      return { type: "event", label: short(`${title.en}: ${tRefEn(answer)}`), ref: { key: "svd.p.answered", params: { title: title.ref, choice: answer } } }
     }),
     answerPressConference: recordWeekChanges(g, s, events.answerPressConference, (st, eventId: string) => {
       const event = store(st).eventsLog.find(e => e.id === eventId)
-      return event ? { type: "event", label: short(getEventTitle(event)) } : null
+      if (!event) return null
+      const title = titleOf(event)
+      return { type: "event", label: short(title.en), ref: title.ref }
     }),
     treatInjury: recordWeekChanges(g, s, settings.treatInjury, () => ({ type: "injury", label: "Medical treatment" })),
     performMentalReset: recordWeekChanges(g, s, ops.performMentalReset, () => ({ type: "staff", label: "Mental reset" })),
@@ -1135,7 +1144,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Create new save from snapshot
           // A world the club picker built and previewed is used as it is (START-01/02).
           const previewed = !draftCup && options?.world ? options.world : null
-          const newSave = draftCup ? { ...draftCup.world, saveName }
+          // MODES-03 (audit 17): the manager is the name typed on the Draft Cup setup, not the world's placeholder.
+          const newSave = draftCup ? { ...draftCup.world, saveName, managerDetails: { ...draftCup.world.managerDetails, name: saveName } }
             : previewed ? { ...previewed, saveName, playerTeamId, managerDetails: { ...previewed.managerDetails, name: saveName } }
             : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
 
@@ -1159,10 +1169,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
 
           newSave.teams.forEach((t: any) => {
-            {
-              const roster = newSave.players.filter((p: any) => t.rosterIds.includes(p.id))
-              t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
-            }
             if (!t.facilities) t.facilities = [
               { id: "room_train", type: "TRAINING", level: 1, description: "Basic training setup", monthlyCost: 1000 },
               { id: "room_rec", type: "RECOVERY", level: 1, description: "Rest area", monthlyCost: 500 }
@@ -1211,7 +1217,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // Same helper as the club picker's budget (lib/career-start-preview.ts).
             started.startingBudget = difficultyStartingCash(started.startingBudget ?? selectedTeam.budget, difficulty)
             selectedTeam.budget = difficultyStartingCash(selectedTeam.budget, difficulty)
-            selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier, fansMultiplier: d.fansMultiplier, tournamentPrizeMultiplier: d.tournamentPrizeMultiplier }
+            selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier }
           }
           newSave.difficulty = difficulty
           // Snapshot the starting tier so ZERO_TO_HERO can detect a
@@ -1250,6 +1256,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           drawDueLeagueSplit(newSave)
           // The drafted team joins after the draw, so it plays no league.
           const teamId = draftCup ? setupDraftCup(newSave, draftCup.setup) : playerTeamId
+          // SMOKE-B-08: the draw's mail went to the club picked before the draft; the cup team plays no league.
+          if (draftCup) newSave.eventsLog = newSave.eventsLog.filter(e => !(e.id.startsWith("league_draw_") && (e.data as { teamId?: unknown } | undefined)?.teamId !== teamId))
           ensureBoardState(newSave)
           if (draftCup) {
             // No welcome moment: the cup's inbox mail opens the run.
@@ -1260,6 +1268,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           } else {
             queueWelcomeMoment(newSave, playerTeamId)
           }
+
+          // Synergy from the final rosters and reconciled roles, as loadGame
+          // computes it, so a save -> load does not change it (ENGINE-01).
+          recalculateAllSynergy(newSave.teams, newSave.players)
 
           // Initial Save
           newSave.firstSession = get().showTutorialOnNewGame && !draftCup ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
@@ -1370,7 +1382,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               { id: "room_train", type: "TRAINING" as const, level: 1, description: "Basic training setup", monthlyCost: 500 },
             ],
             sponsors: [],
-            merchHype: 5,
+            merchHype: 10, // MARKET-10: neutral hype (×1), like every world club
             trophies: [],
             recentForm: [],
             equipment: [],
@@ -1451,12 +1463,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (p.availableSkillPoints === undefined) p.availableSkillPoints = 2
           })
 
-          // Calculate synergy matrix and recalculate budgets for ALL teams
+          // Recalculate budgets for ALL teams (synergy: once rosters and roles are final, below)
           newSave.teams.forEach((t: any) => {
-            {
-              const roster = newSave.players.filter((p: any) => t.rosterIds.includes(p.id))
-              t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
-            }
             if (!t.facilities) t.facilities = [
               { id: "room_train", type: "TRAINING", level: 1, description: "Basic training setup", monthlyCost: 1000 },
               { id: "room_rec", type: "RECOVERY", level: 1, description: "Rest area", monthlyCost: 500 }
@@ -1570,6 +1578,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               severity: "success"
             }
           })
+
+          // Synergy from the final rosters and reconciled roles (ENGINE-01).
+          recalculateAllSynergy(newSave.teams, newSave.players)
 
           // Do not open a career whose first durable write failed.
           newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
@@ -1704,10 +1715,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           applyPlayerFieldDefaults(hydratedSave.players)
 
           hydratedSave.teams.forEach(t => {
-            {
-              const roster = hydratedSave.players.filter(p => t.rosterIds.includes(p.id))
-              t.synergyMatrix = SynergyCalculator.calculateTeamMatrix(roster)
-            }
             if (!t.facilities) t.facilities = [
               { id: "room_train", type: "TRAINING", level: 1, description: "Basic training setup", monthlyCost: 1000 },
               { id: "room_rec", type: "RECOVERY", level: 1, description: "Rest area", monthlyCost: 500 }
@@ -1735,6 +1742,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // SQUAD-10: older careers still carry the snapshot's placeholder attributes.
           spreadPlaceholderAttributes(hydratedSave.players)
           reconcileAllRoles(hydratedSave.teams, hydratedSave.players)
+          // Synergy after roles and attributes are settled, as the week tick
+          // leaves it (ENGINE-01).
+          recalculateAllSynergy(hydratedSave.teams, hydratedSave.players)
           // Older saves hold open requests without a deadline (and stacked
           // repeats): give each its deadline and default, merge repeats (Phase 4.9).
           normalizeDecisions(hydratedSave, { arrivals: false })
@@ -2177,15 +2187,17 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // defaults loadGame applies; otherwise a reload changes them.
             applyPlayerFieldDefaults(committed.players)
 
-            // Recalculate synergy for all teams (AI transfers may have
-            // changed rosters). Uses the indexed O(roster) pass from
-            // engine/processors/team-synergy-recalc.ts.
-            recalculateAllSynergy(committed.teams, committed.players)
-
             // Keep roles reconciled after AI roster moves, as loadGame and
             // new careers do. Without this a save/reload re-assigned roles
             // and the reloaded career diverged from the uninterrupted one.
             reconcileAllRoles(committed.teams, committed.players)
+
+            // Recalculate synergy for all teams (AI transfers may have
+            // changed rosters), after the roles: complementary roles score
+            // +8, so a matrix built before the reconcile changed on reload
+            // (ENGINE-01). Uses the indexed O(roster) pass from
+            // engine/processors/team-synergy-recalc.ts.
+            recalculateAllSynergy(committed.teams, committed.players)
             // ENGINE-03: freeze what Immer would freeze in the next producer
             // anyway (it cannot be skipped: an unfrozen career makes every
             // later store update walk all of it), about 4x faster than Immer.

@@ -6,7 +6,7 @@
  * is a sum of recorded change entries (lib/week-changes.ts).
  */
 
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import Link from "next/link"
 import { Activity, AlertTriangle, FileWarning, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -14,6 +14,7 @@ import type { WeekReport } from "@/lib/week-report"
 import { FormGuide } from "@/src/components/ui/FixtureBanner"
 import { formatMoney, moneyLines, playerGroups, resultsLabel, teamRows, unansweredRows, warningText, type Tone } from "./report-model"
 import { t, tn } from "@/lib/i18n"
+import { weekLabelShort } from "@/lib/season-week"
 import { useGameStore } from "@/store/game-store"
 
 /**
@@ -28,6 +29,18 @@ const KPI_COLUMNS: Record<number, string> = { 2: "sm:grid-cols-2", 3: "sm:grid-c
 import { stageName } from "@/lib/display-names"
 
 const TONE_TEXT: Record<Tone, string> = { up: "text-positive", down: "text-negative", neutral: "text-ink-2" }
+
+/**
+ * NEWPLAYER-23: the player list starts with each player's main change; every
+ * row is one click away, and that choice is remembered on this device.
+ */
+const PLAYER_ROWS_KEY = "esm:week-report-player-rows"
+function readShowAllRows(): boolean {
+    try { return typeof localStorage !== "undefined" && localStorage.getItem(PLAYER_ROWS_KEY) === "all" } catch { return false }
+}
+function writeShowAllRows(all: boolean): void {
+    try { localStorage.setItem(PLAYER_ROWS_KEY, all ? "all" : "main") } catch { /* storage denied: this view only */ }
+}
 
 function SectionTitle({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
     return (
@@ -74,21 +87,36 @@ export function WeekReportView({ report }: { report: WeekReport }) {
     const team = teamRows(report)
     const unanswered = unansweredRows(report)
     const mode = useReportMode()
+    const [showAllRows, setShowAllRows] = useState(readShowAllRows)
+    const hiddenRows = players.reduce((n, g) => n + g.rows.length - 1, 0)
+    const setRows = (all: boolean) => { setShowAllRows(all); writeShowAllRows(all) }
     return (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
             {/* Player changes */}
             <section className="min-w-0 rounded-lg border border-line bg-panel" aria-label={t("wr.players")}>
-                <SectionTitle aside={<span className="text-xs text-ink-3">{t("wr.changeCause")}</span>}>{t("wr.players")}</SectionTitle>
+                <SectionTitle aside={
+                    <span className="flex items-baseline gap-3 text-xs text-ink-3">
+                        <span>{t("wr.changeCause")}</span>
+                        {hiddenRows > 0 && (
+                            <button type="button" onClick={() => setRows(!showAllRows)} aria-expanded={showAllRows} className="font-semibold text-ink-2 hover:text-ink-1 hover:underline" data-testid="wr-rows-toggle">
+                                {showAllRows ? t("wr.showMain") : t("wr.showAll")}
+                            </button>
+                        )}
+                    </span>
+                }>{t("wr.players")}</SectionTitle>
                 {players.length === 0 ? (
                     <p className="px-4 py-3 text-sm text-ink-3">{t("wr.noPlayerChanges")}</p>
                 ) : (
                     <table className="w-full border-collapse text-left text-[13px]">
                         <tbody>
-                            {players.map(group => group.rows.map((row, i) => (
-                                <tr key={`${group.id}-${i}`} className={cn("align-top", i === group.rows.length - 1 && "border-b border-line last:border-b-0")}>
+                            {players.map(group => (showAllRows ? group.rows : [group.rows[group.lead]]).map((row, i, shown) => (
+                                <tr key={`${group.id}-${i}`} className={cn("align-top", i === shown.length - 1 && "border-b border-line last:border-b-0")}>
                                     <td className="w-[104px] py-1.5 pl-4 pr-2">
                                         {i === 0 && (
                                             <Link href={`/player/${group.id}`} className="block truncate font-semibold text-ink-1 hover:text-gold">{group.name}</Link>
+                                        )}
+                                        {i === 0 && !showAllRows && group.rows.length > 1 && (
+                                            <button type="button" onClick={() => setRows(true)} className="block text-xs text-ink-3 hover:text-ink-1 hover:underline">{t("wr.more", { n: group.rows.length - 1 })}</button>
                                         )}
                                     </td>
                                     <td className={cn("py-1.5 pr-3 font-semibold tabular-nums", TONE_TEXT[row.tone])}>
@@ -139,10 +167,12 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                     ) : (
                         <dl className="divide-y divide-line text-[13px]">
                             {[...money.income, ...money.expenses].map(line => (
-                                <div key={`${line.label}-${line.cause}-${line.amount > 0}`} className="flex items-baseline justify-between gap-3 px-4 py-1.5">
+                                <div key={`${line.label}-${line.cause}-${line.amount > 0}-${line.week ?? ""}`} className="flex items-baseline justify-between gap-3 px-4 py-1.5">
                                     <dt className="min-w-0">
                                         <span className="text-ink-1">{line.label}</span>
                                         {line.cause && line.cause !== line.label && <span className="ml-2 text-xs text-ink-3">{line.cause}</span>}
+                                        {/* MARKET-08 (2026-11-17): the ledger (and the /finances chart) books this row under another week. */}
+                                        {line.week !== undefined && <span className="ml-2 text-xs text-ink-3">· {weekLabelShort(line.week, report.week)}</span>}
                                     </dt>
                                     <dd className={cn("shrink-0 font-semibold tabular-nums", line.amount < 0 ? "text-negative" : "text-positive")}>{formatMoney(line.amount, true)}</dd>
                                 </div>

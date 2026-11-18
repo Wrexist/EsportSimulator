@@ -329,6 +329,17 @@ describe("upgradeMerchStore", () => {
         expect(ledgerRow!.amount).toBe(50_000)
     })
 
+    test("MARKET-09 (2026-11-17): the line a level unlocks goes on sale with the upgrade", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { budget: 1_000_000, merchStoreLevel: 1, activeMerchItems: ["JERSEY"] } as never)],
+        }))
+        const slice = createTeamFacilitiesSlice(h.set, h.get)
+        slice.upgradeMerchStore("player") // 1 -> 2 unlocks HOODIE
+        expect(h.state().teams[0].activeMerchItems).toEqual(["JERSEY", "HOODIE"])
+        slice.upgradeMerchStore("player") // 2 -> 3 unlocks CAP
+        expect(h.state().teams[0].activeMerchItems).toEqual(["JERSEY", "HOODIE", "CAP"])
+    })
+
     test("refuses upgrade past max level", () => {
         const h = makeHarness(makeBaseState({
             teams: [makeTeam("player", { budget: 10_000_000, merchStoreLevel: 5 } as never)],

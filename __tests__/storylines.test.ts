@@ -25,6 +25,8 @@ import { recordOfficialMatch } from "@/engine/official-stats"
 import { describeChoice } from "@/components/inbox/inbox-model"
 import { nextStop, type StopSource } from "@/lib/advance-stops"
 import { weekHeadline, type WeekReport } from "@/lib/week-report"
+import * as clubBudget from "@/engine/ai/club-budget"
+import { aiClubsAbleToBid } from "@/engine/ai/transfer-market"
 
 // ---------------------------------------------------------------- fixtures
 
@@ -182,7 +184,7 @@ describe("contract standoff", () => {
         expect(c).toMatchObject({ salaryPerWeek: ask, endWeek: 20 + 52 })
         nextWeek(save)
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "RENEWED" })
-        expect(save.newsFeed[0].content).toContain(`$${ask.toLocaleString("en-US")} a week, running to Week 72`)
+        expect(save.newsFeed[0].content).toContain(`$${ask.toLocaleString("en-US")} a week, running to Week 20, season 2`) // HOME-22: week 72 is season 2, week 20
     })
 
     test("the offer is refused when the club cannot hold the raise; waiting ends in a transfer request in the stated week", () => {
@@ -203,7 +205,7 @@ describe("contract standoff", () => {
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "REQUEST" })
         const request = save.eventsLog.find(x => x.id.startsWith("transfer_request_p0_"))!
         expect(request.data).toMatchObject({ reason: "CONTRACT" })
-        expect(String(request.data.message)).toContain("His contract ends in Week 20 and no new deal was offered.")
+        expect(String(request.data.message)).toContain("His contract ends in Week 20, season 1 and no new deal was offered.")
     })
 
     test("a Quiet player, a deal outside its final year, or a bench player is not a standoff", () => {
@@ -213,6 +215,10 @@ describe("contract standoff", () => {
         const later = world(10, { p0: "AMBITIOUS" })
         later.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + S.STANDOFF_MAX_WEEKS + 1
         expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(later))).toEqual([])
+        // HOME-19 / NEWPLAYER-06: 45 weeks left on the deal is not a standoff.
+        later.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + 45
+        expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(later))).toEqual([])
+        expect(S.STANDOFF_MAX_WEEKS).toBe(26)
         // p5 is the sixth-rated player: outside the top five.
         const bench = world(10, { p5: "MERCENARY" })
         bench.contracts.find(c => c.playerId === "p5")!.endWeek = 20
@@ -221,8 +227,8 @@ describe("contract standoff", () => {
 
     test("MODES-20: a player the club signed in the last STANDOFF_MIN_TENURE_WEEKS is not a standoff; an opening deal still is", () => {
         const save = world(10, { p0: "MERCENARY" })
-        save.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + 51
-        // An opening deal (no signing on record) in its final year qualifies, as before.
+        save.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + 20
+        // An opening deal (no signing on record) in the second half of its final year qualifies, as before.
         expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(save)).map(c => c.subject)).toEqual(["p0"])
         // Signed as a free agent in week 1 on a one-year deal: he chose these terms.
         save.transferHistory = [{ id: "t1", week: 1, type: "TRANSFER", playerId: "p0", playerName: "p0", fromTeamId: null, fromTeamName: "Free Agent", toTeamId: "us", toTeamName: "US", fee: 0 }] as never
@@ -234,7 +240,7 @@ describe("contract standoff", () => {
 
     test("Phase 5 fix: the final year of a top-five deal qualifies, and waiting runs out STANDOFF_PATIENCE_WEEKS after the talks", () => {
         const save = world(10, { p4: "AMBITIOUS" })
-        save.contracts.find(c => c.playerId === "p4")!.endWeek = 10 + 40
+        save.contracts.find(c => c.playerId === "p4")!.endWeek = 10 + 24
         processStorylines(save)
         const arc = arcOf(save, "CONTRACT_STANDOFF")!
         expect(arc.playerIds).toEqual(["p4"])
@@ -243,7 +249,7 @@ describe("contract standoff", () => {
         const e = eventOf(save, arc)!
         expect(answer(save, e, "wait")).toBe(true)
         expect(Number(arc.facts.requestWeek)).toBe(11 + S.STANDOFF_PATIENCE_WEEKS)
-        expect(String(e.data.message)).toContain(`If his deal is still unrenewed in Week ${11 + S.STANDOFF_PATIENCE_WEEKS}, he hands in a transfer request.`)
+        expect(String(e.data.message)).toContain(`If his deal is still unrenewed in Week ${11 + S.STANDOFF_PATIENCE_WEEKS}, season 1, he hands in a transfer request.`)
         while (save.currentWeek < 11 + S.STANDOFF_PATIENCE_WEEKS) nextWeek(save)
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "REQUEST" })
     })
@@ -280,6 +286,42 @@ describe("rising star", () => {
         delete P_(save, "p2").personality!.promise
         for (let i = 0; i < 9; i++) nextWeek(save)
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "KEPT" })
+    })
+})
+
+describe("rising star: MARKET-13 (2026-11-17) counts only clubs that could really bid", () => {
+    const decision = (save: GameSave) => {
+        const p2 = P_(save, "p2")
+        p2.age = 20
+        form(save, "p2", [1.3, 1.2, 1.25, 1.4, 1.1, 1.3])
+        processStorylines(save)
+        nextWeek(save)
+        const arc = arcOf(save, "RISING_STAR")!
+        return { arc, e: eventOf(save, arc)! }
+    }
+    afterEach(() => jest.restoreAllMocks())
+
+    test("no club can fit his wage: the news says so and \"list him\" is not offered", () => {
+        const save = world()
+        jest.spyOn(clubBudget, "aiCommitCheck").mockReturnValue(() => false)
+        const { arc, e } = decision(save)
+        expect(arc.facts.able).toBe(0)
+        expect(e.choices!.map(c => c.id)).toEqual(["promise", "quiet"])
+        expect(String(e.data.message)).toContain("No club can fit p2's wage right now")
+        expect(String(e.data.message)).not.toContain("List him")
+    })
+
+    test("the count is the bid loop's own: clubs ranked above that pass its gates", () => {
+        const save = world()
+        jest.spyOn(clubBudget, "aiCommitCheck").mockReturnValue(() => true)
+        const expected = aiClubsAbleToBid(save, "us", P_(save, "p2")).length
+        const { arc, e } = decision(save)
+        expect(expected).toBe(2)
+        expect(arc.facts.able).toBe(2)
+        expect(e.choices!.map(c => c.id)).toEqual(["promise", "list", "quiet"])
+        // A club without the cash floor, or with a full squad, is not counted.
+        T_(save, "far").budget = 0
+        expect(aiClubsAbleToBid(save, "us", P_(save, "p2")).map(t => t.id)).toEqual(["them"])
     })
 })
 

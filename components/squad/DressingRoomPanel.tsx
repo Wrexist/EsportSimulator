@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { t } from "@/lib/i18n"
+import { formatPercent, t } from "@/lib/i18n"
 
 import { useMemo, useState } from "react"
 import { useShallow } from "zustand/react/shallow"
@@ -74,7 +74,7 @@ export function DressingRoomPanel({ team }: { team: TeamSaveData }) {
                 </div>
                 <p className="text-xs leading-relaxed text-ink-3">
                     {captainPlayer
-                        ? <Trans k="dressing.captainEffect" params={{ name: captainPlayer.nickname, pct: shield, divisor: PERSONALITY_TUNING.CAPTAIN_LEADER_DIVISOR, leaderBonus: getArchetype(captainPlayer) === "LEADER" ? t("dressing.leaderBonus", { pct: Math.round(PERSONALITY_TUNING.CAPTAIN_LEADER_BONUS * 100) }) : "", max: Math.round(PERSONALITY_TUNING.CAPTAIN_MAX_SHIELD * 100) }} tags={{ b: s => <span className="font-semibold text-ink-1">{s}</span> }} />
+                        ? <Trans k="dressing.captainEffect" params={{ name: captainPlayer.nickname, pct: formatPercent(shield), divisor: PERSONALITY_TUNING.CAPTAIN_LEADER_DIVISOR, leaderBonus: getArchetype(captainPlayer) === "LEADER" ? t("dressing.leaderBonus", { pct: formatPercent(Math.round(PERSONALITY_TUNING.CAPTAIN_LEADER_BONUS * 100)) }) : "", max: formatPercent(Math.round(PERSONALITY_TUNING.CAPTAIN_MAX_SHIELD * 100)) }} tags={{ b: s => <span className="font-semibold text-ink-1">{s}</span> }} />
                         : t("dressing.noCaptain")}
                 </p>
             </section>
@@ -82,7 +82,7 @@ export function DressingRoomPanel({ team }: { team: TeamSaveData }) {
             <section className="space-y-2 border-t border-line px-4 py-3">
                 <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dressing.mentors")}</h3>
                 <p className="text-xs leading-relaxed text-ink-3">
-                    {t("dressing.mentorsBody", { minAge: PERSONALITY_TUNING.MENTOR_MIN_AGE, maxAge: PERSONALITY_TUNING.MENTEE_MAX_AGE, bonus: mentorBonus, endAge: PERSONALITY_TUNING.MENTEE_MAX_AGE + 1 })}
+                    {t("dressing.mentorsBody", { minAge: PERSONALITY_TUNING.MENTOR_MIN_AGE, maxAge: PERSONALITY_TUNING.MENTEE_MAX_AGE, bonus: formatPercent(mentorBonus), endAge: PERSONALITY_TUNING.MENTEE_MAX_AGE + 1 })}
                 </p>
                 {pairs.length > 0 && (
                     <ul className="divide-y divide-line rounded-md border border-line">

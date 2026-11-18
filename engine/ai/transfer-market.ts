@@ -58,6 +58,8 @@ const BUYER_MAX_ROSTER = 5
 const MAX_ROSTER_SIZE = 7
 const BENCH_DUMP_MIN_ROSTER = 6
 const BENCH_DUMP_SKILL_CEILING = 55
+/** A club does not offer straight back a player who joined it this recently (no weekly resale chains). */
+const BENCH_DUMP_MIN_WEEKS_AT_CLUB = 8
 const TRANSFER_CONTRACT_WEEKS = 52
 
 /**
@@ -213,7 +215,7 @@ export function processAITransferMarket(
 
             const existingOffer = existingOfferKeys.has(`${aiTeam.id}_${player.id}`)
             if (existingOffer) return
-            if (Math.max(ovr(player), player.age <= 21 ? (player.potential ?? 0) - 10 : 0) < weakestStarter - AI_BID_QUALITY_MARGIN) return
+            if (!aiBidQualityOk(ovr(player), player, weakestStarter)) return
             if ((openOffersPerPlayer.get(player.id) ?? 0) >= MAX_OPEN_OFFERS_PER_PLAYER) return
 
             // Market value + potential-based multipliers (0-100 scale; see aiMarketValuation).
@@ -277,13 +279,19 @@ export function processAITransferMarket(
 /**
  * AI-to-AI transfer market. Two pools feed `availablePlayers`:
  *   (a) Bench dumps — teams with 6+ roster auto-offer their weakest if
- *       below the BENCH_DUMP_SKILL_CEILING (55).
+ *       below the BENCH_DUMP_SKILL_CEILING (55) and his contract there did
+ *       not start in the last BENCH_DUMP_MIN_WEEKS_AT_CLUB weeks.
  *   (b) Explicit listings — anyone flagged forSale from
  *       listPlayerForTransfer.
  *
  * Buying teams (under-roster + decent budget) roll 5% per week to
  * sign the best available player they can afford. Total capped at
  * MAX_AI_TRANSFERS_PER_WEEK (3) to prevent market chaos.
+ *
+ * The fee follows the player's market value; his contract's buyout is only
+ * a ceiling (audit 11-17 ENGINE-03). Charging the buyout itself, with the new
+ * contract's buyout set to twice the fee, doubled the price of the same
+ * bench player with every resale ($40k value: $65k, $130k, $260k).
  */
 export function processAIToAITransfers(
     save: GameSave,
@@ -295,6 +303,9 @@ export function processAIToAITransfers(
 
     const availablePlayers: { player: PlayerSaveData; team: TeamSaveData }[] = []
     const offeredIds = new Set<string>()
+    const recentlyJoined = new Set(save.contracts
+        .filter(c => c.startWeek > save.currentWeek - BENCH_DUMP_MIN_WEEKS_AT_CLUB)
+        .map(c => `${c.teamId}|${c.playerId}`))
 
     for (const team of save.teams) {
         if (team.id === playerTeamId) continue
@@ -305,7 +316,7 @@ export function processAIToAITransfers(
         // (a) Bench dump.
         if (roster.length >= BENCH_DUMP_MIN_ROSTER) {
             const worst = roster.reduce((min, p) => ((p.skill ?? 0) < (min.skill ?? 0) ? p : min), roster[0])
-            if (worst && (worst.skill ?? 0) < BENCH_DUMP_SKILL_CEILING && !offeredIds.has(worst.id)) {
+            if (worst && (worst.skill ?? 0) < BENCH_DUMP_SKILL_CEILING && !offeredIds.has(worst.id) && !recentlyJoined.has(`${team.id}|${worst.id}`)) {
                 availablePlayers.push({ player: worst, team })
                 offeredIds.add(worst.id)
             }
@@ -333,7 +344,8 @@ export function processAIToAITransfers(
             && ap.team.rosterIds.includes(ap.player.id) && !ap.player.isRetired)
             .map(ap => {
                 const contract = save.contracts.find(c => c.playerId === ap.player.id && c.teamId === ap.team.id && c.endWeek > save.currentWeek)
-                const fee = Math.round(contract?.buyout || evaluatePlayer(ap.player, undefined, undefined, save.currentWeek).transferValue)
+                const value = evaluatePlayer(ap.player, undefined, undefined, save.currentWeek).transferValue
+                const fee = Math.round(contract?.buyout && contract.buyout > 0 ? Math.min(contract.buyout, value) : value)
                 return { ap, fee, salary: recruitmentSalary(ap.player, save.currentWeek, buyer) }
             }).filter(c => canAfford(c.salary, c.fee))
             .sort((a, b) => (b.ap.player.skill ?? 0) - (a.ap.player.skill ?? 0) || a.ap.player.id.localeCompare(b.ap.player.id))
@@ -458,7 +470,7 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
         const player = save.players.find(p => p.id === contract.playerId)
         if (!player || player.isRetired || !mine.rosterIds.includes(player.id)) continue
         const fee = contract.releaseClause!
-        if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek)) continue
+        if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek, contract.releaseClauseTier)) continue
         const buyer = save.teams
             .filter(t => t.id !== playerTeamId && canPayReleaseClause(save, t, player, fee))
             .sort((a, b) => b.reputation - a.reputation || a.id.localeCompare(b.id))[0]
@@ -505,4 +517,48 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
         taken.push(player.id)
     }
     return taken
+}
+
+// ---------------------------------------------------------------------------
+// MARKET-13 (2026-11-17): who could bid for a listed player. The story news
+// and the player profile count bidders with the same gates the weekly bid
+// loop above applies, so they never promise bids the market can't make.
+// ---------------------------------------------------------------------------
+
+/** MARKET-11 quality gate of processAITransferMarket: he could start for the club (or will grow into it). */
+export function aiBidQualityOk(playerOvr: number, player: Pick<PlayerSaveData, "age" | "potential">, weakestStarter: number): boolean {
+    return Math.max(playerOvr, player.age <= 21 ? (player.potential ?? 0) - 10 : 0) >= weakestStarter - AI_BID_QUALITY_MARGIN
+}
+
+/**
+ * AI clubs that could bid for `player` (listed at `listingPrice`) this week:
+ * cash and roster room, the quality gate, and aiCommitCheck at his wage with
+ * the lowest offer the club would make. The interest roll is not counted.
+ */
+export function aiClubsAbleToBid(
+    save: Pick<GameSave, "teams" | "players" | "contracts" | "staff" | "currentWeek">,
+    playerTeamId: string,
+    player: PlayerSaveData,
+    listingPrice?: number,
+): TeamSaveData[] {
+    const byId = new Map(save.players.map(p => [p.id, p]))
+    const ovrCache = new Map<string, number>()
+    const ovr = (p: PlayerSaveData) => {
+        let v = ovrCache.get(p.id)
+        if (v === undefined) { v = evaluatePlayer(p, undefined, undefined, save.currentWeek).overallRating; ovrCache.set(p.id, v) }
+        return v
+    }
+    const baseValue = evaluatePlayer(player, undefined, undefined, save.currentWeek).transferValue
+    const listing = listingPrice || player.transferListingPrice || baseValue
+    const { overpayBuffer } = aiMarketValuation(player.skill, player.potential, player.tier)
+    const lowestOffer = Math.round(((baseValue * 0.9) + (listing * 0.1)) * overpayBuffer * 0.85)
+    const playerOvr = ovr(player)
+    return save.teams.filter(team => {
+        if (team.id === playerTeamId || team.rosterIds.includes(player.id)) return false
+        if (team.budget < POACHER_MIN_BUDGET || team.rosterIds.length >= MAX_ROSTER_SIZE) return false
+        const rosterOvr = team.rosterIds.map(id => byId.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired).map(ovr)
+        const weakestStarter = rosterOvr.length >= 5 ? rosterOvr.sort((a, b) => b - a)[4] : 0
+        if (!aiBidQualityOk(playerOvr, player, weakestStarter)) return false
+        return aiCommitCheck(save, team)(recruitmentSalary(player, save.currentWeek, team), lowestOffer)
+    })
 }

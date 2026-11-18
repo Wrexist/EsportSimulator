@@ -25,10 +25,10 @@ import {
     normalizeQualificationStatus,
 } from "../circuit-engine"
 import { seniorRosterEligibility } from "../recruitment"
-import { QUALIFIER_REGION, qualifierEntryBlock } from "../tournament/qualification-path"
+import { QUALIFIER_REGION, clashes, clubEventWindows, eventWeight, qualifierEntryBlock } from "../tournament/qualification-path"
 import { QualificationEngine } from "../tournament-qualification"
 import { logger } from "@/lib/logger"
-import { instanceName } from "@/lib/tournament-instances"
+import { eventDisplayName, instanceName } from "@/lib/tournament-instances"
 
 const LOOKAHEAD_WEEKS = 4
 
@@ -62,10 +62,14 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
 
     try {
         // Earliest first (then id) so sibling open qualifiers resolve deterministically.
+        // An instance whose field is set (started or over) takes no sign-up:
+        // on its start week the tick has already built the field, so a row
+        // added now would stay "Registered" for an event the club never plays.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const upcoming: any[] = save.tournaments.filter((t: any) =>
             t.startWeek >= save.currentWeek &&
-            t.startWeek <= save.currentWeek + LOOKAHEAD_WEEKS
+            t.startWeek <= save.currentWeek + LOOKAHEAD_WEEKS &&
+            !t.isCompleted && (t.currentStage ?? "Registration") === "Registration"
         )
         // Open events usually have no instance yet when entry opens (the
         // Register button works from the calendar too), so project the
@@ -105,6 +109,10 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
                 && (tournamentDef.tier === "QUALIFIER" || myTeam.leagueTier !== "S_TIER")
             if (!(tournamentDef.entryType === "INVITE" || tournamentDef.entryType === "POINTS" || isOpen)) return
             if (isOpen && openEntryBlocked(save, myTeam.id, tournamentDef, t.seasonNumber || getSeasonFromWeek(t.startWeek || save.currentWeek))) return
+            // Not into an event in weeks the club already plays a bigger one
+            // (COMP-05); the Register button stays the manager's call.
+            const from = t.startWeek || save.currentWeek
+            if (clashes(clubEventWindows(save).get(myTeam.id), t.id, from, from + Math.max(1, tournamentDef.duration) - 1, eventWeight(tournamentDef) + 1)) return
 
             const isRegistered = save.tournamentQualifications.some(
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -126,7 +134,7 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
             )
             if (!eligibility.canRegister) return
 
-            const eventName = instanceName(tournamentDef, t.seasonNumber || getSeasonFromWeek(t.startWeek || save.currentWeek), save.gameStartDate)
+            const eventName = eventDisplayName(instanceName(tournamentDef, t.seasonNumber || getSeasonFromWeek(t.startWeek || save.currentWeek), save.gameStartDate))
             save.tournamentQualifications.push(normalizeQualificationStatus({
                 tournamentId: t.id,
                 seriesId: tournamentSeriesId,

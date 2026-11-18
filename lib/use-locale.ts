@@ -20,4 +20,10 @@ export function useUiLanguageSync(language: string) {
         void loadLocaleFile(language).then(() => { if (!cancelled) setLocale(language) })
         return () => { cancelled = true }
     }, [language])
+    // The desktop build's native dialogs (exit, crash, launch error) follow the active language.
+    useEffect(() => {
+        const report = () => { void window.electron?.app?.setUiLanguage?.(getLocale())?.catch(() => {}) }
+        report()
+        return subscribeLocale(report)
+    }, [])
 }

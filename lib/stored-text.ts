@@ -60,7 +60,24 @@ const RULES: Rule[] = [
     [/^(.+): (.+), (\d+) weeks? out$/, m => plural(Number(m[3]), "svd.p.injuredOut", { name: m[1], injury: segment(m[2]) })],
     [/^(.+) left the club \((.+)\)$/, m => t("svd.p.leftClub", { name: m[1], cause: segment(m[2].charAt(0).toUpperCase() + m[2].slice(1)) })],
     [/^Finances: (.+)$/, m => t("svd.p.finances", { state: t(`svd.fin.${m[1].toUpperCase()}`) })],
+    // SMOKE-B-03: the live-match split adds " this week" (engine/ranking-report.ts).
+    [/^Other clubs' results this week(.*)$/, m => t("svd.p.otherResultsWeek") + (m[1] ? others(m[1]) : "")],
     [/^Other clubs' results(.*)$/, m => t("svd.p.otherResults") + (m[1] ? others(m[1]) : "")],
+    // SMOKE-B-02: unanswered job offers and bids saved before they carried keys
+    [/^Job offer from (.+)$/, m => t("svd.p.jobOfferFrom", { club: m[1] })],
+    [/^Bid for (.+)$/, m => t("svd.p.bidFor", { name: m[1] })],
+    // SMOKE-B-01: a pro's default answer to a club offer
+    [/^Stay at (.+)$/, m => t("pcr.offer.stay", { club: m[1] })],
+    // SMOKE-B-04: event titles named as a week cause before causes carried keys
+    [/^Happy birthday, (.+)!$/, m => t("rnd.birthday.t", { name: m[1] })],
+    [/^Interview request: (.+)$/, m => t("rnd.interview.t", { outlet: m[1] })],
+    [/^Fan milestone: (.+) followers!$/, m => t("rnd.fans.t", { count: m[1] })],
+    [/^Rivalry heats up: (.+)$/, m => t("rnd.rivalry.t", { club: m[1] })],
+    [/^(.+) equipment deal$/, m => t("rnd.gear.t", { brand: m[1] })],
+    [/^Coaching offer: (.+)$/, m => t("leg.coach.t", { legend: m[1] })],
+    [/^Injury report: (.+)$/, m => t("ev.injury.t", { name: m[1] })],
+    [/^(.+)'s workload is high$/, m => t("ev.workload.t", { name: m[1] })],
+    [/^(.+) has a knock: (.+)$/, m => t("ev.knock.t", { name: m[1], injury: segment(m[2]) })],
     // Ledger lines
     [/^Transfer Fee: (.+)$/, m => t("svd.p.transferFee", { name: m[1] })],
     [/^Signing Bonus: (.+)$/, m => t("svd.p.signingBonus", { name: m[1] })],
@@ -132,11 +149,63 @@ const RULES: Rule[] = [
         const kind = m[3] ? t(`common.tier.${m[3]}_TIER`) : m[2] === "League" ? t("svd.league") : t("svd.cmp.qualifier")
         return `${segment(m[1])} (${m[4] ? t("svd.cmp.playoffs", { tier: kind }) : kind})`
     }],
+    // Swiss rounds carry their record in brackets: the stage name, not the generic bracket rule (I18N-05).
+    [/^Swiss Round \d+ \([^)]+\)$/, m => stageName(m[0])],
+    // Week causes the engine and store write in English (I18N-02, I18N-04)
+    [/^Natural growth \(age (\d+)\)$/, m => t("svd.p.naturalGrowthAge", { age: m[1] })],
+    [/^Age decline \(age (\d+)\)$/, m => t("svd.p.ageDeclineAge", { age: m[1] })],
+    [/^Released (.+)$/, m => t("svd.p.released", { name: m[1] })],
+    [/^Paid less than (.+)$/, m => t("svd.p.paidLessThan", { name: m[1] })],
+    [/^Benched (\d+) match(?:es)?$/, m => plural(Number(m[1]), "svd.p.benched")],
+    [/^Mastered (\w+) as secondary role$/, m => t("moment.roleMastered", { role: known(`tr.role.${m[1].toLowerCase()}`, known(`market.role.${m[1]}`, m[1])) })],
+    [/^You told the press, "(.+)"$/, m => t("sl.toldPress", { answer: segment(m[1]) })],
+    [/^Press conference: "(.+)"$/, m => t("svd.p.pressAnswer", { answer: segment(m[1]) })],
+    [/^Your team forfeited against (.+): only (\d) ?\/5 players were available\.$/, m => t("evn.forfeit.lost", { team: m[1], n: m[2] })],
+    [/^(.+) forfeited your match — win by default!$/, m => t("evn.forfeit.won", { team: m[1] })],
+    // Legend achievement lines (engine/legendary-players-data.ts, I18N-07); one-offs are exact svd.legend.* entries
+    [/^(?:(\d+)x )?Major [Cc]hampion$/, m => tn("moment.major", Number(m[1] ?? 1))],
+    [/^(\d+)x Player of the Year$/, m => plural(Number(m[1]), "svd.p.legend.poty")],
+    [/^(\d+)x Major MVP$/, m => plural(Number(m[1]), "svd.p.legend.majorMvp")],
+    [/^Major [Cc]hampion (\d{4})$/, m => t("svd.p.legend.majorYear", { year: m[1] })],
+    [/^Best Player (\d{4}(?:-\d{4})?)$/, m => t("svd.p.legend.bestPlayer", { year: m[1] })],
+    [/^Best AWPER (\d{4})$/, m => t("svd.p.legend.bestAwper", { year: m[1] })],
+    // Budget warnings saved before they carried translation keys (I18N-03)
+    [/^Budget is getting tight\. You have (\d+) weeks? of runway remaining\. Consider reducing expenses\.$/, m => plural(Number(m[1]), "evn.budget.TIGHT")],
+    [/^Financial warning! Only (\d+) weeks? of runway left\. Cut costs or find new income sources urgently\.$/, m => plural(Number(m[1]), "evn.budget.RISK")],
+    [/^CRITICAL: Team finances in crisis! (\d+) weeks? until insolvency\. Players are losing morale\.$/, m => plural(Number(m[1]), "evn.budget.CRISIS")],
+    [/^Team is INSOLVENT\. This is week (\d+) of 8 consecutive insolvent settlements before the club disbands\. Restore a positive balance by a weekly settlement to reset this counter\.$/, m => t("evn.budget.INSOLVENT", { week: m[1] })],
     // "Unhappy player (ace)": a label with a name in brackets.
     [/^(.+) \(([^()]+)\)$/, m => `${segment(m[1])} (${m[2]})`],
     // "AWP +0.3", "Leader +10%": a label with a signed number.
     [/^(.+?) ([+−-][\d.]+%?)$/, m => `${segment(m[1])} ${localNumber(m[2])}`],
 ]
+
+/**
+ * SMOKE-B-01: answers older builds wrote into the save as English (the
+ * report's "Unanswered" outcome, effects already cut off), by their key.
+ */
+const LEGACY_CHOICES: Record<string, string> = {
+    "One-on-One Talk": "rnd.c.talk",
+    "Performance Bonus": "rnd.c.bonus",
+    "Ignore": "rnd.c.ignore",
+    "Team Dinner": "rnd.c.dinner",
+    "Stay Focused": "rnd.c.focus",
+    "Crisis Meeting": "rnd.c.crisis",
+    "Roster Shakeup Warning": "rnd.c.shakeup",
+    "Host Fan Meetup": "rnd.c.fanMeet",
+    "Social Media Campaign": "rnd.c.social",
+    "Focus purely on practice": "rnd.c.practice",
+    "Negotiate Performance Bonus": "rnd.c.negotiateBonus",
+    "Standard Progress Report": "rnd.c.report",
+    "Accept Interview": "rnd.c.acceptInterview",
+    "Decline Politely": "rnd.c.declinePolitely",
+    "Throw a Party": "rnd.c.party",
+    "Send a Gift": "rnd.c.gift",
+    "Send Wishes": "rnd.c.wishes",
+    "Accept Deal": "rnd.c.acceptDeal",
+    "Counter-Offer": "rnd.c.counter",
+    "Decline": "rnd.c.decline",
+}
 
 const LEAGUE_STATE: Record<string, string> = { "On track": "onTrack", "Behind target": "behind", "League objective met": "met", "League objective missed": "missed" }
 
@@ -171,7 +240,7 @@ function known(key: string, fallback: string): string {
 function segment(s: string): string {
     const text = s.trim()
     if (!text) return s
-    const key = reverseIndex().get(text)
+    const key = reverseIndex().get(text) ?? LEGACY_CHOICES[text]
     if (key) return t(key)
     for (const [re, fn] of RULES) {
         const m = text.match(re)

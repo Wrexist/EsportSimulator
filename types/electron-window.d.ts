@@ -50,8 +50,6 @@ declare global {
                 /** @deprecated use unlockAchievement */
                 setAchievement: (name: string) => Promise<boolean>;
                 isAchievementUnlocked: (name: string) => Promise<boolean>;
-                // leaderboards
-                setLeaderboardScore: (name: string, score: number) => Promise<boolean>;
                 // rich presence
                 setRichPresence: (key: string, value: string) => Promise<boolean>;
                 getRichPresence: (key: string) => Promise<string | null>;
@@ -66,6 +64,11 @@ declare global {
                 setSize: (width: number, height: number) => Promise<boolean>;
                 getSize: () => Promise<{ width: number; height: number } | null>;
                 isFullscreen: () => Promise<boolean>;
+            };
+            app?: {
+                getUserDataPath: () => Promise<string | null>;
+                /** Tells the main process the UI language for its native dialogs (lib/use-locale.ts). */
+                setUiLanguage?: (code: string) => Promise<boolean>;
             };
             /** UI scale as page zoom (electron/preload.js, lib/ui-scale.ts). */
             display?: {

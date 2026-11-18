@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Lock } from "lucide-react"
 import { useFocusTrap } from "@/lib/accessibility"
+import { resolveMatchWithoutLiveScreen } from "@/lib/live-match-rescue"
+import { toast } from "@/lib/toast"
 import { t } from "@/lib/i18n"
 
 export function MatchNavigationGuard() {
@@ -22,6 +24,7 @@ export function MatchNavigationGuard() {
     const pathname = usePathname()
     const router = useRouter()
     const [showBlocker, setShowBlocker] = useState(false)
+    const [resolving, setResolving] = useState(false)
 
     useEffect(() => {
         // Wait for store to hydrate/initialize to prevent false positives on reload
@@ -94,9 +97,40 @@ export function MatchNavigationGuard() {
         }
     }, [activeMatchId, pathname, completedMatches, scheduledMatches, currentWeek, setActiveMatch, isInitialized])
 
+    // "Resume match": straight back to the live screen, where the paused match
+    // resumes (a match that cannot start yet is sent on to its prep page there).
     const handleReturnToMatch = () => {
         if (activeMatchId) {
-            router.push(`/match/${activeMatchId}/tactics`) // Return to tactics page to resume match setup
+            router.push(`/match/${activeMatchId}/live`)
+        }
+    }
+
+    // The lock can always be resolved, even when the live screen cannot be shown
+    // for this match (CROSSCUT-13): finish it without the live screen.
+    const handleSimulateRest = async () => {
+        const matchId = activeMatchId
+        if (!matchId || resolving) return
+        setResolving(true)
+        try {
+            if (await resolveMatchWithoutLiveScreen(matchId)) {
+                // SMOKE-A-16: the final score, in the guard's own words (not the crash card's).
+                const st = useGameStore.getState()
+                const done = st.completedMatches.find(m => m.id === matchId)
+                const name = (id: string) => st.teams.find(tm => tm.id === id)?.name ?? t("common.tbd")
+                if (done?.result) {
+                    // Your club first, as on the live screen.
+                    const flip = done.awayTeamId === st.playerTeamId
+                    toast.success(t("matchGuard.finished", flip
+                        ? { home: name(done.awayTeamId), homeScore: done.result.awayScore, awayScore: done.result.homeScore, away: name(done.homeTeamId) }
+                        : { home: name(done.homeTeamId), homeScore: done.result.homeScore, awayScore: done.result.awayScore, away: name(done.awayTeamId) }))
+                }
+                router.push(`/match/${matchId}/result`)
+            }
+        } catch (e) {
+            if (process.env.NODE_ENV !== "production") console.error("[Match guard] simulating the rest failed", e)
+            toast.error(t("matchError.failed"))
+        } finally {
+            setResolving(false)
         }
     }
 
@@ -110,7 +144,7 @@ export function MatchNavigationGuard() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 top-16 z-modal bg-ink/90 flex items-center justify-center p-4"
+                    className="fixed inset-0 z-modal bg-ink/90 flex items-center justify-center p-4"
                 >
                     <motion.div
                         initial={{ scale: 0.9, y: 20 }}
@@ -133,10 +167,20 @@ export function MatchNavigationGuard() {
 
                         <Button
                             onClick={handleReturnToMatch}
+                            disabled={resolving}
                             size="lg"
                             className="w-full h-12"
                         >
                             {t("guard.back")}
+                        </Button>
+                        <Button
+                            onClick={handleSimulateRest}
+                            disabled={resolving}
+                            variant="outline"
+                            size="lg"
+                            className="mt-3 w-full h-12"
+                        >
+                            {resolving ? t("advance.simulating") : t("guard.simulate")}
                         </Button>
                     </motion.div>
                 </motion.div>

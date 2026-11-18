@@ -20,7 +20,7 @@
 import type { GameSave } from "../save-types"
 import type { StoryArc, StoryArcKind } from "./types"
 import { STORY_TUNING as S } from "@/lib/balance-tuning"
-import { buildContext, resolveArc, seasonOf, type ArcCandidate, type ArcDefinition, type StoryContext } from "./common"
+import { buildContext, resolveArc, said, seasonOf, type ArcCandidate, type ArcDefinition, type StoryContext } from "./common"
 import { contractStandoff } from "./arcs/contract-standoff"
 import { risingStar } from "./arcs/rising-star"
 import { slump } from "./arcs/slump"
@@ -107,15 +107,16 @@ export function processStorylines(save: GameSave): StoryWeekResult {
         const clubGone = arc.managed && (!!save.gameOverReason || arc.teamId !== save.playerTeamId)
         if (arc.state !== "ACTIVE" || (arc.nextWeek > week && !clubGone)) continue
         // The board story tells how it ended; the others close.
-        if (clubGone && arc.kind !== "BOARD_PRESSURE") resolveArc(arc, week, "MANAGER_LEFT", "You left the club, which ends the story.")
+        if (clubGone && arc.kind !== "BOARD_PRESSURE") resolveArc(arc, week, "MANAGER_LEFT", said("sl.managerLeft"))
         else ARC_DEFINITIONS[arc.kind].advance(ctx, arc)
         out.beats++
         // (advance() may have resolved it)
         if ((arc.state as StoryArc["state"]) === "RESOLVED") out.resolved++
     }
 
-    // 2. One new arc this week.
-    if (!save.gameOverReason && !arcs.some(a => a.startedWeek === week)) {
+    // 2. One new arc this week. Audit 17 MODES-04: none in a Draft Cup, a
+    // three-week run (a drafted player's 12-week deal read as a contract standoff).
+    if (!save.gameOverReason && !save.draftCup && !arcs.some(a => a.startedWeek === week)) {
         const managedActive = arcs.filter(a => a.state === "ACTIVE" && a.managed).length
         const detected = new Map<StoryArcKind, ArcCandidate[]>()
         const detect = (kind: StoryArcKind) => {

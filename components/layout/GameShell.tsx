@@ -72,8 +72,8 @@ function isBetweenClubsRoute(pathname: string | null): boolean {
 
 /** G7: club-running screens a Draft Cup side has no use for (no market, staff, money or facilities). */
 const DRAFT_CUP_BLOCKED = ["/transfers", "/academy", "/sponsorships", "/finances", "/scouting", "/staff", "/basecamp", "/equipment"]
-/** Screens still open once a Draft Cup run is over: its match reports and the menus. */
-const DRAFT_CUP_OVER_ROUTES = ["/match/", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
+/** Screens still open once a Draft Cup run is over: its match reports, the trophy room and the cup's bracket (MODES-08, audit 17), and the menus. */
+const DRAFT_CUP_OVER_ROUTES = ["/match/", "/trophies", "/tournaments/", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
 /** Screens still open once a demo career has played its last week: only the menus. */
 const DEMO_OVER_ROUTES = ["/settings", "/credits", "/load-game", "/main-menu", "/new-game"]
 const routeIn = (pathname: string | null, routes: string[]) =>
@@ -356,6 +356,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 await debouncedStorage.flush()
                 await state.saveGame()
                 soundManager.play('weekAdvance')
+                useGameStore.getState().addToast({ message: t("search.saved"), type: "info", duration: 2500 })
             } catch {
                 // Save errors surface via the exit-save path; swallow here so a hotkey
                 // press doesn't throw into the window-level keydown listener.
@@ -384,9 +385,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             // double as both a select type-ahead and a route shortcut.
             const tag = (e.target as HTMLElement)?.tagName
             if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target as HTMLElement)?.isContentEditable) return
-            // Don't intercept when a dialog/modal is open — the open dialog owns
-            // keyboard handling (Esc, Ctrl+Enter) via its own listeners.
-            if (document.querySelector('[role="dialog"]')) return
+            // Don't intercept when a dialog/modal or an open menu/list is on screen:
+            // it owns keyboard handling (Esc, Ctrl+Enter, type-ahead). A digit
+            // used to change screen under a still-open menu (CROSSCUT-15).
+            if (document.querySelector('[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]')) return
 
             const mod = e.ctrlKey || e.metaKey
             // Mid-match the sidebar is locked; navigation hotkeys must not
@@ -449,12 +451,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 return
             }
 
-            // Inbox drawer: I toggles, 2 opens (it replaced the /desktop route).
-            // While the drawer is open it handles I itself (dialog guard above).
+            // Inbox drawer: I or 2 toggles it (it replaced the /desktop route; START-62).
+            // While the drawer is open it handles I and 2 itself (dialog guard above).
             if (!mod && !e.altKey && !hideChrome && (e.key.toLowerCase() === INBOX_TOGGLE_KEY || (!e.shiftKey && e.key === INBOX_OPEN_KEY))) {
                 e.preventDefault()
-                if (e.key === INBOX_OPEN_KEY) useInboxDrawer.getState().openInbox()
-                else useInboxDrawer.getState().toggle()
+                useInboxDrawer.getState().toggle()
                 return
             }
 

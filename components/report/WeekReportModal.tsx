@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { WeekReportKpis, WeekReportView } from "./WeekReportView"
 import { reportHeadline } from "./report-model"
 import { t } from "@/lib/i18n"
+import { stopActionText, stopReasonText } from "@/lib/advance-stops"
 
 export function WeekReportModal() {
     const { week, history, stop, close, open, dismissStop } = useGameStore(useShallow(s => ({
@@ -103,10 +104,10 @@ export function WeekReportModal() {
                             <span className={cn("shrink-0 text-[11px] font-semibold uppercase tracking-[0.08em]", stop.kind === "match" ? "text-gold" : "text-ink-3")}>
                                 {stop.kind === "match" ? t("home.matchDay") : t("advance.stopped")}
                             </span>
-                            <span className="truncate font-semibold text-ink-1">{stop.reason}</span>
+                            <span className="truncate font-semibold text-ink-1">{stopReasonText(stop)}</span>
                             {stop.href && stop.actionLabel && (
                                 <Link href={stop.href} onClick={() => { close(); if (stop.kind !== "match") dismissStop() }} className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-2 hover:text-ink-1 hover:underline">
-                                    {stop.actionLabel} <ArrowRight size={12} />
+                                    {stopActionText(stop)} <ArrowRight size={12} />
                                 </Link>
                             )}
                         </p>

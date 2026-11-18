@@ -652,10 +652,9 @@ export interface TeamSaveData {
         secondaryColor: string
         logoData?: string
     }
+    /** Difficulty's recurring-income multiplier. Older saves also carry unused fansMultiplier/tournamentPrizeMultiplier (MODES-18). */
     difficultySettings?: {
         incomeMultiplier: number
-        fansMultiplier: number
-        tournamentPrizeMultiplier: number
     }
 }
 
@@ -757,7 +756,8 @@ export interface PlayerSaveData {
     role: string
     secondaryRole?: string
     tier: string
-    achievements?: { type: string, week: number, description: string }[]
+    /** `ref`: the description as a translation key (I18N-04); `description` keeps the English. */
+    achievements?: { type: string, week: number, description: string, ref?: import("@/lib/i18n").TextRef }[]
 
     // Phase 55: Energy (0-100)
     energy: number
@@ -959,6 +959,8 @@ export interface ContractSaveData {
     // G13 clauses (engine/contract-clauses.ts)
     /** Fee at which another club may take the player without the owner's say (0 / absent = none). */
     releaseClause?: number
+    /** MARKET-01 (2026-11-17): the tier agreed, which sets how likely the clause is paid (absent on older contracts). */
+    releaseClauseTier?: "low" | "high"
     /** Paid for every official match played. */
     appearanceBonus?: number
     /** A share of the player's next transfer fee owed to a club that sold him. */
@@ -1041,6 +1043,12 @@ export interface TournamentSaveData {
     // Tournament MVP (calculated when tournament ends)
     mvpPlayerId?: string
     mvpRating?: number
+    /** 24-club Major: the 8 clubs that join in Swiss stage 2 (set when the event starts). */
+    swissInvites?: string[]
+    /** 24-club Major: the final stage-1 Swiss table, kept once stage 2 starts. */
+    swissStage1?: TournamentStandingSaveData[]
+    /** 24-club Major: round number (in match ids) of the first stage-2 round. */
+    swissStage2Round?: number
 }
 
 export interface TournamentGroupSaveData {
@@ -1364,16 +1372,24 @@ export interface SaveSlotMetadata {
     /** The career has no club right now (job market open); teamName holds a label. */
     betweenClubs?: boolean
     /** G7: a Draft Cup run (its difficulty, and the finish and score once settled). */
-    draftCup?: { difficulty: string; finish?: string; score?: number }
+    draftCup?: { difficulty: string; finish?: string; score?: number; round?: "quarter" | "semi" | "final" }
     /** C9: the sandbox editor is on for this save (no achievements). */
     sandbox?: boolean
     /** C10: a pro career; the pro's nickname. */
     pro?: string
+    /**
+     * Audit 17 MODES-17: the career's difficulty, read from the save each
+     * time the slots are listed: a created club's (story/normal/hard/impossible)
+     * or an existing club's (easy/normal/hard).
+     */
+    difficulty?: { kind: "created" | "club"; id: string }
 
     // Set when the slot's data failed to parse/validate. The slot is still
     // surfaced (rather than silently dropped) so the player can see it and
     // attempt recovery.
     isCorrupted?: boolean
+    /** START-58: a corrupted save with no backup or cloud copy, so Recover cannot help. */
+    noBackup?: boolean
 
     // Phase 2 Upgrade: Rich Metadata
     teamLogo?: string

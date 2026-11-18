@@ -112,7 +112,8 @@ export function developmentOutlook(input: {
         const effectsOfStaff = staffDevelopmentEffects(clubStaff)
         const archetype = getArchetype(player)
         const push = (label: string, m: number, display?: number) => { if (Math.abs(m - 1) > 1e-9) factors.push({ label, multiplier: m, ...(display !== undefined ? { display } : {}) }) }
-        push(t("outlook.factor.facility", { n: trainingLevel }), 1 + trainingLevel * 0.1)
+        // SQUAD-47: the building's own name (Basecamp), not a generic "training facility".
+        push(t("outlook.factor.facility", { facility: t("fac.TRAINING.name"), n: trainingLevel }), 1 + trainingLevel * 0.1)
         push(t("outlook.factor.staff"), effectsOfStaff.trainingMultiplier)
         push(ARCHETYPE_INFO[archetype].label, focus === TrainingFocus.REST ? 1 : trainingFactor(archetype))
         push(t("outlook.factor.mentor"), mentorTrainingFactor(team, player.id, lookup))

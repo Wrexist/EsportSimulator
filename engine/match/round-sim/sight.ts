@@ -663,6 +663,7 @@ function sightings(C: Ctx, t: number): void {
             wake = t
             let p = engageChance(d)
             if (tb.saving || cb.saving) p *= T.SIGHT_SAVE_ENGAGE
+            if (playsForTeam(R, tb) || playsForTeam(R, cb)) p *= T.CLEANUP_ENGAGE
             if (keyedRoll(R, 13, key) < p) startFight(C, tb, cb, t, d)
             else {
                 C.cool.set(key, t + T.SIGHT_RECHECK)
@@ -680,6 +681,17 @@ function sightings(C: Ctx, t: number): void {
         for (let k = 0; k < 12; k++) if (bits & (1 << k)) n++
         if (n >= T.SIGHT_CALL_SEEN || bits & (1 << 12)) call(C, s ? "B" : "A", t)
     }
+}
+
+/**
+ * MATCHENGINE-08: a player who already has CLEANUP_KILLS kills this round, on a
+ * side CLEANUP_LEAD or more players up, plays the cleanup for the team: he
+ * takes fewer fresh fights (CLEANUP_ENGAGE), so his mates get more of the last
+ * kills. A lone clutcher is never up, so his chances are untouched.
+ */
+function playsForTeam(R: Round, b: Body): boolean {
+    const a = b.a
+    return a.roundKills >= T.CLEANUP_KILLS && countAlive(a.ct ? R.CT : R.T) - countAlive(a.ct ? R.T : R.CT) >= T.CLEANUP_LEAD
 }
 
 function smoked(C: Ctx, a: number, b: number, t: number): boolean {

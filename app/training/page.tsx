@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { formatDecimal, t, tn } from "@/lib/i18n"
+import { formatDecimal, formatPercent, t, tn } from "@/lib/i18n"
 
 import { LoadChip } from "@/components/squad/LoadChip"
 import React, { useCallback, useMemo, useState } from "react"
@@ -135,13 +135,13 @@ export default function TrainingPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={t("tr.eyebrowWeek", { n: ((currentWeek - 1) % 52) + 1 })}
+                eyebrow={t("tr.eyebrowWeek", { season: Math.ceil(Math.max(1, currentWeek) / 52), n: ((Math.max(1, currentWeek) - 1) % 52) + 1 })}
                 title={t("tr.title")}
                 subtitle={<Trans k="tr.subtitle" tags={{ link: x => <Link href="/week#training-focus" className="font-semibold text-ink-1 underline underline-offset-2">{x}</Link> }} />}
                 aside={
                     <KpiStrip>
                         <Kpi label={t("tr.kpi.slots")} value={slotsLeft} hint={t("tr.kpi.slotsOf", { n: slotsMax })} />
-                        <Kpi label={t("tr.kpi.bonus")} value={`+${gainPct}%`} hint={t("tr.kpi.bonusHint")} />
+                        <Kpi label={t("tr.kpi.bonus")} value={`+${formatPercent(gainPct)}`} hint={t("tr.kpi.bonusHint", { facility: t("fac.TRAINING.name") })} />
                         <Kpi label={t("tr.kpi.retraining")} value={roleTraining.length} hint={roleTraining.length ? t("tr.perWeek", { amount: formatCurrency(roleTraining.reduce((s, rt) => s + (rt.weeklyCost || 0), 0), "$", false) }) : t("tr.kpi.noOne")} />
                     </KpiStrip>
                 }

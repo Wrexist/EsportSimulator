@@ -83,7 +83,8 @@ test('legacy duplicate gear slots and corrupt ratings cannot stack unbounded str
     const h = harness(); h.org.purchaseEquipment('mouse_t3')
     const team = structuredClone(h.get().teams[0])
     team.equipment = Array.from({ length: 20 }, () => ({ ...team.equipment[0], bonus: { stat: 'reaction', value: 1e9 } }))
-    expect(EquipmentManager.strengthBonus(team)).toBeCloseTo(8 * 0.08 / 45)
+    // SQUAD-56: an elite non-PC item is +1.3% (by tier, whatever its stored rating).
+    expect(EquipmentManager.strengthBonus(team)).toBeCloseTo(0.013)
     expect(EquipmentManager.calculateWeeklyCost(team)).toBe(EquipmentManager.getCatalogItem('mouse_t3')!.weeklyCost)
 })
 

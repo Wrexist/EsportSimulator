@@ -1,6 +1,7 @@
 import { t } from "@/lib/i18n"
 import { memo, useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { Bomb, Scissors, Timer, type LucideIcon } from "lucide-react"
 import { scorebugTime, type LiveTimeSource, type ScorebugTime } from "@/lib/live-clock"
 import { LiveGameState, Team, MapId } from "@/types"
 import { cn } from "@/lib/utils"
@@ -63,6 +64,8 @@ interface LiveMatchScoreboardProps {
      * its stopped timer (MATCHDAY-08).
      */
     nextRound?: number | null
+    /** A break card (half time, map end) is on screen: no round timer under it (SMOKE-A-07). */
+    onBreak?: boolean
 }
 
 /** Live clock and the round's bomb times for the scorebug timer. */
@@ -87,8 +90,11 @@ const WIN_TYPE_ID: Record<string, string> = {
     BOMB_DEFUSE: "BOMB_DEFUSE", defuse: "BOMB_DEFUSE",
     TIME: "TIME", time: "TIME",
 }
-/** One-letter marks inside the history cells: E(lim), B(omb), D(efuse), T(ime). */
-const WIN_TYPE_MARK: Record<string, string> = { ELIMINATION: "", BOMB_EXPLODED: "B", BOMB_DEFUSE: "D", TIME: "T" }
+/**
+ * Marks inside the history cells: bomb, defuse (wire cutters) and time. Icons, not
+ * letters: they read the same in every language, and "T" no longer looks like the T side (I18N-17).
+ */
+const WIN_TYPE_MARK: Record<string, LucideIcon> = { BOMB_EXPLODED: Bomb, BOMB_DEFUSE: Scissors, TIME: Timer }
 
 function SidePill({ ct }: { ct: boolean }) {
     return (
@@ -118,28 +124,41 @@ function LossBonus({ level, align }: { level?: number; align: "left" | "right" }
 /**
  * Round history: one column per round, the top cell for the home team and the
  * bottom one for the away team, filled in the colour of the side that won it
- * and marked B / D / T for bomb, defuse and time wins. Hover for how it ended.
- * Regulation is 24 rounds with a gap at the half; overtime extends the strip.
+ * and marked with a bomb, wire-cutter or timer icon for bomb, defuse and time wins. Hover for how it ended.
+ * Regulation is 24 rounds with a gap at the half. In overtime the strip shows
+ * the running MR3 set only, with regulation and earlier sets folded into
+ * score chips, so it never grows wider than regulation (MATCHDAY-16).
  */
-const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: { rounds: ScorebugRound[]; homeName: string; awayName: string }) {
-    const slots = Math.max(24, rounds.length)
+const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName, currentRound }: { rounds: ScorebugRound[]; homeName: string; awayName: string; currentRound: number }) {
+    const { from, to, folded } = historyWindow(rounds, currentRound)
     const byRound = new Map(rounds.map(r => [r.round, r]))
     return (
         <div className="flex items-center gap-[3px] max-[1279px]:gap-[2px]" aria-label={t("scoreboard.history")}>
-            {Array.from({ length: slots }, (_, i) => {
-                const n = i + 1
+            {folded.map(f => (
+                <span
+                    key={f.from}
+                    className="mr-1 flex h-[31px] flex-col items-center justify-center rounded-[2px] bg-hover px-1 text-[11px] font-bold leading-[13px] tabular-nums text-ink-2 max-[1279px]:h-[26px] max-[1279px]:text-[10px] max-[1279px]:leading-[11px]"
+                    title={f.from === 1 ? `${t("live.roundN", { n: 1 })}–${f.to}` : `${t("scoreboard.phase.overtime")} ${(f.from - 25) / 6 + 1}`}
+                    data-history-fold={f.from}
+                >
+                    <span>{f.home}</span>
+                    <span>{f.away}</span>
+                </span>
+            ))}
+            {Array.from({ length: to - from + 1 }, (_, i) => {
+                const n = from + i
                 const r = byRound.get(n)
                 const fill = r ? (r.side === "ct" ? "bg-side-ct text-ink" : "bg-side-t text-ink") : ""
-                const mark = r ? WIN_TYPE_MARK[r.winType ?? ""] ?? "" : ""
                 const winId = r ? WIN_TYPE_ID[r.winType ?? ""] : undefined
+                const Mark = winId ? WIN_TYPE_MARK[winId] : undefined
                 const how = r ? (winId ? t(`live.win.${winId}`) : t("scoreboard.won")) : ""
                 const cell = (mine: boolean) => (
-                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none max-[1279px]:h-3 max-[1279px]:w-3 max-[1279px]:text-[10px]", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
+                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none max-[1279px]:h-3 max-[1279px]:w-3 max-[1279px]:text-[10px]", mine ? fill : "bg-hover")}>{mine && Mark ? <Mark size={9} strokeWidth={2.75} aria-hidden="true" /> : null}</span>
                 )
                 return (
                     <div
                         key={n}
-                        className={cn("group relative flex flex-col gap-[3px] max-[1279px]:gap-[2px]", (n === 13 || (n > 24 && (n - 25) % 6 === 0)) && "ml-2")}
+                        className={cn("group relative flex flex-col gap-[3px] max-[1279px]:gap-[2px]", (n === 13 || (n > 24 && (n - 25) % 6 === 3)) && "ml-2")}
                         aria-label={r ? `${t("live.roundN", { n })}: ${r.winner === "home" ? homeName : awayName} (${r.side.toUpperCase()}), ${how}` : t("live.roundN", { n })}
                         data-round-dot={r ? r.winner : undefined}
                     >
@@ -162,6 +181,43 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
     )
 })
 
+const REGULATION_ROUNDS = 24
+const OT_SET_ROUNDS = 6
+
+/** First round of the overtime set `round` belongs to (round > 24). */
+function overtimeSetStart(round: number): number {
+    return REGULATION_ROUNDS + 1 + Math.floor((round - REGULATION_ROUNDS - 1) / OT_SET_ROUNDS) * OT_SET_ROUNDS
+}
+
+/**
+ * Which rounds the history strip draws one by one (`from`..`to`) and which
+ * stretches before them it folds into a score chip: regulation and finished
+ * overtime sets, once overtime has started (MATCHDAY-16).
+ */
+export function historyWindow(rounds: readonly Pick<ScorebugRound, "round" | "winner">[], currentRound: number): {
+    from: number
+    to: number
+    folded: { from: number; to: number; home: number; away: number }[]
+} {
+    const last = Math.max(currentRound, ...rounds.map(r => r.round), 0)
+    if (last <= REGULATION_ROUNDS) return { from: 1, to: REGULATION_ROUNDS, folded: [] }
+    const from = overtimeSetStart(last)
+    const tally = (a: number, b: number) => {
+        const inRange = rounds.filter(r => r.round >= a && r.round <= b)
+        return { from: a, to: b, home: inRange.filter(r => r.winner === "home").length, away: inRange.filter(r => r.winner === "away").length }
+    }
+    const folded = [tally(1, REGULATION_ROUNDS)]
+    for (let s = REGULATION_ROUNDS + 1; s < from; s += OT_SET_ROUNDS) folded.push(tally(s, s + OT_SET_ROUNDS - 1))
+    return { from, to: from + OT_SET_ROUNDS - 1, folded }
+}
+
+/** Round label: "RND 7 / 24", in overtime the set and its round ("OT 2 · RND 4 / 6", MATCHDAY-17). */
+export function roundLabel(round: number): string {
+    if (round <= REGULATION_ROUNDS) return t("scoreboard.rnd", { n: round })
+    const start = overtimeSetStart(round)
+    return t("scoreboard.rndOvertime", { set: (start - REGULATION_ROUNDS - 1) / OT_SET_ROUNDS + 1, n: round - start + 1 })
+}
+
 function TimerText({ seconds, planted, paused }: { seconds: number; planted: boolean; paused: boolean }) {
     const isUrgent = !planted && seconds <= 10 && seconds > 0
     return (
@@ -169,7 +225,8 @@ function TimerText({ seconds, planted, paused }: { seconds: number; planted: boo
             "ml-1 font-display text-[22px] font-bold normal-case leading-none tracking-normal tabular-nums",
             paused ? "text-ink-3" : planted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
         )} data-round-timer="">
-            {planted && <span className="mr-1.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-[0.08em]">{t("scoreboard.bomb")}</span>}
+            {/* SMOKE-A-07: an icon, not the word, so the planted timer does not widen the centre and cut the club names. */}
+            {planted && <Bomb size={14} strokeWidth={2.5} role="img" aria-label={t("scoreboard.bomb")} className="mr-1 inline-block align-[-1px]" />}
             {Math.floor(seconds / 60)}:{(seconds % 60).toString().padStart(2, '0')}
         </span>
     )
@@ -214,6 +271,7 @@ function LiveMatchScoreboardImpl({
     awayLossLevel,
     clock,
     nextRound,
+    onBreak = false,
 }: LiveMatchScoreboardProps) {
     // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
     // game-time tick when no roundTime is provided so existing callers keep
@@ -225,7 +283,7 @@ function LiveMatchScoreboardImpl({
             : Math.max(0, gameState.time))
     const buyPhase = nextRound != null && nextRound > 0
     const shownRound = buyPhase ? nextRound : gameState.round
-    const showTimer = gameState.time >= 0 && !buyPhase
+    const showTimer = gameState.time >= 0 && !buyPhase && !onBreak
     const reduceMotion = useAppReducedMotion()
     const finished = gameState.status === "FINISHED"
     const toWin = mapsToWinForFormat(matchFormat)
@@ -266,7 +324,8 @@ function LiveMatchScoreboardImpl({
                         {!finished && <SidePill ct={homeIsCT} />}
                         {ownTeam === "home" && <YouTag />}
                     </div>
-                    <div className="flex items-center gap-3">
+                    {/* Clipped, never drawn under the score (MATCHDAY-16). */}
+                    <div className="flex min-w-0 items-center gap-3 overflow-hidden">
                         {!finished && <LossBonus level={homeLossLevel} align="left" />}
                     </div>
                 </div>
@@ -285,14 +344,15 @@ function LiveMatchScoreboardImpl({
                     )}
                     <span className="text-ink-2">{mapName}</span>
                     <span aria-hidden="true">·</span>
-                    <span className={finished ? "text-ink-1" : undefined}>{finished ? t("dock.final") : t("scoreboard.rnd", { n: shownRound })}</span>
-                    {!finished && phase && <><span aria-hidden="true">·</span><span className={phaseId === "matchPoint" ? "text-ink-1" : undefined}>{phase}</span></>}
+                    <span className={finished ? "text-ink-1" : undefined}>{finished ? t("dock.final") : roundLabel(shownRound)}</span>
+                    {/* The overtime label already names the set (OT 2), so no second "Overtime". */}
+                    {!finished && phase && phaseId !== "overtime" && <><span aria-hidden="true">·</span><span className={phaseId === "matchPoint" ? "text-ink-1" : undefined}>{phase}</span></>}
                     {!finished && buyPhase && <><span aria-hidden="true">·</span><span>{t("radar.freeze")}</span></>}
                     {showTimer && !finished && (clock
                         ? <LiveTimer clock={clock} paused={!!gameState.isPaused} />
                         : <TimerText seconds={displaySeconds} planted={!!isBombPlanted} paused={!!gameState.isPaused} />)}
                 </div>
-                <RoundHistory rounds={roundHistory} homeName={homeTeam.name} awayName={awayTeam.name} />
+                <RoundHistory rounds={roundHistory} homeName={homeTeam.name} awayName={awayTeam.name} currentRound={shownRound} />
             </div>
 
             {/* AWAY */}
@@ -307,7 +367,7 @@ function LiveMatchScoreboardImpl({
                         {!finished && <SidePill ct={!homeIsCT} />}
                         {ownTeam === "away" && <YouTag />}
                     </div>
-                    <div className="flex flex-row-reverse items-center gap-3">
+                    <div className="flex min-w-0 flex-row-reverse items-center gap-3 overflow-hidden">
                         {!finished && <LossBonus level={awayLossLevel} align="right" />}
                     </div>
                 </div>

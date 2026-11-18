@@ -7,6 +7,7 @@ import type { StoryArc, StoryArcKind } from "./types"
 import { BOARD_TUNING, STORY_TUNING as S } from "@/lib/balance-tuning"
 import { t, type TextRef } from "@/lib/i18n"
 import { lineText } from "@/lib/news-text"
+import { weekNumberText } from "@/lib/season-week"
 
 export const STORY_KIND_LABEL: Record<StoryArcKind, string> = {
     CONTRACT_STANDOFF: "Contract standoff",
@@ -24,12 +25,12 @@ const IMPORTANCE: Record<StoryArcKind, number> = {
     BOARD_PRESSURE: 8, CONTRACT_STANDOFF: 7, RIVALRY: 6, LAST_DANCE: 5, RIFT: 4, SLUMP: 3, RISING_STAR: 2, GIANT_KILLER: 1,
 }
 
-/** What the next beat of an active arc is, in a few words (active language). */
+/** What the next beat of an active arc is, in a few words (active language). Weeks are season weeks (HOME-22). */
 const NEXT_HINT: Record<StoryArcKind, (arc: StoryArc) => string> = {
-    CONTRACT_STANDOFF: a => a.beat <= 1 ? t("sl.next.talks") : a.choice === "wait" ? t("sl.next.request", { week: String(a.facts.requestWeek) }) : a.choice === "sell" ? t("sl.next.listed") : t("sl.next.underWay"),
+    CONTRACT_STANDOFF: a => a.beat <= 1 ? t("sl.next.talks") : a.choice === "wait" ? t("sl.next.request", { week: weekNumberText(Number(a.facts.requestWeek), a.updatedWeek) }) : a.choice === "sell" ? t("sl.next.listed") : t("sl.next.underWay"),
     RISING_STAR: a => a.beat <= 1 ? t("sl.next.market") : a.choice === "promise" ? t("sl.next.promise") : a.choice === "list" ? t("sl.next.listed") : t("sl.next.watching"),
     SLUMP: a => a.beat <= 1 ? t("sl.next.press") : t("sl.next.recovery", { rating: S.RECOVERY_RATING.toFixed(2), maps: S.RECOVERY_MAPS }),
-    RIVALRY: a => t("sl.next.match", { week: String(a.facts.matchWeek) }),
+    RIVALRY: a => t("sl.next.match", { week: weekNumberText(Number(a.facts.matchWeek), a.updatedWeek) }),
     LAST_DANCE: a => a.beat <= 1 ? t("sl.next.decision") : t("sl.next.retireCheck"),
     RIFT: a => a.beat <= 1 ? t("sl.next.yourCall") : t("sl.next.settles", { weeks: S.RIFT_RESOLVE_WEEKS }),
     GIANT_KILLER: () => t("sl.next.result"),

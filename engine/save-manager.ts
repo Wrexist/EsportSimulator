@@ -68,6 +68,8 @@ export function saveSizeBytes(text: string): number {
 // Unreadable primary bytes are moved here before any recovery replaces them.
 // Shares the backup prefix so explicit career deletion still removes it.
 const CORRUPT_SUFFIX = "_corrupt"
+/** Backup copies attemptRecovery tries, newest → oldest, then legacy. */
+const RECOVERY_SUFFIXES = ["_1", "_2", "_3", "", "_local", "_cloud"] as const
 import { runMigrationLadder } from "./save-migrations"
 import { SaveIntegrityManager } from "./save-integrity"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
@@ -769,7 +771,7 @@ export class SaveManager {
             let bestErrorMessage: string | undefined
 
             // Backups, newest → oldest, then legacy.
-            for (const suffix of ["_1", "_2", "_3", "", "_local", "_cloud"]) {
+            for (const suffix of RECOVERY_SUFFIXES) {
                 const data = await this.storage.getItem(backupKey + suffix)
                 if (!data) continue
                 const candidate = await this.parseAndValidateSaveCandidate(data, saveId)
@@ -916,6 +918,7 @@ export class SaveManager {
     async getSaveSlots(): Promise<SaveSlotMetadata[]> {
         const slots: SaveSlotMetadata[] = []
         const keys = await this.storage.getAllKeys()
+        const keySet = new Set(keys)
 
         for (const key of keys) {
             if (!key.startsWith(STORAGE_KEYS.SAVE_PREFIX) || key.endsWith(TMP_SUFFIX)) continue
@@ -927,7 +930,9 @@ export class SaveManager {
                 // save's length and tail (which holds its integrity hash), so the
                 // menu does not parse and rate every career on each visit.
                 const metaKey = SLOT_META_PREFIX + key.slice(STORAGE_KEYS.SAVE_PREFIX.length)
-                const stamp = `${CURRENT_SAVE_VERSION}:${data.length}:${data.slice(-160)}`
+                // "m3": slot summaries gained the career difficulty (audit 17 MODES-17) and the
+                // official record, cup round and pro (START-48/57); older cached ones are rebuilt once.
+                const stamp = `${CURRENT_SAVE_VERSION}:m3:${data.length}:${data.slice(-160)}`
                 const cached = await this.readSlotMeta(metaKey, stamp, key)
                 if (cached) { slots.push(cached); continue }
 
@@ -994,7 +999,11 @@ export class SaveManager {
                     ...(betweenClubs ? { betweenClubs: true } : {}),
                     ...(parsed.sandbox ? { sandbox: true } : {}),
                     ...(parsed.proCareer && parsed.proCareer.retiredWeek == null ? { pro: parsed.players?.find((p: { id: string }) => p.id === parsed.proCareer!.playerId)?.nickname ?? "Pro" } : {}),
-                    ...(parsed.draftCup ? { draftCup: { difficulty: parsed.draftCup.difficulty, finish: parsed.draftCup.result?.finish, score: parsed.draftCup.result?.score } } : {}),
+                    ...(parsed.draftCup ? { draftCup: { difficulty: parsed.draftCup.difficulty, finish: parsed.draftCup.result?.finish, score: parsed.draftCup.result?.score, ...(parsed.draftCup.result ? {} : { round: draftCupRound(parsed) }) } } : {}),
+                    ...(!parsed.draftCup && !parsed.proCareer && !betweenClubs
+                        ? playerTeam?.customTeamData?.difficulty ? { difficulty: { kind: "created" as const, id: playerTeam.customTeamData.difficulty } }
+                            : parsed.difficulty ? { difficulty: { kind: "club" as const, id: parsed.difficulty } } : {}
+                        : {}),
                     teamLogo: playerTeam?.logoPath,
                     teamPreview: playerTeam ? {
                         id: playerTeam.id,
@@ -1006,8 +1015,7 @@ export class SaveManager {
                     updatedAt: parsed.updatedAt,
                     isEmpty: false,
                     stats: parsed.managerDetails ? {
-                        wins: parsed.managerDetails.careerWins,
-                        losses: parsed.managerDetails.careerLosses,
+                        ...slotRecord(parsed),
                         tournamentsWon: trophies.length,
                         majorWins
                     } : undefined,
@@ -1043,15 +1051,21 @@ export class SaveManager {
                     const meta = raw ? JSON.parse(raw) as { slot?: SaveSlotMetadata } : undefined
                     if (meta?.slot?.slotId === key) known = meta.slot
                 } catch { /* no usable summary */ }
+                const corruptId = key.slice(STORAGE_KEYS.SAVE_PREFIX.length)
+                // START-58: Recover reads these copies (and Steam Cloud); with none it can only fail.
+                const backupKey = STORAGE_KEYS.BACKUP_PREFIX + corruptId
+                const hasBackup = RECOVERY_SUFFIXES.some(suffix => keySet.has(backupKey + suffix))
+                    || (await steamService.listCloudSaveIds?.() || []).includes(corruptId)
                 slots.push({
                     slotId: key,
-                    saveId: key.slice(STORAGE_KEYS.SAVE_PREFIX.length) || null,
+                    saveId: corruptId || null,
                     saveName: typeof known?.saveName === "string" && known.saveName ? known.saveName : "Corrupted save",
                     currentWeek: null,
                     teamName: typeof known?.teamName === "string" && known.teamName ? known.teamName : null,
                     updatedAt: null,
                     isEmpty: false,
                     isCorrupted: true,
+                    ...(hasBackup ? {} : { noBackup: true }),
                 })
             }
         }
@@ -1269,7 +1283,7 @@ export class SaveManager {
      * wrong without showing schema text (START-30): NEWER_VERSION for a save
      * from a newer build, INVALID for anything that is not a usable save.
      */
-    importSave(json: string): { save: GameSave | null; error?: string; errorCode?: "NEWER_VERSION" | "INVALID" } {
+    importSave(json: string): { save: GameSave | null; error?: string; errorCode?: "NEWER_VERSION" | "INVALID"; source?: { saveId: string; updatedAt: string } } {
         try {
             const parsed = parseUntrustedJson<Record<string, unknown>>(json)
 
@@ -1294,11 +1308,16 @@ export class SaveManager {
                 return { save: null, error: "Invalid save structure", errorCode: "INVALID" }
             }
 
-            // Generate new ID to avoid conflicts
-            migrated.saveId = `imported_${Date.now()}_${generateSeed().toString(36)}`
+            // A new id avoids conflicts with the original. START-59: it is
+            // derived from the original id and save time, so the same file
+            // imported twice maps to the same career (isDuplicateImport).
+            const source = { saveId: String(parsed.saveId ?? ""), updatedAt: String(parsed.updatedAt ?? "") }
+            migrated.saveId = source.saveId && source.updatedAt
+                ? `imported_${fnv1a64Utf16(`${source.saveId}|${source.updatedAt}`)}`
+                : `imported_${Date.now()}_${generateSeed().toString(36)}`
             delete migrated.integrityHash
 
-            return { save: migrated }
+            return { save: migrated, source }
         } catch (error) {
             return {
                 save: null,
@@ -1306,6 +1325,17 @@ export class SaveManager {
                 errorCode: "INVALID",
             }
         }
+    }
+
+    /**
+     * START-59: the imported career is already on this device: imported
+     * before (same derived id), or the original save unchanged since export.
+     */
+    async isDuplicateImport(save: GameSave, source?: { saveId: string; updatedAt: string }): Promise<boolean> {
+        if (await this.storage.getItem(STORAGE_KEYS.SAVE_PREFIX + save.saveId)) return true
+        if (!source?.saveId || !source.updatedAt) return false
+        const original = (await this.getSaveSlots()).find(slot => slot.saveId === source.saveId)
+        return !!original && original.updatedAt === source.updatedAt
     }
 
     /**
@@ -1410,3 +1440,25 @@ export function serializeSignedSave(save: { integrityHash?: unknown }, payload: 
 }
 
 export const saveManager = new SaveManager()
+
+/**
+ * START-48: the save summary's W–L uses official matches only, like Home and
+ * the Career page: the manager's club spells, or (before the first official
+ * result opens a spell) the managed club's non-friendly results.
+ */
+export function slotRecord(save: Pick<GameSave, "managerDetails" | "completedMatches" | "playerTeamId">): { wins: number; losses: number } {
+    const stints = save.managerDetails?.stints ?? []
+    if (stints.length > 0) return stints.reduce((sum, s) => ({ wins: sum.wins + s.wins, losses: sum.losses + s.losses }), { wins: 0, losses: 0 })
+    const teamId = save.playerTeamId
+    const games = (save.completedMatches ?? []).filter(m => !m.isScrim && m.result && (m.homeTeamId === teamId || m.awayTeamId === teamId))
+    const wins = games.filter(m => m.result!.winnerId === teamId).length
+    return { wins, losses: games.length - wins }
+}
+
+/** START-57: the round a running Draft Cup is in: quarter-final, then one round per series won. */
+export function draftCupRound(save: Pick<GameSave, "tournaments" | "draftCup">): "quarter" | "semi" | "final" {
+    const cup = save.draftCup
+    const bracket = cup ? save.tournaments?.find(t => t.id === cup.tournamentId)?.playoffBracket ?? [] : []
+    const won = bracket.filter(m => m.isCompleted && m.winnerId === cup!.teamId).length
+    return (["quarter", "semi", "final"] as const)[Math.min(won, 2)]
+}

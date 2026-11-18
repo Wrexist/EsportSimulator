@@ -39,11 +39,12 @@ export const LEAGUE = {
     "leagueCard.table": "Table",
     "leagueCard.noDivision": "Your club joins a division at the next split draw.",
     "leagueCard.points": "Points",
-    "leagueCard.record": "Record",
+    "leagueCard.record": "League record",
     "leagueCard.roundDiff": "Round diff",
     "leagueCard.next": "Next",
     "leagueCard.home": "H",
     "leagueCard.away": "A",
     "leagueCard.noFixtures": "No league fixtures left this split.",
     "leagueCard.outcomeNext": "{{outcome}} {{draw}}.",
+    "leagueCard.noPosition": "No position until the first league match",
 } as const

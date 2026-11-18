@@ -600,3 +600,64 @@ describe("START-30: importing a file that is not a save", () => {
         expect(result.errorCode).toBeUndefined()
     })
 })
+
+describe("audit 2026-11-17: save summaries and imports", () => {
+    test("START-48: the summary's record leaves friendlies out, like Home", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        save.managerDetails.careerWins = 2 // two scrims won, counted by the all-matches counter
+        const match = (id: string, isScrim: boolean, winnerId: string) => ({ id, homeTeamId: "team_a", awayTeamId: "team_b", tournamentId: null, stage: null, week: 1, format: "BO1", seed: 1, isScrim, result: { winnerId, homeScore: 1, awayScore: 0 } })
+        save.completedMatches = [match("s1", true, "team_a"), match("s2", true, "team_a")] as unknown as GameSave["completedMatches"]
+        await sm.saveGame(save)
+        let slot = (await sm.getSaveSlots()).find(s => s.saveId === save.saveId)!
+        expect(slot.stats).toMatchObject({ wins: 0, losses: 0 })
+        // An official loss counts; once club spells exist they are the record.
+        save.completedMatches.push(match("m1", false, "team_b") as unknown as GameSave["completedMatches"][number])
+        await sm.saveGame(save)
+        slot = (await sm.getSaveSlots()).find(s => s.saveId === save.saveId)!
+        expect(slot.stats).toMatchObject({ wins: 0, losses: 1 })
+        save.managerDetails.stints = [{ teamId: "team_a", teamName: "Team Alpha", fromWeek: 1, matches: 7, wins: 4, losses: 3, trophies: 0 }]
+        await sm.saveGame(save)
+        slot = (await sm.getSaveSlots()).find(s => s.saveId === save.saveId)!
+        expect(slot.stats).toMatchObject({ wins: 4, losses: 3 })
+    })
+
+    test("START-57: a running Draft Cup reports its round", async () => {
+        const { draftCupRound } = await import("@/engine/save-manager")
+        const bracket = (won: number) => ["Quarter-final 1", "Semi-final 1", "Grand final"].map((stage, i) => ({ id: `b${i}`, tournamentId: "cup", stage, homeTeamId: "me", awayTeamId: "x", isCompleted: i < won, winnerId: i < won ? "me" : undefined, week: i + 1, format: "BO3", seed: 1 }))
+        const save = (won: number) => ({ tournaments: [{ id: "cup", playoffBracket: bracket(won) }], draftCup: { tournamentId: "cup", teamId: "me" } }) as unknown as Parameters<typeof draftCupRound>[0]
+        expect(draftCupRound(save(0))).toBe("quarter")
+        expect(draftCupRound(save(1))).toBe("semi")
+        expect(draftCupRound(save(2))).toBe("final")
+    })
+
+    test("START-58: a corrupted save with no backup is marked, one with a backup is not", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        await sm.saveGame(save)
+        storage.store.set(STORAGE_KEYS.SAVE_PREFIX + save.saveId, "{not json")
+        expect((await sm.getSaveSlots()).find(s => s.saveId === save.saveId)).toMatchObject({ isCorrupted: true, noBackup: true })
+        storage.store.set(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + "_1", "{}")
+        expect((await sm.getSaveSlots()).find(s => s.saveId === save.saveId)?.noBackup).toBeUndefined()
+    })
+
+    test("START-59: the same file imported twice is recognised", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const original = makeSave()
+        await sm.saveGame(original)
+        const exported = sm.exportSave((await sm.loadGame(original.saveId)).save!)
+        const first = sm.importSave(exported)
+        // The original is unchanged since the export: already on this device.
+        expect(await sm.isDuplicateImport(first.save!, first.source)).toBe(true)
+        await sm.deleteSave(original.saveId)
+        expect(await sm.isDuplicateImport(first.save!, first.source)).toBe(false)
+        await sm.saveGame(first.save!)
+        const second = sm.importSave(exported)
+        expect(second.save!.saveId).toBe(first.save!.saveId)
+        expect(second.save!.saveId.startsWith("imported_")).toBe(true)
+        expect(await sm.isDuplicateImport(second.save!, second.source)).toBe(true)
+    })
+})

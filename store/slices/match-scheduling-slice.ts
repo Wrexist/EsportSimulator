@@ -27,6 +27,7 @@ import {
     MAX_TRANSFER_FEE,
 } from "@/store/utils/helpers"
 import { formatCurrency } from "@/lib/utils-extended"
+import { proRunsNoClub, proStaffRunRefusal } from "@/store/utils/pro-guard"
 
 const MAX_WEEKLY_SLOTS = 10
 const MAX_DAILY_EVENTS = 2
@@ -117,6 +118,8 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
 
     scheduleActivity: (activity) => {
         const state = get()
+        // Audit 17 MODES-12: bootcamps, marketing and meetings are the staff's in a pro career.
+        if (proRunsNoClub(state)) return proStaffRunRefusal()
         const weekValidation = parseBoundedInt(activity.week, "Activity week", state.currentWeek, MAX_FUTURE_WEEK)
         if (!weekValidation.ok) {
             return { success: false, message: weekValidation.message }

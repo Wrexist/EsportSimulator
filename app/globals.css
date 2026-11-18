@@ -810,7 +810,7 @@
   [role="menuitem"]:focus-visible,
   [role="option"]:focus-visible,
   [role="tab"]:focus-visible,
-  [tabindex]:focus-visible {
+  [tabindex]:not([tabindex="-1"]):focus-visible {
     outline: 2px solid var(--gold, #f2b53a);
     outline-offset: 2px;
   }
@@ -820,6 +820,16 @@
      and rows used to get their grey or green text colour as the ring). */
   :focus-visible {
     outline-color: var(--gold, #f2b53a) !important;
+  }
+
+  /* Programmatic focus targets (tabindex="-1"): a dialog container or the skip
+     link's <main> takes focus so the next Tab starts inside it. It is not a
+     control, so no ring: it drew a gold frame around the whole dialog that
+     looked like a selection (CROSSCUT-14, 2026-11-17). Controls keep theirs. */
+  [role="dialog"][tabindex="-1"]:focus-visible,
+  [role="alertdialog"][tabindex="-1"]:focus-visible,
+  [tabindex="-1"]:not(a, button, input, select, textarea, summary, [role]):focus-visible {
+    outline: none;
   }
 
   /* Heavier focus ring inside dialogs/modals/popovers: the Steam Deck's small
@@ -1070,4 +1080,41 @@
     border-style: revert-layer;
     border-width: revert-layer;
   }
+}
+
+/* Loading splash (components/brand/LoadingSplash.tsx). Global, not in
+   brand.module.css: the loading.tsx files that render it are prefetched with
+   every route link, and the module's stylesheet was preloaded on every screen
+   and never applied ("preloaded but not used" warning, CROSSCUT-11). */
+.brand-splash {
+  animation: brand-splash-in 260ms ease-out 140ms both;
+}
+@keyframes brand-splash-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.brand-splash-track {
+  position: relative;
+  overflow: hidden;
+  height: 2px;
+  border-radius: 1px;
+  background: rgb(255 255 255 / 0.07);
+}
+.brand-splash-shimmer,
+.brand-splash-shimmer-static {
+  position: absolute;
+  inset: 0;
+  width: 38%;
+  background: linear-gradient(90deg, rgb(242 181 58 / 0), rgb(242 181 58 / 0.95) 50%, rgb(242 181 58 / 0));
+  transform: translateX(-100%);
+  animation: brand-splash-shimmer 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.brand-splash-shimmer-static {
+  animation: none;
+  transform: translateX(81%);
+  opacity: 0.6;
+}
+@keyframes brand-splash-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(263%); }
 }

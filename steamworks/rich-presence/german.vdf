@@ -1,0 +1,11 @@
+"lang"
+{
+	"language"	"german"
+	"tokens"
+	{
+		"#Status_Managing"	"Leitet %team% - Saison %season%, Woche %week%"
+		"#Status_Ranked"	"Leitet %team% (Weltrangliste #%rank%) - Saison %season%, Woche %week%"
+		"#Status_Menu"	"Im Hauptmenü"
+		"#Status_Match"	"Spielt ein Match: %team% gegen %opponent%"
+	}
+}

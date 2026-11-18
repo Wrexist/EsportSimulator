@@ -33,6 +33,7 @@ import type {
 } from "../save-types"
 import { createMatchRNG } from "../rng"
 import { TournamentManager } from "../tournament-manager"
+import { eventText } from "@/lib/news-ref"
 
 const RECENT_FORM_MAX = 5
 
@@ -97,14 +98,20 @@ export function processForfeitMatch(args: {
 
     // Player-team notification (either side).
     if (forfeitingTeam.id === playerTeamId || winningTeam.id === playerTeamId) {
+        // Kept with translation keys (I18N-04); `description` keeps the English.
+        const lost = forfeitingTeam.id === playerTeamId
+        const text = lost
+            ? eventText({ key: "svd.p.forfeitLoss", params: { opp: winningTeam.name } }, { key: "evn.forfeit.lost", params: { team: winningTeam.name, n: availableCount } })
+            : eventText({ key: "svd.p.forfeitWin", params: { opp: forfeitingTeam.name } }, { key: "evn.forfeit.won", params: { team: forfeitingTeam.name } })
         save.eventsLog.unshift({
             id: `forfeit_${save.currentWeek}_${match.id}`,
             type: "MATCH_RESULT",
             week: save.currentWeek,
             data: {
-                description: forfeitingTeam.id === playerTeamId
-                    ? `Your team forfeited against ${winningTeam.name}: only ${availableCount}/5 players were available.`
-                    : `${forfeitingTeam.name} forfeited your match — win by default!`,
+                description: text.message,
+                title: text.title,
+                titleRef: text.titleRef,
+                messageRef: text.messageRef,
                 importance: "HIGH",
             },
             acknowledged: false,

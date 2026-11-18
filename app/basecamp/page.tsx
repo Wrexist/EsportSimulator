@@ -16,13 +16,13 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { UI_ASSETS } from "@/lib/ui-assets"
 import { EconomyEngine } from "@/engine/economy-engine"
 import { EquipmentManager } from "@/engine/equipment-manager"
-import { facilityLevel, facilityWeeklyCost } from "@/engine/organization-effects"
+import { facilityLevel } from "@/engine/organization-effects"
 import { FACILITY_EDGE_PER_LEVEL, NON_PLAYER_BONUS_CAP } from "@/engine/match/round-sim/team-edge"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { soundManager } from "@/lib/sound-manager"
-import { formatDecimal, t } from "@/lib/i18n"
+import { formatDecimal, formatPercent, t } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { Trans } from "@/lib/trans"
 import { GearCatalog } from "./_components/GearCatalog"
@@ -57,7 +57,7 @@ function facilityEffect(type: FacilityType, level: number): string {
 }
 
 const money = (v: number) => formatCurrency(v, "$", false)
-const pct = (v: number) => `+${v % 1 ? formatDecimal(v) : v.toFixed(0)}%`
+const pct = (v: number) => `+${formatPercent(v, v % 1 ? 1 : 0)}`
 
 function LevelPips({ level }: { level: number }) {
   return (
@@ -121,10 +121,12 @@ export default function BasecampPage() {
   const signedMoney = (v: number) => `${v < 0 ? "−" : "+"}${money(Math.abs(v))}`
 
   const handleUpgrade = (type: FacilityType) => {
-    const label = facilityName(type)
+    const nextLevel = levelOf(type) + 1
     const result = upgradeFacility(team.id, type)
     if (result.success) soundManager.play("facilityUpgrade")
-    if (result.success) toast.success(t("fac.upgraded", { name: label }), { description: storedText(result.message) })
+    // SQUAD-48: the store's own line ("… built (level 1)." / "… upgraded to level 2.")
+    // is the title, and the description says what the new level does.
+    if (result.success) toast.success(storedText(result.message), { description: facilityEffect(type, nextLevel) })
     else toast.error(t("fac.upgradeFailed"), { description: storedText(result.message) })
   }
 
@@ -219,12 +221,14 @@ export default function BasecampPage() {
                           </td>
                           <td className="px-3 text-sm text-ink-1">{level ? facilityEffect(f.type, level) : <span className="text-ink-3">—</span>}</td>
                           <td className="px-3 text-sm text-ink-2">{maxed ? <span className="text-ink-3">{t("fac.maxLevel")}</span> : facilityEffect(f.type, level + 1)}</td>
+                          {/* SQUAD-41: the club's building upkeep before and after, from the same
+                              settlement as the caption and the confirm (the first building replaces the base campus charge). */}
                           <td className="px-3 text-right text-sm tabular-nums">
-                            {maxed ? <span className="text-ink-1">{money(Math.floor(facilityWeeklyCost(level)))}</span> : (
+                            {maxed ? <span className="text-ink-1">{money(upkeep)}</span> : (
                               <span className="inline-flex items-center gap-1.5 text-ink-2">
-                                {money(Math.floor(facilityWeeklyCost(level)))}
+                                {money(upkeep)}
                                 <ArrowRight size={12} className="text-ink-3" />
-                                <span className="text-ink-1">{money(Math.floor(facilityWeeklyCost(level + 1)))}</span>
+                                <span className="text-ink-1">{money(upkeepAfter)}</span>
                               </span>
                             )}
                           </td>

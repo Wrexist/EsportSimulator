@@ -61,8 +61,9 @@ export const SUPPORT = {
     "img.cancel": "Cancel",
 
     "guard.title": "Match in progress",
-    "guard.body": "You can't leave the match while it is being played. Finish the match first.",
-    "guard.back": "Back to the match",
+    "guard.body": "Your match is paused where you left it. The rest of the game opens again once it is finished.",
+    "guard.back": "Resume match",
+    "guard.simulate": "Simulate the rest",
 
     "search.aria": "Search the game's screens",
     "search.tooltip": "Search screens (Ctrl or Cmd + K)",
@@ -110,4 +111,8 @@ export const SUPPORT = {
     "teamPage.notFound": "Club not found",
     "teamPage.notFoundBody": "This club isn't in your game world. It may have folded or been renamed.",
     "teamPage.backToRankings": "Back to rankings",
+    "search.g.squad": "Your squad",
+    "search.g.clubs": "Clubs",
+    "search.g.commands": "Commands",
+    "search.saved": "Game saved",
 } as const

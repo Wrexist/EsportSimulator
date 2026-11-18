@@ -67,3 +67,40 @@ test("same save, same world", () => {
     expect(a.players.map(p => p.nickname)).toEqual(b.players.map(p => p.nickname))
     expect(a.teams.map(t => t.rosterIds)).toEqual(b.teams.map(t => t.rosterIds))
 })
+
+// NEWPLAYER-09: the randomised world is now the default for existing-club and
+// no-club starts, so it has to keep the naming policy: clubs keep their
+// look-alike names, maps keep their real CS names, new handles are invented
+// and carry no real club or brand name.
+test("NEWPLAYER-09: clubs, staff and maps keep their names; new handles are clean", () => {
+    const { stripForbidden } = jest.requireActual("@/lib/safe-branding/name-transform") as typeof import("@/lib/safe-branding/name-transform")
+    const { MAP_NAMES } = jest.requireActual("@/data/map-pool") as typeof import("@/data/map-pool")
+    const mapsBefore = { ...MAP_NAMES }
+    const save = structuredClone(base)
+    randomizeWorld(save)
+    expect(save.teams.map(t => [t.name, t.shortName])).toEqual(base.teams.map(t => [t.name, t.shortName]))
+    expect(save.mapRotation).toEqual(base.mapRotation)
+    expect(MAP_NAMES).toEqual(mapsBefore)
+    expect(Object.values(MAP_NAMES)).toEqual(expect.arrayContaining(["Mirage", "Inferno", "Nuke", "Ancient", "Anubis"]))
+    expect(JSON.stringify(save.staff ?? null)).toBe(JSON.stringify(base.staff ?? null))
+    for (const p of save.players.filter(p => !p.isRetired)) expect(p.name).toBe(p.nickname)
+    // Many worlds: no invented handle spells a real team or brand (a run once dealt "fazero").
+    const bad: string[] = []
+    for (let i = 0; i < 40; i++) {
+        const world = structuredClone(base)
+        world.saveId = `naming_${i}`
+        randomizeWorld(world)
+        for (const p of world.players) if (!p.isRetired && stripForbidden(p.nickname.toLowerCase()) !== p.nickname.toLowerCase()) bad.push(p.nickname)
+    }
+    expect(bad).toEqual([])
+})
+
+test("NEWPLAYER-09: the New Career switch starts on, and a player's 'off' survives a reload", () => {
+    const fs = jest.requireActual("node:fs") as typeof import("node:fs")
+    const src = fs.readFileSync("app/new-game/page.tsx", "utf8")
+    expect(src).toMatch(/const \[randomWorld, setRandomWorld\] = useState\(true\)/)
+    expect(src).toContain("setRandomWorld(draft.randomWorld ?? true)")
+    const { normalizeCareerDraft } = jest.requireActual("@/lib/new-career-draft") as typeof import("@/lib/new-career-draft")
+    expect(normalizeCareerDraft({ version: 1, managerName: "Neo", randomWorld: false })!.randomWorld).toBe(false)
+    expect(normalizeCareerDraft({ version: 1, managerName: "Neo" })!.randomWorld).toBeUndefined()
+})

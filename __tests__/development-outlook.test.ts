@@ -79,7 +79,7 @@ describe("developmentOutlook", () => {
         const save = makeSave(team, [p])
         const outlook = outlookFor(save, p)
         expect(outlook.focus).toBe("Aim")
-        expect(outlook.factors.map(f => f.label)).toEqual(expect.arrayContaining(["Training facility L2", "Professional"]))
+        expect(outlook.factors.map(f => f.label)).toEqual(expect.arrayContaining(["Performance Center L2", "Professional"]))
         const configs = new Map([["t1", { ...DEFAULT_TEAM_TRAINING }]])
         for (let w = 0; w < 12; w++) TrainingProcessor.processTraining(save, configs)
         for (const f of outlook.forecast) {

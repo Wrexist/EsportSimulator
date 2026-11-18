@@ -36,7 +36,7 @@ const row = (tournamentId: string, teamId: string, status: QualificationStatus["
 
 /** Weeks a qualifier needs at one round a week. */
 function weeksNeeded(d: TournamentDefinition): number {
-    if (d.format === "swiss") return 5 + Math.log2(8) // five Swiss rounds, an 8-team playoff
+    if (d.format === "swiss") return 5 // five Swiss rounds; an RMR has no playoff (COMP-03)
     return Math.ceil(Math.log2(d.slots))
 }
 
@@ -47,7 +47,7 @@ describe("calendar: the qualifier path fits", () => {
         const q = def(id), target = def(q.qualifierFor!)
         expect(weeksNeeded(q)).toBeLessThanOrEqual(q.duration)
         expect(q.startWeek + weeksNeeded(q) - 1).toBeLessThan(target.startWeek)
-        // A Swiss qualifier hands out no more places than its playoff has teams.
+        // A Swiss qualifier hands out no more places than its 16-club Swiss stage has 3-win clubs.
         if (q.format === "swiss") expect(q.qualifierSlots ?? 0).toBeLessThanOrEqual(8)
     })
 
@@ -69,7 +69,11 @@ describe("calendar: the qualifier path fits", () => {
     test("stored names carry the year the event is played in, or the season", () => {
         expect(instanceName(def("iem_katowice"), 1, "2026-11-15T00:00:00.000Z")).toBe("Winter Open Katova 2027")
         expect(instanceName(def("iem_katowice"), 2, "2026-11-15T00:00:00.000Z")).toBe("Winter Open Katova 2028")
-        expect(instanceName({ name: "Some League", startWeek: 3, duration: 4 }, 2, null)).toBe("Some League S2")
+        // Every instance carries its year (COMP-15); an edition number counts on instead.
+        expect(instanceName({ name: "Some League", startWeek: 3, duration: 4 }, 2, null)).toBe("Some League 2026")
+        expect(instanceName({ name: "Some League", startWeek: 3, duration: 4 }, 1, "2026-11-15T00:00:00.000Z")).toBe("Some League 2026")
+        expect(instanceName({ name: "Global Pro League Season 21 Finals", startWeek: 20, duration: 6 }, 2, null)).toBe("Global Pro League Season 22 Finals")
+        expect(instanceName(def("copenhagen_rmr_asia"), 2, "2026-11-15T00:00:00.000Z")).toBe(`${def("copenhagen_rmr_asia").name} 2028`)
     })
 })
 

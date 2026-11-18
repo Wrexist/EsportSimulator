@@ -316,6 +316,55 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
         )
     }
 
+    // The 3rd-place match is not a round of the bracket: it is drawn under the final.
+    const isThirdPlace = (round: string) => getRoundPriority(round) === 25
+    const mainRounds = sortedRounds.some(r => !isThirdPlace(r)) ? sortedRounds.filter(r => !isThirdPlace(r)) : sortedRounds
+    const thirdRound = mainRounds === sortedRounds ? undefined : sortedRounds.find(isThirdPlace)
+
+    const roundHeader = (round: string) => (
+        <h3 className={cn(
+            "flex items-center gap-1.5 border-b border-line pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em]",
+            round === "Grand Final" ? "text-gold" : "text-ink-3",
+        )}>
+            {round === "Grand Final" && <Trophy size={12} aria-hidden="true" />}
+            {stageName(round)}
+        </h3>
+    )
+
+    const matchCard = (match: BracketMatch, connector: boolean) => {
+        const isUpcomingPlayerMatch = isPlayerMatch(match) && match.status === "scheduled"
+        const completed = match.status === "completed"
+        // Only a played match has a result page to open.
+        const clickable = !!onMatchClick && completed
+        return (
+            <div key={match.id} data-match-id={match.id} className="relative">
+                {(isUpcomingPlayerMatch || match.status === "live") && (
+                    <p className={cn("mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]", match.status === "live" ? "text-negative" : "text-gold")}>
+                        {match.status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
+                        {match.status === "live" ? t("tm.status.live") : t("tm.yourMatch")}
+                    </p>
+                )}
+                <div
+                    className={cn(
+                        "relative z-10 overflow-hidden rounded-[4px] border bg-raised transition-colors duration-150",
+                        isPlayerMatch(match) ? "border-line-strong" : "border-line",
+                        clickable && !isDragging && "cursor-pointer hover:border-line-strong hover:bg-hover",
+                    )}
+                    {...(clickable ? pressable(() => handleMatchClick(match.id)) : {})}
+                >
+                    {teamRow(match.team1, match.team2, completed)}
+                    <div className="h-px bg-line" />
+                    {teamRow(match.team2, match.team1, completed)}
+                </div>
+
+                {/* Connector to the next round */}
+                {connector && (
+                    <span className={cn("pointer-events-none absolute -right-8 top-1/2 w-8 border-t", playerPath.has(match.id) ? "border-gold/60" : "border-line-strong")} aria-hidden="true" />
+                )}
+            </div>
+        )
+    }
+
     return (
         <div className="relative">
             {/* Scroll buttons */}
@@ -360,52 +409,21 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseLeave}
             >
-                {sortedRounds.map((round, roundIdx) => (
+                {mainRounds.map((round, roundIdx) => (
                     <div key={round} className="relative z-0 flex min-w-[220px] shrink-0 flex-col gap-3">
-                        {/* Round header */}
-                        <h3 className={cn(
-                            "flex items-center gap-1.5 border-b border-line pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em]",
-                            round === "Grand Final" ? "text-gold" : "text-ink-3",
-                        )}>
-                            {round === "Grand Final" && <Trophy size={12} aria-hidden="true" />}
-                            {stageName(round)}
-                        </h3>
+                        {roundHeader(round)}
 
                         <div className="relative flex flex-1 flex-col justify-around gap-4">
-                            {organizedMatches[round]?.map((match) => {
-                                const isUpcomingPlayerMatch = isPlayerMatch(match) && match.status === "scheduled"
-                                const completed = match.status === "completed"
-                                // Only a played match has a result page to open.
-                                const clickable = !!onMatchClick && completed
-                                return (
-                                    <div key={match.id} data-match-id={match.id} className="relative">
-                                        {(isUpcomingPlayerMatch || match.status === "live") && (
-                                            <p className={cn("mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]", match.status === "live" ? "text-negative" : "text-gold")}>
-                                                {match.status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
-                                                {match.status === "live" ? t("tm.status.live") : t("tm.yourMatch")}
-                                            </p>
-                                        )}
-                                        <div
-                                            className={cn(
-                                                "relative z-10 overflow-hidden rounded-[4px] border bg-raised transition-colors duration-150",
-                                                isPlayerMatch(match) ? "border-line-strong" : "border-line",
-                                                clickable && !isDragging && "cursor-pointer hover:border-line-strong hover:bg-hover",
-                                            )}
-                                            {...(clickable ? pressable(() => handleMatchClick(match.id)) : {})}
-                                        >
-                                            {teamRow(match.team1, match.team2, completed)}
-                                            <div className="h-px bg-line" />
-                                            {teamRow(match.team2, match.team1, completed)}
-                                        </div>
-
-                                        {/* Connector to the next round */}
-                                        {roundIdx < sortedRounds.length - 1 && (
-                                            <span className={cn("pointer-events-none absolute -right-8 top-1/2 w-8 border-t", playerPath.has(match.id) ? "border-gold/60" : "border-line-strong")} aria-hidden="true" />
-                                        )}
-                                    </div>
-                                )
-                            })}
+                            {organizedMatches[round]?.map(match => matchCard(match, roundIdx < mainRounds.length - 1))}
                         </div>
+
+                        {/* SMOKE-A-14: the 3rd-place match sits under the final, with no connectors: nothing feeds on from it. */}
+                        {thirdRound && roundIdx === mainRounds.length - 1 && (
+                            <div className="mt-4 flex flex-col gap-3" data-third-place="">
+                                {roundHeader(thirdRound)}
+                                {organizedMatches[thirdRound]?.map(match => matchCard(match, false))}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

@@ -21,8 +21,8 @@
   "files": [
     {
       "path": "NOTICE.md",
-      "sha256": "29a6346911d4d6cdf87eb82861393cc16d4f753a12c8af3ca086078db799307a",
-      "bytes": 4454,
+      "sha256": "7a88ee0056614bf4557f94cb356e9938766a445f50a353f9910de327cf926e0c",
+      "bytes": 4478,
       "kind": "artwork-other",
       "source": "Verified font, flag, dependency and owner-confirmation records",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -46,7 +46,14 @@
         "basis": "project-authored notice review",
         "reviewBasis": "project-authored notice review",
         "noticeChange": "Third-party lineup attribution removed with the exclusion recorded in docs/launch-readiness/evidence/L31-OWNER-LINEUP-EXCLUSION-DECISION.json."
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-18",
+          "previousSha256": "29a6346911d4d6cdf87eb82861393cc16d4f753a12c8af3ca086078db799307a",
+          "change": "Audit 2026-11-17 fixes: the Inter notice lists the bundled cyrillic and cyrillic-ext subsets (I18N-11)."
+        }
+      ]
     },
     {
       "path": "app/academy/page.tsx",
@@ -676,6 +683,32 @@
       "evidence": "docs/launch-readiness/evidence/phase5-7-third-party-matches.json",
       "license": "SIL Open Font License 1.1",
       "permission": "OFL 1.1 permits bundling, embedding and redistribution with software; licence text retained in licenses/Barlow-OFL.txt.",
+      "attribution": "See NOTICE.md",
+      "allowedUse": "Commercial game distribution under OFL 1.1",
+      "releaseDisposition": "include"
+    },
+    {
+      "path": "app/fonts/inter-cyrillic-ext-wght-normal.woff2",
+      "sha256": "ca157063339ac4ad418f214f3abfed119b0798ab4d377386ce5c9e5a7a435ebd",
+      "bytes": 25960,
+      "kind": "font",
+      "source": "@fontsource-variable/inter 5.3.0 (npm), file of the same name",
+      "evidence": "docs/launch-readiness/evidence/phase5-7-third-party-matches.json",
+      "license": "SIL Open Font License 1.1",
+      "permission": "OFL 1.1 permits bundling, embedding and redistribution with software; licence text retained in licenses/Inter-OFL.txt.",
+      "attribution": "See NOTICE.md",
+      "allowedUse": "Commercial game distribution under OFL 1.1",
+      "releaseDisposition": "include"
+    },
+    {
+      "path": "app/fonts/inter-cyrillic-wght-normal.woff2",
+      "sha256": "71d5ee93cc1e9f1d520a3a8b66456de18c7879d8df09d57fcd2eaff75fef0075",
+      "bytes": 18748,
+      "kind": "font",
+      "source": "@fontsource-variable/inter 5.3.0 (npm), file of the same name",
+      "evidence": "docs/launch-readiness/evidence/phase5-7-third-party-matches.json",
+      "license": "SIL Open Font License 1.1",
+      "permission": "OFL 1.1 permits bundling, embedding and redistribution with software; licence text retained in licenses/Inter-OFL.txt.",
       "attribution": "See NOTICE.md",
       "allowedUse": "Commercial game distribution under OFL 1.1",
       "releaseDisposition": "include"
@@ -6926,8 +6959,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "15006f20bcd1f0c637d47779247d812034fa1fa0a324f4a5470896bcba5e8f01",
-      "bytes": 25815,
+      "sha256": "75c66b6a183bad44ba26eed47355e4075cb924d405a7a2833429328cacabbe16",
+      "bytes": 27350,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -6988,6 +7021,11 @@
           "date": "2026-11-15",
           "previousSha256": "78b61bed08a11f7ba3000821c809bc47d55dcd8847f7207574ef750402e5f50d",
           "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "15006f20bcd1f0c637d47779247d812034fa1fa0a324f4a5470896bcba5e8f01",
+          "change": "Audit 2026-11-17 fixes: opening contracts priced with the market wage model (SQUAD-39). Code only: no new names, media, remote URLs or third-party content."
         }
       ]
     },
@@ -7036,8 +7074,8 @@
     },
     {
       "path": "data/tournament-calendar.ts",
-      "sha256": "b61fc1a12bbc2d8b3aa2fee0bc3c928b73df8658d27037f43734face0e6c8224",
-      "bytes": 8572,
+      "sha256": "8ea7fb53bdecc7e718fbe0ed8bc94dbd924689538bdd257a3c66bb9436bfa821",
+      "bytes": 9000,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/L31-PROJECT-CONTENT-REVIEW.json",
@@ -7053,13 +7091,18 @@
           "date": "2026-11-03",
           "previousSha256": "a2c7e54a6a4dc6ef4840c6f8c96e925ec562971dc0d7eeb6fd70842885d6cf3b",
           "change": "Entry type labels now read from the translation layer. Code only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "b61fc1a12bbc2d8b3aa2fee0bc3c928b73df8658d27037f43734face0e6c8224",
+          "change": "Audit 2026-11-17 fixes: entry label for ranking-filled qualifier events (COMP-20). Code only: no new names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "data/tournaments.json",
-      "sha256": "9bccd6195ca7d1ced8c799504d799b1c605cb0fe8b3121f82c8921c291b59b51",
-      "bytes": 30161,
+      "sha256": "19897605b24d1355eb1b5552787a2cf24abbed23b334f207a043fd06afbc15aa",
+      "bytes": 30241,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -7093,6 +7136,21 @@
           "date": "2026-11-15",
           "previousSha256": "238caf543af988972a0fbb2f40fb6e59c149af8a727ea1d1674df9c6cd4ef0c8",
           "change": "Audit 2026-11-15 fixes: interface text and translation updates, competition calendar timing and one renamed look-alike handle. Text and data only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "9bccd6195ca7d1ced8c799504d799b1c605cb0fe8b3121f82c8921c291b59b51",
+          "change": "Audit 2026-11-17 fixes: event descriptions match the real formats (COMP-20). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "0303cac8e674c7914b035fbd99ada21dbf38fc76023a43d0a60f42735839b4b7",
+          "change": "Audit 2026-11-17 smoke-test fixes: repaired mangled Cologne qualifier short names and one description word left by the branding transform (SMOKE-B-06). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "ba9620946d28204ebc2573abcc735e28687fe3ba1e70e3859bdb21a5180e5916",
+          "change": "Audit 2026-11-17 final fixes: calendar retiming of seven one-week B/C events and the two Showdowns out of the Major and RMR weeks (start weeks only; competition owner decision 2a). Data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
@@ -91945,8 +92003,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "f743b989796364ddb7d025f400cf0ac9f770bbb873e7c318d51611d902f66133",
-      "bytes": 412920,
+      "sha256": "528dd10d8bdfd084144a0e1dc2cb436b2843df9908f3bd4aa7613bf9f050d8e3",
+      "bytes": 430403,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92116,13 +92174,28 @@
           "date": "2026-11-15",
           "previousSha256": "c9500b62552ae997ab476dbcc0096f76ce2e5a84336320e7bf89b81ea7ef4b7a",
           "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "f743b989796364ddb7d025f400cf0ac9f770bbb873e7c318d51611d902f66133",
+          "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "845431407b51e02c088d03d33fe5fd25d34d491cd20cf88c429f50f66484baa4",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording, shorter de round-history header; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "c740fd97ddfebe821d412ecdf284818eeddeaf1de964fdb6b13a47d8120c358b",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "4dac3c5e156d9cd162f1332c346767937681a9872747d604aa1047b89356e5cc",
-      "bytes": 434644,
+      "sha256": "057096bcccd5b7dd6d1496a02e6cc686d2623f6b2a77711cd12def8bbd091251",
+      "bytes": 453566,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92287,13 +92360,28 @@
           "date": "2026-11-15",
           "previousSha256": "fbf09418f52f69bf66b9205861b5e0f6b4de23dd45ff0e23038a3ce731a3e0f4",
           "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "4dac3c5e156d9cd162f1332c346767937681a9872747d604aa1047b89356e5cc",
+          "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "022a33eadb309381f509e19758581f27a6125d5d8c28e3042dca04856905b4ec",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "cd7c1d57f8e3c0742f9d24f4576f8c89c6f5d9d05f41025134fae61cc86e4540",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "321bb4cad3a8e9a0cf4423d4918c05ec97f6634241f23134f00ebfa0ab8d1eec",
-      "bytes": 443323,
+      "sha256": "2b4f0cd7e86839b9df8287e4f5c9670ee898c47a6cfc917011505931cdd4da57",
+      "bytes": 462559,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92458,13 +92546,28 @@
           "date": "2026-11-15",
           "previousSha256": "bb85e2677ab835d055378bcd8232104d24898cca900cbe13a46700b220dcd078",
           "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "321bb4cad3a8e9a0cf4423d4918c05ec97f6634241f23134f00ebfa0ab8d1eec",
+          "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "90fb51d834c511915ea36caa8a1a485e1062901e2ee22c1e8a322e6258db2718",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "25f0cff6527cabc1d99462888a7dd0ce8b729695fdfc1fb6431b99648032e7f9",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "a81cd0acc4351b9276de8db6d6f1c48868740a03b83048b75bb449b1026d52ed",
-      "bytes": 442267,
+      "sha256": "f92725b6974d15cf350cf81af8b3696f1ee42b89f7f6dbf30aa9b0336730fba5",
+      "bytes": 462190,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92624,13 +92727,28 @@
           "date": "2026-11-15",
           "previousSha256": "99752eed64b7847be505e4eabfdc307a1b81695bdce50e6bc4124b2820598ca8",
           "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "a81cd0acc4351b9276de8db6d6f1c48868740a03b83048b75bb449b1026d52ed",
+          "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "0d9b970f6970705dff49ac64c4cf9ea3814bd585e3cb7d235cead3b87da19a43",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "44ddd63f597883d25c29a3ee1095522c3635bbc660836badbce45b1ec38d1cb6",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "9f8da58afc15206d788da836af55f01a521a2a0e515684f15c7a741e2f00e2ca",
-      "bytes": 428257,
+      "sha256": "fa1f676821377ba8af2345e107c0f003275ebb78e6a91bfca0e31aecfaadb73a",
+      "bytes": 447165,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92790,13 +92908,28 @@
           "date": "2026-11-15",
           "previousSha256": "12595456b6cc78e9ff0b83f6a50e8e98ade20138cb6aeb9562c0482dd21ab828",
           "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "9f8da58afc15206d788da836af55f01a521a2a0e515684f15c7a741e2f00e2ca",
+          "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "cfd8fcbc3c178135399c44b6dfb750b10ad0c3f3470a9e26e7d5735643349c0b",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "1fa5ca1ba975d0cda46e902ee1098d453eda2a1dab2a7b296e83ad4e9030cbc0",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "6fb2c57ea2efe8f8c6d5d6b8a92de3dd91fe97f0e1b3530babe9315cec4549ee",
-      "bytes": 603800,
+      "sha256": "dd9846137872bc22202ed3bd9055c5038236dac708337e090840f743a1e6e4e9",
+      "bytes": 631939,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92956,6 +93089,21 @@
           "date": "2026-11-15",
           "previousSha256": "ee074bdfb48049ba3390a599d6a3004645f207f27080cfe6733da10df3c4508b",
           "change": "Audit 2026-11-15 round 2: smoke-test fixes (stage names, decimal marks)"
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "6fb2c57ea2efe8f8c6d5d6b8a92de3dd91fe97f0e1b3530babe9315cec4549ee",
+          "change": "Audit 2026-11-17 fixes (rounds 1 and 2): interface text and translation updates. Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "f2b3eb8c2ed3ca7eccc2ba787531cf53540349384fae164670063693e4302b59",
+          "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "80c85997e52ae314716f4f5ff49ef7bb68b0b2e2c7bdcf2219234dd40a94bc1e",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },

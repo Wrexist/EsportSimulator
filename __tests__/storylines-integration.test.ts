@@ -35,10 +35,12 @@ test("the week tick raises the press conference before the managed final, the sa
     expect(pressDataOf(press)?.questions.map(q => q.topic)).toEqual(["MATCH", "PLAYER"])
     expect(press.data).toMatchObject({ deadlineWeek: a.save.currentWeek, matchId: "qa_final", defaultChoiceId: "no_one" })
     expect(String(press.data.ifUnanswered)).toContain("sends no one to the press conference: no effect")
-    // The tick also plays the Winter Open Katova open qualifier (week 2):
-    // AI Team 1 beats AI Team 2 there, goes up to 1507 Elo and leads the
-    // ranking (the others stay on 1500 and below).
-    expect(a.save.newsFeed.find(n => n.id === "match_preview_qa_final")?.content).toBe("QA Aurora face AI Team 1 in the event final this week. QA Aurora come in fresh; AI Team 1 are ranked #1.")
+    // The tick also plays the Winter Open Katova open qualifier (week 2).
+    // Since the computer veto picks by edge over the opponent (MATCHENGINE-11,
+    // 2026-11-17) the seeded final plays other maps: AI Team 2 wins it 3-0 and
+    // leads on 1507 Elo, QA Aurora stays on 1500 (#2), AI Team 1 drops to 1493.
+    expect(a.save.teams.find(t => t.id === "team_ai_1")?.worldRanking).toBe(3)
+    expect(a.save.newsFeed.find(n => n.id === "match_preview_qa_final")?.content).toBe("QA Aurora face AI Team 1 in the event final this week. QA Aurora come in fresh; AI Team 1 are ranked #3.")
     expect(JSON.stringify(a.save.eventsLog)).toBe(JSON.stringify(b.save.eventsLog))
     expect(JSON.stringify(a.save.storylines ?? [])).toBe(JSON.stringify(b.save.storylines ?? []))
 })

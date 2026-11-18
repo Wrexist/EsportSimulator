@@ -21,6 +21,9 @@ import { fillAIRosterToFive } from "./ai/club-budget"
 import { DELEGATION_AREAS } from "./delegation"
 import { isOpenDecision } from "./decision-deadlines"
 import { bestAILineup } from "./ai/lineup"
+import { ensureBoardState } from "./board-expectations"
+import { queueMoment } from "./moments"
+import { SENIOR_ROSTER_MAX } from "./roster-rules"
 
 export interface ProCareerState {
     playerId: string
@@ -209,6 +212,23 @@ export function proWage(ovr: number): number {
 
 export interface ProStartInput { nickname: string; role: PlayerRole; nationality?: string }
 
+/** START-49: a pro's nickname may not repeat a player's already in the world (case and spacing ignored). */
+export function proNicknameTaken(nickname: string, players: ReadonlyArray<{ nickname?: string }>): boolean {
+    const name = nickname.trim().toLowerCase()
+    return !!name && players.some(p => (p.nickname ?? "").trim().toLowerCase() === name)
+}
+
+/**
+ * MODES-19: the player a pro in `role` has to pass at a club: the starter in
+ * that role in the five the coach would field (bestAILineup, as coachLineup
+ * picks it), with his OVR. Null when nobody in that role starts there.
+ */
+export function proRival(roster: PlayerSaveData[], role: PlayerRole, week?: number): { player: PlayerSaveData; ovr: number } | null {
+    const five = bestAILineup(roster.filter(p => !p.isRetired && !(p.injury && p.injury.weeksRemaining > 0)), week ?? 1).five
+    const rated = five.filter(p => p.role === role).map(player => ({ player, ovr: ovrOf(player, week) }))
+    return rated.sort((a, b) => b.ovr - a.ovr || a.player.id.localeCompare(b.player.id))[0] ?? null
+}
+
 /**
  * Creates the pro at the managed club (a 17-year-old a little behind the
  * starters, with a high ceiling), hands the club to its staff and opens
@@ -220,7 +240,10 @@ export function startProCareer(save: GameSave, input: ProStartInput): PlayerSave
     const rng = new SeededRNG(deriveSeed(save.saveId, "pro-start", input.nickname))
     const identity = generateProspect("LOCAL", input.nationality, rng)
     const base = prospectToPlayerData(identity, save.currentWeek, rng) as unknown as PlayerSaveData
-    const starters = team.rosterIds.slice(0, 5).map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p)
+    // Audit 17 MODES-20: "just behind their starters" means the five the coach
+    // would field (coachLineup), not the first five in roster order.
+    const squad = team.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p)
+    const starters = bestAILineup(squad, save.currentWeek).five
     const weakest = starters.length ? Math.min(...starters.map(p => ovrOf(p, save.currentWeek))) : 45
     const nickname = input.nickname.trim().slice(0, 24) || identity.nickname
     const shaped = tuneToOverall({
@@ -265,15 +288,35 @@ export function findOfferingClub(save: GameSave): TeamSaveData | undefined {
     const ovr = ovrOf(player, save.currentWeek)
     let best: TeamSaveData | undefined
     for (const t of save.teams) {
-        if (t.id === current.id || t.rosterIds.length < 5) continue
+        // SMOKE-B-05: a club with a full squad has no place to sign him (the
+        // same cap the pro setup applies to its clubs, MODES-20).
+        if (t.id === current.id || t.rosterIds.length < 5 || t.rosterIds.length >= SENIOR_ROSTER_MAX) continue
         if (t.reputation <= current.reputation || t.reputation > current.reputation + PRO_TUNING.OFFER_MAX_REP_STEP) continue
         const starters = t.rosterIds.slice(0, 5).map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p)
         if (starters.length < 5) continue
         const weakest = Math.min(...starters.map(p => ovrOf(p, save.currentWeek)))
         if (ovr < weakest + PRO_TUNING.OFFER_MARGIN) continue
+        // Audit 17 MODES-11: the offer promises a starting place, so the club's
+        // coach must field him: he joins a copy of the squad and has to be in
+        // the role-balanced five the coach would pick (coachLineup).
+        const squad = t.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p && p.id !== player.id)
+        if (!bestAILineup([...squad, player], save.currentWeek).five.some(p => p.id === player.id)) continue
         if (!best || t.reputation > best.reputation || (t.reputation === best.reputation && t.id < best.id)) best = t
     }
     return best
+}
+
+/**
+ * SMOKE-B-10: the starter the pro would push out of the five the club's coach
+ * fields (coachLineup's pick, with and without him), or undefined when he
+ * would not start there.
+ */
+export function offerDisplaces(save: GameSave, team: TeamSaveData, player: PlayerSaveData): PlayerSaveData | undefined {
+    const squad = team.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p && p.id !== player.id)
+    const before = bestAILineup(squad, save.currentWeek).five
+    const after = new Set(bestAILineup([...squad, player], save.currentWeek).five.map(p => p.id))
+    if (!after.has(player.id)) return undefined
+    return before.find(p => !after.has(p.id))
 }
 
 /**
@@ -318,6 +361,16 @@ export function retirePro(save: GameSave): boolean {
     }
     save.contracts = save.contracts.filter(c => c.playerId !== player.id)
     save.proCareer.retiredWeek = save.currentWeek
+    // Audit 17 MODES-22: the manager's tenure starts now: his own chores (the
+    // staff's delegation was the pro career's), a new board with its grace
+    // period instead of the confidence the staff ran down, and the board brief.
+    save.delegation = {}
+    if (team) {
+        save.boardState = undefined
+        save.managerDetails.tenureStartWeek = save.currentWeek + 1
+        ensureBoardState(save)
+        queueMoment(save, { key: `welcome:${save.saveId}:retired`, kind: "welcome", week: save.currentWeek, teamId: team.id })
+    }
     save.eventsLog.unshift({
         id: `pro_retired_${save.currentWeek}`, type: EventType.RETIREMENT, week: save.currentWeek, acknowledged: false,
         data: { playerId: player.id, playerName: player.nickname, teamId: team?.id, ...eventText({ key: "pcr.retired.t", params: { name: player.nickname } }, { key: "pcr.retired.m", params: { name: player.nickname, age: player.age, clubs: { key: "pcr.clubs", count: save.proCareer.clubs.length }, club: team?.name ?? "the club" } }) },
@@ -357,12 +410,15 @@ export function processProWeek(save: GameSave): void {
         save.proCareer.lastOfferWeek = save.currentWeek
         const id = club ? `pro_offer_${club.id}_${save.currentWeek}` : ""
         if (club && !save.eventsLog.some(e => e.id === id)) {
+            const rival = offerDisplaces(save, club, player)
             save.eventsLog.unshift({
                 id, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
                 data: {
                     playerId: player.id, teamId: team.id, offeringTeamId: club.id, offeringTeamName: club.name,
                     ...eventText({ key: "pcr.offer.t", params: { club: club.name, name: player.nickname } },
-                        { key: "pcr.offer.m", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name } }),
+                        rival
+                            ? { key: "pcr.offer.mRival", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name, rival: rival.nickname } }
+                            : { key: "pcr.offer.m", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name } }),
                 },
                 choices: [
                     { id: "accept", ...choiceText({ key: "pcr.offer.join", params: { club: club.name } }), effects: { follows: { key: "pcr.offer.followsTo", params: { club: club.name } } } },

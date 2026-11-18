@@ -291,19 +291,36 @@ export class EquipmentManager {
     }
 
     /**
-     * Ceiling on gear's team-strength bonus: a full elite set (5 x 8 + PC 5
-     * = 45 points) is +8%. It used to be 1/80 per point, so six items were
-     * +56% - more than a 20-point skill gap - while AI clubs owned nothing.
+     * Ceiling on gear's team-strength bonus: a full elite set is +8%. It used
+     * to be 1/80 per point, so six items were +56% - more than a 20-point
+     * skill gap - while AI clubs owned nothing.
      */
     static readonly STRENGTH_CAP = 0.08
-    /** Gear points in a full elite set (5 slots at 8, PC at 5). */
+    /** Gear points in a full elite set (5 slots at 8, PC at 5): the scale of an item with no known tier. */
     static readonly MAX_GEAR_POINTS = 45
+    /**
+     * Team-strength share per tier (Standard, Pro, Elite). SQUAD-56: the PC was
+     * the worst value in every tier (+0.2/+0.5/+0.9% for the dearest item), so
+     * it is +0.5/+1.0/+1.5%, and the other elite items are +1.3% (was +1.42%),
+     * so a full elite set is still exactly the +8% cap (5 x 1.3 + 1.5).
+     * Standard and Pro items elsewhere keep their old share (2 and 5 of 45 points).
+     */
+    static readonly TIER_STRENGTH: { PC: readonly [number, number, number]; OTHER: readonly [number, number, number] } = {
+        PC: [0.005, 0.010, 0.015],
+        OTHER: [2 * 0.08 / 45, 5 * 0.08 / 45, 0.013],
+    }
 
-    /** Strength fraction one item adds (UI: "+x% team strength from this slot"). */
-    static itemStrengthBonus(item: { type: string; bonus?: { value: number } }): number {
+    /**
+     * Strength fraction one item adds (UI: "+x% team strength from this slot").
+     * By its tier, so the stored rating cannot inflate it; an item with no
+     * known tier falls back to its rating on the 45-point scale.
+     */
+    static itemStrengthBonus(item: { type: string; tier?: number; bonus?: { value: number } }): number {
+        const shares = item.type === 'PC' ? this.TIER_STRENGTH.PC : this.TIER_STRENGTH.OTHER
+        if (item.tier === 1 || item.tier === 2 || item.tier === 3) return shares[item.tier - 1]
         const maximum = item.type === 'PC' ? 5 : 8
         const rating = Number.isFinite(item.bonus?.value) ? Math.max(0, Math.min(maximum, item.bonus!.value)) : 0
-        return rating * this.STRENGTH_CAP / this.MAX_GEAR_POINTS
+        return Math.min(shares[2], rating * this.STRENGTH_CAP / this.MAX_GEAR_POINTS)
     }
 
     static strengthBonus(team: { equipment?: EquipmentItem[] }): number {

@@ -64,7 +64,8 @@ function Side({ side, align }: { side: FixtureSide; align: "left" | "right" }) {
                 <TeamLogoDisplay team={side.team} size={72} />
             </div>
             <div className="min-w-0">
-                <p className="truncate font-display text-[34px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{side.name}</p>
+                {/* A long club name wraps to a second line instead of being cut (HOME-05). */}
+                <p className="line-clamp-2 break-words font-display text-[28px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1 xl:text-[34px]" title={side.name}>{side.name}</p>
                 {side.meta != null && <p className="mt-1.5 text-sm text-ink-3">{side.meta}</p>}
                 <div className={cn("mt-3 flex items-center gap-4", right && "flex-row-reverse")}>
                     {side.ovr != null && side.ovr > 0 && (

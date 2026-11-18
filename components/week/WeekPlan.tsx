@@ -13,6 +13,7 @@ import { formatSignedCurrency } from "@/lib/utils-extended"
 import { Button } from "@/components/ui/button"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { Panel } from "@/src/components/ui/Panel"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { BookScrimModal } from "@/components/schedule/BookScrimModal"
@@ -50,6 +51,8 @@ export function WeekPlan() {
         scheduledMatches: st.scheduledMatches,
         completedMatches: st.completedMatches,
         setPlayerTrainingFocus: st.setPlayerTrainingFocus,
+        // Audit 17 MODES-12: in a pro career the staff plan and pay for the club's week.
+        proActive: !!st.proCareer && st.proCareer.retiredWeek == null,
     })))
     const team = useCurrentTeam()
     const daily = s.timeMode === "HYBRID_DAILY"
@@ -136,8 +139,10 @@ export function WeekPlan() {
                 <div className="min-w-0 space-y-4">
                     <WeekFixtures />
                     <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
-                        <WeeklyFocusWidget />
-                        <WeekBookings week={s.currentWeek} bookings={bookings} effects={preview.effects} dayLabel={dayLabel} onBook={openBooking} />
+                        {s.proActive
+                            ? <Panel title={t("shell.proBlocked")}><p className="text-sm text-ink-2">{t("shell.proBlockedBody")}</p></Panel>
+                            : <WeeklyFocusWidget />}
+                        <WeekBookings week={s.currentWeek} bookings={bookings} effects={preview.effects} dayLabel={dayLabel} onBook={s.proActive ? undefined : openBooking} />
                     </div>
                     {roster.length > 0 ? (
                         <WeekTrainingPlan roster={roster} projections={projections} retrainingTarget={retrainingTarget} onSetFocus={s.setPlayerTrainingFocus} />

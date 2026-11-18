@@ -10,6 +10,8 @@
 
 import type { GameSave, TournamentSaveData, BracketMatchSaveData, MatchSaveData } from "../save-types"
 import { debug } from "@/lib/debug-logger"
+import { getTournamentById } from "@/data/tournament-calendar"
+import { buildInstanceId, getSeasonFromTournamentId, getSeasonFromWeek } from "../circuit-engine"
 
 /** Append a bracket match to the tournament's playoff bracket (init lazily). */
 export function addBracketMatch(tournament: TournamentSaveData, match: BracketMatchSaveData): void {
@@ -44,6 +46,21 @@ export function assignMatchDay(
 }
 
 /**
+ * Last week a qualifier may play in: the week before the event it feeds
+ * starts (that event's field is built on its first week). Undefined for
+ * events that feed nothing.
+ */
+export function qualifierDeadlineWeek(save: GameSave, tournamentId: string): number | undefined {
+    const tournament = save.tournaments.find(t => t.id === tournamentId)
+    const target = tournament?.tier === "QUALIFIER" ? getTournamentById(tournament.id)?.qualifierFor : undefined
+    const targetDef = target ? getTournamentById(target) : undefined
+    if (!tournament || !targetDef) return undefined
+    const season = tournament.seasonNumber ?? getSeasonFromTournamentId(tournament.id) ?? getSeasonFromWeek(tournament.startWeek)
+    const start = save.tournaments.find(t => t.id === buildInstanceId(targetDef.id, season))?.startWeek ?? ((season - 1) * 52 + targetDef.startWeek)
+    return start - 1
+}
+
+/**
  * Schedule a bracket match into `save.scheduledMatches`. Idempotent: returns
  * silently if the match ID already exists. Skips self-matches with a warn
  * (they typically indicate a bracket-progression bug upstream and would
@@ -52,7 +69,7 @@ export function assignMatchDay(
  * Auto-flags `isHighPressure` when the stage label contains "Final" or
  * "Semi" so the match-engine can apply pressure modifiers downstream.
  */
-export function scheduleBracketMatch(save: GameSave, match: BracketMatchSaveData): void {
+export function scheduleBracketMatch(save: GameSave, match: BracketMatchSaveData, preferredDays?: number[]): void {
     const existing = save.scheduledMatches.find((m: MatchSaveData) => m.id === match.id)
     if (existing || save.completedMatches.some(row => row.id === match.id)) return
 
@@ -63,14 +80,24 @@ export function scheduleBracketMatch(save: GameSave, match: BracketMatchSaveData
         }
 
         let week = Math.max(match.week, save.currentWeek)
-        let day = assignMatchDay(save, [match.homeTeamId, match.awayTeamId], week)
+        let day = assignMatchDay(save, [match.homeTeamId, match.awayTeamId], week, preferredDays)
+        // A qualifier never spills into the week its event starts (its winners
+        // would miss the field, COMP-01): in its last week a club may play a
+        // second match on Sunday instead.
+        const deadline = qualifierDeadlineWeek(save, match.tournamentId)
         while (day < 0) {
+            if (week === deadline) {
+                day = 6
+                break
+            }
             week += 1
-            day = assignMatchDay(save, [match.homeTeamId, match.awayTeamId], week)
+            day = assignMatchDay(save, [match.homeTeamId, match.awayTeamId], week, preferredDays)
         }
         match.week = week
         const tournament = save.tournaments.find(t => t.id === match.tournamentId)
-        if (tournament) tournament.endWeek = Math.max(tournament.endWeek || week, week)
+        // endWeek is the week after the last one (start + duration), as when
+        // the event was created; a match played later moves it (COMP-14).
+        if (tournament) tournament.endWeek = Math.max(tournament.endWeek || week + 1, week + 1)
 
         const scheduledMatch: MatchSaveData = {
             id: match.id,

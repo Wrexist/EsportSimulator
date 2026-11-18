@@ -303,9 +303,20 @@ export function readStorylineArcs(raw: unknown, teamId: string, season: number):
     if (!Array.isArray(raw)) return []
     const arcs = (raw as unknown[]).filter((a): a is StoryArc =>
         isObj(a) && typeof a.kind === "string" && a.kind in STORY_KIND_LABEL && Array.isArray(a.log) && a.teamId === teamId)
-    return arcs
-        .map(arc => ({ arc, log: arc.log.filter(l => isObj(l) && typeof l.text === "string" && typeof l.week === "number" && seasonOfWeek(l.week) === season) }))
-        .filter(x => x.log.length > 0)
+    // One card per rivalry: each fixture against the rival is its own arc in
+    // the save, so arcs with the same rival are told as one story (the latest
+    // arc decides how it ended), beats in week order (COMP-16).
+    const groups = new Map<string, { arc: StoryArc; log: StoryArc["log"] }>()
+    for (const arc of arcs) {
+        const log = arc.log.filter(l => isObj(l) && typeof l.text === "string" && typeof l.week === "number" && seasonOfWeek(l.week) === season)
+        if (log.length === 0) continue
+        const key = arc.kind === "RIVALRY" && arc.clubIds?.[0] ? `RIVALRY:${arc.clubIds[0]}` : `arc:${arc.id}`
+        const prev = groups.get(key)
+        if (!prev) { groups.set(key, { arc, log }); continue }
+        prev.log = [...prev.log, ...log].sort((a, b) => a.week - b.week)
+        if ((arc.updatedWeek ?? 0) >= (prev.arc.updatedWeek ?? 0)) prev.arc = arc
+    }
+    return [...groups.values()]
         .sort((a, b) => STORY_WEIGHT[b.arc.kind] - STORY_WEIGHT[a.arc.kind] || a.log[0].week - b.log[0].week)
         .slice(0, MAX_ARCS)
         .sort((a, b) => a.log[0].week - b.log[0].week)

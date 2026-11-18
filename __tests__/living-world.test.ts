@@ -108,7 +108,7 @@ describe("old saves meet the new market", () => {
 
     test("career difficulty moves with the manager to a new club", () => {
         const { switchClubManagement } = jest.requireActual("@/engine/club-management")
-        const oldTeam = { id: "a", difficultySettings: { incomeMultiplier: 0.85, fansMultiplier: 0.85, tournamentPrizeMultiplier: 1 } }
+        const oldTeam = { id: "a", difficultySettings: { incomeMultiplier: 0.85 } }
         const newTeam = { id: "b" }
         const save = { playerTeamId: "a", academyPlayers: [], academyRoster: {}, players: [] }
         switchClubManagement(save, oldTeam, newTeam)

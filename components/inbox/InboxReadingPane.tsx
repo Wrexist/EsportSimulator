@@ -21,6 +21,8 @@ import { StoryContext } from "@/components/storylines/StoryContext"
 import { pressDataOf } from "@/engine/storylines/press-view"
 import { intlLocale, t } from "@/lib/i18n"
 import { newsContent } from "@/lib/news-text"
+import { weekNumberText } from "@/lib/season-week"
+import { formatCurrency } from "@/lib/utils-extended"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
 type AnyData = Record<string, any>
@@ -64,21 +66,27 @@ function PlayerStrip({ playerId, linkLabel }: { playerId: string; linkLabel: str
     )
 }
 
-function ResolvedNote({ event }: { event: GameEventSaveData }) {
+function ResolvedNote({ event, currentWeek }: { event: GameEventSaveData; currentWeek: number }) {
     const data = (event.data ?? {}) as AnyData
     if (data.isWithdrawn && !event.selectedChoiceId) return <p className="text-xs font-medium text-ink-3">{t("ib.noLongerOpen")}</p>
     if (!event.selectedChoiceId || event.selectedChoiceId === "dismiss") return null
     const choice = ((event as { choices?: ChoiceLike[] }).choices ?? []).find(c => c.id === event.selectedChoiceId)
     // Settled by its stated default when the deadline passed (Phase 4.9).
     const unanswered = data.unanswered as { week?: number } | undefined
-    const text = unanswered ? (choice ? t("ib.res.defaulted", { choice: choiceLabel(choice), week: unanswered.week ?? "" }) : t("ib.res.lapsed", { week: unanswered.week ?? "" }))
+    const text = unanswered ? (choice ? t("ib.res.defaulted", { choice: choiceLabel(choice), week: unanswered.week != null ? weekNumberText(unanswered.week, currentWeek) : "" }) : t("ib.res.lapsed", { week: unanswered.week != null ? weekNumberText(unanswered.week, currentWeek) : "" }))
         : event.selectedChoiceId === "expired" ? t("ib.res.expired")
         : event.selectedChoiceId === "sold" ? t("ib.res.soldElsewhere", { club: data.soldToTeamName || t("ib.aClub") })
         : choice ? t("ib.res.chose", { choice: choiceLabel(choice) })
             : event.selectedChoiceId === "reject" ? t("ib.res.rejected")
                 : event.selectedChoiceId === "ACCEPT" || event.selectedChoiceId === "accept" ? t("ib.res.accepted")
                     : event.selectedChoiceId === "DECLINE" ? t("ib.res.declined") : t("ib.res.answered")
-    return <p className="rounded-md border border-line px-3 py-2 text-xs font-medium text-ink-2">{text}</p>
+    // MARKET-14 (2026-11-17): an accepted bid names the amount received, and the sell-on share kept.
+    const received = event.type === "TRANSFER_OFFER" && event.selectedChoiceId === "accept" && typeof data.receivedFee === "number"
+        ? (typeof data.sellOnPct === "number"
+            ? t("ib.res.receivedSellOn", { amount: formatCurrency(data.receivedFee, "$", false), pct: Math.round(data.sellOnPct * 100) })
+            : t("ib.res.received", { amount: formatCurrency(data.receivedFee, "$", false) }))
+        : null
+    return <p className="rounded-md border border-line px-3 py-2 text-xs font-medium text-ink-2">{text}{received && <span className="mt-1 block tabular-nums text-ink-1">{received}</span>}</p>
 }
 
 function EventLinks({ event }: { event: GameEventSaveData }) {
@@ -168,7 +176,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
     if (!event) return null
     const data = (event.data ?? {}) as AnyData
     const deadline = item.decision ? answerByWeek(event) : null
-    const meta = [weekLabel(event.week, ctx.currentWeek), deadline != null ? t("ib.answerBy", { week: deadline }) : null].filter(Boolean).join(" · ")
+    const meta = [weekLabel(event.week, ctx.currentWeek), deadline != null ? t("ib.answerBy", { week: weekNumberText(deadline, ctx.currentWeek) }) : null].filter(Boolean).join(" · ")
     const playerId = data.playerId != null && ctx.rosterIds.has(String(data.playerId)) ? String(data.playerId) : null
     // The awards replay from the season's stored honours (kept for the last seasons only).
     const awardsSeason = event.type === "MEDIA" && isRealAwards(data.proAwards) && recordBook?.honours.some(h => h.season === data.proAwards.year) ? data.proAwards.year as number : null
@@ -200,7 +208,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
                 {!item.decision && pressDataOf(event) && <PressConferenceRecord event={event} />}
                 {item.decision === "transfer_offer" && <TransferOfferDecision event={event} ctx={ctx} />}
                 {item.decision === "job_offer" && <JobOfferDecision event={event} />}
-                {!item.decision && !pressDataOf(event) && <ResolvedNote event={event} />}
+                {!item.decision && !pressDataOf(event) && <ResolvedNote event={event} currentWeek={ctx.currentWeek} />}
                 {awardsSeason != null && (
                     <Button variant="outline" onClick={() => onOpenAwards(awardsSeason)}>{t("ib.openAwards")}</Button>
                 )}

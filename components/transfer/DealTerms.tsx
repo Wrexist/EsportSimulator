@@ -1,6 +1,7 @@
 "use client"
 import { t, tn } from "@/lib/i18n"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Check, CircleAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,7 +17,7 @@ import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
 import { releaseClauseFee, releaseTriggerChance, type ReleaseClause } from "@/engine/contract-clauses"
 import type { MarketStanding } from "@/engine/transfer-hype"
 import { ContractPaper } from "./ContractPaper"
-import { feeOfferBlock } from "./negotiation-rules"
+import { feeOfferBlock, parseMoneyInput } from "./negotiation-rules"
 import { settlementsLeft } from "@/engine/finance-forecast"
 
 const money = (value: number) => formatCurrency(value, "$", false)
@@ -50,19 +51,23 @@ function Chance({ label, value, hint }: { label: string; value: number; hint: Re
 }
 
 function MoneyInput({ value, onChange, label, suffix }: { value: number; onChange: (v: number) => void; label: string; suffix?: string }) {
+    // MARKET-14 (2026-11-17): grouped like every other amount on the panel ("80,000")
+    // while the box is not being typed into; plain digits while it is.
+    const [editing, setEditing] = useState(false)
     return (
         <label className="block">
             <span className="sr-only">{label}</span>
             <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-3">$</span>
                 <Input
-                    type="number"
+                    type="text"
                     inputMode="numeric"
                     aria-label={label}
-                    value={value}
-                    onChange={(e) => onChange(Number(e.target.value))}
-                    // MARKET-12: no native spinner over the "/ match" suffix (the box is typed into).
-                    className="h-11 pl-7 pr-12 font-display text-xl font-bold tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    value={editing ? String(value) : formatCurrency(value, "", false)}
+                    onFocus={() => setEditing(true)}
+                    onBlur={() => setEditing(false)}
+                    onChange={(e) => onChange(parseMoneyInput(e.target.value))}
+                    className="h-11 pl-7 pr-12 font-display text-xl font-bold tabular-nums"
                 />
                 {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-3">{suffix}</span>}
             </div>
@@ -153,6 +158,16 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
     const value = n.evaluation.transferValue
     const clubName = n.currentTeam?.name ?? t("nego.theClub")
 
+    // MARKET-05 (2026-11-17): the club won't sell before a match against you (the store refuses it at signing): say so before any offer.
+    if (n.currentTeam && n.refusal) {
+        return (
+            <div role="status" className="flex items-start gap-3 rounded border border-caution/30 bg-caution/5 px-3 py-3">
+                <CircleAlert size={18} className="mt-0.5 shrink-0 text-caution" />
+                <p className="text-xs leading-relaxed text-ink-2">{t("terms.rivalRefusal", { club: clubName, week: n.refusal.week, next: n.refusal.endsWeek })}</p>
+            </div>
+        )
+    }
+
     if (n.stage === "BUYOUT") {
         // MARKET-02: a fee over the board's limit is blocked here like one over the funds.
         const block = feeOfferBlock(n.buyoutOffer, n.budget, n.boardSanction)
@@ -184,9 +199,16 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
                             : `${boardLimitLabel}: ${money(n.boardSanction.maxFee)}`}
                     </div>
                 ) : (
-                    <Button className="h-10 w-full" onClick={n.submitBuyout}>
-                        {t("terms.offerFee", { fee: money(n.buyoutOffer) })}
-                    </Button>
+                    // NEWPLAYER-03 (2026-11-17): a near-hopeless offer is not the gold call to action.
+                    n.feeChance <= 0.05 ? (
+                        <Button variant="outline" className="h-10 w-full" onClick={n.submitBuyout}>
+                            {t("terms.offerFeeAnyway", { fee: money(n.buyoutOffer) })}
+                        </Button>
+                    ) : (
+                        <Button className="h-10 w-full" onClick={n.submitBuyout}>
+                            {t("terms.offerFee", { fee: money(n.buyoutOffer) })}
+                        </Button>
+                    )
                 )}
             </div>
         )
@@ -199,6 +221,13 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
     const belowCashTarget = feeDue > 0 && n.cashTarget !== null && n.budget - feeDue < n.cashTarget
     return (
         <div className="space-y-3">
+            {/* NEWPLAYER-11 (2026-11-17): the fee outcome at the top of the step, not under the runway rows. */}
+            {n.currentTeam && n.agreedFee !== null && (
+                <div role="status" className="flex items-start gap-3 rounded border border-positive/30 bg-positive/5 px-3 py-2.5">
+                    <Check size={16} className="mt-0.5 shrink-0 text-positive" />
+                    <p className="text-xs leading-relaxed text-ink-2">{t("terms.feeAgreedNext", { club: clubName, fee: money(n.agreedFee) })}</p>
+                </div>
+            )}
             <Overline>{n.currentTeam ? t("terms.step2") : t("terms.freeContract")}</Overline>
             <div className="grid grid-cols-[minmax(0,1fr)] gap-3">
                 <div className="space-y-1.5">
@@ -281,7 +310,7 @@ function ClauseTerms({ n }: { n: NegotiationState }) {
                     <p className="text-xs text-ink-3">
                         {n.clauses.release === "none"
                             ? t("terms.releaseNone")
-                            : t("terms.releaseBody", { label: t(`clause.release.${n.clauses.release}`), pct: Math.round(releaseTriggerChance(fee, n.salaryOffer) * 100), fee: money(fee) })}
+                            : t("terms.releaseBody", { label: t(`clause.release.${n.clauses.release}`), pct: Math.round(releaseTriggerChance(fee, n.salaryOffer, n.clauses.release) * 100), fee: money(fee) })}
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">

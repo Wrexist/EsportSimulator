@@ -78,7 +78,8 @@ describe("START-36: load game", () => {
     test("imported copies are tagged and a recovery without backup hides Recover", () => {
         expect(file).toContain('slot.saveId?.startsWith("imported_")')
         expect(file).toContain("noBackupIds.has(slot.saveId)")
-        expect(src("engine/save-manager.ts")).toContain("migrated.saveId = `imported_")
+        // START-59 (2026-11-17): the imported id is derived from the original id and save time.
+        expect(src("engine/save-manager.ts")).toContain("? `imported_${fnv1a64Utf16(`${source.saveId}|${source.updatedAt}`)}`")
     })
 })
 
@@ -145,7 +146,8 @@ describe("START-32 / START-38 / START-39: settings", () => {
     })
     test("volume sliders follow the sound switch; the page keeps preferences and names the game", () => {
         const sections = src("components/settings/SettingsSections.tsx")
-        expect(sections.match(/disabled=\{!s\.soundEnabled\}/g)).toHaveLength(3)
+        // START-61 (2026-11-17): the UI, hover and mute-when-unfocused switches follow it too.
+        expect(sections.match(/disabled=\{!s\.soundEnabled( \|\| !s\.uiSounds)?\}/g)).toHaveLength(6)
         const page = src("app/settings/page.tsx")
         expect(page).not.toContain('localStorage.removeItem("skipQuickSimConfirm")')
         expect(page).not.toContain("settings.panel.language")

@@ -24,7 +24,7 @@ const { containedPath, readBounded, writeAtomic } = require('./local-files');
 const { IS_DEMO } = require('./edition.cjs');
 const communityShare = require('./community-share');
 // The free demo is a separate Steam app with no achievements, stats,
-// leaderboards, cloud quota or Workshop: those calls answer "unavailable" so
+// cloud quota or Workshop: those calls answer "unavailable" so
 // a demo career never writes to the full game's account records, and no
 // community or Workshop overlay is applied. Steam overlay, identity and Rich
 // Presence stay on.
@@ -34,7 +34,6 @@ const DEMO_UNAVAILABLE = {
     'steam-store-stats': false,
     'steam-set-achievement': false,
     'steam-is-achievement-unlocked': false,
-    'steam-set-leaderboard-score': false,
     'steam-cloud-list': [],
     'steam-cloud-write': false,
     'steam-cloud-read': null,
@@ -71,10 +70,11 @@ const mutationTimestamps = new Map();
 
 // ---- write-target allowlists --------------------------------------------
 // A compromised renderer must not be able to unlock arbitrary achievements,
-// set unknown stats, or submit to unknown leaderboards. The main process
-// only accepts the fixed set of IDs the game actually ships with. These
-// MUST stay in sync with engine/steam-service.ts (ACHIEVEMENTS / setBatchStats
-// / pushLeaderboardStats) — adding an achievement there means adding it here.
+// or set unknown stats. The main process only accepts the fixed set of IDs
+// the game actually ships with. These MUST stay in sync with
+// engine/steam-service.ts (ACHIEVEMENTS / updatePlayerStats) — adding an
+// achievement there means adding it here. There are no leaderboards:
+// steamworks.js 0.4 has no leaderboard API (CROSSCUT-02).
 const ALLOWED_ACHIEVEMENTS = new Set([
     'FIRST_WIN', 'WIN_10', 'WIN_25', 'WIN_50', 'WIN_100', 'WIN_250', 'WIN_500',
     'FIRST_TOURNAMENT', 'WIN_B_TIER', 'WIN_A_TIER', 'WIN_MAJOR', 'GRAND_SLAM',
@@ -89,10 +89,6 @@ const ALLOWED_STATS = new Set([
     'stat_max_budget', 'stat_tournaments_won', 'stat_majors_won',
     'stat_matches_lost', 'stat_peak_ranking', 'stat_players_developed',
     'stat_prize_money',
-]);
-const ALLOWED_LEADERBOARDS = new Set([
-    'lead_world_ranking', 'lead_major_wins', 'lead_fastest_stier',
-    'lead_total_earnings', 'lead_win_streak', 'lead_tournaments_won',
 ]);
 
 const { resolveAppId } = require('./steam-app-id.cjs');
@@ -407,29 +403,6 @@ function registerHandlers() {
             return !!steamClient.achievement.isActivated(name);
         } catch (e) {
             logFn(`[Steam] Error reading achievement ${name}: ${e.message}`);
-            return false;
-        }
-    });
-
-    // ---- leaderboards ---------------------------------------------------
-    handleSteam('steam-set-leaderboard-score', async (event, name, score) => {
-        if (!steamClient) return false;
-        if (!canRunMutation(event, 'steam-set-leaderboard-score')) return false;
-        if (typeof name !== 'string' || !ALLOWED_LEADERBOARDS.has(name)) {
-            logFn(`[Steam] Rejected leaderboard score for unknown leaderboard: ${name}`);
-            return false;
-        }
-        if (typeof score !== 'number' || !Number.isFinite(score)) {
-            logFn(`[Steam] Rejected non-finite leaderboard score for ${name}`);
-            return false;
-        }
-        try {
-            if (!steamClient.leaderboards?.find) return false;
-            const leaderboard = await steamClient.leaderboards.find(name);
-            await leaderboard.submitScore(score);
-            return true;
-        } catch (e) {
-            logFn(`[Steam] Error setting leaderboard ${name}: ${e.message}`);
             return false;
         }
     });

@@ -11,6 +11,7 @@
 
 import type { GameSave } from "./save-types"
 import { NUMBER_REF, tRefEn, type TextRef } from "@/lib/i18n"
+import { isOfficialMatch } from "./personality"
 
 export interface MilestoneHit {
     id: string
@@ -37,7 +38,9 @@ export function checkMilestones(save: GameSave, firedIds: Set<string>): Mileston
     const number = (n: number): TextRef => ({ key: NUMBER_REF, count: n })
 
     // Single pass over the player's matches (chronological) for total wins + the
-    // longest win streak across the whole career.
+    // longest win streak across the whole career. Win totals count official
+    // matches only, as the Steam win achievements they pair with do
+    // (lib/celebration-toasts.ts, MODES-06): a scrim is not "your first win".
     const playerMatches = save.completedMatches
         .filter(m => m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId)
         .sort((a, b) => a.week - b.week)
@@ -48,7 +51,7 @@ export function checkMilestones(save: GameSave, firedIds: Set<string>): Mileston
         const isHome = m.homeTeamId === save.playerTeamId
         const won = isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
         if (won) {
-            totalWins++
+            if (isOfficialMatch(m)) totalWins++
             curStreak++
             if (curStreak > maxStreak) maxStreak = curStreak
         } else {
@@ -68,4 +71,17 @@ export function checkMilestones(save: GameSave, firedIds: Set<string>): Mileston
     for (const t of STREAK_TIERS) add(`ms_streak_${t}`, maxStreak >= t, { key: "evn.ms.streak", count: t })
 
     return hits
+}
+
+/** The first-win milestone's id. */
+export const FIRST_WIN_MILESTONE = "ms_win_1"
+
+/**
+ * NEWPLAYER-12: the first official win is celebrated when the match is
+ * recorded (store/slices/match-simulation-slice.ts), not at the next week tick.
+ * Null when it has fired already or the club has no official win yet.
+ */
+export function firstWinMilestone(save: GameSave, firedIds: Set<string>): MilestoneHit | null {
+    if (firedIds.has(FIRST_WIN_MILESTONE)) return null
+    return checkMilestones(save, firedIds).find(h => h.id === FIRST_WIN_MILESTONE) ?? null
 }

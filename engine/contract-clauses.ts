@@ -57,7 +57,7 @@ export const CLAUSE_TUNING = {
 
 export const RELEASE_LABEL: Record<ReleaseClause, string> = { none: "No release clause", high: "High (120 weeks of wage)", low: "Low (50 weeks of wage)" }
 
-export type ClauseFields = Pick<ContractSaveData, "releaseClause" | "appearanceBonus" | "tournamentWinBonus" | "sellOn">
+export type ClauseFields = Pick<ContractSaveData, "releaseClause" | "releaseClauseTier" | "appearanceBonus" | "tournamentWinBonus" | "sellOn">
 
 /** Contract terms a signing writes (store transferPlayer). */
 export type NewContractTerms = { salaryPerWeek: number; startWeek: number; endWeek: number; buyout: number } & ClauseFields
@@ -70,6 +70,7 @@ export function sanitizeClauseFields(terms: ClauseFields): ClauseFields {
     const out: ClauseFields = {}
     const release = money(terms.releaseClause), appearance = money(terms.appearanceBonus), title = money(terms.tournamentWinBonus)
     if (release) out.releaseClause = release
+    if (release && (terms.releaseClauseTier === "low" || terms.releaseClauseTier === "high")) out.releaseClauseTier = terms.releaseClauseTier
     if (appearance) out.appearanceBonus = appearance
     if (title) out.tournamentWinBonus = title
     const sellOn = terms.sellOn
@@ -99,19 +100,26 @@ export function releaseClauseFee(release: ReleaseClause, wagePerWeek: number, fe
     return Math.round(Math.max(byWage, byFee))
 }
 
-/** Weekly chance a club that can pay a clause does, from how many weeks of wage it is. */
-export function releaseTriggerChance(fee: number, wagePerWeek: number): number {
+/**
+ * Weekly chance a club that can pay a clause does. MARKET-01 (2026-11-17): a
+ * clause agreed with a tier uses that tier's chance, so a low clause floored
+ * at a big fee still carries the risk its wage cut is paid for. Older
+ * contracts without a tier keep the weeks-of-wage rule.
+ */
+export function releaseTriggerChance(fee: number, wagePerWeek: number, tier?: ReleaseClause): number {
     const T = CLAUSE_TUNING
+    if (tier === "low") return T.RELEASE_TRIGGER_LOW
+    if (tier === "high") return T.RELEASE_TRIGGER_HIGH
     const weeks = fee / Math.max(1, wagePerWeek)
     const t = (weeks - T.RELEASE_FEE_WEEKS.low) / (T.RELEASE_FEE_WEEKS.high - T.RELEASE_FEE_WEEKS.low)
     return Math.max(0, Math.min(T.RELEASE_TRIGGER_LOW, T.RELEASE_TRIGGER_LOW + (T.RELEASE_TRIGGER_HIGH - T.RELEASE_TRIGGER_LOW) * t))
 }
 
 /** The clause fields to write on a new contract at the agreed wage (and the fee paid for him). */
-export function clauseFields(terms: ClauseTerms, wagePerWeek: number, feePaid = 0): Pick<ContractSaveData, "releaseClause" | "appearanceBonus" | "tournamentWinBonus"> {
-    const out: Pick<ContractSaveData, "releaseClause" | "appearanceBonus" | "tournamentWinBonus"> = {}
+export function clauseFields(terms: ClauseTerms, wagePerWeek: number, feePaid = 0): Pick<ContractSaveData, "releaseClause" | "releaseClauseTier" | "appearanceBonus" | "tournamentWinBonus"> {
+    const out: Pick<ContractSaveData, "releaseClause" | "releaseClauseTier" | "appearanceBonus" | "tournamentWinBonus"> = {}
     const release = releaseClauseFee(terms.release, wagePerWeek, feePaid)
-    if (release > 0) out.releaseClause = release
+    if (release > 0 && terms.release !== "none") { out.releaseClause = release; out.releaseClauseTier = terms.release }
     if (terms.appearanceBonus > 0) out.appearanceBonus = Math.round(terms.appearanceBonus)
     if (terms.titleBonus > 0) out.tournamentWinBonus = Math.round(terms.titleBonus)
     return out

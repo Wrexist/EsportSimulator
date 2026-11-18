@@ -24,8 +24,9 @@ import { calculateTeamTier, getTierStyle } from "@/engine/tier-system"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { CountryFlag } from "@/components/ui/CountryFlag"
+import { clubRegionName } from "@/lib/display-names"
 import { LeagueEngine, LeagueTier } from "@/engine/league-engine"
-import { isUnrankedTeamId, seasonEndTierMove } from "@/engine/world-ranking"
+import { compareRanking, isUnrankedTeamId, seasonEndTierMove } from "@/engine/world-ranking"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
 import { CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { recordEventName } from "@/lib/tournament-instances"
@@ -54,6 +55,15 @@ type RankingsRowProps = {
 
 const GRID = "grid-cols-[72px_minmax(240px,1fr)_96px_90px_72px_128px_120px_40px]"
 const ordinal = (n: number) => ordinalLabel(n)
+/**
+ * A club's region as the same small label for every region: "BR" is a
+ * region here, not Brazil's flag (COMP-21).
+ */
+const RegionBadge = ({ region }: { region: string }) => (
+    <span title={clubRegionName(region)} className="inline-flex h-[11px] min-w-[14px] items-center justify-center rounded-[2px] bg-hover px-0.5 text-[9px] font-bold uppercase leading-none tracking-wider text-ink-2">
+        {region === "un" ? "INT" : region}
+    </span>
+)
 /** Club tier label (tier-system TierLevel). */
 const teamTierLabel = (tier: string) => {
     const key = `rk.teamTier.${tier}`
@@ -121,7 +131,7 @@ const RankingsRow = React.memo(function RankingsRow({
                         )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
-                        <CountryFlag country={teamFlag} showName={false} size={14} />
+                        <RegionBadge region={teamFlag} />
                         <span>{teamTierLabel(team.tier)}</span>
                     </div>
                 </div>
@@ -306,21 +316,15 @@ function RankingsPageInner() {
         return byTeam
     }, [completedMatches])
 
-    // Calculate rankings based on Elo (Phase 19). Uses `playerById` for O(1)
-    // roster lookup and `recentFormByTeamId` for O(1) form lookup.
+    // The world ranking every other screen shows (Home, /stats, the week
+    // report, the board): the clubs' stored ranks, which the engine refreshes
+    // weekly and after your own matches (engine/world-ranking.ts). Re-sorting
+    // by today's Elo here put the club a place off mid-week (SMOKE-A-12).
+    // Clubs without a stored rank follow in the engine's order. Uses `playerById`
+    // for O(1) roster lookup and `recentFormByTeamId` for O(1) form lookup.
     const rankedTeams = useMemo(() => {
         return teams.filter(t => !isUnrankedTeamId(t.id))
-            // Match the engine's tiebreaker (LeagueEngine.refreshWorldRankings:
-            // elo → reputation → numeric id) so the displayed rank is
-            // deterministic and consistent with team.worldRanking used elsewhere
-            // — an Elo-only sort left equal-Elo teams in arbitrary order.
-            .sort((a, b) => {
-                if ((b.elo || 1000) !== (a.elo || 1000)) return (b.elo || 1000) - (a.elo || 1000)
-                if ((b.reputation || 0) !== (a.reputation || 0)) return (b.reputation || 0) - (a.reputation || 0)
-                const aNum = parseInt(a.id.replace(/\D/g, ''), 10) || 0
-                const bNum = parseInt(b.id.replace(/\D/g, ''), 10) || 0
-                return aNum - bNum
-            })
+            .sort((a, b) => ((a.worldRanking || Infinity) - (b.worldRanking || Infinity)) || compareRanking(a, b))
             .map((team, index) => {
                 const worldRanking = index + 1
                 const tier = calculateTeamTier(worldRanking)
@@ -654,7 +658,7 @@ function RankingsPageInner() {
                                             <span aria-hidden="true">·</span>
                                             <span>{teamTierLabel(selectedTeam.tier)}</span>
                                             <span aria-hidden="true">·</span>
-                                            <CountryFlag country={selectedTeam.region} showName={false} size={14} />
+                                            <RegionBadge region={selectedTeam.region || "un"} />
                                         </div>
                                     </div>
                                 </div>

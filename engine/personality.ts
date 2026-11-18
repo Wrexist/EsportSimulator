@@ -318,15 +318,22 @@ export function renewalSalary(p: Pick<PlayerSaveData, "id"> & Partial<PlayerSave
 type Roster = Pick<TeamSaveData, "id" | "rosterIds"> & { dressingRoom?: TeamSaveData["dressingRoom"] }
 type PlayerLookup = (id: string) => PlayerSaveData | undefined
 
-/** Highest leader stat on the roster (roster order breaks ties). */
+/**
+ * Highest leader stat among the fit starters (the first five; roster order
+ * breaks ties). Audit 17 MODES-14: the captain's shield only counts when he
+ * plays, so a benched or injured leader is the pick only when no starter can be.
+ */
 export function defaultCaptainId(team: Roster, lookup: PlayerLookup): string | null {
-    let best: PlayerSaveData | undefined
-    for (const id of team.rosterIds) {
-        const p = lookup(id)
-        if (!p || p.isRetired) continue
-        if (!best || n(p.leader, 50) > n(best.leader, 50)) best = p
+    const best = (ids: readonly string[], fitOnly: boolean): PlayerSaveData | undefined => {
+        let top: PlayerSaveData | undefined
+        for (const id of ids) {
+            const p = lookup(id)
+            if (!p || p.isRetired || (fitOnly && p.injury && p.injury.weeksRemaining > 0)) continue
+            if (!top || n(p.leader, 50) > n(top.leader, 50)) top = p
+        }
+        return top
     }
-    return best?.id ?? null
+    return (best(team.rosterIds.slice(0, 5), true) ?? best(team.rosterIds, true) ?? best(team.rosterIds, false))?.id ?? null
 }
 
 /** The club's captain: the manager's pick while he is on the roster, else the default. */
@@ -542,16 +549,15 @@ export const TRAIT_INFO = Object.fromEntries(PLAYSTYLE_TRAITS.map(trait => [trai
     get effect() { return t(`trait.${trait}.effect`) },
 }])) as Record<PlaystyleTrait, { readonly label: string; readonly effect: string }>
 
-/** Contract-demand lines for the negotiation screen (only those that apply). */
+/** Contract-demand lines for the negotiation screen (only those that apply). They sit next to the archetype chip, so they don't name it again (MARKET-04, 2026-11-17). */
 export function contractDemandLines(archetype: PersonalityArchetype, overallRating: number, buyer?: Partial<Pick<TeamSaveData, "leagueTier">> | null): string[] {
-    const label = ARCHETYPE_INFO[archetype].label
     const included = t("demand.included")
     switch (archetype) {
-        case "LOYAL": return [t("demand.loyal", { label, wage: plusPct(T.WAGE_LOYAL), length: plusPct(T.LENGTH_LOYAL) }), included]
-        case "MERCENARY": return [t("demand.mercenary", { label, wage: plusPct(T.WAGE_MERCENARY), length: pct(1 - T.LENGTH_MERCENARY) }), included]
+        case "LOYAL": return [t("demand.loyal", { wage: plusPct(T.WAGE_LOYAL), length: plusPct(T.LENGTH_LOYAL) }), included]
+        case "MERCENARY": return [t("demand.mercenary", { wage: plusPct(T.WAGE_MERCENARY), length: pct(1 - T.LENGTH_MERCENARY) }), included]
         case "AMBITIOUS": return levelGap(overallRating, buyer) >= T.AMBITIOUS_GAP
-            ? [t("demand.ambitiousBelow", { label, gap: T.AMBITIOUS_GAP, wage: plusPct(T.WAGE_AMBITIOUS_BELOW) }), included]
-            : [t("demand.ambitiousClose", { label })]
-        default: return [t("demand.none", { label })]
+            ? [t("demand.ambitiousBelow", { gap: T.AMBITIOUS_GAP, wage: plusPct(T.WAGE_AMBITIOUS_BELOW) }), included]
+            : [t("demand.ambitiousClose")]
+        default: return [t("demand.none")]
     }
 }

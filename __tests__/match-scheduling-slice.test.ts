@@ -169,7 +169,7 @@ describe("scheduleScrim", () => {
         const slice = createMatchSchedulingSlice(h.set, h.get)
         const res = slice.scheduleScrim("opp_c", 12, day)
         expect(res.success).toBe(false)
-        expect(res.message).toContain("Day schedule is full")
+        expect(res.message).toContain("This day is full")
     })
 
     test("weekly slot cap of 10 across matches + activities", () => {
@@ -189,7 +189,7 @@ describe("scheduleScrim", () => {
         const slice = createMatchSchedulingSlice(h.set, h.get)
         const res = slice.scheduleScrim("opp_x", 12)
         expect(res.success).toBe(false)
-        expect(res.message).toContain("Weekly schedule is full")
+        expect(res.message).toContain("This week is full")
     })
 })
 

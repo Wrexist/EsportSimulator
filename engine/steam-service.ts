@@ -76,12 +76,12 @@ export class SteamService {
     private pendingAchievements = new Set<string>()
     private unlockFlights = new Map<string, Promise<boolean>>()
     private activeSaveId: string | null = null
-    /** C9: a sandbox save (edited by hand) earns no achievements, stats or leaderboard scores. */
+    /** C9: a sandbox save (edited by hand) earns no achievements or Steam stats. */
     private sandboxed = false
 
     private constructor() { }
 
-    /** C9: block achievements, stats and leaderboards while a sandbox save is loaded. */
+    /** C9: block achievements and stats while a sandbox save is loaded. */
     setSandboxed(on: boolean): void {
         this.sandboxed = on
     }
@@ -178,35 +178,6 @@ export class SteamService {
         if (stats.prizeMoney !== undefined) await this.electronBridge.setStat("stat_prize_money", Math.max(0, Math.min(2147483647, Math.round(stats.prizeMoney))))
 
         await this.electronBridge.storeStats()
-    }
-
-    async pushLeaderboardStats(stats: {
-        maxElo?: number
-        majorWins?: number
-        weeksToSTier?: number
-        totalEarnings?: number
-        longestWinStreak?: number
-        tournamentsWon?: number
-    }) {
-        if (!this.electronBridge || this.sandboxed) return
-        if (stats.maxElo !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_world_ranking", stats.maxElo)
-        }
-        if (stats.majorWins !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_major_wins", stats.majorWins)
-        }
-        if (stats.weeksToSTier !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_fastest_stier", stats.weeksToSTier)
-        }
-        if (stats.totalEarnings !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_total_earnings", stats.totalEarnings)
-        }
-        if (stats.longestWinStreak !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_win_streak", stats.longestWinStreak)
-        }
-        if (stats.tournamentsWon !== undefined) {
-            await this.electronBridge.setLeaderboardScore?.("lead_tournaments_won", stats.tournamentsWon)
-        }
     }
 
     async unlockAchievement(achievementId: string): Promise<boolean> {
@@ -360,9 +331,18 @@ export class SteamService {
         week: number
         ranking?: number
     }): Promise<void> {
+        await this.setPresence(buildRichPresence(state))
+    }
+
+    /**
+     * Sets Rich Presence keys in order (steam_display last). Used by the week
+     * tick and by components/layout/SteamPresenceSync.tsx (menu, career, live
+     * match; CROSSCUT-12).
+     */
+    async setPresence(presence: Record<string, string>): Promise<void> {
+        if (!this.isInitialized) await this.initialize()
         if (!this.electronBridge?.setRichPresence) return
         try {
-            const presence = buildRichPresence(state)
             for (const [key, value] of Object.entries(presence)) {
                 await this.electronBridge.setRichPresence(key, value)
             }
@@ -422,7 +402,7 @@ export class SteamService {
 export const steamService = SteamService.getInstance()
 
 /** Tokens defined in steamworks/rich-presence/*.vdf. Keep the two in sync. */
-export const RICH_PRESENCE_TOKENS = ["#Status_Managing", "#Status_Ranked"] as const
+export const RICH_PRESENCE_TOKENS = ["#Status_Managing", "#Status_Ranked", "#Status_Menu", "#Status_Match"] as const
 
 const PRESENCE_VALUE_MAX = 64
 
@@ -440,6 +420,19 @@ export function buildRichPresence(state: { teamName: string; week: number; ranki
     // steam_display last, so Steam never renders a token before its substitutions exist.
     presence.steam_display = ranked ? "#Status_Ranked" : "#Status_Managing"
     return presence
+}
+
+/** Rich Presence in the main menu (no career on screen): no stale club and week (CROSSCUT-12). */
+export function buildMenuPresence(): Record<string, string> {
+    return { status: "In the main menu", steam_display: "#Status_Menu" }
+}
+
+/** Rich Presence while the live match screen is open (CROSSCUT-12). */
+export function buildMatchPresence(state: { teamName: string; opponentName: string }): Record<string, string> {
+    const team = state.teamName.trim().slice(0, PRESENCE_VALUE_MAX) || "a club"
+    const opponent = state.opponentName.trim().slice(0, PRESENCE_VALUE_MAX) || "a club"
+    // steam_display last, so Steam never renders a token before its substitutions exist.
+    return { team, opponent, status: `Playing a match: ${team} vs ${opponent}`, steam_display: "#Status_Match" }
 }
 
 export function checkAchievements(gameState: {

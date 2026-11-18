@@ -11,6 +11,7 @@
 
 import { SeededRNG, deriveSeed } from "./rng"
 import type { GameSave, PlayerSaveData } from "./save-types"
+import { stripForbidden } from "@/lib/safe-branding/name-transform"
 
 export const RANDOM_WORLD_TUNING = {
     /** Each rating moves by up to this much either way. */
@@ -65,8 +66,10 @@ export function randomizeWorld(save: GameSave): void {
     let face = 0
     for (const p of save.players) {
         if (p.isRetired) continue
+        // NEWPLAYER-09: never a handle that spells a real team or brand ("fa"+"ze"+"ro").
+        const unusable = (h: string) => taken.has(h.toLowerCase()) || stripForbidden(h.toLowerCase()) !== h.toLowerCase()
         let handle = randomHandle(rng)
-        for (let tries = 0; taken.has(handle.toLowerCase()); tries++) handle = randomHandle(rng) + (tries > 20 ? String(tries) : "")
+        for (let tries = 0; unusable(handle); tries++) handle = randomHandle(rng) + (tries > 20 ? String(tries) : "")
         taken.add(handle.toLowerCase())
         p.nickname = handle
         p.name = handle

@@ -11,6 +11,8 @@
  * worker and returns the entries with its result.
  */
 
+import type { TextRef } from "./i18n"
+
 export type ChangeKind =
     | "attribute" | "form" | "morale" | "fatigue" | "energy"
     | "money" | "reputation" | "ranking" | "board"
@@ -22,7 +24,13 @@ export type CauseType =
     | "age" | "transfer" | "finance" | "board" | "decision" | "academy"
     | "stability" | "world" | "contract" | "injury" | "dressing_room" | "other"
 
-export interface ChangeCause { type: CauseType; label: string }
+export interface ChangeCause {
+    type: CauseType
+    /** English, kept in the save; grouping and older readers use it. */
+    label: string
+    /** The same cause as a translation key, shown in the active language when set. */
+    ref?: TextRef
+}
 
 export interface ChangeEntry {
     kind: ChangeKind
@@ -33,6 +41,8 @@ export interface ChangeEntry {
     /** Signed change. Money in dollars; world rank in places (negative = climbed). */
     delta: number
     cause: ChangeCause
+    /** Money only: the week its ledger row is booked under, when known (MARKET-08). */
+    week?: number
 }
 
 /** Attributes the report tracks, in snapshot order. */
@@ -64,7 +74,7 @@ export interface PlayerSnapshot {
     injury: { name: string; weeks: number } | null
 }
 
-export interface LedgerRowSnapshot { id: string; signed: number; category: string; description: string }
+export interface LedgerRowSnapshot { id: string; signed: number; category: string; description: string; week?: number }
 
 export interface ClubSnapshot {
     teamId: string
@@ -121,7 +131,7 @@ export function snapshotClub(source: ClubSource, teamId: string, playerIndex?: M
     const ledger: LedgerRowSnapshot[] = []
     for (const e of source.financeLedger) {
         if (e.teamId !== teamId || e.week < source.currentWeek - 1) continue
-        ledger.push({ id: e.id, signed: e.type === "INCOME" ? e.amount : -e.amount, category: e.category, description: e.description })
+        ledger.push({ id: e.id, signed: e.type === "INCOME" ? e.amount : -e.amount, category: e.category, description: e.description, week: e.week })
     }
     const board = source.boardState && (!source.boardState.teamId || source.boardState.teamId === teamId)
         ? num(source.boardState.confidence, NaN) : NaN
@@ -140,14 +150,14 @@ export function snapshotClub(source: ClubSource, teamId: string, playerIndex?: M
     }
 }
 
-/** Cause of a ledger row, from its category. */
+/** Cause of a ledger row, from its category (named as the /finances ledger names it, fin.cat.*). */
 export function moneyCause(category: string, description: string): ChangeCause {
     switch (category) {
         case "WAGES_PLAYER": return { type: "salary", label: "Player wages" }
         case "WAGES_STAFF": return { type: "staff", label: "Staff wages" }
         case "FACILITIES": return /activity/i.test(description) ? { type: "activity", label: "Weekly activity" }
             : /operations/i.test(description) ? { type: "finance", label: "Club operations" }
-            : { type: "facility", label: "Upkeep" }
+            : { type: "facility", label: "Facilities" }
         case "PRIZE": return /league|division/i.test(description) ? { type: "prize", label: "League prize money" } : { type: "prize", label: "Prize money" }
         case "SPONSOR": return { type: "sponsor", label: "Sponsors" }
         case "MERCH": return /fan/i.test(description) ? { type: "other", label: "Fans" } : { type: "sponsor", label: "Merchandise" }
@@ -155,6 +165,8 @@ export function moneyCause(category: string, description: string): ChangeCause {
         case "LEAGUE": return { type: "other", label: "League" }
         case "TRANSFER_IN": case "TRANSFER_OUT": return { type: "transfer", label: "Transfers" }
         case "TRAINING": return { type: "training", label: "Training" }
+        // MARKET-07 (2026-11-17): the same name the /finances ledger gives it (it fell under "Other").
+        case "SCOUTING": return { type: "other", label: "Scouting" }
         default: return /board/i.test(description) ? { type: "board", label: "Board" }
             : { type: "other", label: /fan/i.test(description) ? "Fans" : /league/i.test(description) ? "League" : "Other" }
     }
@@ -227,7 +239,7 @@ export function diffClubs(before: ClubSnapshot | null, after: ClubSnapshot | nul
     for (const row of after.ledger) {
         if (known.has(row.id)) continue
         itemized += row.signed
-        if (row.signed !== 0) push({ kind: "money", subjectId: teamId, label: row.description || "Ledger entry", delta: row.signed }, moneyCause(row.category, row.description))
+        if (row.signed !== 0) push({ kind: "money", subjectId: teamId, label: row.description || "Ledger entry", delta: row.signed, ...(typeof row.week === "number" ? { week: row.week } : {}) }, moneyCause(row.category, row.description))
     }
     const unexplained = Math.round(after.budget - before.budget - itemized)
     if (Math.abs(unexplained) >= 1) push({ kind: "money", subjectId: teamId, label: "Unitemized change", delta: unexplained })
@@ -250,7 +262,7 @@ export function diffClubs(before: ClubSnapshot | null, after: ClubSnapshot | nul
     return out
 }
 
-const entryKey = (e: ChangeEntry) => `${e.kind}|${e.subjectId}|${e.label}|${e.cause.type}|${e.cause.label}`
+const entryKey = (e: ChangeEntry) => `${e.kind}|${e.subjectId}|${e.label}|${e.cause.type}|${e.cause.label}|${e.week ?? ""}`
 
 /** Sum entries that share subject, label and cause; drop ones that cancel out. */
 export function mergeChanges(entries: ChangeEntry[]): ChangeEntry[] {

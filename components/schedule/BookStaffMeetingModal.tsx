@@ -149,9 +149,11 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                     const affordable = budget >= meeting.cost
                     const already = booked.has(meetingActivityId(meeting.id, week))
                     return (
-                        <li key={meeting.id} className={cn("flex items-center gap-4 px-6 py-3", !status.unlocked && "opacity-60")}>
+                        // A locked row reads as locked by its lock icon and a quieter name and price,
+                        // not by dimming the whole row: the unlock reason must stay readable (CROSSCUT-07).
+                        <li key={meeting.id} className="flex items-center gap-4 px-6 py-3">
                             <div className="min-w-0 flex-1">
-                                <p className="flex items-center gap-2 text-sm font-semibold text-ink-1">
+                                <p className={cn("flex items-center gap-2 text-sm font-semibold", status.unlocked ? "text-ink-1" : "text-ink-2")}>
                                     {meetingName(meeting)}
                                     {!status.unlocked && <Lock size={12} className="text-ink-3" aria-hidden="true" />}
                                 </p>
@@ -165,7 +167,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                                     ))}
                                 </p>
                             </div>
-                            <span className={cn("w-16 shrink-0 text-right text-sm tabular-nums", affordable ? "text-ink-1" : "text-negative")}>
+                            <span className={cn("w-16 shrink-0 text-right text-sm tabular-nums", !status.unlocked ? "text-ink-3" : affordable ? "text-ink-1" : "text-negative")}>
                                 {formatCurrency(meeting.cost, "$", false)}
                             </span>
                             <div className="w-36 shrink-0 text-right">
@@ -176,7 +178,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                                         {affordable ? t("sch.book") : t("sch.cantAfford")}
                                     </Button>
                                 ) : (
-                                    <p className="text-xs leading-snug text-ink-3">{status.reason}</p>
+                                    <p className="text-xs leading-snug text-ink-2">{status.reason}</p>
                                 )}
                             </div>
                         </li>

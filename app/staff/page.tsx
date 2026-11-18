@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { intlLocale, t } from "@/lib/i18n"
+import { formatPercent, intlLocale, t } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 import React, { useEffect, useMemo, useState } from "react"
@@ -23,7 +23,7 @@ import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
 import { staffAskingWage } from "@/components/staff/staff-asking"
 import { TalentTree } from "@/components/staff/TalentTree"
 import { DelegationPanel } from "@/components/staff/DelegationPanel"
-import { matchCountedIds, roleLabel, specializationLabel, staffEffects, staffMatchPct, staffStatLabel, teamStaffSummary } from "@/components/staff/staff-effects"
+import { STAFF_ROLE_ORDER, matchCountedIds, roleLabel, scoutReportTier, specializationLabel, staffEffects, staffMatchPct, staffStatLabel, teamStaffSummary } from "@/components/staff/staff-effects"
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
@@ -67,6 +67,12 @@ function Effects({ lines, muted }: { lines: string[]; muted?: boolean }) {
             {lines.map(l => <li key={l}>{l}</li>)}
         </ul>
     )
+}
+
+/** NEWPLAYER-04: a scout's level does not set his report quality; his report tier does, so show that. */
+function StaffLevel({ s }: { s: StaffSaveData }) {
+    if (s.role === "scout") return <span className="font-display text-lg font-bold text-ink-1">{t(`recruit.level.${scoutReportTier(s)}`)}</span>
+    return <LevelPips level={s.level} />
 }
 
 function LevelPips({ level }: { level: number }) {
@@ -132,14 +138,14 @@ export default function StaffPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={t("st.eyebrow", { n: ((Math.max(1, currentWeek) - 1) % 52) + 1 })}
+                eyebrow={t("st.eyebrow", { season: Math.ceil(Math.max(1, currentWeek) / 52) })}
                 title={t("st.title")}
                 subtitle={t("st.subtitle")}
                 aside={
                     <KpiStrip>
                         <Kpi label={t("st.kpi.staff")} value={`${hired.length} / ${MAX_STAFF}`} />
-                        <Kpi label={t("st.kpi.match")} value={`+${summary.matchPct.toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`} hint={summary.uncappedMatchPct > summary.capPct ? t("st.kpi.cappedAt", { n: summary.capPct }) : t("st.kpi.cap", { n: summary.capPct })} />
-                        <Kpi label={t("st.kpi.training")} value={`+${Math.round(summary.trainingPct)}%`} hint={t("st.kpi.trainingHint")} />
+                        <Kpi label={t("st.kpi.match")} value={`+${formatPercent(summary.matchPct, 1)}`} hint={summary.uncappedMatchPct > summary.capPct ? t("st.kpi.cappedAt", { n: summary.capPct }) : t("st.kpi.cap", { n: summary.capPct })} />
+                        <Kpi label={t("st.kpi.training")} value={`+${formatPercent(summary.trainingPct)}`} hint={t("st.kpi.trainingHint")} />
                         <Kpi label={t("st.kpi.wages")} value={formatCurrency(wageBill, "$", false)} />
                     </KpiStrip>
                 }
@@ -184,7 +190,7 @@ export default function StaffPage() {
                                                 >
                                                     <td className="py-2 pl-4 pr-3"><StaffIdentity s={s} /></td>
                                                     <td className="px-3 text-sm text-ink-2">{roleLabel(s.role)}</td>
-                                                    <td className="px-3"><LevelPips level={s.level} /></td>
+                                                    <td className="px-3"><StaffLevel s={s} /></td>
                                                     <td className="px-3 py-2"><Effects lines={staffEffects(s, counted.has(s.id) || s.role === "scout")} /></td>
                                                     <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(s.salaryPerWeek, "$", false)}</td>
                                                     <td className={cn("px-3 text-right text-sm tabular-nums", weeksLeft == null ? "text-ink-3" : contractTone(weeksLeft))}>
@@ -274,7 +280,8 @@ export default function StaffPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {marketStaff.map(s => {
+                                        {/* NEWPLAYER-04: grouped by role, so like is compared with like. */}
+                                        {[...marketStaff].sort((a, b) => STAFF_ROLE_ORDER.indexOf(a.role) - STAFF_ROLE_ORDER.indexOf(b.role)).map(s => {
                                             const duplicate = s.role !== "scout" && hired.some(h => h.role === s.role)
                                             const marginal = Math.max(0, Math.min(summary.capPct, summary.uncappedMatchPct + staffMatchPct(s)) - summary.matchPct)
                                             return (
@@ -284,7 +291,7 @@ export default function StaffPage() {
                                                         {roleLabel(s.role)}
                                                         {isSpecialist(s) && s.role !== "analyst" && <span className="ml-2 rounded-sm border border-line-strong px-1 text-[11px] text-ink-3" title={t("st.specialistTip")}>{t("st.specialist")}</span>}
                                                     </td>
-                                                    <td className="px-3"><LevelPips level={s.level} /></td>
+                                                    <td className="px-3"><StaffLevel s={s} /></td>
                                                     <td className="px-3 py-2">
                                                         <Effects lines={staffEffects(s, !duplicate, marginal)} muted={duplicate} />
                                                     </td>
@@ -314,7 +321,7 @@ export default function StaffPage() {
                 {hired.length > 0 && <aside className="min-w-0">
                     <Panel
                         title={selected ? t("st.talentsOf", { name: selected.name }) : t("st.talents")}
-                        actions={selected ? <span className="text-xs text-ink-3"><Trans k="st.pointsToSpend" params={{ n: selected.talentPoints || 0 }} tags={{ b: x => <span className="font-semibold tabular-nums text-ink-1">{x}</span> }} /></span> : null}
+                        actions={selected ? <span className="text-xs text-ink-3"><Trans k="st.pointsToSpend" count={selected.talentPoints || 0} tags={{ b: x => <span className="font-semibold tabular-nums text-ink-1">{x}</span> }} /></span> : null}
                         padded={false}
                         className="2xl:sticky 2xl:top-4"
                     >

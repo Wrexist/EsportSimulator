@@ -88,6 +88,8 @@ export interface MomentFrameProps {
     sound: SoundType | null
     tone?: MomentTone
     actionLabel?: string
+    /** An optional first action (primary); it runs, then the moment closes. The usual action becomes the outline one. */
+    extraAction?: { label: string; onClick: () => void }
     onDismiss: () => void
     children: ReactNode
     className?: string
@@ -99,7 +101,7 @@ export interface MomentFrameProps {
  * Escape or the button continue (after a short arm delay). Focus is trapped
  * while it is open; reduced motion shows everything at once.
  */
-export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actionLabel, onDismiss, children, className }: MomentFrameProps) {
+export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actionLabel, extraAction, onDismiss, children, className }: MomentFrameProps) {
     const reduce = useAppReducedMotion()
     const [armed, setArmed] = useState(false)
     const armedRef = useRef(false)
@@ -160,7 +162,7 @@ export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actio
         >
             <div aria-hidden="true" className={cn("pointer-events-none absolute inset-0 bg-radial-[ellipse_70%_55%_at_50%_0%] to-transparent", TONE_WASH[tone])} />
             <div aria-hidden="true" className={cn("pointer-events-none absolute inset-x-0 top-0 h-px", TONE_RULE[tone])} />
-            <div className={cn("relative mx-auto flex min-h-full w-full max-w-6xl flex-col items-center justify-center px-10 py-12 text-center", className)}>
+            <div className={cn("relative mx-auto flex min-h-full w-full max-w-6xl flex-col items-center justify-center px-10 py-12 text-center [@media(max-height:760px)]:py-6", className)}>
                 {children}
                 <motion.div
                     initial={reduce ? false : { opacity: 0 }}
@@ -168,11 +170,26 @@ export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actio
                     transition={{ duration: reduce ? 0 : 0.3, delay: reduce ? 0 : 0.9 }}
                     // Sticky: on a short window (1280x720) or with a long club
                     // name the action stays on screen instead of below the fold.
-                    className="sticky bottom-0 z-10 mt-6 flex w-full flex-col items-center gap-2 bg-linear-to-t from-ink from-60% to-transparent pb-4 pt-6"
+                    className="sticky bottom-0 z-10 mt-6 flex w-full flex-col items-center gap-2 bg-linear-to-t from-ink from-60% to-transparent pb-4 pt-6 [@media(max-height:760px)]:mt-3 [@media(max-height:760px)]:pt-4"
                 >
-                    <Button ref={buttonRef} onClick={close} disabled={!armed} className="h-12 min-w-[240px] px-10 text-base">
-                        {actionLabel ?? t("mo.continue")}
-                    </Button>
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                        {extraAction && (
+                            <Button
+                                onClick={() => {
+                                    if (!armedRef.current || closedRef.current) return
+                                    extraAction.onClick()
+                                    close()
+                                }}
+                                disabled={!armed}
+                                className="h-12 min-w-[240px] px-10 text-base"
+                            >
+                                {extraAction.label}
+                            </Button>
+                        )}
+                        <Button ref={buttonRef} onClick={close} disabled={!armed} variant={extraAction ? "outline" : undefined} className="h-12 min-w-[240px] px-10 text-base">
+                            {actionLabel ?? t("mo.continue")}
+                        </Button>
+                    </div>
                     <p className="text-xs text-ink-3">{t("mo.keysHint")}</p>
                 </motion.div>
             </div>

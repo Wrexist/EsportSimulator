@@ -183,10 +183,12 @@ describe("ranking movement causes", () => {
         const cause = { type: "match" as const, label: "Beat B 2–0 · IEM Cologne (S-Tier playoffs)" }
         const diff = [{ kind: "ranking" as const, subjectId: "me", label: "World rank", delta: 1, cause }]
         const split = splitLiveRankEntries(diff, before, after, "me")
-        expect(split).toEqual([
+        expect(split).toMatchObject([
             { kind: "ranking", subjectId: "me", label: "World rank", delta: -1, cause },
             { kind: "ranking", subjectId: "me", label: "World rank", delta: 2, cause: { type: "world", label: "Other clubs' results this week: passed by C, D" } },
         ])
+        // SMOKE-B-03: the others cause carries a translatable ref, not just English.
+        expect(split[1].cause?.ref).toBeDefined()
     })
 })
 

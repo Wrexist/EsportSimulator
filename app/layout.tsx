@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 import { GameShell } from '@/components/layout/GameShell'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { ColorblindFilters } from '@/components/ui/ColorblindFilters'
+import { SteamPresenceSync } from '@/components/layout/SteamPresenceSync'
 
 export default function RootLayout({
   children,
@@ -37,6 +38,7 @@ export default function RootLayout({
         <ColorblindFilters />
         <ErrorBoundary>
           <ConsoleToTerminal />
+          <SteamPresenceSync />
           <GameShell>
             {children}
           </GameShell>

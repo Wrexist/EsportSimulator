@@ -176,7 +176,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                     ),
                     category: "FACILITY",
                     teamId: team.id,
-                    week: state.currentWeek,
+                    week: state.currentWeek, day: state.currentDay,
                     engagement: {
                         likes: nextRandomInt(state, 100, 599),
                         views: nextRandomInt(state, 1000, 5999),
@@ -221,7 +221,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 ),
                 category: "FACILITY",
                 teamId: team.id,
-                week: state.currentWeek,
+                week: state.currentWeek, day: state.currentDay,
                 engagement: {
                     likes: nextRandomInt(state, 50, 349),
                     views: nextRandomInt(state, 500, 3499),
@@ -395,6 +395,12 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
 
             team.budget -= cost
             team.merchStoreLevel = currentLevel + 1
+            // MARKET-09 (2026-11-17): the line this level unlocks goes on sale with it
+            // (lines cost nothing to sell, so there is no reason to wait).
+            team.activeMerchItems ??= []
+            for (const [item, level] of Object.entries(MERCH_ITEM_REQUIRED_LEVEL)) {
+                if (level === team.merchStoreLevel && !team.activeMerchItems.includes(item)) team.activeMerchItems.push(item)
+            }
 
             state.financeLedger.push({
                 // Include the new level: a player can upgrade several levels in

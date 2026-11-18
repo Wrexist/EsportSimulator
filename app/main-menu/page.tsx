@@ -138,12 +138,12 @@ export default function MainMenuPage() {
                             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-gold-on">
                                 {latest.betweenClubs
                                     ? <Briefcase size={22} className="text-gold" aria-hidden="true" />
-                                    : <TeamLogoImage src={latest.teamLogo} team={latest.teamPreview} alt={latest.teamName || "Club"} size={38} />}
+                                    : <TeamLogoImage src={latest.teamLogo} team={latest.teamPreview} alt={latest.teamName || "Club"} size={38} className="size-[38px]" />}
                             </span>
                             <span className="min-w-0 flex-1">
                                 <span className="block font-display text-[28px] font-bold uppercase leading-none tracking-[0.02em]">{t("menu.continue")}</span>
                                 <span className="mt-1 block truncate text-[13px] font-semibold">
-                                    {latest.teamName} · {latest.draftCup ? t("menu.draftCup") : seasonWeekLabel(latest.currentWeek)}
+                                    {latest.pro ? `${latest.pro} · ` : ""}{latest.teamName} · {latest.draftCup ? t("menu.draftCup") : seasonWeekLabel(latest.currentWeek)}
                                 </span>
                             </span>
                             {isContinuing ? <Loader2 className="animate-spin" /> : <Play fill="currentColor" />}

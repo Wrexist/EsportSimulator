@@ -51,9 +51,19 @@ export function isTerminalBracketStage(stage: string): boolean {
  * Returning false here protects awardPrizes/closeTournament from firing
  * prematurely on partial tournament progressions.
  */
+/**
+ * A Swiss qualifier (RMR) has no final: handleSwissResult closes it when its
+ * Swiss stage is over and names the top of the Swiss table (COMP-03).
+ */
+function isDecidedBySwissTable(tournament: TournamentSaveData): boolean {
+    return tournament.format === "swiss" && !!tournament.isCompleted && !!tournament.winnerId
+        && (tournament.playoffBracket?.length ?? 0) > 0 && tournament.playoffBracket!.every(m => m.id.includes("_swiss_r"))
+}
+
 export function hasTerminalTournamentCompletion(save: GameSave, tournament: TournamentSaveData): boolean {
     const tournamentMatches = save.completedMatches.filter(m => m.tournamentId === tournament.id)
     if (tournamentMatches.length === 0) return false
+    if (isDecidedBySwissTable(tournament)) return true
 
     if (tournament.format === "league") {
         // Every league match is scheduled up front across the season, then
@@ -96,6 +106,7 @@ export function hasTerminalTournamentCompletion(save: GameSave, tournament: Tour
 export function terminalTournamentWinner(save: GameSave, tournament: TournamentSaveData): string | undefined {
     if (!hasTerminalTournamentCompletion(save, tournament)) return undefined
     if (tournament.format === 'league') return tournament.standings[0]?.teamId
+    if (isDecidedBySwissTable(tournament)) return tournament.winnerId
     const terminal = save.completedMatches.filter(m => m.tournamentId === tournament.id && m.stage && isTerminalBracketStage(m.stage))
         .sort((a, b) => b.week - a.week || b.id.localeCompare(a.id))[0]
     if (terminal) return resolveCompletedWinner(terminal)

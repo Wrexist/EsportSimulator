@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const steam = require('./steam');
 const { createCloseHandshake } = require('./close-handshake');
-const { clampWindowSize, fitBoundsToWorkArea } = require('./window-bounds');
+const { clampWindowSize, fitBoundsToWorkArea, windowMinimumSize } = require('./window-bounds');
 const { isAllowedAppNavigation, isTrustedMainFrame } = require('./app-origin');
 const { registerTrustedHandler, storageKey, MAX_MOD_BYTES, MOD_FILES } = require('./ipc-policy');
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
@@ -12,7 +12,26 @@ const { isAllowedLocalRequest, listenLoopback } = require('./local-server');
 const { contentPolicy } = require('./content-policy');
 const { secureWebContents, secureSession } = require('./renderer-security');
 const { createExternalOpener } = require('./external-links');
+const { pickUiLanguage, uiString } = require('./ui-strings');
 const handleApp = (channel, handler) => registerTrustedHandler(ipcMain, channel, isMainWindowSender, handler);
+// Native dialogs follow the game's language (the renderer reports it). Before the
+// renderer has reported (a boot failure), the language saved in the game's settings
+// is used, else the OS language when it is one of ours.
+let uiLanguage = null;
+const storedUiLanguage = () => {
+    try {
+        // Read only (no legacy import): <userData>/game-storage/esports_device_game-settings.json.
+        const raw = readBounded(app.getPath('userData'), 'game-storage/esports_device_game-settings.json', 256 * 1024);
+        return pickUiLanguage(JSON.parse(raw)?.state?.language);
+    } catch (_) { return null; }
+};
+const activeUiLanguage = () => {
+    if (uiLanguage) return uiLanguage;
+    const stored = storedUiLanguage();
+    if (stored) return stored;
+    try { return pickUiLanguage(app.getLocale()) || 'en'; } catch (_) { return 'en'; }
+};
+const ui = (key) => uiString(activeUiLanguage(), key);
 
 // Single-instance lock — must be checked BEFORE any heavy initialization
 // (steamworks, next.js) to prevent duplicate windows on alt-tab / re-launch.
@@ -170,16 +189,18 @@ const showErrorPage = (window, errorMessage, errorStack) => {
     const escapeHtml = value => String(value).slice(0, 16000).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
     const safeMsg = escapeHtml(errorMessage || 'Unknown error');
     const safeStack = escapeHtml(errorStack || '');
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager - Launch Error</title>
-<style>body{background:#1a1a2e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
-.c{max-width:600px;text-align:center}h1{color:#ff4444;font-size:24px;margin-bottom:8px}h2{color:#999;font-size:16px;font-weight:normal;margin-top:0}
-.e{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px;text-align:left;font-family:Consolas,monospace;font-size:12px;color:#ff8888;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;margin:16px 0}
-.b{background:#333;color:#fff;border:1px solid #555;padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}.b:hover{background:#444}
-.h{color:#666;font-size:12px;margin-top:16px}</style></head>
-<body><div class="c"><h1>Failed to Launch</h1><h2>The game engine could not start</h2>
-<div class="e">${safeMsg}${safeStack ? '\\n\\n' + safeStack : ''}</div>
-<div><button class="b" onclick="window.close()">Quit</button></div>
-<p class="h">Try verifying game files through Steam (right-click &gt; Properties &gt; Local Files &gt; Verify).</p>
+    const lang = activeUiLanguage();
+    const text = key => escapeHtml(uiString(lang, key));
+    const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8"><title>Esports Manager: FPS - ${text('launchErrorTitle')}</title>
+<style>body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
+.c{max-width:600px;text-align:center}h1{color:#FF5468;font-size:24px;margin-bottom:8px}h2{color:#AEB6C2;font-size:16px;font-weight:normal;margin-top:0}
+.e{background:#0D1015;border:1px solid rgba(255,255,255,.075);border-radius:8px;padding:16px;text-align:left;font-family:Consolas,monospace;font-size:12px;color:#FF5468;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;margin:16px 0}
+.b{background:#181D25;color:#F2F4F7;border:1px solid rgba(255,255,255,.16);padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}.b:hover{background:#212833}
+.h{color:#808A99;font-size:12px;margin-top:16px}</style></head>
+<body><div class="c"><h1>${text('errorPageHeading')}</h1><h2>${text('errorPageDetail')}</h2>
+<div class="e">${safeMsg}${safeStack ? '\n\n' + safeStack : ''}</div>
+<div><button class="b" onclick="window.close()">${text('quit')}</button></div>
+<p class="h">${text('errorPageHint')}</p>
 </div></body></html>`;
     window.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
     window.show();
@@ -198,10 +219,10 @@ const closeHandshake = createCloseHandshake(async () => {
     try {
         const { response } = await require('electron').dialog.showMessageBox(mainWindow, {
             type: 'warning',
-            title: 'Game is not responding',
-            message: 'The game has not acknowledged your exit request.',
-            detail: 'You can keep playing or close without saving your latest progress.',
-            buttons: ['Keep Open', 'Close Without Saving'],
+            title: ui('closeTitle'),
+            message: ui('closeMessage'),
+            detail: ui('closeDetail'),
+            buttons: [ui('keepOpen'), ui('closeWithoutSaving')],
             defaultId: 0,
             cancelId: 0,
             noLink: true,
@@ -215,6 +236,10 @@ const closeHandshake = createCloseHandshake(async () => {
     }
 });
 let closePending = false;
+// Set once the first game page has loaded (markBootCompleted). Before that no
+// page listens for a close request, so the window closes at once instead of
+// waiting 15 s for the "Game is not responding" prompt (CROSSCUT-03, 2026-11-17).
+let rendererBooted = false;
 let store;
 // Test harnesses swap this for a fault-injecting fs (so it stays `let`); production always uses node:fs.
 // eslint-disable-next-line prefer-const
@@ -412,6 +437,12 @@ if (!STABILITY_MODE) {
 steam.initializeSteam({
     isTrustedSender: isMainWindowSender,
     log: debugLog,
+});
+
+// The renderer reports its UI language (lib/use-locale.ts) so native dialogs match it.
+handleApp('app-set-ui-language', (_event, code) => {
+    uiLanguage = pickUiLanguage(code);
+    return uiLanguage !== null;
 });
 
 // Window Control IPC Handlers
@@ -798,7 +829,7 @@ handleApp('mod-install', (_event, text) => {
     return installDatabase(ensureModDir(), text);
 });
 handleApp('mod-read-folder', async () => {
-    const result = await require('electron').dialog.showOpenDialog(mainWindow, { title: 'Choose community database folder', properties: ['openDirectory'] });
+    const result = await require('electron').dialog.showOpenDialog(mainWindow, { title: ui('modFolderTitle'), properties: ['openDirectory'] });
     if (result.canceled || result.filePaths.length !== 1) return null;
     const database = await pinDatabase(result.filePaths[0], app.getPath('userData'));
     return JSON.stringify(database);
@@ -844,8 +875,9 @@ async function createWindow() {
 
         mainWindow = new BrowserWindow({
             ...initialBounds,
-            minWidth: MIN_WIDTH,
-            minHeight: MIN_HEIGHT,
+            // Never above the work area: on a screen smaller than 1024x640 the
+            // minimum would push the window under the taskbar (CROSSCUT-05).
+            ...windowMinimumSize(initialBounds, WINDOW_LIMITS),
             fullscreen: windowState.fullscreen || false,
             icon: windowIcon,
             webPreferences: {
@@ -985,6 +1017,7 @@ async function createWindow() {
         const markBootCompleted = (reason) => {
             if (bootCompleted || bootFailed) return;
             bootCompleted = true;
+            rendererBooted = true;
             clearBootWatchdog();
             clearLoadRetry();
             try {
@@ -1050,7 +1083,7 @@ async function createWindow() {
         // Show a loading screen immediately so the user sees something. Matches the in-game
         // splash (components/brand/LoadingSplash): ink, logotype, thin gold shimmer.
         const logotype = resolveLogotypeDataUrl();
-        const loadingHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager</title>
+        const loadingHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager: FPS</title>
 <style>
 html,body{height:100%}
 body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:center;align-items:center;margin:0;overflow:hidden}
@@ -1063,7 +1096,7 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
 @keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(263%)}}
 @media (prefers-reduced-motion:reduce){.c,.fill{animation:none}.fill{transform:translateX(81%);opacity:.6}}
 </style></head>
-<body><div class="c">${logotype ? `<img class="logo" src="${logotype}" alt="Esports Manager">` : '<div class="word">Esports Manager</div>'}<div class="bar"><div class="fill"></div></div></div></body></html>`;
+<body><div class="c">${logotype ? `<img class="logo" src="${logotype}" alt="Esports Manager: FPS">` : '<div class="word">Esports Manager: FPS</div>'}<div class="bar"><div class="fill"></div></div></div></body></html>`;
         mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(loadingHtml));
         mainWindow.show();
         mainWindow.focus();
@@ -1165,7 +1198,7 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
         loadApp();
 
         mainWindow.on('close', (e) => {
-            if (forceQuit) return;
+            if (forceQuit || !rendererBooted) return;
             e.preventDefault();
             if (closePending) return;
             closePending = true;
@@ -1209,10 +1242,10 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
             closePending = false;
             require('electron').dialog.showMessageBox(mainWindow, {
                 type: 'error',
-                title: 'The game stopped unexpectedly',
-                message: 'The game stopped unexpectedly.',
-                detail: 'Your saved games are safe; progress since the last save may be lost. Reload to continue from the main menu. Details are written to the logs folder.',
-                buttons: ['Reload', 'Quit'],
+                title: ui('crashTitle'),
+                message: ui('crashMessage'),
+                detail: ui('crashDetail'),
+                buttons: [ui('reload'), ui('quit')],
                 defaultId: 0,
                 cancelId: 1,
                 noLink: true,
@@ -1244,12 +1277,13 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
             closeHandshake.cancel();
             forceQuit = false;
             closePending = false;
+            rendererBooted = false;
             mainWindow = null;
         });
     } catch (error) {
         console.error('[Electron] Failed to create window:', error);
         const { dialog } = require('electron');
-        dialog.showErrorBox('Launch Error', 'Failed to start the game:\n' + (error.message || error));
+        dialog.showErrorBox(ui('launchErrorTitle'), ui('launchErrorMessage') + '\n' + (error.message || error));
         app.quit();
     } finally {
         isCreatingWindow = false;

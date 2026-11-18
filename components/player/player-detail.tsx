@@ -2,6 +2,7 @@
 import { Trans } from "@/lib/trans"
 import { countryName } from "@/lib/country"
 import { formatDecimal, t, tn } from "@/lib/i18n"
+import { weekLabel, weekLabelShort } from "@/lib/season-week"
 
 import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
@@ -49,6 +50,7 @@ import { PersonalityPanel } from "./PersonalityPanel"
 import { PlayerStorylines } from "@/components/storylines/PlayerStorylines"
 import { captainId } from "@/engine/personality"
 import { releaseSettlement, RELEASE_CHEMISTRY_COST, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
+import { aiClubsAbleToBid } from "@/engine/ai/transfer-market"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { visibleAcademyPotential } from "@/engine/academy-engine"
 import { potentialRevealText } from "@/app/academy/_components/academy-facts"
@@ -105,7 +107,7 @@ function Row({ label, children, className }: { label: string; children: ReactNod
 function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const {
         contracts, listPlayerForTransfer, unlistPlayerForTransfer, startRoleTraining, cancelRoleTraining,
-        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers, allPlayers, activeMatchId,
+        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers, allPlayers, activeMatchId, staff,
     } = useGameStore(useShallow(state => ({
         allPlayers: state.players,
         contracts: state.contracts,
@@ -119,6 +121,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
         unlockPlayerTalent: state.unlockPlayerTalent,
         academyPlayers: state.academyPlayers,
         activeMatchId: state.activeMatchId,
+        staff: state.staff,
     })))
     const [tab, setTab] = useState("overview")
     const [trainingModalOpen, setTrainingModalOpen] = useState(false)
@@ -171,6 +174,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
         wage: formatCurrency(release.wage, "$", false), amount: formatCurrency(release.amount, "$", false),
         after: formatCurrency(funds - release.amount, "$", false), chem: RELEASE_CHEMISTRY_COST, size: squadSize - 1, max: SENIOR_ROSTER_MAX,
     })
+
+    // MARKET-13 (2026-11-17): the real interest in a listed player (the weekly bid loop's own gates).
+    const bidders = useMemo(() => isOwnPlayer && player.forSale && playerTeamId
+        ? aiClubsAbleToBid({ teams, players: allPlayers, contracts, staff, currentWeek }, playerTeamId, player).length
+        : null, [isOwnPlayer, player, playerTeamId, teams, allPlayers, contracts, staff, currentWeek])
 
     const performances = usePlayerPerformances(player.id)
     const recentRatings = useMemo(() => performances.slice(0, 10).map(p => p.rating).reverse(), [performances])
@@ -273,6 +281,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         currentSalary={contract.salaryPerWeek}
                                         currentEndWeek={contract.endWeek}
                                         currentWeek={currentWeek}
+                                        budget={funds}
                                         onConfirm={() => useGameStore.getState().renewContract(player.id)}
                                         trigger={
                                             <Button
@@ -386,7 +395,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                                 {performances.slice(0, 4).map(r => (
                                                     <li key={r.matchId}>
                                                         <Link href={`/match/${r.matchId}/result`} className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-hover">
-                                                            <span className="w-9 tabular-nums text-ink-3">W{r.week}</span>
+                                                            <span className="shrink-0 whitespace-nowrap tabular-nums text-ink-3">{weekLabelShort(r.week, currentWeek)}</span>
                                                             <span className="min-w-0 flex-1 truncate text-ink-2">{t("common.vsLower")} {r.opponentName}</span>
                                                             <span className="tabular-nums text-ink-3">{r.kills}–{r.deaths}</span>
                                                             <span className="w-10 text-right font-semibold tabular-nums text-ink-1">{r.rating.toFixed(2)}</span>
@@ -416,8 +425,9 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <dl className="divide-y divide-line">
                                             <Row label={t("player.row.club")}><TeamLink id={viewedTeam?.id}>{viewedTeam?.name ?? "—"}</TeamLink></Row>
                                             <Row label={t("player.row.wage")}>{t("player.row.wageValue", { wage: formatCurrency(contract.salaryPerWeek, "$", false) })}</Row>
-                                            <Row label={t("player.row.signed")}>{t("common.week", { n: contract.startWeek })}</Row>
-                                            <Row label={t("player.row.expires")}>{t("common.week", { n: contract.endWeek })}</Row>
+                                            {/* SQUAD-57: season weeks ("Week 19 (season 2)"), never the career's absolute week. */}
+                                            <Row label={t("player.row.signed")}>{weekLabel(contract.startWeek, currentWeek)}</Row>
+                                            <Row label={t("player.row.expires")}>{weekLabel(contract.endWeek, currentWeek)}</Row>
                                             <Row label={t("player.row.timeLeft")} className={contractTone(weeksLeft)}>{formatWeeks(weeksLeft)}</Row>
                                             {/* SQUAD-12: nothing reads the buyout of your own players (release cost is below); it went stale on renewal. */}
                                             {!isOwnPlayer && contract.buyout > 0 && <Row label={t("player.row.buyout")}>{formatCurrency(contract.buyout)}</Row>}
@@ -439,6 +449,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <Row label={t("player.row.transferList")}>{player.forSale ? t("player.row.listedAt", { price: formatCurrency(player.transferListingPrice ?? evaluation.transferValue) }) : t("player.row.notListed")}</Row>
                                         {isOwnPlayer && <Row label={t("player.row.releaseCost")}>{t("player.row.releaseCostValue", { amount: formatCurrency(release.amount, "$", false) })}</Row>}
                                     </dl>
+                                    {bidders !== null && (
+                                        <p className={cn("border-t border-line px-4 py-3 text-xs leading-relaxed", bidders === 0 ? "text-caution" : "text-ink-3")}>
+                                            {bidders === 0 ? t("player.biddersNone") : tn("player.bidders", bidders)}
+                                        </p>
+                                    )}
                                     {/* SQUAD-06: the same reason as the renew dialog, translated. */}
                                     {renewal && (
                                         <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
@@ -507,7 +522,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{t("player.masteryNote")}</p>
                             </Panel>
 
-                            <Panel title={t("player.talents")} actions={<span className="text-xs text-ink-3"><Trans k="player.pointsToSpend" params={{ n: player.talentPoints || 0 }} tags={{ b: s => <span className="font-semibold tabular-nums text-ink-1">{s}</span> }} /></span>} padded={false}>
+                            <Panel title={t("player.talents")} actions={<span className="text-xs text-ink-3"><Trans k="player.pointsToSpend" count={player.talentPoints || 0} tags={{ b: s => <span className="font-semibold tabular-nums text-ink-1">{s}</span> }} /></span>} padded={false}>
                                 <TalentTree
                                     nodes={PLAYER_TALENT_TREE}
                                     unlockedIds={player.unlockedTalentIds || []}
@@ -529,7 +544,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                                         <ArrowRightLeft size={13} className="shrink-0 text-ink-3" />
                                                         <span className="truncate">{c.teamName}</span>
                                                     </span>
-                                                    <span className="shrink-0 tabular-nums text-ink-3">W{c.joinedWeek}{c.leftWeek != null ? ` – W${c.leftWeek}` : ` – ${t("player.now")}`}</span>
+                                                    <span className="shrink-0 tabular-nums text-ink-3">{weekLabelShort(c.joinedWeek)}{c.leftWeek != null ? ` – ${weekLabelShort(c.leftWeek)}` : ` – ${t("player.now")}`}</span>
                                                 </li>
                                             ))}
                                         </ul>

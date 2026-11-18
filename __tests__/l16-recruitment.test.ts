@@ -13,6 +13,7 @@ import { SaveManager } from "@/engine/save-manager"
 import { SeededRNG } from "@/engine/rng"
 import type { StoreState } from "@/store/types"
 import type { StaffSaveData } from "@/engine/save-types"
+import { CLAUSE_TUNING } from "@/engine/contract-clauses"
 
 function fixture() {
     const save = createLaunchFixture("first-week")
@@ -198,4 +199,23 @@ test("MARKET-09: accepting one bid closes the other open bids for the same playe
     expect(h.get().acknowledgedEventIds).toContain("bid_b")
     // A bid for another player stays open.
     expect(log("bid_other_player").selectedChoiceId).toBeUndefined()
+})
+
+test("MARKET-14: an accepted bid records the amount received and the sell-on share kept", () => {
+    const h = harness()
+    const playerId = h.get().teams[0].rosterIds[0]
+    const buyer = h.get().teams[1]
+    h.set(s => {
+        s.players.find(p => p.id === playerId)!.forSale = true
+        s.teams[0].rosterIds.push("qa_free_agent")
+        s.teams[1].budget = 10_000_000
+        s.eventsLog.push({ id: "bid_s", type: "TRANSFER_OFFER", week: s.currentWeek, acknowledged: false,
+            data: { playerId, teamId: buyer.id, offerAmount: 10_000, expiresWeek: s.currentWeek + 2 } })
+    })
+    h.get().acceptTransferOffer("bid_s", { sellOn: true })
+    const data = h.get().eventsLog.find(e => e.id === "bid_s")!.data as { receivedFee?: number; sellOnPct?: number }
+    expect(data.receivedFee).toBe(Math.round(10_000 * (1 - CLAUSE_TUNING.SELL_ON_FEE_CUT)))
+    expect(data.sellOnPct).toBe(CLAUSE_TUNING.SELL_ON_SHARE)
+    const received = h.get().financeLedger.find(e => e.category === "TRANSFER_IN" && e.teamId === h.get().playerTeamId)
+    expect(received?.amount).toBe(data.receivedFee)
 })

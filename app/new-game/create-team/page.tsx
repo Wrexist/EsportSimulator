@@ -1,7 +1,7 @@
 "use client"
 import { t } from "@/lib/i18n"
 
-import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
+import { loadCareerDraft, saveCareerDraft, clearCareerDraft, restorableCreateTeamStep } from '@/lib/new-career-draft'
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -89,8 +89,11 @@ function CrestPreview({ team, size }: { team: CustomTeamData; size: number }) {
 
 export default function CreateTeamPage() {
     const router = useRouter()
-    const { initializeCustomTeam } = useGameStore(useShallow(state => ({
+    const { initializeCustomTeam, activeSaveId, storeLoading, rosterSize } = useGameStore(useShallow(state => ({
         initializeCustomTeam: state.initializeCustomTeam,
+        activeSaveId: state.saveId,
+        storeLoading: !state._hasHydrated || state.isLoading,
+        rosterSize: state.teams.find(team => team.id === state.playerTeamId)?.rosterIds?.length ?? 0,
     })))
     // START-10/11: the world's clubs (no career is loaded on this screen), for
     // the name and tag check and the world rank a new club starts at.
@@ -127,14 +130,38 @@ export default function CreateTeamPage() {
     const creatingRef = useRef(false)
     const [draftReady, setDraftReady] = useState(false)
     const [draftSaved, setDraftSaved] = useState(true)
+    // SMOKE-B-17: the career this wizard already started (its roster builder was open when the page reloaded).
+    const [resumeSaveId, setResumeSaveId] = useState<string | null>(null)
     useEffect(() => {
         const draft = loadCareerDraft()
         if (draft) { setManagerName(draft.managerName); if (draft.custom) setTeamData(draft.custom) }
+        if (draft?.createdSaveId) setResumeSaveId(draft.createdSaveId)
+        // START-68: a reload returns to the step the player was on.
+        setCurrentStep(restorableCreateTeamStep(draft))
         setDraftReady(true)
     }, [])
+    // Once the store has reloaded the career, reopen its roster builder; a
+    // career that is gone (or already has its five) leaves the wizard as it is.
     useEffect(() => {
-        if (draftReady && !isCreating) setDraftSaved(saveCareerDraft({ managerName, custom: teamData }))
-    }, [draftReady, managerName, teamData, isCreating])
+        if (!resumeSaveId || storeLoading) return
+        if (activeSaveId === resumeSaveId && rosterSize < 5) {
+            creatingRef.current = true
+            setShowRosterBuilder(true)
+        } else {
+            saveCareerDraft({ createdSaveId: undefined })
+        }
+        setResumeSaveId(null)
+    }, [resumeSaveId, storeLoading, activeSaveId, rosterSize])
+    useEffect(() => {
+        if (draftReady && !isCreating && !showRosterBuilder) setDraftSaved(saveCareerDraft({ managerName, custom: teamData, ctStep: currentStep }))
+    }, [draftReady, managerName, teamData, isCreating, currentStep, showRosterBuilder])
+    // START-68: a restored later step still needs a club name and tag no other club uses.
+    useEffect(() => {
+        if (!worldClubs || currentStep === "name") return
+        const clash = clubIdentityClash(teamData.name, teamData.shortName, worldClubs)
+        if (clash.name || clash.tag) setCurrentStep("name")
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- checked once, when the world's clubs arrive
+    }, [worldClubs])
 
     // Navigation guard - warn about unsaved changes
     const hasUnsavedChanges = teamData.name.trim() !== "" || managerName.trim() !== ""
@@ -224,7 +251,7 @@ export default function CreateTeamPage() {
 
     // Back to the path choice this page was opened from, not the club list (START-07).
     const leaveToPathChoice = () => {
-        saveCareerDraft({ step: "welcome" })
+        saveCareerDraft({ step: "welcome", ctStep: "name" })
         router.push("/new-game")
     }
 
@@ -249,7 +276,10 @@ export default function CreateTeamPage() {
                 return
             }
 
+            // SMOKE-B-17: until the roster is signed, a reload reopens the builder for this career.
             clearCareerDraft()
+            const createdSaveId = useGameStore.getState().saveId
+            if (createdSaveId) saveCareerDraft({ managerName: managerName.trim(), custom: teamData, ctStep: "review", createdSaveId })
             setShowRosterBuilder(true)
         } catch (err) {
             const msg = err instanceof Error ? err.message : t("ct.err.unexpected")
@@ -261,6 +291,7 @@ export default function CreateTeamPage() {
     }
 
     const handleRosterComplete = () => {
+        clearCareerDraft()
         setShowRosterBuilder(false)
         // Replace: Back/Escape from Home must not reopen the setup (START-05).
         router.replace("/")
@@ -317,14 +348,16 @@ export default function CreateTeamPage() {
                                 placeholder={t("ct.tagPlaceholder")}
                                 value={teamData.shortName}
                                 aria-invalid={!!errors.shortName || undefined}
+                                aria-describedby="ct-tag-hint"
                                 onChange={(e) => {
+                                    // START-66: filter first, then cap, so a pasted "NA-VI1" keeps "NAVI1".
                                     const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5)
                                     setTeamData({ ...teamData, shortName: value })
                                     if (errors.shortName) setErrors({ ...errors, shortName: "" })
                                 }}
-                                maxLength={5}
                                 className="h-11 w-40 font-mono uppercase tracking-[0.2em]"
                             />
+                            <p id="ct-tag-hint" className="text-xs text-ink-3">{t("ct.tagHint")}</p>
                             {renderError("shortName")}
                         </div>
                     </div>
@@ -414,7 +447,7 @@ export default function CreateTeamPage() {
                                                 <span className="block text-xs text-ink-3">{t(`ct.diff.${key}.desc`)}</span>
                                             </span>
                                             <dl className="grid shrink-0 grid-cols-3 gap-4 text-right">
-                                                <div><dt className="text-[11px] text-ink-3">{t("ct.cash")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{formatCurrency(customClubStartingCash(settings.startingBudget))}</dd></div>
+                                                <div><dt className="text-[11px] text-ink-3">{t("ct.cash")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{formatCurrency(customClubStartingCash(settings.startingBudget), "$", false)}</dd></div>
                                                 <div><dt className="text-[11px] text-ink-3">{t("ct.rep")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{settings.startingReputation}</dd></div>
                                                 <div><dt className="text-[11px] text-ink-3">{t("ct.income")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{settings.incomeMultiplier}×</dd></div>
                                             </dl>
@@ -454,10 +487,6 @@ export default function CreateTeamPage() {
                                 {challenge.notes.map(note => <li key={note}>{note}</li>)}
                             </ul>
                         </section>
-                        <p className="text-sm text-ink-2">
-                            <span className="font-semibold text-caution">{t("ct.emptyRoster")} </span>
-                            {t("ct.emptyRosterBody")}
-                        </p>
                     </div>
                 )
             }
@@ -465,7 +494,7 @@ export default function CreateTeamPage() {
     }
 
     return (
-        <div className="relative min-h-dvh overflow-hidden bg-ink">
+        <div className="relative min-h-dvh overflow-clip bg-ink">
             {/* Mounted only once the club exists: the builder reads its roster when it opens (MODES-19). */}
             {showRosterBuilder && <RosterBuilderModal
                 isOpen
@@ -483,7 +512,8 @@ export default function CreateTeamPage() {
             />
             <div aria-hidden="true" className="absolute inset-0 bg-linear-to-r from-ink from-35% via-ink/90 via-60% to-ink/40" />
 
-            <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1240px] gap-12 px-12 py-10">
+            {/* SMOKE-B-17: while a reload decides whether to reopen the roster builder, the wizard stays hidden. */}
+            <div className={cn("relative z-10 mx-auto flex min-h-dvh w-full max-w-[1240px] gap-12 px-12 py-10", resumeSaveId && "invisible")}>
                 <div className="flex w-full max-w-[620px] flex-col gap-6">
                     <button type="button" onClick={goPrev} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                         <ArrowLeft size={16} /> {currentStepIndex === 0 ? t("ng.step1.title") : t(STEPS[currentStepIndex - 1].label)}
@@ -509,7 +539,8 @@ export default function CreateTeamPage() {
 
                     <Panel>{renderStepContent()}</Panel>
 
-                    <div className="flex justify-between">
+                    {/* START-51: the wizard's buttons stay in view on a short window; SMOKE-B-18: on an opaque bar. */}
+                    <div className="sticky bottom-0 z-10 -mx-2 flex justify-between border-t border-line bg-ink px-2 py-3">
                         <Button variant="outline" onClick={goPrev} className="gap-2">
                             <ArrowLeft size={16} /> {currentStepIndex === 0 ? t("ng.cancel") : t("ng.back")}
                         </Button>
@@ -539,7 +570,7 @@ export default function CreateTeamPage() {
                         <dl className="mt-6 divide-y divide-line border-y border-line text-sm">
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.manager")}</dt><dd className="font-semibold text-ink-1">{managerName || "—"}</dd></div>
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.step.difficulty")}</dt><dd className="font-semibold text-ink-1">{t(`ct.diff.${teamData.difficulty}`)}</dd></div>
-                            <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.startingCash")}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(startingCash)}</dd></div>
+                            <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.startingCash")}</dt><dd className="font-semibold tabular-nums text-ink-1">{/* MODES-16 (audit 17): exact, as the review table beside it */}{formatCurrency(startingCash, "$", false)}</dd></div>
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.worldRank")}</dt><dd className="font-semibold tabular-nums text-ink-1">{startRank ? `#${startRank}` : "—"}</dd></div>
                         </dl>
                         <p className="mt-3 text-xs text-ink-3">{t("ct.previewNote")}</p>

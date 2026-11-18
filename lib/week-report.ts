@@ -20,7 +20,7 @@ import {
 import type { StoryArc } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL, leadingBeat } from "@/engine/storylines/view"
 import type { StoryArcKind } from "@/engine/storylines/types"
-import { getLocale, intlLocale, listJoin, t, tn } from "@/lib/i18n"
+import { getLocale, intlLocale, isTextRef, listJoin, t, tn, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { storyKindName } from "@/lib/story-names"
 import { lineText } from "@/lib/news-text"
@@ -64,6 +64,9 @@ export interface ReportUnanswered {
     label: string
     /** The default applied, as the choice reads ("Focus purely on practice (Morale +2)"), or "Lapsed". */
     outcome: string
+    /** SMOKE-B-01/02: the same label and answer as translation keys (reports from older builds have none). */
+    labelRef?: import("@/lib/i18n").TextRef
+    outcomeRef?: import("@/lib/i18n").TextRef
 }
 
 export interface ReportKpis {
@@ -93,6 +96,8 @@ export interface WeekReport {
     /** Phase 5.3: the week's most important storyline beat (it leads the headline). */
     story?: { kind: string; label: string; text: string; ref?: import("@/lib/i18n").TextRef }
     partial?: boolean
+    /** Audit 17 MODES-05: a Draft Cup week: no money to manage, so the headline names none. */
+    moneyless?: true
 }
 
 export interface WeekReportsState {
@@ -144,6 +149,8 @@ export interface ReportStateSource {
     storylines?: StoryArc[]
     /** Earlier reports: the beat that led the previous one does not lead again (HOME-14). */
     weekReports?: { history?: Array<Pick<WeekReport, "week" | "teamId" | "story">> } | null
+    /** Set while a Draft Cup runs (the report then talks no money). */
+    draftCup?: unknown
 }
 
 export interface BuildReportInput {
@@ -273,6 +280,7 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
         ...(unanswered.length ? { unanswered } : {}),
         ...(story ? { story } : {}),
         ...(tracker?.partial || !trackerValid ? { partial: true } : {}),
+        ...(state.draftCup ? { moneyless: true as const } : {}),
     }
     report.headline = weekHeadline(report)
     return report
@@ -281,9 +289,13 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
 function unansweredThisTick(state: ReportStateSource): ReportUnanswered[] {
     const out: ReportUnanswered[] = []
     for (const e of state.eventsLog ?? []) {
-        const u = (e.data as { unanswered?: { week?: unknown; label?: unknown; outcome?: unknown } } | undefined)?.unanswered
+        const u = (e.data as { unanswered?: { week?: unknown; label?: unknown; outcome?: unknown; labelRef?: unknown; outcomeRef?: unknown } } | undefined)?.unanswered
         if (!u || u.week !== state.currentWeek || typeof u.label !== "string") continue
-        out.push({ label: u.label, outcome: typeof u.outcome === "string" ? u.outcome : "Lapsed" })
+        out.push({
+            label: u.label, outcome: typeof u.outcome === "string" ? u.outcome : "Lapsed",
+            ...(isTextRef(u.labelRef) ? { labelRef: u.labelRef } : {}),
+            ...(isTextRef(u.outcomeRef) ? { outcomeRef: u.outcomeRef } : {}),
+        })
     }
     return out
 }
@@ -303,6 +315,13 @@ export function formatMoney(n: number, signed = false): string {
 export function moneyNet(report: Pick<WeekReport, "changes">): number {
     return report.changes.filter(e => e.kind === "money").reduce((s, e) => s + e.delta, 0)
 }
+
+/** Smallest attribute gain the headline names (HOME-09). */
+export const HEADLINE_MIN_GROWTH = 1
+/** Money causes that are news on their own, unlike the weekly settlement (HOME-09). */
+const ONE_OFF_MONEY = new Set(["prize", "transfer", "board"])
+/** English words that start a beat and are not names, so they read lower case after "Label:" (HOME-14). */
+const PLAIN_FIRST_WORD = /^(You|The|A|An|His|Her|Their|No|Your)\b/
 
 /** One sentence built from the week's biggest real changes, in the active language. */
 export function weekHeadline(report: Omit<WeekReport, "headline">): string {
@@ -328,21 +347,29 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     const injuries = report.changes.filter(e => e.kind === "injury" && e.delta > 0 && !e.label.startsWith("Recovered"))
     for (const inj of injuries.slice(0, 1)) clauses.push(tn("wr.h.injured", inj.delta, { name: report.names[inj.subjectId] ?? t("wr.aPlayer") }))
 
-    // Biggest single attribute gain with its cause.
-    const growth = report.changes.filter(e => e.kind === "attribute" && e.delta > 0).sort((a, b) => b.delta - a.delta)[0]
+    // Biggest single attribute gain with its cause. HOME-09: only a gain of a
+    // whole point is headline news; the weekly +0.2 from the regimen is not.
+    const growth = report.changes.filter(e => e.kind === "attribute" && e.delta >= HEADLINE_MIN_GROWTH).sort((a, b) => b.delta - a.delta)[0]
     if (growth && clauses.length < 3) {
-        const cause = storedText(growth.cause.label.split(" · ")[0])
-        clauses.push(t("wr.h.growth", { name: report.names[growth.subjectId] ?? t("wr.aPlayer"), attr: storedText(growth.label), n: fmtDelta(growth.delta), cause: en ? cause.toLowerCase() : cause }))
+        const cause = isTextRef(growth.cause.ref) ? tRef(growth.cause.ref) : storedText(growth.cause.label.split(" · ")[0])
+        // SMOKE-B-19: only the first letter reads lower case mid-sentence ("drill: VOD review"), never the whole cause.
+        clauses.push(t("wr.h.growth", { name: report.names[growth.subjectId] ?? t("wr.aPlayer"), attr: storedText(growth.label), n: fmtDelta(growth.delta), cause: en ? cause.charAt(0).toLowerCase() + cause.slice(1) : cause }))
     }
 
+    // HOME-09: the same weekly settlement is not news; a loss or a one-off
+    // (prize money, a transfer, a board grant) is.
     const net = moneyNet(report)
-    if (clauses.length < 3 && Math.abs(net) >= 1) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
+    const oneOff = report.changes.some(e => e.kind === "money" && ONE_OFF_MONEY.has(e.cause.type))
+    // SMOKE-B-21: a word joiner keeps the sign on the amount's line ("−" and "$" are both break opportunities).
+    if (!report.moneyless && clauses.length < 3 && Math.abs(net) >= 1 && (net < 0 || oneOff)) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true).replace(/^([+−])/, "$1\u2060") }))
 
     const join = listJoin
     const lowerFirst = (x: string) => x.charAt(0).toLowerCase() + x.slice(1)
     // Phase 5.3: a storyline beat leads ("Slump: …"), then the week's top clause.
     if (report.story) {
-        const story = t("wr.h.story", { label: storyKindName(report.story.kind as StoryArcKind), text: lineText(report.story).replace(/[.。]$/, "") })
+        // HOME-14: after "Label:" a plain first word reads lower case ("Rising star: you promised …"); a name keeps its case.
+        const beat = lineText(report.story).replace(/[.。]$/, "")
+        const story = t("wr.h.story", { label: storyKindName(report.story.kind as StoryArcKind), text: en && PLAIN_FIRST_WORD.test(beat) ? lowerFirst(beat) : beat })
         const first = clauses[0] && matches.length > 0 && en ? lowerFirst(clauses[0]) : clauses[0]
         return first ? t("wr.h.storyAnd", { story, clause: first }) : t("wr.h.storyOnly", { story })
     }
@@ -370,6 +397,11 @@ export function signedDelta(d: number): string {
 export function pushWeekReport(state: WeekReportsState | null | undefined, report: WeekReport, nextTracker: WeekTracker | null): WeekReportsState {
     const history = [report, ...(state?.history ?? []).filter(r => r.week !== report.week || r.teamId !== report.teamId)].slice(0, WEEK_REPORT_HISTORY)
     return { tracker: nextTracker, history }
+}
+
+/** A change's cause in the active language: its translation key when it has one, else the stored English. */
+export function causeText(cause: ChangeCause): string {
+    return isTextRef(cause.ref) ? tRef(cause.ref) : storedText(cause.label)
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v)

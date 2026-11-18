@@ -231,6 +231,12 @@ export interface MatchManagementRecord {
     /** Opponent style was scouted via VOD review, so the counter matchup may be shown. */
     opponentScouted?: boolean
     counter?: 'advantage' | 'disadvantage' | 'neutral'
+    /**
+     * Team strength the counter really changed (0.04 = +4%): the counter shares
+     * the non-player cap with staff, so it can add less, or nothing. Unset on
+     * older results (the nominal +4% / -3% applies).
+     */
+    counterEdge?: number
     timeoutsUsed: number
     strategyCalls: number
     mode: 'live' | 'instant'

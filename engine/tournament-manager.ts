@@ -42,9 +42,10 @@ import {
     generateSwissRound as generateSwissRoundFn,
     handleSwissResult as handleSwissResultFn,
     generateSwissPlayoffs as generateSwissPlayoffsFn,
+    swissOrder,
 } from "./tournament/swiss-handlers"
 import { setupLeagueSchedule as setupLeagueScheduleFn } from "./tournament/league-schedule"
-import { feederSlots, hasRankedInvites, qualifierEntryBlock, rankedInvitees, regionAllows } from "./tournament/qualification-path"
+import { clashes, clubEventWindows, eventWeight, feederSlots, hasRankedInvites, qualifierEntryBlock, rankedInvitees, regionAllows } from "./tournament/qualification-path"
 import { isQualificationForTournament } from "./circuit-engine"
 import { instanceName } from "@/lib/tournament-instances"
 
@@ -885,6 +886,18 @@ export class TournamentManager {
         bracketMatch.isCompleted = true
         bracketMatch.winnerId = winnerId
         bracketMatch.loserId = loserId
+        // The row keeps the score, so the bracket still reads once the result
+        // has left the capped completedMatches list (COMP-09).
+        for (let i = save.completedMatches.length - 1; i >= 0; i--) {
+            const record = save.completedMatches[i]
+            if (record.id !== matchId) continue
+            if (record.result) {
+                const sameSides = record.homeTeamId === bracketMatch.homeTeamId
+                bracketMatch.homeScore = sameSides ? record.result.homeScore : record.result.awayScore
+                bracketMatch.awayScore = sameSides ? record.result.awayScore : record.result.homeScore
+            }
+            break
+        }
 
         // Logical progression
         if (bracketMatch.id.includes("opening")) {
@@ -1019,16 +1032,16 @@ export class TournamentManager {
         // finish with no placement → no prize, no circuit points. Rank all
         // not-yet-placed standings by record and slot them into the next open
         // positions so the whole Swiss field is rewarded.
+        // A two-stage Major places its stage-2 table first, then the clubs
+        // that went out in stage 1 (17th-24th).
         if (tournament.format === "swiss" && tournament.standings) {
             const placed = new Set(placements.map(p => p.teamId))
-            const remaining = tournament.standings
-                .filter(s => !placed.has(s.teamId))
-                .sort((a, b) =>
-                    b.wins - a.wins
-                    || (b.wins - b.losses) - (a.wins - a.losses)
-                    || b.roundDiff - a.roundDiff
-                    || b.mapDiff - a.mapDiff
-                    || a.teamId.localeCompare(b.teamId))
+            const remaining: { teamId: string }[] = []
+            for (const s of [...swissOrder(tournament.standings), ...swissOrder(tournament.swissStage1 ?? [])]) {
+                if (placed.has(s.teamId)) continue
+                placed.add(s.teamId)
+                remaining.push(s)
+            }
             let nextPos = placements.length > 0 ? Math.max(...placements.map(p => p.position)) + 1 : 1
             remaining.forEach(s => placements.push({ teamId: s.teamId, position: nextPos++ }))
         }
@@ -1050,14 +1063,14 @@ export class TournamentManager {
 
     private static handleSwissResult(save: GameSave, tournament: TournamentSaveData, match: BracketMatchSaveData, winnerId: string, loserId: string): void {
         handleSwissResultFn(save, tournament, match, winnerId, loserId, {
-            setupGenericBracket: (s, t, ids, r, w) => this.setupGenericBracket(s, t, ids, r, w),
+            setupGenericBracket: (s, t, ids, r, w, keep) => this.setupGenericBracket(s, t, ids, r, w, keep),
             notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
         })
     }
 
     private static generateSwissPlayoffs(save: GameSave, tournament: TournamentSaveData): void {
         generateSwissPlayoffsFn(save, tournament, {
-            setupGenericBracket: (s, t, ids, r, w) => this.setupGenericBracket(s, t, ids, r, w),
+            setupGenericBracket: (s, t, ids, r, w, keep) => this.setupGenericBracket(s, t, ids, r, w, keep),
             notifyPlayerElimination: (s, t, id) => this.notifyPlayerElimination(s, t, id),
         })
     }
@@ -1229,7 +1242,9 @@ export class TournamentManager {
         tournament: TournamentSaveData,
         teamIds: string[],
         rng: SeededRNG,
-        startWeekOverride?: number
+        startWeekOverride?: number,
+        /** Seed in the order given (a Swiss stage's order) instead of by Elo. */
+        keepSeedOrder = false,
     ): void {
         const idx = buildSaveIndexes(save)
         let numTeams = teamIds.length
@@ -1246,7 +1261,7 @@ export class TournamentManager {
         // Sort real teams by ELO, then append BYE entries as lowest seeds
         const realTeams = paddedTeamIds.filter(id => id !== "BYE")
         const byeCount = paddedTeamIds.length - realTeams.length
-        const sorted = [...realTeams].sort((a, b) => {
+        const sorted = keepSeedOrder ? [...realTeams] : [...realTeams].sort((a, b) => {
             const teamA = idx.teamIndex.get(a) ?? save.teams.find(t => t.id === a)
             const teamB = idx.teamIndex.get(b) ?? save.teams.find(t => t.id === b)
             const eloA = teamA?.elo ?? (teamA?.worldRanking ? (2000 - (teamA?.worldRanking ?? 50)) : 1000)
@@ -1445,6 +1460,9 @@ export class TournamentManager {
         const idx = buildSaveIndexes(save)
 
         const currentSeason = Math.max(1, Math.floor((currentWeek - 1) / 52) + 1)
+        // Every club's other events, so no club signs up for an event in
+        // weeks it already plays a bigger one (COMP-05).
+        const otherEvents = clubEventWindows(save)
 
         FULL_TOURNAMENT_CALENDAR.forEach((def: TournamentDefinition) => {
             // Calculate absolute start week for this season
@@ -1493,8 +1511,9 @@ export class TournamentManager {
             // Closed qualifiers, qualifier-entry events and league events are
             // never signed up for: their field is the clubs that qualified
             // (qualifier results, ranked invites) plus the ranked fill when the
-            // event starts (COMP-08/16).
-            if (def.entryType === "QUALIFIER" || def.entryType === "LEAGUE") return
+            // event starts (COMP-08/16). A points event is the top of the
+            // circuit points table (COMP-04).
+            if (def.entryType === "QUALIFIER" || def.entryType === "LEAGUE" || def.entryType === "POINTS") return
 
             // Places open to sign-ups: not the ranked invites, not the places
             // the event's qualifiers hand out.
@@ -1533,6 +1552,8 @@ export class TournamentManager {
                 // Qualifiers: one per target, never while in (or invited to)
                 // the event it leads to, regional ones for their region only.
                 if (def.qualifierFor && (!regionAllows(def, team) || qualifierEntryBlock(save, team.id, def, targetSeason))) return false
+                // Not while playing a bigger event in the same weeks.
+                if (clashes(otherEvents.get(team.id), seasonalId, absStartWeek, absStartWeek + Math.max(1, def.duration) - 1, eventWeight(def) + 1)) return false
 
                 return true
             })
@@ -1552,6 +1573,9 @@ export class TournamentManager {
                 tournament!.teamIds.push(team.id)
                 // Add to qualifications tracking (a sign-up, not an invite)
                 this.addRegistrationQualification(save, seasonalId, team.id, "Registered")
+                const list = otherEvents.get(team.id) ?? []
+                list.push({ id: seasonalId, def, from: absStartWeek, to: absStartWeek + Math.max(1, def.duration) - 1 })
+                otherEvents.set(team.id, list)
             })
         })
     }

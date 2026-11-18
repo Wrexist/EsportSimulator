@@ -7,7 +7,7 @@
 
 import fs from "fs"
 import path from "path"
-import { buildRichPresence, RICH_PRESENCE_TOKENS } from "@/engine/steam-service"
+import { buildMatchPresence, buildMenuPresence, buildRichPresence, RICH_PRESENCE_TOKENS } from "@/engine/steam-service"
 
 const dir = path.join(__dirname, "..", "steamworks", "rich-presence")
 
@@ -46,8 +46,8 @@ describe("Steam Rich Presence", () => {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { contracts } = require("../electron/ipc-policy")
         const check = contracts["steam-set-rich-presence"].check
-        for (const [key, value] of Object.entries(buildRichPresence({ teamName: "WyLD", week: 60, ranking: 86 }))) {
-            expect([key, check([key, value])]).toEqual([key, true])
+        for (const presence of [buildRichPresence({ teamName: "WyLD", week: 60, ranking: 86 }), buildMenuPresence(), buildMatchPresence({ teamName: "WyLD", opponentName: "Natus Vincere" })]) {
+            for (const [key, value] of Object.entries(presence)) expect([key, check([key, value])]).toEqual([key, true])
         }
     })
 
@@ -57,13 +57,33 @@ describe("Steam Rich Presence", () => {
         expect(files).toContain("english.vdf")
     })
 
+    test("every language the game ships has a localization file (CROSSCUT-12)", () => {
+        for (const lang of ["english", "german", "spanish", "french", "polish", "brazilian", "russian"]) expect(files).toContain(`${lang}.vdf`)
+        for (const file of files) expect(fs.readFileSync(path.join(dir, file), "utf8")).toContain(`"language"\t"${file.replace(".vdf", "")}"`)
+    })
+
+    test("menu and match presence: steam_display last, values bounded", () => {
+        const menu = buildMenuPresence()
+        expect(Object.keys(menu).pop()).toBe("steam_display")
+        expect(menu).not.toHaveProperty("team")
+        const match = buildMatchPresence({ teamName: "  ", opponentName: "x".repeat(200) })
+        expect(Object.keys(match).pop()).toBe("steam_display")
+        expect(match.team).toBe("a club")
+        expect(match.opponent).toHaveLength(64)
+    })
+
     test.each(files)("%s defines every token with only keys the game sets", file => {
         const tokens = readTokens(file)
         expect(Object.keys(tokens).sort()).toEqual([...RICH_PRESENCE_TOKENS].sort())
-        const ranked = buildRichPresence({ teamName: "WyLD", week: 3, ranking: 5 })
-        const unranked = buildRichPresence({ teamName: "WyLD", week: 3 })
+        const byToken: Record<string, Record<string, string>> = {
+            "#Status_Ranked": buildRichPresence({ teamName: "WyLD", week: 3, ranking: 5 }),
+            "#Status_Managing": buildRichPresence({ teamName: "WyLD", week: 3 }),
+            "#Status_Menu": buildMenuPresence(),
+            "#Status_Match": buildMatchPresence({ teamName: "WyLD", opponentName: "Natus Vincere" }),
+        }
         for (const [token, text] of Object.entries(tokens)) {
-            const keys = Object.keys(token === "#Status_Ranked" ? ranked : unranked)
+            expect(byToken[token].steam_display).toBe(token)
+            const keys = Object.keys(byToken[token])
             for (const [, key] of text.matchAll(/%([a-z_]+)%/g)) expect(keys).toContain(key)
         }
     })
