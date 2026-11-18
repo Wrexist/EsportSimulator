@@ -6898,5 +6898,7 @@
  "deal.publicRecord.other": "Öffentliche Bilanz: Rating {{rating}} aus {{count}} offiziellen Maps.",
  "terms.offerFeeAnyway": "Trotzdem bieten ({{fee}})",
  "terms.feeAgreedNext": "{{club}} hat {{fee}} angenommen. Jetzt den Vertrag mit dem Spieler aushandeln.",
- "fin.merchHype": "Der Hype um deinen Verein multipliziert die Fan-Einnahmen mit ×{{hype}}."
+ "fin.merchHype": "Der Hype um deinen Verein multipliziert die Fan-Einnahmen mit ×{{hype}}.",
+ "fin.weekNet": "Netto {{amount}}",
+ "fin.olderWeeks": "Ältere Wochen zeigen"
 }

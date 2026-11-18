@@ -7127,5 +7127,7 @@
  "deal.publicRecord.other": "Historial público: rating de {{rating}} en {{count}} mapas oficiales.",
  "terms.offerFeeAnyway": "Ofertar de todos modos ({{fee}})",
  "terms.feeAgreedNext": "{{club}} ha aceptado {{fee}}. Ahora acuerda el contrato con el jugador.",
- "fin.merchHype": "El hype de tu club multiplica los ingresos de afición por ×{{hype}}."
+ "fin.merchHype": "El hype de tu club multiplica los ingresos de afición por ×{{hype}}.",
+ "fin.weekNet": "Neto {{amount}}",
+ "fin.olderWeeks": "Ver semanas anteriores"
 }

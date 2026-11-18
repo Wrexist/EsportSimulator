@@ -404,4 +404,6 @@ export const MARKET = {
     "terms.offerFeeAnyway": "Offer anyway ({{fee}})",
     "terms.feeAgreedNext": "{{club}} accepted {{fee}}. Now agree the player's contract.",
     "fin.merchHype": "Your club's hype multiplies fan income by ×{{hype}}.",
+    "fin.weekNet": "Net {{amount}}",
+    "fin.olderWeeks": "Show older weeks",
 } as const

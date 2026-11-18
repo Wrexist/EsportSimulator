@@ -2,7 +2,7 @@
 import { formatDecimal, intlLocale, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import { ArrowUpRight, Check, Lock } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
@@ -27,6 +27,8 @@ import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 const HISTORY_WEEKS = 12
+/** Ledger weeks shown at first, and added by "Show older weeks". */
+const LEDGER_WEEKS = 4
 const PROJECTION_WEEKS = 12
 
 // Mirrors store/slices/team-facilities-slice.ts (merch store) — display only.
@@ -65,6 +67,8 @@ export default function FinancesPage() {
     toggleMerchItem: state.toggleMerchItem,
   })))
   const team = useCurrentTeam()
+  // MARKET-12 (2026-11-17): the ledger by week, LEDGER_WEEKS at a time.
+  const [ledgerWeekCount, setLedgerWeekCount] = useState(LEDGER_WEEKS)
 
   // The same projection the next weekly settlement will post.
   const report = useMemo(() => team
@@ -129,7 +133,12 @@ export default function FinancesPage() {
   const upgradeCost = MERCH_UPGRADE_BASE * Math.pow(2, merchLevel - 1)
   const fanZone = team.facilities?.find(f => f.type === "FANZONE")?.level ?? 0
   const hypeFactor = merchHypeMultiplier(team)
-  const recentLedger = [...ledger].reverse().slice(0, 18)
+  // MARKET-12 (2026-11-17): whole weeks, newest first, each with its net, instead of the last 18 rows.
+  const ledgerWeekList = [...new Set(ledger.map(e => e.week))].sort((a, b) => b - a)
+  const recentLedger = ledgerWeekList.slice(0, ledgerWeekCount).map(week => {
+    const rows = ledger.filter(e => e.week === week).reverse()
+    return { week, rows, net: rows.reduce((sum, e) => sum + (e.type === "INCOME" ? e.amount : -e.amount), 0) }
+  })
   // MARKET-19: what the next store level adds a week, with its new line on sale.
   const nextLine = MERCH_LINES.find(l => l.level === merchLevel + 1)
   const upgradeGain = nextLine
@@ -250,19 +259,31 @@ export default function FinancesPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {recentLedger.map(e => (
-                        <tr key={e.id} data-slot="table-row" className="h-10 border-b border-line">
-                          <td className="pl-4 text-sm tabular-nums text-ink-3">{e.week}</td>
-                          <td className="max-w-[320px] truncate px-3 text-sm text-ink-1">{storedText(e.description)}</td>
-                          <td className="px-3 text-xs text-ink-3">{LEDGER_CATEGORIES.has(e.category) ? t(`fin.cat.${e.category}`) : e.category}</td>
-                          <td className={cn("px-3 text-right text-sm tabular-nums", e.type === "INCOME" ? "text-positive" : "text-ink-2")}>
-                            {e.type === "INCOME" ? "+" : "−"}{money(e.amount)}
-                          </td>
-                          <td className={cn("pl-3 pr-4 text-right text-sm tabular-nums", e.balance < 0 ? "text-negative" : "text-ink-1")}>{money(e.balance)}</td>
-                        </tr>
-                      ))}
+                      {recentLedger.map(group => [
+                        <tr key={`wk-${group.week}`} className="h-9 border-b border-line bg-shell">
+                          <td colSpan={3} className="pl-4 text-xs font-semibold text-ink-2">{t("common.week", { n: group.week })}</td>
+                          <td className={cn("px-3 text-right text-xs font-semibold tabular-nums", group.net < 0 ? "text-negative" : "text-positive")}>{t("fin.weekNet", { amount: formatSignedCurrency(group.net, "$", false) })}</td>
+                          <td className="pl-3 pr-4" />
+                        </tr>,
+                        ...group.rows.map(e => (
+                          <tr key={e.id} data-slot="table-row" className="h-10 border-b border-line">
+                            <td className="pl-4 text-sm tabular-nums text-ink-3">{e.week}</td>
+                            <td className="max-w-[320px] truncate px-3 text-sm text-ink-1">{storedText(e.description)}</td>
+                            <td className="px-3 text-xs text-ink-3">{LEDGER_CATEGORIES.has(e.category) ? t(`fin.cat.${e.category}`) : e.category}</td>
+                            <td className={cn("px-3 text-right text-sm tabular-nums", e.type === "INCOME" ? "text-positive" : "text-ink-2")}>
+                              {e.type === "INCOME" ? "+" : "−"}{money(e.amount)}
+                            </td>
+                            <td className={cn("pl-3 pr-4 text-right text-sm tabular-nums", e.balance < 0 ? "text-negative" : "text-ink-1")}>{money(e.balance)}</td>
+                          </tr>
+                        )),
+                      ])}
                     </tbody>
                   </table>
+                  {ledgerWeekList.length > ledgerWeekCount && (
+                    <div className="border-t border-line px-4 py-2.5">
+                      <Button variant="ghost" size="sm" className="h-8 px-2.5 text-xs" onClick={() => setLedgerWeekCount(n => n + LEDGER_WEEKS)}>{t("fin.olderWeeks")}</Button>
+                    </div>
+                  )}
                 </div>
               )}
             </TabsContent>
