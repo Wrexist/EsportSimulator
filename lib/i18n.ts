@@ -174,6 +174,18 @@ export function isTextRef(v: unknown): v is TextRef {
     return !!v && typeof v === "object" && typeof (v as TextRef).key === "string"
 }
 
+/**
+ * Params stored as an English percent string ("0.4%", "<0.1%", "12%" from
+ * engine/workload.ts riskPct) in saved events: shown in the active language's
+ * percent style when read, the stored data stays as it is.
+ */
+const STORED_PERCENT_PARAMS: Record<string, string> = { "ev.workload.m": "risk", "ev.workload.follows": "risk" }
+export function localizeStoredPercent(value: string): string {
+    const m = /^(<?)(\d+(?:\.(\d+))?)%$/.exec(value.trim())
+    if (!m) return value
+    return `${m[1]}${formatPercent(Number(m[2]), m[3]?.length ?? 0)}`
+}
+
 /** A TextRef in the active language. */
 export function tRef(ref: TextRef): string {
     if (ref.key === ORDINAL_REF) return ordinalLabel(ref.count ?? 0)
@@ -196,6 +208,8 @@ export function tRef(ref: TextRef): string {
     if (ref.params) {
         params = {}
         for (const [k, v] of Object.entries(ref.params)) params[k] = isTextRef(v) ? tRef(v) : v
+        const percentParam = STORED_PERCENT_PARAMS[ref.key]
+        if (percentParam && typeof params[percentParam] === "string") params[percentParam] = localizeStoredPercent(params[percentParam] as string)
     }
     return ref.count !== undefined ? tn(ref.key, ref.count, params) : t(ref.key, params)
 }

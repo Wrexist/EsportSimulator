@@ -47,3 +47,31 @@ describe("i18n leftover: the Electron boot-failure page is in the game's languag
         expect(errorPage(loadHandlers({ directory }))).toContain('<html lang="en">')
     })
 })
+
+describe("i18n leftover: the workload warning's stored percent is shown in the language's style", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const i18n = require("@/lib/i18n") as typeof import("@/lib/i18n")
+    beforeAll(() => {
+        for (const lang of ["fr", "de"]) i18n.registerLocale(lang, JSON.parse(fs.readFileSync(path.join(__dirname, "..", "public", "locales", `${lang}.json`), "utf8")))
+    })
+    afterEach(() => i18n.setLocale("en"))
+
+    test("stored params stay English; the rendered text is localized at read time", () => {
+        const follows = { key: "ev.workload.follows", params: { risk: "0.4%" } }
+        const message = { key: "ev.workload.m", params: { name: "k1ncu", fatigue: 70, risk: "<0.1%", rested: 40 } }
+        expect(i18n.tRef(follows)).toBe("Injury chance 0.4% this week")
+        i18n.setLocale("fr")
+        expect(i18n.tRef(follows)).toMatch(/0,4\s%/u)
+        expect(i18n.tRef(follows)).not.toContain("0.4%")
+        expect(i18n.tRef(message)).toMatch(/<0,1\s%/u)
+        i18n.setLocale("de")
+        expect(i18n.tRef({ key: "ev.workload.follows", params: { risk: "12%" } })).toMatch(/12\s%/u)
+        expect(i18n.tRefEn(follows)).toBe("Injury chance 0.4% this week")
+        expect(follows.params.risk).toBe("0.4%")
+    })
+
+    test("anything that is not a plain percent is left alone", () => {
+        expect(i18n.localizeStoredPercent("high")).toBe("high")
+        expect(i18n.localizeStoredPercent("0.4")).toBe("0.4")
+    })
+})
