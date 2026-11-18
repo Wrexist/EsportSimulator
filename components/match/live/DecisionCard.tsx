@@ -169,7 +169,8 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                                         )}
                                     >
                                         <span className={cn("whitespace-nowrap text-sm font-semibold leading-none @max-[52rem]:whitespace-normal @max-[52rem]:text-xs @max-[52rem]:leading-tight", isRec ? "text-gold-on" : "text-ink-1")}>{label}</span>
-                                        <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums @max-[52rem]:text-[11px]", isRec ? "text-gold-on/80" : "text-ink-3")}>
+                                        {/* SMOKE-B-15: a narrow card wraps a long "No spend" (German "Keine Ausgaben") instead of clipping it, as the call name does. */}
+                                        <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums @max-[52rem]:whitespace-normal @max-[52rem]:text-[11px] @max-[52rem]:leading-tight", isRec ? "text-gold-on/80" : "text-ink-3")}>
                                             {isRec && counting ? <>{t("decision.autoIn")} <Countdown ms={auto.durationMs} restart={auto.key} /> {t("decision.seconds")}</> : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> {t("decision.total")}</span></> : t("decision.noSpend")}
                                         </span>
                                     </Button>
