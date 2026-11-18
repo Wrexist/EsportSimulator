@@ -7079,5 +7079,8 @@
  "tm.block.invited": "Du stehst für eine Einladung zu {{event}} an",
  "tm.block.sibling": "Du spielst schon eine andere Qualifikation für {{event}}",
  "tm.entry.RANKED": "Einladungen + Rangliste",
- "tm.entry.RANKING": "Weltrangliste"
+ "tm.entry.RANKING": "Weltrangliste",
+ "tm.path.invite": "Einladung erwartet in Woche {{week}} (Weltrangliste Top {{n}})",
+ "tm.path.qualify": "Qualifiziere dich über {{event}} (Woche {{week}})",
+ "tm.path.rank": "Einladungen gehen an die Top {{n}} der Welt. Du bist auf Platz {{rank}}."
 }

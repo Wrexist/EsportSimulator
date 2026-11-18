@@ -208,3 +208,35 @@ describe("NEWPLAYER-23: the week report's player list starts with each player's 
         expect(src).toContain('t("wr.more", { n: group.rows.length - 1 })')
     })
 })
+
+describe("COMP-22: a locked event's row says what the club still has to do", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { entryPathText } = require("../engine/tournament/qualification-path") as typeof import("../engine/tournament/qualification-path")
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { FULL_TOURNAMENT_CALENDAR } = require("../data/tournament-calendar") as typeof import("../data/tournament-calendar")
+    const katowice = FULL_TOURNAMENT_CALENDAR.find(d => d.id === "iem_katowice")!
+    const teams = Array.from({ length: 20 }, (_, i) => ({ id: `t${i + 1}`, region: i % 2 ? "NA" : "EU", worldRanking: i + 1 }))
+    const save = (rows: object[] = []) => ({ teams, tournaments: [], tournamentQualifications: rows }) as never
+    const name = (d: { id: string }) => d.id
+
+    test("a club in the invite places waits for the invite, which goes out when the qualifier path starts", () => {
+        expect(entryPathText(save(), teams[0], katowice, 1, 1, name)).toEqual({ key: "tm.path.invite", params: { week: 2, n: 12 } })
+    })
+
+    test("a club outside the invite places is pointed at the first qualifier still open to it", () => {
+        expect(entryPathText(save(), teams[14], katowice, 1, 1, name)).toEqual({ key: "tm.path.qualify", params: { event: "iem_katowice_open", week: 2 } })
+        // A club already in the EU closed qualifier is pointed at it.
+        const rows = [{ tournamentId: "iem_katowice_closed_eu_s1", instanceId: "iem_katowice_closed_eu_s1", teamId: "t15", status: "QUALIFIED" }]
+        expect(entryPathText(save(rows), teams[14], katowice, 1, 3, name)).toEqual({ key: "tm.path.qualify", params: { event: "iem_katowice_closed_eu", week: 6 } })
+    })
+
+    test("with the qualifiers gone or closed to its region, the ranking is what is left", () => {
+        // Week 3: the open qualifier has begun and the EU closed one is not for an NA club.
+        expect(entryPathText(save(), teams[15], katowice, 1, 3, name)).toEqual({ key: "tm.path.rank", params: { n: 12, rank: 16 } })
+    })
+
+    test("a club already entered gets no line", () => {
+        const rows = [{ tournamentId: "iem_katowice_s1", instanceId: "iem_katowice_s1", teamId: "t1", status: "QUALIFIED", qualifiedVia: "Direct Invite" }]
+        expect(entryPathText(save(rows), teams[0], katowice, 1, 3, name)).toBeNull()
+    })
+})

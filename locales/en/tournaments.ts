@@ -230,4 +230,7 @@ export const TOURNAMENTS: Record<string, string> = {
     "tm.block.sibling": "You already play another qualifier for {{event}}",
     "tm.entry.RANKED": "Invites + ranking",
     "tm.entry.RANKING": "World ranking",
+    "tm.path.invite": "Invite expected in week {{week}} (world top {{n}})",
+    "tm.path.qualify": "Qualify through {{event}} (week {{week}})",
+    "tm.path.rank": "Invites go to the world top {{n}}. You're #{{rank}}.",
 }

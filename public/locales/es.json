@@ -7321,5 +7321,8 @@
  "tm.block.invited": "Tienes una invitación a {{event}} en camino",
  "tm.block.sibling": "Ya juegas otro clasificatorio para {{event}}",
  "tm.entry.RANKED": "Invitaciones + ranking",
- "tm.entry.RANKING": "Ranking mundial"
+ "tm.entry.RANKING": "Ranking mundial",
+ "tm.path.invite": "Invitación prevista en la semana {{week}} (top {{n}} mundial)",
+ "tm.path.qualify": "Clasifícate en {{event}} (semana {{week}})",
+ "tm.path.rank": "Las invitaciones van al top {{n}} mundial. Estás en el puesto {{rank}}."
 }

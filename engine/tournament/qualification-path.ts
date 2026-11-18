@@ -211,3 +211,43 @@ export function registerBlockText(
     const target = block === "sibling" ? chain[0] : chain[chain.length - 1]
     return { key: `tm.block.${block}`, params: { event: target ? eventName(target) : "" } }
 }
+
+/**
+ * What the club still has to do to get into this event, as text to show, or
+ * null when there is nothing to say (COMP-22): wait for the invite its
+ * ranking earns, play the first qualifier still open to it, or climb into
+ * the ranking's invite places. `weekInSeason` is today's week of the season;
+ * weeks in the text are weeks of the season, like the list's Start column.
+ */
+export function entryPathText(
+    save: Pick<GameSave, "tournamentQualifications" | "teams" | "tournaments">,
+    team: Pick<TeamSaveData, "id" | "region" | "worldRanking">,
+    def: TournamentDefinition,
+    season: number,
+    weekInSeason: number,
+    eventName: (def: TournamentDefinition) => string,
+): { key: string; params: Record<string, string | number> } | null {
+    const rows = save.tournamentQualifications ?? []
+    const instanceId = buildInstanceId(def.id, season)
+    if (isEnteredIn(rows, team.id, instanceId)) return null
+    if (hasRankedInvites(def) && !invitesIssued(rows, instanceId) && rankedInvitees(def, save.teams).includes(team.id)) {
+        return { key: "tm.path.invite", params: { week: Math.max(weekInSeason, def.startWeek - inviteLeadWeeks(def)), n: def.inviteSlots ?? 0 } }
+    }
+    const feeders = feederEvents(def.id)
+    // A qualifier the club already plays or is entered in leads the way.
+    const entered = feeders.find(f => isEnteredIn(rows, team.id, buildInstanceId(f.id, season)))
+    if (entered) return { key: "tm.path.qualify", params: { event: eventName(entered), week: entered.startWeek } }
+    const open = feeders
+        .filter(f => {
+            if (f.startWeek < weekInSeason || !regionAllows(f, team)) return false
+            const instance = save.tournaments.find(t => t.id === buildInstanceId(f.id, season))
+            if (instance && instance.currentStage !== "Registration") return false
+            return qualifierEntryBlock(save, team.id, f, season) === null
+        })
+        .sort((a, b) => a.startWeek - b.startWeek || a.id.localeCompare(b.id))[0]
+    if (open) return { key: "tm.path.qualify", params: { event: eventName(open), week: open.startWeek } }
+    if (hasRankedInvites(def) && !invitesIssued(rows, instanceId)) {
+        return { key: "tm.path.rank", params: { n: def.inviteSlots ?? 0, rank: team.worldRanking ?? 999 } }
+    }
+    return null
+}

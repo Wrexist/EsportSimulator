@@ -7563,5 +7563,8 @@
  "tm.block.invited": "Twoja drużyna czeka na zaproszenie do {{event}}",
  "tm.block.sibling": "Twoja drużyna gra już inne kwalifikacje do {{event}}",
  "tm.entry.RANKED": "Zaproszenia + ranking",
- "tm.entry.RANKING": "Ranking światowy"
+ "tm.entry.RANKING": "Ranking światowy",
+ "tm.path.invite": "Zaproszenie spodziewane w tygodniu {{week}} (top {{n}} rankingu)",
+ "tm.path.qualify": "Awans przez {{event}} (tydzień {{week}})",
+ "tm.path.rank": "Zaproszenia dostaje top {{n}} rankingu. Twoja drużyna jest na {{rank}}. miejscu."
 }
