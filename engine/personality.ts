@@ -542,16 +542,15 @@ export const TRAIT_INFO = Object.fromEntries(PLAYSTYLE_TRAITS.map(trait => [trai
     get effect() { return t(`trait.${trait}.effect`) },
 }])) as Record<PlaystyleTrait, { readonly label: string; readonly effect: string }>
 
-/** Contract-demand lines for the negotiation screen (only those that apply). */
+/** Contract-demand lines for the negotiation screen (only those that apply). They sit next to the archetype chip, so they don't name it again (MARKET-04, 2026-11-17). */
 export function contractDemandLines(archetype: PersonalityArchetype, overallRating: number, buyer?: Partial<Pick<TeamSaveData, "leagueTier">> | null): string[] {
-    const label = ARCHETYPE_INFO[archetype].label
     const included = t("demand.included")
     switch (archetype) {
-        case "LOYAL": return [t("demand.loyal", { label, wage: plusPct(T.WAGE_LOYAL), length: plusPct(T.LENGTH_LOYAL) }), included]
-        case "MERCENARY": return [t("demand.mercenary", { label, wage: plusPct(T.WAGE_MERCENARY), length: pct(1 - T.LENGTH_MERCENARY) }), included]
+        case "LOYAL": return [t("demand.loyal", { wage: plusPct(T.WAGE_LOYAL), length: plusPct(T.LENGTH_LOYAL) }), included]
+        case "MERCENARY": return [t("demand.mercenary", { wage: plusPct(T.WAGE_MERCENARY), length: pct(1 - T.LENGTH_MERCENARY) }), included]
         case "AMBITIOUS": return levelGap(overallRating, buyer) >= T.AMBITIOUS_GAP
-            ? [t("demand.ambitiousBelow", { label, gap: T.AMBITIOUS_GAP, wage: plusPct(T.WAGE_AMBITIOUS_BELOW) }), included]
-            : [t("demand.ambitiousClose", { label })]
-        default: return [t("demand.none", { label })]
+            ? [t("demand.ambitiousBelow", { gap: T.AMBITIOUS_GAP, wage: plusPct(T.WAGE_AMBITIOUS_BELOW) }), included]
+            : [t("demand.ambitiousClose")]
+        default: return [t("demand.none")]
     }
 }
