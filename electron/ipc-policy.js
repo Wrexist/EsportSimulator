@@ -25,6 +25,7 @@ function add(channels, fallback, check, schema, authority) {
 }
 const none = args => args.length === 0;
 const one = check => args => args.length === 1 && check(args[0]);
+add('app-set-ui-language', false, one(v=>require('./ui-strings').UI_LANGUAGES.includes(v)), 'en|de|es|fr|pl|pt-BR|ru → boolean', 'Language of native dialogs (main-process memory only)');
 add('app-get-user-data-path mod-path', null, none, 'no arguments → string|null', 'User-data path disclosure');
 add('window-get-size', null, none, 'no arguments → {width,height}|null', 'Window read');
 add('window-is-fullscreen', false, none, 'no arguments → boolean', 'Window read');

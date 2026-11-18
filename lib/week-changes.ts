@@ -11,6 +11,8 @@
  * worker and returns the entries with its result.
  */
 
+import type { TextRef } from "./i18n"
+
 export type ChangeKind =
     | "attribute" | "form" | "morale" | "fatigue" | "energy"
     | "money" | "reputation" | "ranking" | "board"
@@ -22,7 +24,13 @@ export type CauseType =
     | "age" | "transfer" | "finance" | "board" | "decision" | "academy"
     | "stability" | "world" | "contract" | "injury" | "dressing_room" | "other"
 
-export interface ChangeCause { type: CauseType; label: string }
+export interface ChangeCause {
+    type: CauseType
+    /** English, kept in the save; grouping and older readers use it. */
+    label: string
+    /** The same cause as a translation key, shown in the active language when set. */
+    ref?: TextRef
+}
 
 export interface ChangeEntry {
     kind: ChangeKind

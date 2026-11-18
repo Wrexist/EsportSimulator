@@ -12,7 +12,14 @@ const { isAllowedLocalRequest, listenLoopback } = require('./local-server');
 const { contentPolicy } = require('./content-policy');
 const { secureWebContents, secureSession } = require('./renderer-security');
 const { createExternalOpener } = require('./external-links');
+const { pickUiLanguage, uiString } = require('./ui-strings');
 const handleApp = (channel, handler) => registerTrustedHandler(ipcMain, channel, isMainWindowSender, handler);
+// Native dialogs follow the game's language (the renderer reports it), else the OS language when it is one of ours.
+let uiLanguage = null;
+const ui = (key) => {
+    if (!uiLanguage) { try { return uiString(pickUiLanguage(app.getLocale()), key); } catch (_) { return uiString('en', key); } }
+    return uiString(uiLanguage, key);
+};
 
 // Single-instance lock — must be checked BEFORE any heavy initialization
 // (steamworks, next.js) to prevent duplicate windows on alt-tab / re-launch.
@@ -198,10 +205,10 @@ const closeHandshake = createCloseHandshake(async () => {
     try {
         const { response } = await require('electron').dialog.showMessageBox(mainWindow, {
             type: 'warning',
-            title: 'Game is not responding',
-            message: 'The game has not acknowledged your exit request.',
-            detail: 'You can keep playing or close without saving your latest progress.',
-            buttons: ['Keep Open', 'Close Without Saving'],
+            title: ui('closeTitle'),
+            message: ui('closeMessage'),
+            detail: ui('closeDetail'),
+            buttons: [ui('keepOpen'), ui('closeWithoutSaving')],
             defaultId: 0,
             cancelId: 0,
             noLink: true,
@@ -416,6 +423,12 @@ if (!STABILITY_MODE) {
 steam.initializeSteam({
     isTrustedSender: isMainWindowSender,
     log: debugLog,
+});
+
+// The renderer reports its UI language (lib/use-locale.ts) so native dialogs match it.
+handleApp('app-set-ui-language', (_event, code) => {
+    uiLanguage = pickUiLanguage(code);
+    return uiLanguage !== null;
 });
 
 // Window Control IPC Handlers
@@ -802,7 +815,7 @@ handleApp('mod-install', (_event, text) => {
     return installDatabase(ensureModDir(), text);
 });
 handleApp('mod-read-folder', async () => {
-    const result = await require('electron').dialog.showOpenDialog(mainWindow, { title: 'Choose community database folder', properties: ['openDirectory'] });
+    const result = await require('electron').dialog.showOpenDialog(mainWindow, { title: ui('modFolderTitle'), properties: ['openDirectory'] });
     if (result.canceled || result.filePaths.length !== 1) return null;
     const database = await pinDatabase(result.filePaths[0], app.getPath('userData'));
     return JSON.stringify(database);
@@ -1215,10 +1228,10 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
             closePending = false;
             require('electron').dialog.showMessageBox(mainWindow, {
                 type: 'error',
-                title: 'The game stopped unexpectedly',
-                message: 'The game stopped unexpectedly.',
-                detail: 'Your saved games are safe; progress since the last save may be lost. Reload to continue from the main menu. Details are written to the logs folder.',
-                buttons: ['Reload', 'Quit'],
+                title: ui('crashTitle'),
+                message: ui('crashMessage'),
+                detail: ui('crashDetail'),
+                buttons: [ui('reload'), ui('quit')],
                 defaultId: 0,
                 cancelId: 1,
                 noLink: true,
@@ -1256,7 +1269,7 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
     } catch (error) {
         console.error('[Electron] Failed to create window:', error);
         const { dialog } = require('electron');
-        dialog.showErrorBox('Launch Error', 'Failed to start the game:\n' + (error.message || error));
+        dialog.showErrorBox(ui('launchErrorTitle'), ui('launchErrorMessage') + '\n' + (error.message || error));
         app.quit();
     } finally {
         isCreatingWindow = false;

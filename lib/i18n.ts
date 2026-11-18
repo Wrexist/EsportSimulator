@@ -81,6 +81,18 @@ export function formatNumber(n: number, maxDigits = 1): string {
     return n.toLocaleString(intlLocale(), { maximumFractionDigits: maxDigits, useGrouping: false })
 }
 
+/**
+ * A percentage in the active language: `pct` is the number of percent (23 → "23%" in
+ * English, "23 %" in German, French, Spanish and Russian), with exactly `digits` decimals.
+ * Signs are the caller's ("+", "−"), as before.
+ */
+export function formatPercent(pct: number, digits = 0): string {
+    const scale = 10 ** digits
+    // Round first (half up, as Math.round did); Intl would round half-even.
+    const rounded = Math.round(pct * scale) / scale
+    return new Intl.NumberFormat(intlLocale(), { style: "percent", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(rounded / 100)
+}
+
 /** Locales with a complete dictionary. */
 export function getAvailableLocales(): string[] {
     return Object.keys(translations).filter(locale => getLocaleCompleteness(locale).complete)

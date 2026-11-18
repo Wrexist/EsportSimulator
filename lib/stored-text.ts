@@ -132,6 +132,31 @@ const RULES: Rule[] = [
         const kind = m[3] ? t(`common.tier.${m[3]}_TIER`) : m[2] === "League" ? t("svd.league") : t("svd.cmp.qualifier")
         return `${segment(m[1])} (${m[4] ? t("svd.cmp.playoffs", { tier: kind }) : kind})`
     }],
+    // Swiss rounds carry their record in brackets: the stage name, not the generic bracket rule (I18N-05).
+    [/^Swiss Round \d+ \([^)]+\)$/, m => stageName(m[0])],
+    // Week causes the engine and store write in English (I18N-02, I18N-04)
+    [/^Natural growth \(age (\d+)\)$/, m => t("svd.p.naturalGrowthAge", { age: m[1] })],
+    [/^Age decline \(age (\d+)\)$/, m => t("svd.p.ageDeclineAge", { age: m[1] })],
+    [/^Released (.+)$/, m => t("svd.p.released", { name: m[1] })],
+    [/^Paid less than (.+)$/, m => t("svd.p.paidLessThan", { name: m[1] })],
+    [/^Benched (\d+) match(?:es)?$/, m => plural(Number(m[1]), "svd.p.benched")],
+    [/^Mastered (\w+) as secondary role$/, m => t("moment.roleMastered", { role: known(`tr.role.${m[1].toLowerCase()}`, known(`market.role.${m[1]}`, m[1])) })],
+    [/^You told the press, "(.+)"$/, m => t("sl.toldPress", { answer: segment(m[1]) })],
+    [/^Press conference: "(.+)"$/, m => t("svd.p.pressAnswer", { answer: segment(m[1]) })],
+    [/^Your team forfeited against (.+): only (\d) ?\/5 players were available\.$/, m => t("evn.forfeit.lost", { team: m[1], n: m[2] })],
+    [/^(.+) forfeited your match — win by default!$/, m => t("evn.forfeit.won", { team: m[1] })],
+    // Legend achievement lines (engine/legendary-players-data.ts, I18N-07); one-offs are exact svd.legend.* entries
+    [/^(?:(\d+)x )?Major [Cc]hampion$/, m => tn("moment.major", Number(m[1] ?? 1))],
+    [/^(\d+)x Player of the Year$/, m => plural(Number(m[1]), "svd.p.legend.poty")],
+    [/^(\d+)x Major MVP$/, m => plural(Number(m[1]), "svd.p.legend.majorMvp")],
+    [/^Major [Cc]hampion (\d{4})$/, m => t("svd.p.legend.majorYear", { year: m[1] })],
+    [/^Best Player (\d{4}(?:-\d{4})?)$/, m => t("svd.p.legend.bestPlayer", { year: m[1] })],
+    [/^Best AWPER (\d{4})$/, m => t("svd.p.legend.bestAwper", { year: m[1] })],
+    // Budget warnings saved before they carried translation keys (I18N-03)
+    [/^Budget is getting tight\. You have (\d+) weeks? of runway remaining\. Consider reducing expenses\.$/, m => plural(Number(m[1]), "evn.budget.TIGHT")],
+    [/^Financial warning! Only (\d+) weeks? of runway left\. Cut costs or find new income sources urgently\.$/, m => plural(Number(m[1]), "evn.budget.RISK")],
+    [/^CRITICAL: Team finances in crisis! (\d+) weeks? until insolvency\. Players are losing morale\.$/, m => plural(Number(m[1]), "evn.budget.CRISIS")],
+    [/^Team is INSOLVENT\. This is week (\d+) of 8 consecutive insolvent settlements before the club disbands\. Restore a positive balance by a weekly settlement to reset this counter\.$/, m => t("evn.budget.INSOLVENT", { week: m[1] })],
     // "Unhappy player (ace)": a label with a name in brackets.
     [/^(.+) \(([^()]+)\)$/, m => `${segment(m[1])} (${m[2]})`],
     // "AWP +0.3", "Leader +10%": a label with a signed number.

@@ -1,4 +1,4 @@
-import { t, tn } from "@/lib/i18n"
+import { tRef, type TextRef } from "@/lib/i18n"
 /**
  * Which of the manager's fixtures can actually be played right now.
  *
@@ -48,15 +48,21 @@ export function fieldablePlayerCount(state: Pick<PlayableMatchState, "teams" | "
  * played. Mirrors the roster guards in simulateInstantMatch.
  */
 export function fixtureBlockReason(state: PlayableMatchState, match: FixtureLike): string | null {
+    const ref = fixtureBlockRef(state, match)
+    return ref ? tRef(ref) : null
+}
+
+/** fixtureBlockReason as a translation key, for text shown again later (a stop notice, I18N-01). */
+export function fixtureBlockRef(state: PlayableMatchState, match: FixtureLike): TextRef | null {
     const sides = [match.homeTeamId, match.awayTeamId]
     for (const teamId of sides) {
         const count = fieldablePlayerCount(state, teamId)
         if (count >= PLAYERS_NEEDED) continue
         if (teamId === state.playerTeamId) {
-            return tn("block.ownRoster", count, { need: PLAYERS_NEEDED })
+            return { key: "block.ownRoster", params: { need: PLAYERS_NEEDED }, count }
         }
-        const name = state.teams.find(tm => tm.id === teamId)?.name ?? t("block.opponent")
-        return t("block.otherRoster", { team: name, need: PLAYERS_NEEDED })
+        const name = state.teams.find(tm => tm.id === teamId)?.name
+        return { key: "block.otherRoster", params: { team: name ?? { key: "block.opponent" }, need: PLAYERS_NEEDED } }
     }
     return null
 }
@@ -112,6 +118,6 @@ export function pendingPlayableMatch<M extends FixtureLike>(
         (m.homeTeamId === me || m.awayTeamId === me) &&
         !completedIds?.has(m.id) &&
         (!respectDay || state.timeMode !== "HYBRID_DAILY" || (m.day ?? 6) <= (state.currentDay ?? 6)) &&
-        fixtureBlockReason(state, m) === null
+        fixtureBlockRef(state, m) === null
     ) ?? null
 }

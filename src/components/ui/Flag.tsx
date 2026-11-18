@@ -89,7 +89,7 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
       >
         <Image
           src={`/assets/flags/${iso2}.svg`}
-          alt={code}
+          alt={showName ? "" : countryName(code)}
           fill
           className="object-cover"
           sizes={`${safeSize}px`}

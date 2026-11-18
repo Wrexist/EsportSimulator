@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
 import { trophyArtFor, trophyKindForTournament } from "@/lib/trophy-art"
 import { isMajorTournament, isOfficialMatch } from "@/engine/official-stats"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
-import { t, t as tr, tn, ordinalLabel } from "@/lib/i18n"
+import { t, t as tr, tn, ordinalLabel, formatPercent } from "@/lib/i18n"
 import { divisionName } from "@/lib/display-names"
 import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-types"
 import { TeamLink } from "@/components/ui/EntityLink"
@@ -166,7 +166,7 @@ export default function TrophyRoomPage() {
                         <Kpi label={tr("tro.kpi.titles")} value={titles.length} valueClassName={titles.length > 0 ? "text-gold" : undefined} />
                         <Kpi label={tr("hof.col.majors")} value={majors} valueClassName={majors > 0 ? "text-gold" : undefined} />
                         <Kpi label={tr("tro.kpi.record")} value={<span>{clubRecord.wins}<span className="text-ink-3">–</span>{clubRecord.losses}</span>} hint={tr(clubRecord.hint)} />
-                        <Kpi label={tr("tro.kpi.winRate")} value={`${clubRecord.rate}%`} />
+                        <Kpi label={tr("tro.kpi.winRate")} value={formatPercent(clubRecord.rate)} />
                     </KpiStrip>
                 }
             />

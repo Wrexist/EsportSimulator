@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { intlLocale, t } from "@/lib/i18n"
+import { formatPercent, intlLocale, t } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 import React, { useEffect, useMemo, useState } from "react"
@@ -144,8 +144,8 @@ export default function StaffPage() {
                 aside={
                     <KpiStrip>
                         <Kpi label={t("st.kpi.staff")} value={`${hired.length} / ${MAX_STAFF}`} />
-                        <Kpi label={t("st.kpi.match")} value={`+${summary.matchPct.toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`} hint={summary.uncappedMatchPct > summary.capPct ? t("st.kpi.cappedAt", { n: summary.capPct }) : t("st.kpi.cap", { n: summary.capPct })} />
-                        <Kpi label={t("st.kpi.training")} value={`+${Math.round(summary.trainingPct)}%`} hint={t("st.kpi.trainingHint")} />
+                        <Kpi label={t("st.kpi.match")} value={`+${formatPercent(summary.matchPct, 1)}`} hint={summary.uncappedMatchPct > summary.capPct ? t("st.kpi.cappedAt", { n: summary.capPct }) : t("st.kpi.cap", { n: summary.capPct })} />
+                        <Kpi label={t("st.kpi.training")} value={`+${formatPercent(summary.trainingPct)}`} hint={t("st.kpi.trainingHint")} />
                         <Kpi label={t("st.kpi.wages")} value={formatCurrency(wageBill, "$", false)} />
                     </KpiStrip>
                 }

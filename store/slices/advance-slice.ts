@@ -12,10 +12,10 @@
  * career, game over, loading, the forfeit rules of an unplayable fixture).
  */
 
-import { CONTINUE_WEEK_CAP, nextStop, stoppedEventIds, type AdvanceStop, type StopSource } from "@/lib/advance-stops"
+import { CONTINUE_WEEK_CAP, makeStop, nextStop, stoppedEventIds, type AdvanceStop, type StopSource } from "@/lib/advance-stops"
 import type { WeekReportsState } from "@/lib/week-report"
 import { demoWeekCapReached } from "@/lib/edition"
-import { tn, t } from "@/lib/i18n"
+import { STORED_REF } from "@/lib/i18n"
 
 export interface ContinueRunState {
     startedWeek: number
@@ -123,9 +123,9 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                 stop = nextStop(s, seen)
                 if (stop) break
                 const run = s.continueRun
-                if (!run || run.cancelRequested) { stop = { key: "cancelled", kind: "cancelled", reason: t("stop.paused") }; break }
+                if (!run || run.cancelRequested) { stop = makeStop("cancelled", "cancelled", { key: "stop.paused" }); break }
                 if (run.weeksDone >= CONTINUE_WEEK_CAP) {
-                    stop = { key: "cap", kind: "cap", reason: tn("stop.cap", CONTINUE_WEEK_CAP) }
+                    stop = makeStop("cap", "cap", { key: "stop.cap", count: CONTINUE_WEEK_CAP })
                     break
                 }
 
@@ -142,7 +142,9 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                 if (after.saveId !== saveId) return
                 const movedWeek = after.currentWeek !== week
                 if (!movedWeek && after.currentDay === day) {
-                    stop = { key: "error", kind: "error", reason: after.error ? `The week could not advance: ${after.error}` : "The calendar could not advance" }
+                    stop = makeStop("error", "error", after.error
+                        ? { key: "stop.errorWeek", params: { error: { key: STORED_REF, params: { text: after.error } } } }
+                        : { key: "stop.errorCalendar" })
                     break
                 }
                 if (movedWeek) lastCompletedWeek = week
@@ -159,7 +161,7 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                 const end = get()
                 // A moment explains itself full-screen; no notice under Continue.
                 const notice: AdvanceStopNotice | null = stop && stop.kind !== "moment"
-                    ? { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: end.currentWeek, day: end.currentDay, ...(stop.keys ? { keys: stop.keys } : {}) }
+                    ? { key: stop.key, kind: stop.kind, reason: stop.reason, reasonRef: stop.reasonRef, href: stop.href, actionLabel: stop.actionLabel, actionRef: stop.actionRef, week: end.currentWeek, day: end.currentDay, ...(stop.keys ? { keys: stop.keys } : {}) }
                     : null
                 const covered = stop?.keys ?? (stop ? [stop.key] : [])
                 const marks = !!stop && stop.kind !== "moment" && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error"
@@ -196,7 +198,7 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
         if (s.continueRun || s.advanceStop || s.isLoading || !s.saveId || !s.playerTeamId || s.gameOverReason) return
         const stop = nextStop(s, new Set(s.advanceSeenKeys))
         if (stop?.kind !== "match") return
-        set({ advanceStop: { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: s.currentWeek, day: s.currentDay } })
+        set({ advanceStop: { key: stop.key, kind: stop.kind, reason: stop.reason, reasonRef: stop.reasonRef, href: stop.href, actionLabel: stop.actionLabel, actionRef: stop.actionRef, week: s.currentWeek, day: s.currentDay } })
     },
 
     openWeekReport: (week) => {

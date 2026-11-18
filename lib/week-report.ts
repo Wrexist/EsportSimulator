@@ -20,7 +20,7 @@ import {
 import type { StoryArc } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL, leadingBeat } from "@/engine/storylines/view"
 import type { StoryArcKind } from "@/engine/storylines/types"
-import { getLocale, intlLocale, listJoin, t, tn } from "@/lib/i18n"
+import { getLocale, intlLocale, isTextRef, listJoin, t, tn, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { storyKindName } from "@/lib/story-names"
 import { lineText } from "@/lib/news-text"
@@ -344,7 +344,7 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     // whole point is headline news; the weekly +0.2 from the regimen is not.
     const growth = report.changes.filter(e => e.kind === "attribute" && e.delta >= HEADLINE_MIN_GROWTH).sort((a, b) => b.delta - a.delta)[0]
     if (growth && clauses.length < 3) {
-        const cause = storedText(growth.cause.label.split(" · ")[0])
+        const cause = isTextRef(growth.cause.ref) ? tRef(growth.cause.ref) : storedText(growth.cause.label.split(" · ")[0])
         clauses.push(t("wr.h.growth", { name: report.names[growth.subjectId] ?? t("wr.aPlayer"), attr: storedText(growth.label), n: fmtDelta(growth.delta), cause: en ? cause.toLowerCase() : cause }))
     }
 
@@ -388,6 +388,11 @@ export function signedDelta(d: number): string {
 export function pushWeekReport(state: WeekReportsState | null | undefined, report: WeekReport, nextTracker: WeekTracker | null): WeekReportsState {
     const history = [report, ...(state?.history ?? []).filter(r => r.week !== report.week || r.teamId !== report.teamId)].slice(0, WEEK_REPORT_HISTORY)
     return { tracker: nextTracker, history }
+}
+
+/** A change's cause in the active language: its translation key when it has one, else the stored English. */
+export function causeText(cause: ChangeCause): string {
+    return isTextRef(cause.ref) ? tRef(cause.ref) : storedText(cause.label)
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v)

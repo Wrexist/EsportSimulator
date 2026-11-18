@@ -133,7 +133,7 @@ describe("Electron main process (harness)", () => {
         const handler = main.slice(main.indexOf("on('render-process-gone'"), main.indexOf("mainWindow.on('closed'"))
         expect(handler).toMatch(/shouldCloseAfterRendererGone\(/)
         expect(handler).toMatch(/dialog\.showMessageBox\(mainWindow/)
-        expect(handler).toMatch(/buttons: \['Reload', 'Quit'\]/)
+        expect(handler).toMatch(/buttons: \[ui\('reload'\), ui\('quit'\)\]/) // Reload first: response 0 reloads (I18N-10 made the labels translated)
         expect(handler).toMatch(/mainWindow\.loadURL\(getCurrentUrl\(\)\)/)
     })
 })

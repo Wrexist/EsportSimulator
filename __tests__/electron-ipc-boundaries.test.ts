@@ -32,7 +32,7 @@ test('literal staging keys preserve the primary through actual storage handlers'
 })
 test('every actual handler rejects foreign contents, child frames and wrong origins before side effects',async()=>{
   const args: Record<string, unknown[]> = {
-    'window-set-fullscreen':[true], 'window-set-size':[1280,720], 'gpu-set-mode':['compatibility'],
+    'app-set-ui-language':['ru'], 'window-set-fullscreen':[true], 'window-set-size':[1280,720], 'gpu-set-mode':['compatibility'],
     'log-write-error':[{message:'valid report'}], 'storage-get-item':['esports_save_test'],
     'storage-set-item':['esports_save_test','changed'], 'storage-remove-item':['esports_save_test'],
     'mod-install':['{"players":[]}'], 'mod-read':['players.json'], 'mod-write':['players.json','[]'],

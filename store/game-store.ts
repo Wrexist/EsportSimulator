@@ -1,6 +1,6 @@
 "use client"
 
-import { liveText, STORED_REF } from "@/lib/i18n"
+import { isTextRef, liveText, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 import { applyMapRotation } from "@/engine/season/map-rotation"
 import { newFirstSession, restoreFirstSession, restoreWeeklyPlan } from '@/lib/first-session'
 import { createDefaultTactics } from "@/engine/default-tactics"
@@ -732,7 +732,13 @@ function weekRecordedActions(set: unknown, get: unknown) {
   const s = set as Parameters<typeof recordWeekChanges>[1]
   const slice = <T,>(create: (set: never, get: never) => T): T => create(set as never, get as never)
   const store = (st: TrackingState) => st as unknown as Store
-  const short = (text: string) => (text.length > 70 ? `${text.slice(0, 67)}...` : text)
+  const short = (text: string) => (text.length > 70 ? `${text.slice(0, 69)}…` : text)
+  const stored = (text: string): TextRef => ({ key: STORED_REF, params: { text } })
+  // The cause keeps the English (grouping, older readers) and a ref the report shows in the active language.
+  const titleOf = (event: GameEventSaveData): { en: string; ref: TextRef } => {
+    const ref = (event.data as { titleRef?: unknown } | undefined)?.titleRef
+    return isTextRef(ref) ? { en: tRefEn(ref), ref } : { en: getEventTitle(event), ref: stored(getEventTitle(event)) }
+  }
 
   const matchCause = (st: TrackingState, matchId: string): ChangeCause | null => {
     const state = store(st)
@@ -761,12 +767,16 @@ function weekRecordedActions(set: unknown, get: unknown) {
     resolveEventChoice: recordWeekChanges(g, s, events.resolveEventChoice, (st, eventId: string, choiceId: string) => {
       const event = store(st).eventsLog.find(e => e.id === eventId)
       if (!event) return null
-      const choice = (event as unknown as { choices?: { id: string; text?: string }[] }).choices?.find(c => c.id === choiceId)
-      return { type: "event", label: short(`${getEventTitle(event)}: ${choice?.text ?? choiceId}`) }
+      const choice = (event as unknown as { choices?: { id: string; text?: string; ref?: TextRef }[] }).choices?.find(c => c.id === choiceId)
+      const title = titleOf(event)
+      const answer = isTextRef(choice?.ref) ? choice.ref : stored(choice?.text ?? choiceId)
+      return { type: "event", label: short(`${title.en}: ${tRefEn(answer)}`), ref: { key: "svd.p.answered", params: { title: title.ref, choice: answer } } }
     }),
     answerPressConference: recordWeekChanges(g, s, events.answerPressConference, (st, eventId: string) => {
       const event = store(st).eventsLog.find(e => e.id === eventId)
-      return event ? { type: "event", label: short(getEventTitle(event)) } : null
+      if (!event) return null
+      const title = titleOf(event)
+      return { type: "event", label: short(title.en), ref: title.ref }
     }),
     treatInjury: recordWeekChanges(g, s, settings.treatInjury, () => ({ type: "injury", label: "Medical treatment" })),
     performMentalReset: recordWeekChanges(g, s, ops.performMentalReset, () => ({ type: "staff", label: "Mental reset" })),

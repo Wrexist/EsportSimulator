@@ -27,7 +27,7 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
-import { formatDecimal, t } from "@/lib/i18n"
+import { formatDecimal, formatPercent, t } from "@/lib/i18n"
 import { stageName } from "@/lib/display-names"
 import { matchEventName } from "@/lib/tournament-instances"
 import { LoadingState } from "@/components/ui/loading"
@@ -152,7 +152,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const awaySides = useMemo(() => awayTeam ? recentMapTally({ mapRecords }, awayTeam.id) : {}, [mapRecords, awayTeam])
     const sideLine = (t: SideTally | undefined) => {
         if (!t || t[0] === 0) return "—"
-        return `${rate(t[3], t[2]) ?? "—"} / ${rate(t[5], t[4]) ?? "—"}%`
+        const ct = rate(t[5], t[4])
+        return `${rate(t[3], t[2]) ?? "—"} / ${ct == null ? "—" : formatPercent(ct)}`
     }
 
     // Refs for AI processing
@@ -608,7 +609,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     <dl className="space-y-0.5 text-[11px] text-ink-3">
                                         <div className="flex justify-between gap-2" title={t("veto.readEdgeTitle")}>
                                             <dt>{t("veto.readEdge")}</dt>
-                                            <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{formatDecimal(Math.abs(edge))}%</dd>
+                                            <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{formatPercent(Math.abs(edge), 1)}</dd>
                                         </div>
                                         {/* Label above the value and one line only: a long translated value ("Schwächste Map / Schwächste Map")
                                             wrapped on some cards and pushed their map names out of line (I18N-16). */}

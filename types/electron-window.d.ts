@@ -67,6 +67,11 @@ declare global {
                 getSize: () => Promise<{ width: number; height: number } | null>;
                 isFullscreen: () => Promise<boolean>;
             };
+            app?: {
+                getUserDataPath: () => Promise<string | null>;
+                /** Tells the main process the UI language for its native dialogs (lib/use-locale.ts). */
+                setUiLanguage?: (code: string) => Promise<boolean>;
+            };
             /** UI scale as page zoom (electron/preload.js, lib/ui-scale.ts). */
             display?: {
                 getZoomFactor: () => number;

@@ -6,7 +6,7 @@
  */
 
 import type { SliceCreator } from "@/store/types"
-import { applySandboxEdit, enableSandbox, type SandboxEdit, type SandboxResult } from "@/engine/sandbox"
+import { applySandboxEdit, enableSandbox, sandboxRefusal, type SandboxEdit, type SandboxResult } from "@/engine/sandbox"
 
 export interface SandboxActions {
     enableSandbox: () => void
@@ -21,7 +21,7 @@ export const createSandboxSlice: SliceCreator<SandboxActions> = (set, get) => ({
     },
 
     sandboxEdit: (edit) => {
-        let result: SandboxResult = { ok: false, reason: "The sandbox editor is off for this save" }
+        let result: SandboxResult = sandboxRefusal("sb.off")
         if (!get().sandbox) return result
         set((state) => { result = applySandboxEdit(state, edit) })
         if (result.ok) void get().saveGame()

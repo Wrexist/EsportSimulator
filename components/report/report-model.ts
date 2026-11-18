@@ -5,7 +5,7 @@
  */
 
 import type { ChangeEntry } from "@/lib/week-changes"
-import { fmtDelta, formatMoney, moneyNet, signedDelta, weekHeadline, type WeekReport } from "@/lib/week-report"
+import { causeText, fmtDelta, formatMoney, moneyNet, signedDelta, weekHeadline, type WeekReport } from "@/lib/week-report"
 import { choiceLabel } from "@/components/inbox/inbox-model"
 import { getLocale, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
@@ -39,7 +39,7 @@ function toneOf(kind: string, delta: number): Tone {
 function causeParts(entries: ChangeEntry[], withDelta: boolean, max = 3): string {
     const byCause = new Map<string, number>()
     for (const e of entries) {
-        const label = storedText(e.cause.label)
+        const label = causeText(e.cause)
         byCause.set(label, (byCause.get(label) ?? 0) + e.delta)
     }
     const parts = [...byCause.entries()].filter(([, d]) => Math.abs(d) >= 0.05).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
@@ -66,11 +66,11 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
         const rows: ChangeRow[] = []
         for (const e of entries.filter(x => x.kind === "injury")) {
             rows.push(e.delta > 0
-                ? { change: `${storedText(e.label)} · ${tn("wr.outWeeks", e.delta)}`, cause: storedText(e.cause.label), tone: "down" }
-                : { change: e.label.startsWith("Recovered") ? storedText(e.label) : `${storedText(e.label)} · ${tn("wr.weeksCloser", Math.abs(e.delta), { n: fmtDelta(e.delta) })}`, cause: storedText(e.cause.label), tone: "up" })
+                ? { change: `${storedText(e.label)} · ${tn("wr.outWeeks", e.delta)}`, cause: causeText(e.cause), tone: "down" }
+                : { change: e.label.startsWith("Recovered") ? storedText(e.label) : `${storedText(e.label)} · ${tn("wr.weeksCloser", Math.abs(e.delta), { n: fmtDelta(e.delta) })}`, cause: causeText(e.cause), tone: "up" })
         }
         for (const e of entries.filter(x => x.kind === "contract")) {
-            rows.push({ change: storedText(e.label), cause: storedText(e.cause.label), tone: e.delta < 0 ? "down" : "up" })
+            rows.push({ change: storedText(e.label), cause: causeText(e.cause), tone: e.delta < 0 ? "down" : "up" })
         }
         // Attributes: one row per cause, listing every stat it moved.
         // NEWPLAYER-23: moves under REPORT_MIN_STAT_CHANGE are counted, not listed.
@@ -82,10 +82,10 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
             list.push(e)
             attrByCause.set(e.cause.label, list)
         }
-        for (const [cause, list] of attrByCause) {
+        for (const list of attrByCause.values()) {
             const sorted = [...list].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
             const total = sorted.reduce((s, e) => s + e.delta, 0)
-            rows.push({ change: sorted.map(e => `${storedText(e.label)} ${signedDelta(e.delta)}`).join(" · "), cause: storedText(cause), tone: toneOf("attribute", total) })
+            rows.push({ change: sorted.map(e => `${storedText(e.label)} ${signedDelta(e.delta)}`).join(" · "), cause: causeText(list[0].cause), tone: toneOf("attribute", total) })
         }
         // Condition values: net change with its causes; values that share
         // exactly the same causes (e.g. morale and form both drifting) share a row.
@@ -123,7 +123,7 @@ export function moneyLines(report: WeekReport): { income: MoneyLine[]; expenses:
         const key = `${e.label}|${e.cause.label}|${e.delta >= 0 ? "+" : "-"}`
         const prev = lines.get(key)
         if (prev) prev.amount += e.delta
-        else lines.set(key, { label: storedText(e.label), cause: storedText(e.cause.label), amount: e.delta })
+        else lines.set(key, { label: storedText(e.label), cause: causeText(e.cause), amount: e.delta })
     }
     const all = [...lines.values()]
     return {
@@ -177,7 +177,7 @@ export function topPlayerChanges(report: WeekReport, max = 3): { name: string; c
     return picked.map(e => ({
         name: report.names[e.subjectId] ?? t("wr.player"),
         change: e.kind === "injury" ? t("wr.injuredWk", { n: e.delta }) : `${storedText(e.label)} ${signedDelta(e.delta)}`,
-        cause: storedText(e.cause.label),
+        cause: causeText(e.cause),
         tone: e.kind === "injury" ? "down" : toneOf(e.kind, e.delta),
     }))
 }

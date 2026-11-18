@@ -56,3 +56,18 @@ test('every nationality in the game data resolves to an existing flag file or a 
     expect(broken).toEqual([])
     expect(names.size).toBeGreaterThan(40)
 })
+
+test('I18N-18: the flag alt text is the country name in the active language', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { registerLocale, setLocale } = require('@/lib/i18n') as typeof import('@/lib/i18n')
+    registerLocale('ru', JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public/locales/ru.json'), 'utf8')))
+    try {
+        setLocale('ru')
+        expect(html('United States')).toContain('alt="Соединенные Штаты"')
+        // With the name printed beside it, the image adds nothing for a screen reader.
+        expect(renderToStaticMarkup(<Flag code="Sweden" showName />)).toContain('alt=""')
+    } finally {
+        setLocale('en')
+    }
+    expect(html('United States')).toContain('alt="United States"')
+})
