@@ -78,6 +78,7 @@ import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import { divisionRef, eventText, newsText } from "@/lib/news-ref"
 import { eventDisplayName } from "@/lib/tournament-instances"
 import { sideScore } from "@/lib/week-changes"
+import { matchFatigueCost } from "@/lib/balance-tuning"
 const NEWS_FEED_CAP = 50
 /** Pre-match odds under which the own result gets the upset headline (NEWPLAYER-15). */
 const UPSET_NEWS_EXPECTED = 0.25
@@ -388,8 +389,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     if (!player) return
 
                     player.matchesPlayed++
-                    // Fatigue scales by format (BO1=10, BO3=15, BO5=25).
-                    const fatigueCost = match.format === "BO5" ? 25 : match.format === "BO3" ? 15 : 10
+                    // Fatigue scales by format (BO1=10, BO3=15, BO5=25; a league BO1 less, COMP-10).
+                    const fatigueCost = matchFatigueCost(match.format, match.stage)
                     player.fatigue = Math.min(100, (player.fatigue || 0) + fatigueCost)
                     // Morale swing scales by tournament tier.
                     const moraleChange = (() => {
