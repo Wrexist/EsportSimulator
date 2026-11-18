@@ -237,7 +237,7 @@ describe("I18N-09: percentages follow the language's spacing", () => {
     })
 
     test("no hand-built percentages left at the audited call sites", () => {
-        const files = ["app/match/[id]/tactics/page.tsx", "app/training/page.tsx", "app/trophies/page.tsx", "app/staff/page.tsx", "app/squad/page.tsx", "app/basecamp/page.tsx", "components/stats/MapDataPanel.tsx", "components/player/DevelopmentOutlook.tsx", "app/match/[id]/veto/page.tsx"]
+        const files = ["app/match/[id]/tactics/page.tsx", "app/training/page.tsx", "app/trophies/page.tsx", "app/staff/page.tsx", "app/squad/page.tsx", "app/basecamp/page.tsx", "components/stats/MapDataPanel.tsx", "components/player/DevelopmentOutlook.tsx", "app/match/[id]/veto/page.tsx", "components/squad/LoadChip.tsx"]
         for (const f of files) {
             const src = readFileSync(join(__dirname, "..", f), "utf8")
             // A number followed by a literal % sign in text (CSS widths and positions are fine).
