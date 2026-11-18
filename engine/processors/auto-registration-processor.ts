@@ -62,10 +62,14 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
 
     try {
         // Earliest first (then id) so sibling open qualifiers resolve deterministically.
+        // An instance whose field is set (started or over) takes no sign-up:
+        // on its start week the tick has already built the field, so a row
+        // added now would stay "Registered" for an event the club never plays.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const upcoming: any[] = save.tournaments.filter((t: any) =>
             t.startWeek >= save.currentWeek &&
-            t.startWeek <= save.currentWeek + LOOKAHEAD_WEEKS
+            t.startWeek <= save.currentWeek + LOOKAHEAD_WEEKS &&
+            !t.isCompleted && (t.currentStage ?? "Registration") === "Registration"
         )
         // Open events usually have no instance yet when entry opens (the
         // Register button works from the calendar too), so project the
