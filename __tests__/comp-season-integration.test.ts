@@ -237,6 +237,22 @@ describe("a headless season of the qualification path", () => {
         }
     })
 
+    test("league events play inside the weeks the calendar lists, a club never twice a day (COMP-10)", () => {
+        for (const d of FULL_TOURNAMENT_CALENDAR.filter(x => x.format === "league" && x.startWeek <= 52)) {
+            const t = s1(d.id)
+            const rows = (t.playoffBracket ?? []).filter(m => m.stage === "League Match")
+            const n = t.teamIds.length
+            expect([d.id, rows.length, rows.every(m => m.isCompleted)]).toEqual([d.id, (n * (n - 1)) / 2, true])
+            expect([d.id, Math.min(...rows.map(m => m.week!)), lastMatchWeek(t.id) < d.startWeek + d.duration]).toEqual([d.id, d.startWeek, true])
+            const days = new Set<string>()
+            for (const m of save.completedMatches.filter(x => x.tournamentId === t.id)) for (const club of [m.homeTeamId, m.awayTeamId]) {
+                const key = `${club}|${m.week}|${m.day}`
+                expect([d.id, key, days.has(key)]).toEqual([d.id, key, false])
+                days.add(key)
+            }
+        }
+    })
+
     test("a won qualifier is no title; trophies are kept per season", () => {
         const trophies = save.teams.flatMap(t => t.trophies ?? [])
         expect(trophies.filter(t => t.tier === "QUALIFIER")).toEqual([])
