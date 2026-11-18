@@ -44,11 +44,19 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     }, [sync, initialized, loading, active, guide.status, rosterKey, lastResultId, state.week, team, state.academy, state.events])
 
     // Finishing the guide is said once, not just by the card disappearing (START-69, NEWPLAYER-12).
+    // SMOKE-A-04: the week that finishes it opens its report; the toast waits until
+    // the week has finished and that report is closed instead of appearing under it.
+    const reportOpen = useGameStore(s => s.weekReportOpen != null)
     const lastStatus = useRef(guide.status)
+    const toastPending = useRef(false)
     useEffect(() => {
-        if (lastStatus.current === 'active' && guide.status === 'complete') toast.success(t("firstSession.completeToast"))
+        if (lastStatus.current === 'active' && guide.status === 'complete') toastPending.current = true
         lastStatus.current = guide.status
-    }, [guide.status])
+        if (toastPending.current && !reportOpen && !state.loading) {
+            toastPending.current = false
+            toast.success(t("firstSession.completeToast"))
+        }
+    }, [guide.status, reportOpen, state.loading])
 
     // The budget step states the fee cap, the weekly margin and the board's cash target (NEWPLAYER-25).
     const budgetStep = guide.status === 'active' && firstSessionNextStep(guide) === 'budget'
