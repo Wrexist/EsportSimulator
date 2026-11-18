@@ -105,3 +105,48 @@ describe("NEWPLAYER-04: a scout's wage follows his report tier", () => {
         expect(coach.salaryPerWeek).toBeGreaterThanOrEqual(800)
     })
 })
+
+describe("SQUAD-39: opening wages are an existing deal at OPENING_WAGE_SHARE of the market wage", () => {
+    /* eslint-disable @typescript-eslint/no-require-imports */
+    const path = require("node:path") as typeof import("node:path")
+    const { SnapshotLoader } = jest.requireActual("@/data/snapshot-loader") as typeof import("@/data/snapshot-loader")
+    const { recruitmentSalary, MIN_ASKING_WAGE } = jest.requireActual("@/engine/recruitment") as typeof import("@/engine/recruitment")
+    const { renewalSalary } = jest.requireActual("@/engine/personality") as typeof import("@/engine/personality")
+    const { AI_SQUAD_TUNING } = jest.requireActual("@/lib/balance-tuning") as typeof import("@/lib/balance-tuning")
+    /* eslint-enable @typescript-eslint/no-require-imports */
+    let save: import("@/engine/save-types").GameSave
+    let loader: InstanceType<typeof SnapshotLoader>
+    beforeAll(async () => {
+        loader = new SnapshotLoader(path.join(process.cwd(), "public/data/snapshot"))
+        expect((await loader.loadSnapshot()).success).toBe(true)
+        save = loader.createCareerFromSnapshot("SQUAD-39", loader.getSnapshot()!.teams[0].id, 1, 3917)!
+    }, 60_000)
+
+    test("every opening contract pays the share of the club's signing wage; buyouts keep their multiple", () => {
+        expect(AI_SQUAD_TUNING.OPENING_WAGE_SHARE).toBe(0.75)
+        const players = new Map(save.players.map(p => [p.id, p]))
+        const teams = new Map(save.teams.map(t => [t.id, t]))
+        expect(save.contracts.length).toBeGreaterThan(500)
+        for (const c of save.contracts) {
+            const market = recruitmentSalary(players.get(c.playerId)!, 1, teams.get(c.teamId)!)
+            expect(c.salaryPerWeek).toBe(Math.max(MIN_ASKING_WAGE, Math.round(market * AI_SQUAD_TUNING.OPENING_WAGE_SHARE)))
+            expect([26, 52, 78].some(weeks => Math.abs(c.buyout - weeks * c.salaryPerWeek) <= 1)).toBe(true)
+        }
+    })
+
+    test("wages follow rating, and the typical first renewal is the usual raise, not +150%", () => {
+        const wageOf = (id: string) => save.contracts.find(c => c.playerId === id)!.salaryPerWeek
+        const rostered = save.teams.flatMap(t => t.rosterIds).map(id => save.players.find(p => p.id === id)!)
+        expect(new Set(rostered.map(p => wageOf(p.id))).size).toBeGreaterThan(rostered.length / 3)
+        const ratios = rostered.map(p => renewalSalary(p, wageOf(p.id), 1) / wageOf(p.id)).sort((a, b) => a - b)
+        expect(ratios[Math.floor(ratios.length / 2)]).toBeLessThanOrEqual(1.25)
+        // Before, almost every deal was $250: 45% of first renewals were above +25%, the top tenth +150%.
+        expect(ratios.filter(r => r > 1.25).length / ratios.length).toBeLessThan(0.4)
+        expect(ratios[Math.floor(ratios.length * 0.9)]).toBeLessThan(1.6)
+    })
+
+    test("same seed, same opening wages", () => {
+        const again = loader.createCareerFromSnapshot("SQUAD-39b", loader.getSnapshot()!.teams[0].id, 1, 3917)!
+        expect(again.contracts.map(c => c.salaryPerWeek)).toEqual(save.contracts.map(c => c.salaryPerWeek))
+    }, 60_000)
+})

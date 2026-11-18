@@ -180,6 +180,14 @@ export const AI_SQUAD_TUNING = {
     INITIAL_CONTRACT_STAGGER_WEEKS: 26,
     INITIAL_CONTRACT_MIN_WEEKS: 26,
     /**
+     * SQUAD-39: an opening contract pays this share of what the club would
+     * pay to sign the player today (recruitmentSalary): an existing deal,
+     * signed before he was worth today's price. The snapshot floored almost
+     * everyone at $250, so a star's first renewal jumped +150%; the full
+     * market wage left small clubs with a star at -$5.7k a week.
+     */
+    OPENING_WAGE_SHARE: 0.75,
+    /**
      * Weekly chance an AI club with an open, eligible sponsor slot reviews
      * offers, and its slot count (human cap 3). Pass 2: 0.05 -> 0.25;
      * Phase 4.6: every week (the managed club can look every week too).
