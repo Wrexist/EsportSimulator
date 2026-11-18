@@ -51,12 +51,11 @@ function GearTile({ item, equipped, budget, onBuy }: {
                 <Image src={equipmentArtwork(item.type, item.tier, item.imagePath || EQUIPMENT_TYPE_DISPLAY[item.type].imagePath)} alt="" fill sizes="56px" className="object-contain" />
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-                <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 lg:hidden">{tierName(item.tier)}</p>
-                        <p className="line-clamp-2 text-sm font-semibold leading-snug text-ink-1" title={itemName(item)}>{itemName(item)}</p>
-                    </div>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums text-ink-1" title={t("gear.shareTitle")}>+{formatDecimal(gearStrengthPct(item))}%</span>
+                {/* I18N-19: the share sits under the name so long names (de, pl, ru) get the full width and wrap at syllables. */}
+                <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 lg:hidden">{tierName(item.tier)}</p>
+                    <p className="line-clamp-3 break-words hyphens-auto text-sm font-semibold leading-snug text-ink-1" title={itemName(item)}>{itemName(item)}</p>
+                    <p className="text-sm font-semibold tabular-nums text-ink-1" title={t("gear.shareTitle")}>+{formatDecimal(gearStrengthPct(item))}%</p>
                 </div>
                 <p className="mt-0.5 text-xs tabular-nums text-ink-3">{t("gear.costLine", { cost: money(item.purchaseCost), upkeep: money(item.weeklyCost) })}</p>
                 <div className="mt-auto pt-2">
