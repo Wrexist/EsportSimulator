@@ -24,6 +24,7 @@ import { SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
 import { useInboxDrawer } from "./inbox-drawer-store"
 import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
 import { t, tn } from "@/lib/i18n"
+import { clubRegionName } from "@/lib/display-names"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
 type AnyData = Record<string, any>
@@ -250,7 +251,7 @@ export function JobOfferDecision({ event }: { event: GameEventSaveData }) {
         <section className="space-y-3">
             <Terms rows={[
                 [t("ib.job.club"), team],
-                ...(data.offeringTeamRegion ? [[t("ib.job.region"), data.offeringTeamRegion] as [string, ReactNode]] : []),
+                ...(data.offeringTeamRegion ? [[t("ib.job.region"), clubRegionName(String(data.offeringTeamRegion))] as [string, ReactNode]] : []),
                 ...(data.offeringTeamRank ? [[t("ib.job.rank"), `#${data.offeringTeamRank}`] as [string, ReactNode]] : []),
                 [t("ib.job.funds"), formatCurrency(signingFunds, "$", false)],
             ]} />

@@ -71,8 +71,12 @@ export function InboxDrawer() {
         return list.filter(i => (newsFilter === "social") === (i.source === "social"))
     }, [items, tab, newsFilter])
 
-    // Show the explicitly selected item, else whatever now sits in its row.
-    const selected = tabItems.find(i => i.key === selectedKey) ?? tabItems[Math.min(anchorIndex, tabItems.length - 1)] ?? null
+    // Show the selected item, else whatever now sits in its row. An answered
+    // decision leaves the Decisions tab but stays in the pane with what was
+    // chosen, until another row is picked (HOME-13).
+    const selected = tabItems.find(i => i.key === selectedKey) ?? items.find(i => i.key === selectedKey) ?? tabItems[Math.min(anchorIndex, tabItems.length - 1)] ?? null
+    // The item shown without an explicit pick becomes the pick, so answering it keeps it on screen.
+    useEffect(() => { if (open && selectedKey === null && selected) select(selected.key) }, [open, selectedKey, selected, select])
 
     const onSelect = (item: InboxItem) => {
         select(item.key)

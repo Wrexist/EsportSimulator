@@ -5,6 +5,7 @@ import { SaveManager } from "../save-manager"
 import { LEGEND_RETIREMENT_AGE, hallOfFameAchievements, inductIntoHallOfFame, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"
 import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
+import { benchSubstitute } from "../event-choice"
 import { newsText } from "@/lib/news-ref"
 import { LIST_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 
@@ -22,38 +23,44 @@ export class EventProcessor {
         const team = save.teams.find(t => t.id === playerTeamId)
         if (!team) return 0
         const generated = new Set(transaction.generatedEventIds)
-        let eventsGenerated = 0
-        for (const pid of team.rosterIds) {
-            const player = save.players.find(p => p.id === pid)
-            // The medical team flags a player whose weekly injury chance has
-            // reached WORKLOAD_TUNING.WARN_RISK. The decision family's cooldown
-            // keeps it to one open warning.
-            if (!player || !needsWorkloadWarning(player)) continue
-            const eventId = `workload_${player.id}_${save.currentWeek}`
-            if (generated.has(eventId)) continue
-            const risk = riskPct(injuryRiskPerWeek(player))
-            const rested = Math.max(0, Math.round(player.fatigue) - WORKLOAD_TUNING.REST_FATIGUE)
-            save.eventsLog.push({
-                id: eventId,
-                type: EventType.INJURY,
-                week: save.currentWeek,
-                data: {
-                    playerId: player.id,
-                    load: Math.round(player.fatigue),
-                    risk,
-                    ...titled({ key: "ev.workload.t", params: { name: player.nickname } }),
-                    ...messaged({ key: "ev.workload.m", params: { name: player.nickname, fatigue: Math.round(player.fatigue), risk, rested } }),
-                },
-                acknowledged: false,
-                choices: [
-                    { id: "rest", ...choiceText({ key: "ev.workload.rest" }), effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE } } },
-                    { id: "play", ...choiceText({ key: "ev.workload.play" }), effects: { follows: { key: "ev.workload.follows", params: { risk } } } },
-                ],
-            })
-            await saveManager.recordEventGenerated(transaction, eventId)
-            eventsGenerated++
-        }
-        return eventsGenerated
+        // One open warning at a time, for the most loaded player (HOME-21): five
+        // identical cards in one week buried the panel. The decision family's
+        // cooldown is per player, so the open check here covers the squad.
+        // Recent only: an old save's warning left open without a deadline must not block it for good.
+        const open = save.eventsLog.some(e => e.id.startsWith("workload_") && e.selectedChoiceId === undefined && save.currentWeek - e.week <= 2 && !(e.data as { isWithdrawn?: boolean } | undefined)?.isWithdrawn)
+        if (open) return 0
+        const player = team.rosterIds
+            .map(pid => save.players.find(p => p.id === pid))
+            .filter((p): p is PlayerSaveData => !!p && needsWorkloadWarning(p))
+            .sort((a, b) => injuryRiskPerWeek(b) - injuryRiskPerWeek(a) || b.fatigue - a.fatigue || a.id.localeCompare(b.id))[0]
+        // The medical team flags a player whose weekly injury chance has
+        // reached WORKLOAD_TUNING.WARN_RISK.
+        if (!player) return 0
+        const eventId = `workload_${player.id}_${save.currentWeek}`
+        if (generated.has(eventId)) return 0
+        const risk = riskPct(injuryRiskPerWeek(player))
+        const rested = Math.max(0, Math.round(player.fatigue) - WORKLOAD_TUNING.REST_FATIGUE)
+        // A starter with no fit substitute still plays when rested: the answer says so.
+        const noSub = !benchSubstitute(team, player.id, id => save.players.find(p => p.id === id))
+        save.eventsLog.push({
+            id: eventId,
+            type: EventType.INJURY,
+            week: save.currentWeek,
+            data: {
+                playerId: player.id,
+                load: Math.round(player.fatigue),
+                risk,
+                ...titled({ key: "ev.workload.t", params: { name: player.nickname } }),
+                ...messaged({ key: "ev.workload.m", params: { name: player.nickname, fatigue: Math.round(player.fatigue), risk, rested } }),
+            },
+            acknowledged: false,
+            choices: [
+                { id: "rest", ...choiceText({ key: "ev.workload.rest" }), effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE, ...(noSub ? { noSub: true } : {}) } } },
+                { id: "play", ...choiceText({ key: "ev.workload.play" }), effects: { follows: { key: "ev.workload.follows", params: { risk } } } },
+            ],
+        })
+        await saveManager.recordEventGenerated(transaction, eventId)
+        return 1
     }
 
     static async generateEvents(

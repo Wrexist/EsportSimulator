@@ -163,8 +163,17 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
 
     const team = state.teams.find(tm => tm.id === me)
     const roster = new Set(team?.rosterIds ?? [])
+    // HOME-07: a knock that is still a decision (rest him or play through it)
+    // stops once, as that decision; the injury notice would stop for it first.
+    const knockDecision = new Set(state.eventsLog
+        .filter(e => {
+            const data = (e.data ?? {}) as Record<string, unknown>
+            return e.id.startsWith("knock_") && (e as { selectedChoiceId?: string }).selectedChoiceId === undefined && !data.isWithdrawn
+                && !(typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek)
+        })
+        .map(e => String((e.data as Record<string, unknown> | undefined)?.playerId ?? "")))
     for (const p of state.players) {
-        if (!roster.has(p.id) || !p.injury || p.isRetired) continue
+        if (!roster.has(p.id) || !p.injury || p.isRetired || knockDecision.has(p.id)) continue
         const weeks = p.injury.weeksRemaining ?? 0
         out.push({ key: `injury:${p.id}:${p.injury.name ?? ""}`, kind: "injury", reason: tn("stop.injured", weeks, { name: p.nickname ?? t("stop.aPlayer"), injury: p.injury.name ? storedText(p.injury.name) : t("stop.injury") }), href: `/player/${p.id}`, actionLabel: t("stop.viewPlayer") })
     }
