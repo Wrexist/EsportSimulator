@@ -17,8 +17,11 @@ import { useGameStore } from "@/store/game-store"
 import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-career-draft"
 import { recordNewCampaign } from "@/engine/manager-career-profile"
 import { calculateTeamTier } from "@/engine/tier-system"
-import { PRO_ROLES } from "@/engine/pro-career"
+import { PRO_ROLES, proNicknameTaken } from "@/engine/pro-career"
 import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
+import type { GameSave } from "@/engine/save-types"
+import { snapshotLoader } from "@/data"
+import { previewClubStart } from "@/lib/career-start-preview"
 import { PlayerRole } from "@/types/enums"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -48,6 +51,20 @@ export default function ProCareerSetupPage() {
     const [busy, setBusy] = useState(false)
     const startingRef = useRef(false)
 
+    // START-49/70: the world the career starts from, for the nickname check and
+    // each offer's rank, team OVR and players in the chosen role.
+    const [world, setWorld] = useState<GameSave | null>(null)
+    useEffect(() => {
+        let live = true
+        const ready = snapshotLoader.getSnapshot() ? Promise.resolve() : snapshotLoader.loadSnapshot().then(r => { if (!r.success) throw Error(r.error || "Game data unavailable") })
+        ready.then(() => {
+            const snapshot = snapshotLoader.getSnapshot()
+            const built = snapshot?.teams.length ? snapshotLoader.createCareerFromSnapshot("", snapshot.teams[0].id, 1) : null
+            if (live && built) setWorld(built)
+        }).catch(err => debug.error("Pro career: world failed", err))
+        return () => { live = false }
+    }, [])
+
     useEffect(() => { setManagerName(loadCareerDraft()?.managerName ?? "") }, [])
     useEffect(() => {
         fetch("/data/snapshot/teams.json")
@@ -55,6 +72,9 @@ export default function ProCareerSetupPage() {
             .then((data: SnapshotTeam[]) => setTeams(data))
             .catch(err => { debug.error("Pro career: teams failed", err); toast.error(t("pro.err.load"), { description: t("pro.err.loadBody") }) })
     }, [])
+
+    /** World rank by reputation, as the club list ranks clubs. */
+    const rankById = useMemo(() => new Map([...(teams ?? [])].sort((a, b) => (b.reputation ?? 0) - (a.reputation ?? 0)).map((tm, i) => [tm.id, i + 1])), [teams])
 
     /**
      * Amateur clubs (ranked below the semi-pro tier) by region, with a place
@@ -86,7 +106,24 @@ export default function ProCareerSetupPage() {
     }, [amateurs, region, deal])
     useEffect(() => { setClubId(offers[0]?.id ?? null) }, [offers])
 
-    const nameOk = nickname.trim().length >= 2
+    /** START-70: what each offer gives to compare: team OVR and the players already in the chosen role. */
+    const offerStats = useMemo(() => {
+        const out = new Map<string, { ovr: number; sameRole: number }>()
+        if (!world) return out
+        const byId = new Map(world.players.map(p => [p.id, p]))
+        for (const tm of offers) {
+            const club = world.teams.find(c => c.id === tm.id)
+            const preview = club ? previewClubStart(world, club.id, "normal", byId) : null
+            if (!club || !preview) continue
+            const sameRole = club.rosterIds.map(id => byId.get(id)).filter(p => p && !p.isRetired && p.role === role).length
+            out.set(tm.id, { ovr: preview.ovr, sameRole })
+        }
+        return out
+    }, [world, offers, role])
+
+    // START-49: two players with one name in a squad cannot be told apart in results and news.
+    const nicknameTaken = proNicknameTaken(nickname, world?.players ?? snapshotLoader.getSnapshot()?.players ?? [])
+    const nameOk = nickname.trim().length >= 2 && !nicknameTaken
     const start = async () => {
         if (!nameOk || !clubId || startingRef.current) return
         startingRef.current = true
@@ -119,7 +156,8 @@ export default function ProCareerSetupPage() {
             <div className="grid gap-5 md:grid-cols-2">
                 <Panel title={t("pro.yourPlayer")}>
                     <label htmlFor="pro-nick" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("pro.nickname")}</label>
-                    <Input id="pro-nick" value={nickname} maxLength={24} onChange={e => setNickname(e.target.value)} placeholder={t("pro.nickPlaceholder")} className="mt-1 h-11" autoFocus />
+                    <Input id="pro-nick" value={nickname} maxLength={24} aria-invalid={nicknameTaken || undefined} aria-describedby={nicknameTaken ? "pro-nick-taken" : undefined} onChange={e => setNickname(e.target.value)} placeholder={t("pro.nickPlaceholder")} className="mt-1 h-11" autoFocus />
+                    {nicknameTaken && <p id="pro-nick-taken" className="mt-1.5 text-xs font-medium text-negative">{t("pro.nickTaken")}</p>}
                     <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("pro.role")}</p>
                     <div className="mt-1 grid gap-1.5" role="radiogroup" aria-label={t("pro.role")}>
                         {PRO_ROLES.map(r => (
@@ -156,6 +194,11 @@ export default function ProCareerSetupPage() {
                                     <span className="min-w-0 flex-1">
                                         <span className="block truncate text-sm font-semibold text-ink-1">{tm.name}</span>
                                         <span className="block text-xs text-ink-3">{regionLabel(tm.region)} · {t("pro.amateur")}</span>
+                                        {offerStats.has(tm.id) && rankById.has(tm.id) && (
+                                            <span className="block text-xs tabular-nums text-ink-2">
+                                                {t("common.worldRank", { rank: rankById.get(tm.id)! })} · {t("pro.offerStats", { ovr: offerStats.get(tm.id)!.ovr, n: offerStats.get(tm.id)!.sameRole })}
+                                            </span>
+                                        )}
                                     </span>
                                     {clubId === tm.id && <Check size={16} className="text-gold" />}
                                 </button>
@@ -166,7 +209,7 @@ export default function ProCareerSetupPage() {
             </div>
 
             <div className="flex items-center justify-end gap-3">
-                {!nameOk && <span className="text-xs text-ink-3">{t("pro.nickShort")}</span>}
+                {!nameOk && !nicknameTaken && <span className="text-xs text-ink-3">{t("pro.nickShort")}</span>}
                 <Button onClick={start} disabled={!nameOk || !clubId || busy} className="h-11 px-6">
                     {busy ? <><Loader2 size={16} className="animate-spin" /> {t("pro.signing")}</> : t("pro.sign")}
                 </Button>

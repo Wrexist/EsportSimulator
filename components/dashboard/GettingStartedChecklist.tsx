@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Check } from 'lucide-react'
@@ -8,7 +8,9 @@ import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '@/store/game-store'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { FIRST_SESSION_STEPS, firstSessionGuidance, firstSessionLabel, restoreFirstSession } from '@/lib/first-session'
+import { FIRST_SESSION_STEPS, firstSessionGuidance, firstSessionLabel, firstSessionNextStep, restoreFirstSession } from '@/lib/first-session'
+import { getBoardSanctionedFee } from '@/engine/board-expectations'
+import { EconomyEngine } from '@/engine/economy-engine'
 import { t } from '@/lib/i18n'
 import { toast } from '@/lib/toast'
 import { selectPlayableMatchId } from '@/lib/playable-match'
@@ -25,6 +27,8 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
         teams: s.teams, players: s.players, matches: s.scheduledMatches, completed: s.completedMatches,
         week: s.currentWeek, active: s.activeMatchId, ended: s.gameOverReason,
         review: s.reviewGuideStep, sync: s.syncFirstSession, dismiss: s.completeTutorial,
+        academy: s.academyPlayers, events: s.eventsLog, startDate: s.gameStartDate,
+        board: s.boardState, contracts: s.contracts, staff: s.staff,
     })))
     const dueMatchId = useGameStore(selectPlayableMatchId)
     const guide = restoreFirstSession(state.guide)
@@ -32,11 +36,29 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     const rosterKey = team?.rosterIds.join(',') ?? ''
     const lastResultId = state.completed[state.completed.length - 1]?.id
 
-    // Record steps proven by the career itself: a signing, a played result, the week advancing.
+    // Record steps proven by the career itself: a signing, a management choice (the club, the
+    // academy or an answered inbox decision changed), a played result, the week advancing.
     const { sync, initialized, loading, active } = state
     useEffect(() => {
         if (initialized && !loading && !active && guide.status === 'active') sync()
-    }, [sync, initialized, loading, active, guide.status, rosterKey, lastResultId, state.week])
+    }, [sync, initialized, loading, active, guide.status, rosterKey, lastResultId, state.week, team, state.academy, state.events])
+
+    // Finishing the guide is said once, not just by the card disappearing (START-69, NEWPLAYER-12).
+    const lastStatus = useRef(guide.status)
+    useEffect(() => {
+        if (lastStatus.current === 'active' && guide.status === 'complete') toast.success(t("firstSession.completeToast"))
+        lastStatus.current = guide.status
+    }, [guide.status])
+
+    // The budget step states the fee cap, the weekly margin and the board's cash target (NEWPLAYER-25).
+    const budgetStep = guide.status === 'active' && firstSessionNextStep(guide) === 'budget'
+    const { board, contracts, staff, players, academy } = state
+    const budgetFacts = useMemo(() => {
+        if (!budgetStep || !team) return undefined
+        const weeklyNet = EconomyEngine.processWeeklyFinances(team, players, contracts, staff, state.week + 1, academy?.length ?? 0).net
+        const cashTarget = board?.objectives?.find(o => o.id === "finance")?.target ?? null
+        return { maxFee: getBoardSanctionedFee(board, team.budget).maxFee, weeklyNet, cashTarget }
+    }, [budgetStep, team, players, contracts, staff, state.week, academy?.length, board])
 
     // START-33: the visible words are the accessible name; where it comes back is said after skipping.
     const skip = () => {
@@ -45,13 +67,15 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     }
 
     if (!state.initialized || state.loading || state.ended || !team || guide.status !== 'active' || state.active) return null
-    const next = firstSessionGuidance(guide, { team, players: state.players, matches: state.matches, completed: state.completed, currentWeek: state.week, activeMatchId: state.active, dueMatchId })
+    const next = firstSessionGuidance(guide, { team, players: state.players, matches: state.matches, completed: state.completed, currentWeek: state.week, activeMatchId: state.active, dueMatchId, gameStartDate: state.startDate, budgetFacts })
     if (!next) return null
     const canReview = next.reviewPath !== '' && pathname === next.reviewPath
+    // "/week#weekly-focus" is the page the player is on at "/week" (START-54).
+    const onActionPage = next.action.href.split('#')[0] === pathname
     const done = guide.reviewed.length
 
     // Away from the step's own page the compact guide is one line, so it does not push the page down.
-    if (compact && !canReview && next.action.href !== pathname) {
+    if (compact && !canReview && !onActionPage) {
         return (
             <section aria-label={t("firstSession.title")} className="flex min-h-10 flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line bg-panel px-4 py-1.5 text-sm">
                 <span className="font-semibold text-ink-1">{t("firstSession.title")} <span className="ml-1 text-xs font-normal tabular-nums text-ink-3">{t("firstSession.progress", { done, total: FIRST_SESSION_STEPS.length })}</span></span>
@@ -98,7 +122,7 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                         {canReview
                             ? <Button size="sm" variant="outline" onClick={() => state.review(next.step)}>{next.reviewLabel}</Button>
-                            : next.action.href !== pathname && <Button asChild size="sm" variant="outline"><Link href={next.action.href}>{next.action.label}</Link></Button>}
+                            : !onActionPage && <Button asChild size="sm" variant="outline"><Link href={next.action.href}>{next.action.label}</Link></Button>}
                         {!compact && next.alternatives.map(link => (
                             <Button key={link.href} asChild size="sm" variant="ghost"><Link href={link.href}>{link.label}</Link></Button>
                         ))}

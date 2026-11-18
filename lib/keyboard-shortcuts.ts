@@ -32,8 +32,8 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
         shortcuts: [
             { keys: ["Ctrl", "K"], description: "search.title" },
             { keys: ["1"], description: "shortcuts.home" },
-            { keys: ["2"], description: "shortcuts.openInbox" },
-            { keys: ["I"], description: "shortcuts.toggleInbox" },
+            // START-62: one row; I and 2 both open and close the inbox.
+            { keys: ["I"], altKeys: ["2"], description: "shortcuts.toggleInbox" },
             { keys: ["3"], description: "shortcuts.squad" },
             { keys: ["4"], description: "shortcuts.weekPlan" },
             { keys: ["5"], description: "shortcuts.matchCentre" },
@@ -63,8 +63,8 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
 
 // Hub-aligned number-key routes: 1 and 3–8 open the seven top-bar hubs in
 // order (Home, Squad, Week, Match, Recruitment, Competition, Club), 9 is
-// Settings. Mirrors the entries above; "2" is the inbox drawer
-// (INBOX_OPEN_KEY), which overlays the current screen.
+// Settings. Mirrors the entries above; "2" toggles the inbox drawer
+// (INBOX_OPEN_KEY, like I), which overlays the current screen.
 export const NUMBER_KEY_ROUTES: Record<string, string> = {
     "1": "/",
     "3": "/squad",
@@ -76,7 +76,7 @@ export const NUMBER_KEY_ROUTES: Record<string, string> = {
     "9": "/settings",
 }
 
-/** Opens the inbox drawer (was the `/desktop` route). */
+/** Opens and closes the inbox drawer, like I (was the `/desktop` route). */
 export const INBOX_OPEN_KEY = "2"
 /** Toggles the inbox drawer (case-insensitive, no modifiers). */
 export const INBOX_TOGGLE_KEY = "i"

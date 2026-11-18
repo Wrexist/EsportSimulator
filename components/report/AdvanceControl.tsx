@@ -26,6 +26,7 @@ import { demoWeekCapReached } from "@/lib/edition"
 import { t } from "@/lib/i18n"
 import { weekOfSeason } from "@/lib/season-week"
 import { liveMatchInProgress } from "@/app/match/match-centre"
+import { requiresCareer } from "@/lib/career-routes"
 
 /**
  * The match a stop notice was last restored for in this page session, so a
@@ -181,12 +182,15 @@ export function AdvanceControl() {
     // (MATCHDAY-06); it shows again elsewhere while the match is due.
     const stopMatchPath = advanceStop?.kind === "match" ? advanceStop.href?.match(/^\/match\/[^/]+\//)?.[0] : undefined
     const onStopMatch = !!stopMatchPath && !!pathname?.startsWith(stopMatchPath)
+    // START-52: Load game, Settings and Credits are outside the career; the notice
+    // covered their header buttons, and the top bar's own action stays in view.
+    const offCareerScreen = !!pathname && !requiresCareer(pathname)
 
     return (
         <div className="relative shrink-0">
             {control}
             {/* A match-day notice with no match due (a mode switch moved the day) is stale (HOME-20). */}
-            {advanceStop && !running && !onStopMatch && !stopAnswered && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
+            {advanceStop && !running && !onStopMatch && !offCareerScreen && !stopAnswered && !(advanceStop.kind === "match" && !pendingMatchId) && <StopNotice />}
         </div>
     )
 }

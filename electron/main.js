@@ -1056,7 +1056,7 @@ async function createWindow() {
         // Show a loading screen immediately so the user sees something. Matches the in-game
         // splash (components/brand/LoadingSplash): ink, logotype, thin gold shimmer.
         const logotype = resolveLogotypeDataUrl();
-        const loadingHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager</title>
+        const loadingHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Esports Manager: FPS</title>
 <style>
 html,body{height:100%}
 body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:center;align-items:center;margin:0;overflow:hidden}
@@ -1069,7 +1069,7 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
 @keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(263%)}}
 @media (prefers-reduced-motion:reduce){.c,.fill{animation:none}.fill{transform:translateX(81%);opacity:.6}}
 </style></head>
-<body><div class="c">${logotype ? `<img class="logo" src="${logotype}" alt="Esports Manager">` : '<div class="word">Esports Manager</div>'}<div class="bar"><div class="fill"></div></div></div></body></html>`;
+<body><div class="c">${logotype ? `<img class="logo" src="${logotype}" alt="Esports Manager: FPS">` : '<div class="word">Esports Manager: FPS</div>'}<div class="bar"><div class="fill"></div></div></div></body></html>`;
         mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(loadingHtml));
         mainWindow.show();
         mainWindow.focus();

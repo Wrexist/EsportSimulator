@@ -305,7 +305,7 @@ export default function TournamentsPage() {
                         </Button>
                     ) : isOnSchedule && !isPast ? (
                         <Button size="sm" variant="ghost" className="h-8 gap-1 px-2 text-xs" onClick={() => router.push("/schedule")}>
-                            <Calendar size={13} aria-hidden="true" /> {t("tm.schedule")}
+                            <Calendar size={13} aria-hidden="true" /> {t("home.schedule")}
                         </Button>
                     ) : (
                         <ChevronRight size={16} className="ml-auto text-ink-3 group-hover:text-ink-1" aria-hidden="true" />

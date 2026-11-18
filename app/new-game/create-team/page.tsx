@@ -1,7 +1,7 @@
 "use client"
 import { t } from "@/lib/i18n"
 
-import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
+import { loadCareerDraft, saveCareerDraft, clearCareerDraft, restorableCreateTeamStep } from '@/lib/new-career-draft'
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -130,11 +130,20 @@ export default function CreateTeamPage() {
     useEffect(() => {
         const draft = loadCareerDraft()
         if (draft) { setManagerName(draft.managerName); if (draft.custom) setTeamData(draft.custom) }
+        // START-68: a reload returns to the step the player was on.
+        setCurrentStep(restorableCreateTeamStep(draft))
         setDraftReady(true)
     }, [])
     useEffect(() => {
-        if (draftReady && !isCreating) setDraftSaved(saveCareerDraft({ managerName, custom: teamData }))
-    }, [draftReady, managerName, teamData, isCreating])
+        if (draftReady && !isCreating) setDraftSaved(saveCareerDraft({ managerName, custom: teamData, ctStep: currentStep }))
+    }, [draftReady, managerName, teamData, isCreating, currentStep])
+    // START-68: a restored later step still needs a club name and tag no other club uses.
+    useEffect(() => {
+        if (!worldClubs || currentStep === "name") return
+        const clash = clubIdentityClash(teamData.name, teamData.shortName, worldClubs)
+        if (clash.name || clash.tag) setCurrentStep("name")
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- checked once, when the world's clubs arrive
+    }, [worldClubs])
 
     // Navigation guard - warn about unsaved changes
     const hasUnsavedChanges = teamData.name.trim() !== "" || managerName.trim() !== ""
@@ -224,7 +233,7 @@ export default function CreateTeamPage() {
 
     // Back to the path choice this page was opened from, not the club list (START-07).
     const leaveToPathChoice = () => {
-        saveCareerDraft({ step: "welcome" })
+        saveCareerDraft({ step: "welcome", ctStep: "name" })
         router.push("/new-game")
     }
 
@@ -317,14 +326,16 @@ export default function CreateTeamPage() {
                                 placeholder={t("ct.tagPlaceholder")}
                                 value={teamData.shortName}
                                 aria-invalid={!!errors.shortName || undefined}
+                                aria-describedby="ct-tag-hint"
                                 onChange={(e) => {
+                                    // START-66: filter first, then cap, so a pasted "NA-VI1" keeps "NAVI1".
                                     const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5)
                                     setTeamData({ ...teamData, shortName: value })
                                     if (errors.shortName) setErrors({ ...errors, shortName: "" })
                                 }}
-                                maxLength={5}
                                 className="h-11 w-40 font-mono uppercase tracking-[0.2em]"
                             />
+                            <p id="ct-tag-hint" className="text-xs text-ink-3">{t("ct.tagHint")}</p>
                             {renderError("shortName")}
                         </div>
                     </div>
@@ -414,7 +425,7 @@ export default function CreateTeamPage() {
                                                 <span className="block text-xs text-ink-3">{t(`ct.diff.${key}.desc`)}</span>
                                             </span>
                                             <dl className="grid shrink-0 grid-cols-3 gap-4 text-right">
-                                                <div><dt className="text-[11px] text-ink-3">{t("ct.cash")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{formatCurrency(customClubStartingCash(settings.startingBudget))}</dd></div>
+                                                <div><dt className="text-[11px] text-ink-3">{t("ct.cash")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{formatCurrency(customClubStartingCash(settings.startingBudget), "$", false)}</dd></div>
                                                 <div><dt className="text-[11px] text-ink-3">{t("ct.rep")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{settings.startingReputation}</dd></div>
                                                 <div><dt className="text-[11px] text-ink-3">{t("ct.income")}</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{settings.incomeMultiplier}×</dd></div>
                                             </dl>
@@ -454,10 +465,6 @@ export default function CreateTeamPage() {
                                 {challenge.notes.map(note => <li key={note}>{note}</li>)}
                             </ul>
                         </section>
-                        <p className="text-sm text-ink-2">
-                            <span className="font-semibold text-caution">{t("ct.emptyRoster")} </span>
-                            {t("ct.emptyRosterBody")}
-                        </p>
                     </div>
                 )
             }
@@ -465,7 +472,7 @@ export default function CreateTeamPage() {
     }
 
     return (
-        <div className="relative min-h-dvh overflow-hidden bg-ink">
+        <div className="relative min-h-dvh overflow-clip bg-ink">
             {/* Mounted only once the club exists: the builder reads its roster when it opens (MODES-19). */}
             {showRosterBuilder && <RosterBuilderModal
                 isOpen
@@ -509,7 +516,8 @@ export default function CreateTeamPage() {
 
                     <Panel>{renderStepContent()}</Panel>
 
-                    <div className="flex justify-between">
+                    {/* START-51: the wizard's buttons stay in view on a short window. */}
+                    <div className="sticky bottom-0 z-10 -mx-2 flex justify-between bg-ink/95 px-2 py-3">
                         <Button variant="outline" onClick={goPrev} className="gap-2">
                             <ArrowLeft size={16} /> {currentStepIndex === 0 ? t("ng.cancel") : t("ng.back")}
                         </Button>

@@ -24,7 +24,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { ArrowLeft, ChevronRight, Info, Loader2, Lock, Search, X } from "lucide-react"
 import { toast } from "@/lib/toast"
-import { ManagerProgression, ManagerTier, TEAM_REP_TIERS, TIER_THRESHOLDS } from "@/engine/manager-progression"
+import { ManagerProgression } from "@/engine/manager-progression"
 import { loadCareerProfile, recordNewCampaign } from "@/engine/manager-career-profile"
 import { cn } from "@/lib/utils"
 import { snapshotLoader } from "@/data"
@@ -225,6 +225,9 @@ export default function TeamSelectionPage() {
     // Roster of the selected club as the career starts it, best first.
     const selectedRoster = selectedTeam ? teamStats.get(selectedTeam.id)?.roster ?? [] : []
 
+    // NEWPLAYER-24: the step-2 header names how many clubs the manager can take now.
+    const openClubs = useMemo(() => rankedTeams.filter(team => ManagerProgression.isTeamUnlocked(team.reputation, managerLevel)).length, [rankedTeams, managerLevel])
+
     const tierCounts = useMemo(() => {
         const counts: Record<TierFilter, number> = { ALL: rankedTeams.length, ELITE: 0, PRO: 0, SEMI_PRO: 0, AMATEUR: 0 }
         for (const t of rankedTeams) counts[t.calculatedTier]++
@@ -395,19 +398,24 @@ export default function TeamSelectionPage() {
                             padded box, so all five buttons share one width and left edge. */}
                         <div className="mt-8 space-y-2 [@media(max-height:800px)]:mt-4">
                             <div role="group" className="space-y-2 border-b border-line pb-2">
-                                <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
+                                <Button onClick={handleContinueToTeamSelect} disabled={isStarting} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                     <span>
-                                        <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.existing")}</span>
-                                        <span className="mt-1 block text-[13px] font-medium">{t("ng.path.existing.sub")}</span>
+                                        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                            <span className="font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.existing")}</span>
+                                            {/* NEWPLAYER-24: the path a first-time player should take. */}
+                                            <span className="rounded-sm border border-current/40 px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em]">{t("ng.path.recommended")}</span>
+                                        </span>
+                                        <span className="mt-1 block text-[13px] font-medium [@media(max-height:700px)]:hidden">{t("ng.path.existing.sub")}</span>
                                     </span>
                                     <ChevronRight />
                                 </Button>
-                                <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
+                                {/* START-67: the world build can take a while; say so, and hold the other paths. */}
+                                <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} aria-busy={isStarting || undefined} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                     <span>
                                         <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.unemployed")}</span>
-                                        <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.unemployed.sub")}</span>
+                                        <span className="mt-1 block text-[13px] font-medium text-ink-3 [@media(max-height:700px)]:hidden">{isStarting ? t("ng.starting") : t("ng.path.unemployed.sub")}</span>
                                     </span>
-                                    <ChevronRight />
+                                    {isStarting ? <Loader2 className="animate-spin" /> : <ChevronRight />}
                                 </Button>
                                 <label className="flex items-start gap-3 px-1 pb-1 pt-1 text-sm text-ink-1">
                                     <Switch checked={randomWorld} onCheckedChange={setRandomWorld} aria-describedby="random-world-hint" className="mt-0.5" />
@@ -417,24 +425,24 @@ export default function TeamSelectionPage() {
                                     </span>
                                 </label>
                             </div>
-                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
+                            <Button onClick={handleCreateOwnTeam} disabled={isStarting} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.create")}</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.create.sub")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3 [@media(max-height:700px)]:hidden">{t("ng.path.create.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
+                            <Button onClick={handleProCareer} disabled={isStarting} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.pro")}</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.pro.sub")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3 [@media(max-height:700px)]:hidden">{t("ng.path.pro.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleDraftCup} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
+                            <Button onClick={handleDraftCup} disabled={isStarting} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left [@media(max-height:800px)]:py-2">
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em] [@media(max-height:800px)]:text-xl">{t("ng.path.draft")}</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.draft.sub")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3 [@media(max-height:700px)]:hidden">{t("ng.path.draft.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
@@ -466,7 +474,7 @@ export default function TeamSelectionPage() {
                 title={t("ng.step2.title")}
                 subtitle={sandboxMode
                     ? t("ng.step2.sandbox", { name: managerName })
-                    : t("ng.step2.levels", { name: managerName, level: managerLevel, rep2: TEAM_REP_TIERS.TIER_2_MIN_REP, rep1: TEAM_REP_TIERS.TIER_1_MIN_REP, lvl2: TIER_THRESHOLDS[ManagerTier.CHALLENGER], lvl1: TIER_THRESHOLDS[ManagerTier.ELITE] })}
+                    : tn("ng.step2.open", openClubs, { name: managerName, level: managerLevel })}
                 aside={
                     <>
                         <Button variant="ghost" onClick={() => setCurrentStep("welcome")} className="gap-2">
@@ -527,8 +535,7 @@ export default function TeamSelectionPage() {
                                     <th data-slot="table-head" className="hidden w-36 px-3 xl:table-cell">{t("ng.col.region")}</th>
                                     <th data-slot="table-head" className="w-24 px-3">{t("ng.col.tier")}</th>
                                     <th data-slot="table-head" className="w-16 px-3 text-center">{t("common.ovr")}</th>
-                                    <th data-slot="table-head" className="w-28 px-3 text-right">{t("ng.col.budget")}</th>
-                                    <th data-slot="table-head" className="w-28 pr-4 text-right"><span className="sr-only">{t("ng.col.access")}</span></th>
+                                    <th data-slot="table-head" className="w-24 pl-3 pr-4 text-right">{t("ng.col.budget")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -556,7 +563,7 @@ export default function TeamSelectionPage() {
                                                     <div className="min-w-0">
                                                         <div className="flex min-w-0 items-baseline gap-3">
                                                             <h3 className={cn("truncate text-sm font-semibold", selected ? "text-gold" : "text-ink-1")}>{team.name}</h3>
-                                                            <span className="hidden shrink-0 text-xs text-ink-3 xl:inline">{team.shortName}</span>
+                                                            <span className="hidden shrink-0 text-xs text-ink-3 2xl:inline">{team.shortName}</span>
                                                         </div>
                                                         {/* Below 1280 px the Region column is hidden; the region shows here. */}
                                                         <p className="truncate text-xs text-ink-3 xl:hidden">{team.shortName} · {clubRegionName(team.region)}</p>
@@ -564,19 +571,20 @@ export default function TeamSelectionPage() {
                                                 </div>
                                             </td>
                                             <td className="hidden truncate whitespace-nowrap px-3 text-xs font-semibold text-ink-2 xl:table-cell">{clubRegionName(team.region)}</td>
-                                            <td className="truncate px-3 text-sm text-ink-2">{t(`ng.tier.${team.calculatedTier}`)}</td>
-                                            <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
-                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(budgetFor(team.id))}</td>
-                                            <td className="pr-4 text-right text-xs text-ink-3">
+                                            {/* START-45: the level lock sits under the tier, so no column stays empty for open clubs. */}
+                                            <td className="px-3 text-sm text-ink-2">
+                                                <span className="block truncate">{t(`ng.tier.${team.calculatedTier}`)}</span>
                                                 {locked && (
-                                                    <span className="inline-flex items-center gap-1"><Lock size={12} /> {t("ng.levelLock", { n: ManagerProgression.getRequiredLevel(team.reputation) })}</span>
+                                                    <span className="flex items-center gap-1 truncate text-xs text-ink-3"><Lock size={12} className="shrink-0" /> {t("ng.levelLock", { n: ManagerProgression.getRequiredLevel(team.reputation) })}</span>
                                                 )}
                                             </td>
+                                            <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
+                                            <td className="pl-3 pr-4 text-right text-sm tabular-nums text-ink-2">{formatCurrency(budgetFor(team.id))}</td>
                                         </tr>
                                     )
                                 })}
                                 {filteredTeams.length === 0 && (
-                                    <tr><td colSpan={7} className="px-4 py-6 text-sm text-ink-3">{t("ng.noMatch", { term: searchTerm })}</td></tr>
+                                    <tr><td colSpan={6} className="px-4 py-6 text-sm text-ink-3">{t("ng.noMatch", { term: searchTerm })}</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -590,21 +598,25 @@ export default function TeamSelectionPage() {
                 <Panel padded={false} as="aside" className="flex min-h-0 flex-col overflow-hidden" bodyClassName="flex min-h-0 flex-1 flex-col">
                     {selectedTeam && selectedStats ? (
                         <>
-                            {/* START-25: on a short window the roster keeps room for about three rows. */}
-                            <div className="min-h-0 flex-1 overflow-y-auto [@media(max-height:760px)]:min-h-[168px]">
-                                <div className="flex items-center gap-4 border-b border-line p-5">
-                                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
-                                        <TeamLogoImage src={selectedTeam.logoPath} alt={selectedTeam.name} size={52} />
+                            {/* START-25/46: on a short window the crest header is compact and the four
+                                KPIs fold into one line under the name, so the roster keeps room for its rows. */}
+                            <div className="min-h-0 flex-1 overflow-y-auto">
+                                <div className="flex items-center gap-4 border-b border-line p-5 [@media(max-height:760px)]:gap-3 [@media(max-height:760px)]:p-3">
+                                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-line bg-raised [@media(max-height:760px)]:h-10 [@media(max-height:760px)]:w-10">
+                                        <TeamLogoImage src={selectedTeam.logoPath} alt={selectedTeam.name} size={52} className="[@media(max-height:760px)]:size-8!" />
                                     </span>
                                     <div className="min-w-0">
-                                        <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{selectedTeam.name}</h2>
-                                        <p className="mt-1.5 text-sm text-ink-3">
+                                        <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1 [@media(max-height:760px)]:text-2xl">{selectedTeam.name}</h2>
+                                        <p className="mt-1.5 truncate text-sm text-ink-3 [@media(max-height:760px)]:mt-1">
                                             {clubRegionName(selectedTeam.region)} · {t(`ng.tier.${selectedTeam.calculatedTier}`)} · {selectedTeam.shortName}
+                                        </p>
+                                        <p className="mt-0.5 hidden truncate text-xs tabular-nums text-ink-2 [@media(max-height:760px)]:block">
+                                            #{selectedTeam.worldRanking} · {t("common.ovr")} {selectedStats.ovr} · {t("ng.col.budget")} {formatCurrency(selectedBudget)} · {t("ng.col.value")} {formatCurrency(selectedStats.value)}
                                         </p>
                                     </div>
                                 </div>
 
-                                <dl className="grid grid-cols-4 divide-x divide-line border-b border-line">
+                                <dl className="grid grid-cols-4 divide-x divide-line border-b border-line [@media(max-height:760px)]:hidden">
                                     {[
                                         { label: t("ng.col.rank"), value: `#${selectedTeam.worldRanking}` },
                                         { label: t("common.ovr"), value: <RatingChip value={selectedStats.ovr} size="md" bare className="min-w-0 px-0 text-2xl" /> },
@@ -661,10 +673,14 @@ export default function TeamSelectionPage() {
                                             <span className="text-xs font-semibold text-ink-2">{t(`ng.level.${challenge.level}`)}</span>
                                         </div>
                                         <p className="mt-2 text-sm text-ink-1">{t(challenge.trophyTarget > 0 ? "ng.boardTargetTrophy" : "ng.boardTarget", { goal: t(`ng.goal.${challenge.tier}`), rank: challenge.rankTarget })}</p>
-                                        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-ink-2">
-                                            {challenge.notes.map(note => <li key={note}>{note}</li>)}
-                                        </ul>
-                                        <p className="mt-2 text-xs text-ink-3">{t("ng.budgetNote")}</p>
+                                        {/* NEWPLAYER-24: the board target stays in view; the notes open on request. */}
+                                        <details className="group mt-2">
+                                            <summary className="w-fit cursor-pointer rounded-sm text-xs font-semibold text-ink-2 hover:text-ink-1">{t("ng.expectMore")}</summary>
+                                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-ink-2">
+                                                {challenge.notes.map(note => <li key={note}>{note}</li>)}
+                                            </ul>
+                                            <p className="mt-2 text-xs text-ink-3">{t("ng.budgetNote")}</p>
+                                        </details>
                                     </section>
                                 )}
                             </div>

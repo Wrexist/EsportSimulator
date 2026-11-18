@@ -8,7 +8,11 @@ export interface NewCareerDraft {
     difficulty?: CareerDifficulty; randomWorld?: boolean
     /** The new-game step the player was on (START-07): only 'team-select' reopens the club list. */
     step?: 'welcome' | 'team-select'
+    /** The Create team wizard step (START-68): a reload reopens it once the earlier steps check out. */
+    ctStep?: CreateTeamStep
 }
+export const CREATE_TEAM_STEPS = ['name', 'region', 'colors', 'difficulty', 'review'] as const
+export type CreateTeamStep = typeof CREATE_TEAM_STEPS[number]
 export function normalizeCareerDraft(raw: unknown): NewCareerDraft | null {
     if (!raw || typeof raw !== 'object') return null
     const v = raw as Partial<NewCareerDraft>
@@ -18,6 +22,7 @@ export function normalizeCareerDraft(raw: unknown): NewCareerDraft | null {
     if (typeof v.difficulty === 'string' && Object.hasOwn(CAREER_DIFFICULTY, v.difficulty)) result.difficulty = v.difficulty
     if (v.randomWorld === true) result.randomWorld = true
     if (v.step === 'welcome' || v.step === 'team-select') result.step = v.step
+    if (typeof v.ctStep === 'string' && (CREATE_TEAM_STEPS as readonly string[]).includes(v.ctStep)) result.ctStep = v.ctStep
     const c = v.custom
     if (c && typeof c.name === 'string' && typeof c.shortName === 'string' && Object.hasOwn(DIFFICULTY_SETTINGS, c.difficulty) && Object.hasOwn(REGION_INFO, c.region)) {
         const color = (s: unknown) => typeof s === 'string' && /^#[0-9a-f]{6}$/i.test(s) ? s : '#3B82F6'
@@ -34,3 +39,14 @@ export function saveCareerDraft(patch: Partial<NewCareerDraft>): boolean {
     try { const draft = normalizeCareerDraft({ version: 1, managerName: '', ...loadCareerDraft(), ...patch }); window.localStorage.setItem(KEY, JSON.stringify(draft)); return true } catch { return false }
 }
 export function clearCareerDraft(): void { try { window.localStorage.removeItem(KEY); window.localStorage.removeItem('pending_manager_name') } catch { /* Application saves are independent. */ } }
+/**
+ * START-68: the Create team step a reload may reopen. Later steps need a
+ * complete name step (manager name, club name, a 2–5 character tag); else
+ * the wizard starts at the name step.
+ */
+export function restorableCreateTeamStep(draft: Pick<NewCareerDraft, 'managerName' | 'custom' | 'ctStep'> | null): CreateTeamStep {
+    const step = draft?.ctStep ?? 'name'
+    const c = draft?.custom
+    const nameStepDone = !!c && draft!.managerName.trim().length >= 2 && c.name.trim().length >= 2 && c.shortName.length >= 2 && c.shortName.length <= 5
+    return nameStepDone ? step : 'name'
+}

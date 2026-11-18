@@ -22,6 +22,7 @@ import {
 } from "@/engine/draft-cup"
 import type { DraftCupSetup } from "@/engine/draft-cup-setup"
 import { generateSeed } from "@/engine/rng"
+import { clubIdentityClash } from "@/engine/team-creator"
 import type { GameSave } from "@/engine/save-types"
 import { PRESET_COLORS } from "@/types/team-creator"
 import { Button } from "@/components/ui/button"
@@ -75,6 +76,8 @@ export default function DraftCupPage() {
     const [worldSeed, setWorldSeed] = useState(() => generateSeed())
     /** The stored board has been read (nothing is written over it before that). */
     const [restored, setRestored] = useState(false)
+    /** START-50: the team name or tag is already a club in the world (so in the bracket too). */
+    const [clash, setClash] = useState({ name: false, tag: false })
 
     // A reload reopens the setup or the draft board where the player left it.
     useEffect(() => {
@@ -163,6 +166,10 @@ export default function DraftCupPage() {
         try {
             const w = world ?? await buildDraftCupWorld(worldSeed)
             setWorld(w)
+            // The placeholder club is replaced by the drafted side, so its name is free.
+            const found = clubIdentityClash(teamName, shortName, w.teams.filter(tm => tm.id !== w.playerTeamId))
+            setClash(found)
+            if (found.name || found.tag) return
             // A new difficulty needs a new field; the reroll count carries over.
             // A difficulty dealt before gets its old deal back (no free reroll).
             if (!pool || dealtFor !== difficulty) {
@@ -239,7 +246,7 @@ export default function DraftCupPage() {
                     subtitle={t("dc.subtitle", { budget: DRAFT_BUDGET })} />
 
                 <Panel title={t("dc.yourSide")}>
-                    <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
+                    <div className="grid gap-4 sm:grid-cols-[1fr_160px]">
                         <label className="space-y-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.managerName")}</span>
                             <Input value={managerName} maxLength={32} onChange={e => setManagerName(e.target.value)} placeholder={t("ng.namePlaceholder")} className="h-10" />
@@ -247,11 +254,15 @@ export default function DraftCupPage() {
                         <div />
                         <label className="space-y-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ct.teamName")}</span>
-                            <Input value={teamName} maxLength={28} onChange={e => setTeamName(e.target.value)} className="h-10" />
+                            <Input value={teamName} maxLength={28} aria-invalid={clash.name || undefined} onChange={e => { setTeamName(e.target.value); if (clash.name) setClash(c => ({ ...c, name: false })) }} className="h-10" />
+                            {clash.name && <span className="block text-xs font-medium text-negative">{t("ct.err.teamTaken")}</span>}
                         </label>
                         <label className="space-y-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dc.tag")}</span>
-                            <Input value={shortName} maxLength={5} onChange={e => setShortName(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} className="h-10 uppercase" />
+                            {/* START-66: filter first, then cap at five. */}
+                            <Input value={shortName} aria-invalid={clash.tag || undefined} onChange={e => { setShortName(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5)); if (clash.tag) setClash(c => ({ ...c, tag: false })) }} className="h-10 uppercase" />
+                            <span className="block text-xs text-ink-3">{t("ct.tagHint")}</span>
+                            {clash.tag && <span className="block text-xs font-medium text-negative">{t("ct.err.tagTaken")}</span>}
                         </label>
                     </div>
                     <div className="mt-4 flex flex-wrap items-center gap-3">

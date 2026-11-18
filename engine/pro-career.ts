@@ -211,6 +211,12 @@ export function proWage(ovr: number): number {
 
 export interface ProStartInput { nickname: string; role: PlayerRole; nationality?: string }
 
+/** START-49: a pro's nickname may not repeat a player's already in the world (case and spacing ignored). */
+export function proNicknameTaken(nickname: string, players: ReadonlyArray<{ nickname?: string }>): boolean {
+    const name = nickname.trim().toLowerCase()
+    return !!name && players.some(p => (p.nickname ?? "").trim().toLowerCase() === name)
+}
+
 /**
  * Creates the pro at the managed club (a 17-year-old a little behind the
  * starters, with a high ceiling), hands the club to its staff and opens
