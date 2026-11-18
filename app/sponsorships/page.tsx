@@ -28,10 +28,11 @@ export default function SponsorshipsPage() {
   const router = useRouter()
   const {
     playerTeamId, sponsorOffers, signSponsor, declineSponsorOffer, refreshSponsorOffers,
-    currentWeek, completedMatches, tournaments, _hasHydrated, isLoading,
+    currentWeek, completedMatches, tournaments, _hasHydrated, isLoading, declinedCount,
   } = useGameStore(useShallow(state => ({
     playerTeamId: state.playerTeamId,
     sponsorOffers: state.sponsorOffers,
+    declinedCount: state.declinedSponsorOfferIds?.length ?? 0,
     signSponsor: state.signSponsor,
     declineSponsorOffer: state.declineSponsorOffer,
     refreshSponsorOffers: state.refreshSponsorOffers,
@@ -51,7 +52,9 @@ export default function SponsorshipsPage() {
   }, [_hasHydrated, isLoading, isSessionActive, router])
 
   useEffect(() => {
-    if (_hasHydrated && isSessionActive && sponsorOffers.length === 0) refreshSponsorOffers()
+    // MARKET-02 (2026-11-17): the weekly update deals offers; only a career that has none yet is seeded here,
+    // so offers declined this week don't come back on the next visit.
+    if (_hasHydrated && isSessionActive && sponsorOffers.length === 0 && declinedCount === 0) refreshSponsorOffers()
   }, [_hasHydrated, isSessionActive]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeSponsors = useMemo(() => team?.sponsors ?? [], [team?.sponsors])
