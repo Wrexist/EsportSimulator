@@ -1,9 +1,11 @@
 /**
  * League schedules.
  *
- * Pre-Steam audit: compressed rounds once put several BO1s for a club on the
- * same week with no regard to the day. A round-robin round has every club
- * play once, so the rounds that share a week now go on different days.
+ * Pre-Steam audit: compressed rounds gave a club up to four BO1s in one week,
+ * and only the first could be played; leagues then moved to one round a week.
+ * Every fixture of the week now blocks the week until it is played (or the
+ * assistant plays it), and a round-robin round has every club play once, so
+ * the rounds that share a week go on different days.
  *
  * COMP-10 (audit 2026-11-17): one round a week stretched a 23-round "6 wk
  * event" over weeks 20–42. A league now plays inside the window the calendar
