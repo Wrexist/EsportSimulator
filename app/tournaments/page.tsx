@@ -304,7 +304,7 @@ export default function TournamentsPage() {
                         <span className="block font-sans text-xs font-normal text-ink-3">{t("tm.qualification")}</span>
                     )}
                 </td>
-                <td className="px-3 text-xs text-ink-3">{getEntryTypeLabel(tournament.entryType)}</td>
+                <td className="px-3 text-xs text-ink-3">{getEntryTypeLabel(tournament.entryType, tournament.id)}</td>
                 <td className="w-32 pr-4 text-right" onClick={e => e.stopPropagation()}>
                     {canRegister ? (
                         <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => registerForTournament(displayId)}>

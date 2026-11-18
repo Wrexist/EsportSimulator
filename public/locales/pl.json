@@ -7347,5 +7347,7 @@
  "tm.block.region": "Zapisać mogą się tylko drużyny z regionu {{region}}",
  "tm.block.in_main": "Twoja drużyna już gra w {{event}}",
  "tm.block.invited": "Twoja drużyna czeka na zaproszenie do {{event}}",
- "tm.block.sibling": "Twoja drużyna gra już inne kwalifikacje do {{event}}"
+ "tm.block.sibling": "Twoja drużyna gra już inne kwalifikacje do {{event}}",
+ "tm.entry.RANKED": "Zaproszenia + ranking",
+ "tm.entry.RANKING": "Ranking światowy"
 }

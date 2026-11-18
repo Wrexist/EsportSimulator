@@ -224,4 +224,6 @@ export const TOURNAMENTS: Record<string, string> = {
     "tm.block.in_main": "You're already in {{event}}",
     "tm.block.invited": "You're in line for an invite to {{event}}",
     "tm.block.sibling": "You already play another qualifier for {{event}}",
+    "tm.entry.RANKED": "Invites + ranking",
+    "tm.entry.RANKING": "World ranking",
 }

@@ -6893,5 +6893,7 @@
  "tm.block.region": "Nur Teams aus {{region}} können teilnehmen",
  "tm.block.in_main": "Du bist schon bei {{event}} dabei",
  "tm.block.invited": "Du stehst für eine Einladung zu {{event}} an",
- "tm.block.sibling": "Du spielst schon eine andere Qualifikation für {{event}}"
+ "tm.block.sibling": "Du spielst schon eine andere Qualifikation für {{event}}",
+ "tm.entry.RANKED": "Einladungen + Rangliste",
+ "tm.entry.RANKING": "Weltrangliste"
 }

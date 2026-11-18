@@ -7120,5 +7120,7 @@
  "tm.block.region": "Seules les équipes de {{region}} peuvent s’inscrire",
  "tm.block.in_main": "Ton équipe est déjà inscrite à {{event}}",
  "tm.block.invited": "Une invitation pour {{event}} t’attend",
- "tm.block.sibling": "Tu joues déjà une autre qualification pour {{event}}"
+ "tm.block.sibling": "Tu joues déjà une autre qualification pour {{event}}",
+ "tm.entry.RANKED": "Invitations + classement",
+ "tm.entry.RANKING": "Classement mondial"
 }

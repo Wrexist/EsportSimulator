@@ -590,7 +590,7 @@ export default function TournamentDetailPage() {
                             <Panel title={t("tm.about")}>
                                 <p className="max-w-3xl text-sm leading-relaxed text-ink-2">{displayTournament.description || t("tm.noDescription")}</p>
                                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
-                                    <div><dt className={overline}>{t("tm.col.entry")}</dt><dd className="mt-0.5 text-ink-1">{getEntryTypeLabel(displayTournament.entryType)}</dd></div>
+                                    <div><dt className={overline}>{t("tm.col.entry")}</dt><dd className="mt-0.5 text-ink-1">{getEntryTypeLabel(displayTournament.entryType, displayTournament.id)}</dd></div>
                                     <div><dt className={overline}>{t("tm.region")}</dt><dd className="mt-0.5 text-ink-1">{eventRegionName(displayTournament.region)}</dd></div>
                                     <div><dt className={overline}>{t("tm.col.status")}</dt><dd className="mt-0.5 text-ink-1">{isCompleted ? t("tm.status.completed") : isStarted ? t("tm.inProgress") : (isRegistered || canRegister) ? t("tm.registrationOpen") : displayTournament.entryType === "INVITE" ? t("tm.status.inviteOnly") : t("tm.status.locked")}</dd></div>
                                     <div><dt className={overline}>{t("tm.format")}</dt><dd className="mt-0.5 text-ink-1">{formatDisplayName(displayTournament.format)}</dd></div>

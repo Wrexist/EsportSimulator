@@ -7120,5 +7120,7 @@
  "tm.block.region": "Só times de {{region}} podem se inscrever",
  "tm.block.in_main": "Você já está em {{event}}",
  "tm.block.invited": "Você está na fila por um convite para {{event}}",
- "tm.block.sibling": "Você já joga outro qualificatório para {{event}}"
+ "tm.block.sibling": "Você já joga outro qualificatório para {{event}}",
+ "tm.entry.RANKED": "Convites + ranking",
+ "tm.entry.RANKING": "Ranking mundial"
 }

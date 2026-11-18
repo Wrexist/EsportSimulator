@@ -86,9 +86,13 @@ export default function StatsPage() {
     const team = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     const teamById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
 
+    // Newest first: by week, then day, then the order the results came in
+    // (a semi-final before its grand final on the same day) (COMP-19).
     const teamMatches = useMemo(() => completedMatches
-        .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-        .sort((a, b) => (b.week || 0) - (a.week || 0)),
+        .map((m, order) => ({ m, order }))
+        .filter(({ m }) => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+        .sort((a, b) => (b.m.week || 0) - (a.m.week || 0) || (b.m.day ?? 0) - (a.m.day ?? 0) || b.order - a.order)
+        .map(({ m }) => m),
     [completedMatches, playerTeamId])
 
     const record = useMemo(() => {
@@ -297,6 +301,8 @@ export default function StatsPage() {
                                                 const home = ourSide(m, playerTeamId)
                                                 const opp = teamById.get(home ? m.awayTeamId : m.homeTeamId)
                                                 const w = won(m, playerTeamId)
+                                                // A result with no maps was settled by forfeit (as the League page shows it).
+                                                const forfeit = !(m.result.maps?.length) && !m.isScrim
                                                 const isOpen = expanded === m.id
                                                 return (
                                                     <Fragment key={m.id}>
@@ -324,9 +330,10 @@ export default function StatsPage() {
                                                             </td>
                                                             <td className="px-3 text-center text-sm tabular-nums">
                                                                 <span className={cn("mr-2 font-semibold", w ? "text-positive" : "text-ink-3")}>{w ? t("sx.win") : t("sx.loss")}</span>
-                                                                <span className="text-ink-1">{home ? m.result.homeScore : m.result.awayScore}–{home ? m.result.awayScore : m.result.homeScore}</span>
+                                                                <span className="text-ink-1">{forfeit ? t("league.forfeitShort") : `${home ? m.result.homeScore : m.result.awayScore}–${home ? m.result.awayScore : m.result.homeScore}`}</span>
                                                             </td>
                                                             <td className="px-3 text-sm tabular-nums text-ink-3">
+                                                                {forfeit && t("wr.forfeit")}
                                                                 {(m.result.maps || []).map((map, i) => {
                                                                     const s = mapScore(map)
                                                                     return <span key={i} className="mr-3 whitespace-nowrap">{String(map.map)} {home ? s.home : s.away}–{home ? s.away : s.home}</span>

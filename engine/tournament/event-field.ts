@@ -20,9 +20,9 @@
  * first. A points event (Elite World Final) is the top of the circuit points
  * table (COMP-04).
  */
-import type { TournamentDefinition } from "@/data/tournament-calendar"
+import { getTournamentById, type TournamentDefinition } from "@/data/tournament-calendar"
 import type { GameSave, TeamSaveData } from "../save-types"
-import { buildInstanceId, isQualificationForTournament } from "../circuit-engine"
+import { buildInstanceId, getSeriesIdFromTournamentId, isQualificationForTournament } from "../circuit-engine"
 import { QualificationEngine } from "../tournament-qualification"
 import { TournamentManager } from "../tournament-manager"
 import { clashes, clubEventWindows, eventWeight, feederEvents, qualifierEntryBlock, regionAllows } from "./qualification-path"
@@ -36,12 +36,20 @@ import { clashes, clubEventWindows, eventWeight, feederEvents, qualifierEntryBlo
  * repeats the same (idempotent) qualification.
  */
 function settleFinishedQualifiers(save: GameSave, definition: TournamentDefinition, season: number): void {
-    for (const feeder of feederEvents(definition.id)) {
-        const qualifier = save.tournaments.find(t => t.id === buildInstanceId(feeder.id, season))
-        if (!qualifier?.isCompleted || qualifier.rewardsGranted) continue
+    const settle = (feeder: TournamentDefinition, qualifier: GameSave["tournaments"][number] | undefined) => {
+        if (!qualifier?.isCompleted || qualifier.rewardsGranted) return
         save.tournamentQualifications = QualificationEngine.processQualifierResults(
             save.tournamentQualifications || [], { ...feeder, id: qualifier.id }, TournamentManager.calculatePlacements(save, qualifier),
         )
+    }
+    for (const feeder of feederEvents(definition.id)) settle(feeder, save.tournaments.find(t => t.id === buildInstanceId(feeder.id, season)))
+    // Every other qualifier that just finished too: its winners are entered in
+    // their event from now on, so this event does not take them for the same
+    // weeks (an EU RMR's clubs are not pulled into a Showdown that runs into
+    // the Major, COMP-05).
+    for (const qualifier of save.tournaments) {
+        const feeder = getTournamentById(getSeriesIdFromTournamentId(qualifier.id))
+        if (feeder?.qualifierFor && feeder.qualifierFor !== definition.id) settle(feeder, qualifier)
     }
 }
 
