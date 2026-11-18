@@ -29,7 +29,7 @@ const EASE = [...tokens.motion.easeOutExpo] as [number, number, number, number]
 const money = (n: number) => formatCurrency(Math.round(n), "$", false)
 /** Signature size on the reveal (px): its height, and the most width it may take. */
 const SIG_HEIGHT = 72
-const SIG_MAX_WIDTH = 300
+const SIG_MAX_WIDTH = 240
 
 /** Headline size by name length, so a long tag stays on one line. */
 function nameSize(name: string, big: boolean): string {
@@ -232,17 +232,20 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                         )}
                     </motion.div>
                     {rivals.length > 0 && (
-                        <motion.p {...reveal(0.7)} className="mt-5 flex items-start gap-2 text-base text-ink-2">
+                        <motion.p {...reveal(0.7)} className="mt-5 [@media(max-height:760px)]:mt-3 flex items-start gap-2 text-base text-ink-2">
                             <Swords size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-gold" />
                             <span><Trans k="mo.sign.beatRivals" params={{ rivals: rivalLine(rivals, moment.rivalCount ?? rivals.length) }} tags={{ b: (text) => <span className="font-semibold text-ink-1">{text}</span> }} /></span>
                         </motion.p>
                     )}
-                    <MomentRule className="mt-7 max-w-none" delay={0.55} />
-                    <motion.div {...reveal(0.75)} className="mt-7">
+                    <MomentRule className="mt-7 max-w-none [@media(max-height:760px)]:mt-4" delay={0.55} />
+                    <motion.div {...reveal(0.75)} className="mt-7 [@media(max-height:760px)]:mt-4">
                         <MomentFacts facts={facts} />
                     </motion.div>
+                    {/* SMOKE-A-06: the five and the signature share one row, so the
+                        reveal fits a 1280x720 window above the sticky actions. */}
+                    {(fiveBefore !== null || (sig && sigBox)) && <div className="mt-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
                     {fiveBefore !== null && (
-                        <motion.div {...reveal(0.95)} className="mt-4 flex items-center gap-3 text-sm text-ink-3" data-testid="signing-five">
+                        <motion.div {...reveal(0.95)} className="flex items-center gap-3 text-sm text-ink-3" data-testid="signing-five">
                             <TrendingUp size={16} aria-hidden="true" className={gain > 0 ? "text-positive" : "text-ink-3"} />
                             <span>{t("squad.startingFive")}</span>
                             <span className={cn("font-display text-xl font-bold tabular-nums", fiveAfter !== null ? "text-ink-2" : "text-ink-1")}>{fiveBefore}</span>
@@ -256,7 +259,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                     )}
                     {sig && sigBox && (
                         // MARKET-11 (2026-11-17): the signature fills its box and the caption sits under it, on the line.
-                        <motion.div {...reveal(1.05)} className="mt-5 inline-flex flex-col items-stretch">
+                        <motion.div {...reveal(1.05)} className="inline-flex flex-col items-stretch">
                             <svg viewBox={`${sigBox.x} ${sigBox.y} ${sigBox.w} ${sigBox.h}`} style={{ height: SIG_HEIGHT, width: Math.min(SIG_MAX_WIDTH, SIG_HEIGHT * sigBox.w / Math.max(1, sigBox.h)) }} className="shrink-0" role="img" aria-label={t("mo.sign.signatureAlt")}>
                                 <motion.path
                                     d={sig.d}
@@ -274,6 +277,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                             <p className="mt-1 border-t border-line-strong pt-1.5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-3">{t("mo.sign.signedBy")}</p>
                         </motion.div>
                     )}
+                    </div>}
                 </div>
             </div>
         </MomentFrame>
