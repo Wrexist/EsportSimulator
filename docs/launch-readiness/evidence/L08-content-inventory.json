@@ -7101,8 +7101,8 @@
     },
     {
       "path": "data/tournaments.json",
-      "sha256": "ba9620946d28204ebc2573abcc735e28687fe3ba1e70e3859bdb21a5180e5916",
-      "bytes": 30243,
+      "sha256": "19897605b24d1355eb1b5552787a2cf24abbed23b334f207a043fd06afbc15aa",
+      "bytes": 30241,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -7146,6 +7146,11 @@
           "date": "2026-11-18",
           "previousSha256": "0303cac8e674c7914b035fbd99ada21dbf38fc76023a43d0a60f42735839b4b7",
           "change": "Audit 2026-11-17 smoke-test fixes: repaired mangled Cologne qualifier short names and one description word left by the branding transform (SMOKE-B-06). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "ba9620946d28204ebc2573abcc735e28687fe3ba1e70e3859bdb21a5180e5916",
+          "change": "Audit 2026-11-17 final fixes: calendar retiming of seven one-week B/C events and the two Showdowns out of the Major and RMR weeks (start weeks only; competition owner decision 2a). Data only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
@@ -91998,8 +92003,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "c740fd97ddfebe821d412ecdf284818eeddeaf1de964fdb6b13a47d8120c358b",
-      "bytes": 430391,
+      "sha256": "528dd10d8bdfd084144a0e1dc2cb436b2843df9908f3bd4aa7613bf9f050d8e3",
+      "bytes": 430403,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92179,13 +92184,18 @@
           "date": "2026-11-18",
           "previousSha256": "845431407b51e02c088d03d33fe5fd25d34d491cd20cf88c429f50f66484baa4",
           "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording, shorter de round-history header; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "c740fd97ddfebe821d412ecdf284818eeddeaf1de964fdb6b13a47d8120c358b",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "cd7c1d57f8e3c0742f9d24f4576f8c89c6f5d9d05f41025134fae61cc86e4540",
-      "bytes": 453552,
+      "sha256": "057096bcccd5b7dd6d1496a02e6cc686d2623f6b2a77711cd12def8bbd091251",
+      "bytes": 453566,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92360,13 +92370,18 @@
           "date": "2026-11-18",
           "previousSha256": "022a33eadb309381f509e19758581f27a6125d5d8c28e3042dca04856905b4ec",
           "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "cd7c1d57f8e3c0742f9d24f4576f8c89c6f5d9d05f41025134fae61cc86e4540",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "25f0cff6527cabc1d99462888a7dd0ce8b729695fdfc1fb6431b99648032e7f9",
-      "bytes": 462545,
+      "sha256": "2b4f0cd7e86839b9df8287e4f5c9670ee898c47a6cfc917011505931cdd4da57",
+      "bytes": 462559,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92541,13 +92556,18 @@
           "date": "2026-11-18",
           "previousSha256": "90fb51d834c511915ea36caa8a1a485e1062901e2ee22c1e8a322e6258db2718",
           "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "25f0cff6527cabc1d99462888a7dd0ce8b729695fdfc1fb6431b99648032e7f9",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "44ddd63f597883d25c29a3ee1095522c3635bbc660836badbce45b1ec38d1cb6",
-      "bytes": 462173,
+      "sha256": "f92725b6974d15cf350cf81af8b3696f1ee42b89f7f6dbf30aa9b0336730fba5",
+      "bytes": 462190,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92717,13 +92737,18 @@
           "date": "2026-11-18",
           "previousSha256": "0d9b970f6970705dff49ac64c4cf9ea3814bd585e3cb7d235cead3b87da19a43",
           "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "44ddd63f597883d25c29a3ee1095522c3635bbc660836badbce45b1ec38d1cb6",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "1fa5ca1ba975d0cda46e902ee1098d453eda2a1dab2a7b296e83ad4e9030cbc0",
-      "bytes": 447150,
+      "sha256": "fa1f676821377ba8af2345e107c0f003275ebb78e6a91bfca0e31aecfaadb73a",
+      "bytes": 447165,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92893,13 +92918,18 @@
           "date": "2026-11-18",
           "previousSha256": "cfd8fcbc3c178135399c44b6dfb750b10ad0c3f3470a9e26e7d5735643349c0b",
           "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "1fa5ca1ba975d0cda46e902ee1098d453eda2a1dab2a7b296e83ad4e9030cbc0",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "80c85997e52ae314716f4f5ff49ef7bb68b0b2e2c7bdcf2219234dd40a94bc1e",
-      "bytes": 631921,
+      "sha256": "dd9846137872bc22202ed3bd9055c5038236dac708337e090840f743a1e6e4e9",
+      "bytes": 631939,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -93069,6 +93099,11 @@
           "date": "2026-11-18",
           "previousSha256": "f2b3eb8c2ed3ca7eccc2ba787531cf53540349384fae164670063693e4302b59",
           "change": "Audit 2026-11-17 smoke-test fixes: interface text and translation updates (match-guard result toast, week report causes and answers, pro offer and squad text, localized percent and scouting cost, de/ru wording; removed unused signing-reveal key). Text only: no names of real people added, no media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-18",
+          "previousSha256": "80c85997e52ae314716f4f5ff49ef7bb68b0b2e2c7bdcf2219234dd40a94bc1e",
+          "change": "Audit 2026-11-17 final fixes: the Home season record and the league card record labels name what they count (\"Season, all matches\" / \"League record\"). Text only: no names of real people added, no media, remote URLs or third-party content."
         }
       ]
     },
