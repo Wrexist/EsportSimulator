@@ -345,7 +345,7 @@ function SquadPageInner() {
       <ScreenHeader
         eyebrow={t("squad.eyebrow", { season })}
         title={teamData.name}
-        subtitle={t("squad.subtitle")}
+        subtitle={t(proActive ? "squad.subtitlePro" : "squad.subtitle")}
         leading={
           <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
             <TeamLogoDisplay team={teamData} size={52} />

@@ -23,6 +23,7 @@ import { isOpenDecision } from "./decision-deadlines"
 import { bestAILineup } from "./ai/lineup"
 import { ensureBoardState } from "./board-expectations"
 import { queueMoment } from "./moments"
+import { SENIOR_ROSTER_MAX } from "./roster-rules"
 
 export interface ProCareerState {
     playerId: string
@@ -287,7 +288,9 @@ export function findOfferingClub(save: GameSave): TeamSaveData | undefined {
     const ovr = ovrOf(player, save.currentWeek)
     let best: TeamSaveData | undefined
     for (const t of save.teams) {
-        if (t.id === current.id || t.rosterIds.length < 5) continue
+        // SMOKE-B-05: a club with a full squad has no place to sign him (the
+        // same cap the pro setup applies to its clubs, MODES-20).
+        if (t.id === current.id || t.rosterIds.length < 5 || t.rosterIds.length >= SENIOR_ROSTER_MAX) continue
         if (t.reputation <= current.reputation || t.reputation > current.reputation + PRO_TUNING.OFFER_MAX_REP_STEP) continue
         const starters = t.rosterIds.slice(0, 5).map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p)
         if (starters.length < 5) continue
@@ -301,6 +304,19 @@ export function findOfferingClub(save: GameSave): TeamSaveData | undefined {
         if (!best || t.reputation > best.reputation || (t.reputation === best.reputation && t.id < best.id)) best = t
     }
     return best
+}
+
+/**
+ * SMOKE-B-10: the starter the pro would push out of the five the club's coach
+ * fields (coachLineup's pick, with and without him), or undefined when he
+ * would not start there.
+ */
+export function offerDisplaces(save: GameSave, team: TeamSaveData, player: PlayerSaveData): PlayerSaveData | undefined {
+    const squad = team.rosterIds.map(id => save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p && p.id !== player.id)
+    const before = bestAILineup(squad, save.currentWeek).five
+    const after = new Set(bestAILineup([...squad, player], save.currentWeek).five.map(p => p.id))
+    if (!after.has(player.id)) return undefined
+    return before.find(p => !after.has(p.id))
 }
 
 /**
@@ -394,12 +410,15 @@ export function processProWeek(save: GameSave): void {
         save.proCareer.lastOfferWeek = save.currentWeek
         const id = club ? `pro_offer_${club.id}_${save.currentWeek}` : ""
         if (club && !save.eventsLog.some(e => e.id === id)) {
+            const rival = offerDisplaces(save, club, player)
             save.eventsLog.unshift({
                 id, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
                 data: {
                     playerId: player.id, teamId: team.id, offeringTeamId: club.id, offeringTeamName: club.name,
                     ...eventText({ key: "pcr.offer.t", params: { club: club.name, name: player.nickname } },
-                        { key: "pcr.offer.m", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name } }),
+                        rival
+                            ? { key: "pcr.offer.mRival", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name, rival: rival.nickname } }
+                            : { key: "pcr.offer.m", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name } }),
                 },
                 choices: [
                     { id: "accept", ...choiceText({ key: "pcr.offer.join", params: { club: club.name } }), effects: { follows: { key: "pcr.offer.followsTo", params: { club: club.name } } } },
