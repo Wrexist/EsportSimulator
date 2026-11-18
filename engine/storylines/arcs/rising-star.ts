@@ -15,6 +15,7 @@ import type { ArcCandidate, ArcDefinition, StoryContext } from "../common"
 import type { StoryArc } from "../types"
 import { PERSONALITY_TUNING as P, STORY_TUNING as S } from "@/lib/balance-tuning"
 import { evaluatePlayer } from "../../player-evaluation"
+import { aiClubsAbleToBid } from "../../ai/transfer-market"
 import {
     clubRef, departedLine, fmtRating, formOver, formRatings, joined, logBeat, nameOf, nextBeat, raiseDecision, resolveArc,
     rosterPlayers, said, stillAt, storyNews, takeAnswer, usd, waitForDesk, weeksRef,
@@ -81,8 +82,13 @@ export const risingStar: ArcDefinition = {
             const team = ctx.team(arc.teamId)!
             const value = Math.round(evaluatePlayer(p, undefined, undefined, ctx.week).transferValue)
             const myRank = team.worldRanking && team.worldRanking > 0 ? team.worldRanking : 999
-            const able = ctx.save.teams.filter(t => t.id !== team.id && (t.worldRanking ?? 999) > 0 && (t.worldRanking ?? 999) < myRank && t.budget >= value).length
-            const ableText = able === 0 ? said("sl.rs.ableNone", { team: team.name }) : said("sl.rs.able", { team: team.name }, able)
+            // MARKET-13 (2026-11-17): count the clubs that could really bid (fee, wage and squad
+            // fit, the weekly bid loop's own gates), not just the ones with the fee in the bank.
+            const bidders = aiClubsAbleToBid(ctx.save, team.id, p, value)
+            const able = bidders.filter(t => (t.worldRanking ?? 999) > 0 && (t.worldRanking ?? 999) < myRank).length
+            const canSell = bidders.length > 0
+            const ableText = joined(" ", able === 0 ? said("sl.rs.ableNone", { team: team.name }) : said("sl.rs.able", { team: team.name }, able),
+                !canSell && said("sl.rs.noBidder", { name: n }))
             const raised = raiseDecision(ctx, arc, {
                 title: said("sl.rs.title", { name: n }),
                 playerId: id,
@@ -90,11 +96,12 @@ export const risingStar: ArcDefinition = {
                     joined(" ", said("sl.rs.msg", { name: n, age: num(arc, "age"), rating: fmtRating(num(arc, "rating")), maps: num(arc, "maps"), value: usd(value) }), ableText),
                     joined("\n",
                         said("sl.rs.optPromise", { morale: S.RISING_PROMISE_MORALE, loyalty: S.RISING_PROMISE_LOYALTY, promise: { key: "promise.START.promise" }, weeks: P.PROMISE_START_WEEKS, limit: P.PROMISE_START_BENCH_LIMIT, brokenMorale: P.PROMISE_BROKEN_MORALE, brokenLoyalty: P.PROMISE_BROKEN_LOYALTY }),
-                        said("sl.rs.optList", { value: usd(value) }),
+                        canSell && said("sl.rs.optList", { value: usd(value) }),
                         said("sl.rs.optQuiet"))),
                 choices: [
                     { id: "promise", text: said("sl.rs.c.promise"), effects: { promise: "START", morale: S.RISING_PROMISE_MORALE, loyalty: S.RISING_PROMISE_LOYALTY } },
-                    { id: "list", text: said("sl.rs.c.list"), effects: { transferList: true } },
+                    // MARKET-13: no "list him" when no club could bid for him.
+                    ...(canSell ? [{ id: "list", text: said("sl.rs.c.list"), effects: { transferList: true } }] : []),
                     { id: "quiet", text: said("sl.rs.c.quiet"), effects: {} },
                 ],
                 defaultChoiceId: "quiet",

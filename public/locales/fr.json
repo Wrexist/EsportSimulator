@@ -6902,8 +6902,8 @@
  "attr.note.loyalty": "Oriente la personnalité vers Fidèle (élevée) ou Mercenaire (basse) ; les promesses tenues ou non et les événements la font bouger. N’agit pas en match.",
  "attr.note.health": "Réduit le risque de blessure hebdomadaire (jusqu’à moitié à 100) ; sous 50, un vétéran prend plus souvent sa retraite. N’agit pas en match.",
  "renew.bodyMarket": "Une année de plus pour {{name}}, avec une hausse de {{pct}} % : son niveau vaut désormais plus sur le marché (hausse habituelle pour {{archetype}} : {{usual}} %).",
- "player.renewNote": "Une prolongation ajoute un an à +{{pct}} % de salaire (la hausse habituelle pour {{archetype}}) et demande 26 semaines de la hausse en caisse. Les clubs font des offres chaque semaine sur les joueurs listés ; elles tournent autour de la valeur marchande.",
- "player.renewNoteMarket": "Une prolongation ajoute un an à +{{pct}} % de salaire, car son niveau vaut désormais plus sur le marché (hausse habituelle pour {{archetype}} : {{usual}} %). Il faut 26 semaines de la hausse en caisse. Les clubs font des offres chaque semaine sur les joueurs listés ; elles tournent autour de la valeur marchande.",
+ "player.renewNote": "Une prolongation ajoute un an à +{{pct}} % de salaire (la hausse habituelle pour {{archetype}}) et demande 26 semaines de la hausse en caisse. Les clubs qui peuvent payer l'indemnité et le salaire d'un joueur listé font des offres chaque semaine ; elles tournent autour de la valeur marchande.",
+ "player.renewNoteMarket": "Une prolongation ajoute un an à +{{pct}} % de salaire, car son niveau vaut désormais plus sur le marché (hausse habituelle pour {{archetype}} : {{usual}} %). Il faut 26 semaines de la hausse en caisse. Les clubs qui peuvent payer l'indemnité et le salaire d'un joueur listé font des offres chaque semaine ; elles tournent autour de la valeur marchande.",
  "player.renewOpens": "Prolongation possible dans {{weeks}}, lors de la dernière année de contrat.",
  "player.retrainInjured": "La reconversion attend son retour de blessure ({{weeks}} d’absence).",
  "st.released": "{{name}} libéré",
@@ -7115,5 +7115,10 @@
  "stage.ro32Match": "Seizièmes de finale · match {{n}}",
  "stage.ro64Match": "Trente-deuxièmes de finale · match {{n}}",
  "terms.rivalRefusal": "{{club}} ne te vendra personne avant votre match de la semaine {{week}}. Réessaie à partir de la semaine {{next}}.",
- "nego.log.feeOverLimit": "C'est plus que ce que tu peux offrir ({{max}})."
+ "nego.log.feeOverLimit": "C'est plus que ce que tu peux offrir ({{max}}).",
+ "sl.rs.noBidder": "Aucun club ne peut assumer le salaire de {{name}} pour l'instant : le mettre sur la liste des transferts n'apporterait aucune offre.",
+ "player.biddersNone": "Aucun club ne peut payer son indemnité et son salaire pour l'instant : aucune offre n'arrivera tant que ça ne change pas.",
+ "player.bidders.one": "{{count}} club pourrait faire une offre cette semaine.",
+ "player.bidders.many": "{{count}} clubs pourraient faire une offre cette semaine.",
+ "player.bidders.other": "{{count}} clubs pourraient faire une offre cette semaine."
 }

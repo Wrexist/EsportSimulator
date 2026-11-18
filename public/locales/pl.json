@@ -7107,8 +7107,8 @@
  "attr.note.loyalty": "Przesuwa osobowość w stronę Lojalnego (wysoka) lub Najemnika (niska); dotrzymane lub złamane obietnice i wydarzenia ją zmieniają. Nie wpływa na mecze.",
  "attr.note.health": "Obniża tygodniowe ryzyko kontuzji (do połowy przy 100); poniżej 50 weteran częściej kończy karierę. Nie wpływa na mecze.",
  "renew.bodyMarket": "Jeszcze rok dla {{name}}, z podwyżką {{pct}}%: ten poziom jest teraz więcej wart na rynku (zwykła podwyżka dla typu {{archetype}}: {{usual}}%).",
- "player.renewNote": "Przedłużenie dodaje rok z pensją +{{pct}}% (zwykła podwyżka dla typu {{archetype}}) i wymaga 26 tygodni podwyżki na koncie. Kluby co tydzień składają oferty za wystawionych graczy; oferty są blisko wartości rynkowej.",
- "player.renewNoteMarket": "Przedłużenie dodaje rok z pensją +{{pct}}%, bo ten poziom jest teraz więcej wart na rynku (zwykła podwyżka dla typu {{archetype}}: {{usual}}%). Wymaga 26 tygodni podwyżki na koncie. Kluby co tydzień składają oferty za wystawionych graczy; oferty są blisko wartości rynkowej.",
+ "player.renewNote": "Przedłużenie dodaje rok z pensją +{{pct}}% (zwykła podwyżka dla typu {{archetype}}) i wymaga 26 tygodni podwyżki na koncie. Kluby, które stać na kwotę i pensję wystawionego gracza, co tydzień składają oferty; oferty są blisko wartości rynkowej.",
+ "player.renewNoteMarket": "Przedłużenie dodaje rok z pensją +{{pct}}%, bo ten poziom jest teraz więcej wart na rynku (zwykła podwyżka dla typu {{archetype}}: {{usual}}%). Wymaga 26 tygodni podwyżki na koncie. Kluby, które stać na kwotę i pensję wystawionego gracza, co tydzień składają oferty; oferty są blisko wartości rynkowej.",
  "player.renewOpens": "Przedłużenie będzie możliwe za {{weeks}}, w ostatnim roku kontraktu.",
  "player.retrainInjured": "Przekwalifikowanie poczeka do powrotu do zdrowia (przerwa: {{weeks}}).",
  "st.released": "Zwolniono: {{name}}",
@@ -7342,5 +7342,11 @@
  "stage.ro32Match": "1/16 finału · mecz {{n}}",
  "stage.ro64Match": "1/32 finału · mecz {{n}}",
  "terms.rivalRefusal": "{{club}}: nie sprzedadzą ci nikogo przed waszym meczem w tygodniu {{week}}. Spróbuj ponownie od tygodnia {{next}}.",
- "nego.log.feeOverLimit": "To więcej, niż możesz zaoferować ({{max}})."
+ "nego.log.feeOverLimit": "To więcej, niż możesz zaoferować ({{max}}).",
+ "sl.rs.noBidder": "Obecnie żadnego klubu nie stać na pensję gracza {{name}}, więc wystawienie na listę transferową nie przyniesie ofert.",
+ "player.biddersNone": "Obecnie żadnego klubu nie stać na kwotę i pensję, więc oferty nie przyjdą, dopóki to się nie zmieni.",
+ "player.bidders.one": "{{count}} klub może złożyć ofertę w tym tygodniu.",
+ "player.bidders.few": "{{count}} kluby mogą złożyć ofertę w tym tygodniu.",
+ "player.bidders.many": "{{count}} klubów może złożyć ofertę w tym tygodniu.",
+ "player.bidders.other": "{{count}} klubu może złożyć ofertę w tym tygodniu."
 }

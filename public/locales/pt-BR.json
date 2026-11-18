@@ -6902,8 +6902,8 @@
  "attr.note.loyalty": "Puxa a personalidade para Leal (alta) ou Mercenário (baixa); promessas cumpridas ou quebradas e eventos a alteram. Não afeta as partidas.",
  "attr.note.health": "Reduz o risco semanal de lesão (até a metade com 100); abaixo de 50 um veterano tem mais chance de se aposentar. Não afeta as partidas.",
  "renew.bodyMarket": "Mais um ano para {{name}}, com aumento de {{pct}}%: o nível dele agora vale mais no mercado (aumento normal para {{archetype}}: {{usual}}%).",
- "player.renewNote": "Renovar adiciona um ano com +{{pct}}% de salário (o aumento normal para {{archetype}}) e exige 26 semanas do aumento em caixa. Clubes fazem ofertas toda semana por jogadores listados; as ofertas ficam perto do valor de mercado.",
- "player.renewNoteMarket": "Renovar adiciona um ano com +{{pct}}% de salário porque o nível dele agora vale mais no mercado (aumento normal para {{archetype}}: {{usual}}%). Exige 26 semanas do aumento em caixa. Clubes fazem ofertas toda semana por jogadores listados; as ofertas ficam perto do valor de mercado.",
+ "player.renewNote": "Renovar adiciona um ano com +{{pct}}% de salário (o aumento normal para {{archetype}}) e exige 26 semanas do aumento em caixa. Clubes que podem pagar o valor e o salário de um jogador listado fazem ofertas toda semana; as ofertas ficam perto do valor de mercado.",
+ "player.renewNoteMarket": "Renovar adiciona um ano com +{{pct}}% de salário porque o nível dele agora vale mais no mercado (aumento normal para {{archetype}}: {{usual}}%). Exige 26 semanas do aumento em caixa. Clubes que podem pagar o valor e o salário de um jogador listado fazem ofertas toda semana; as ofertas ficam perto do valor de mercado.",
  "player.renewOpens": "A renovação abre em {{weeks}}, no último ano de contrato.",
  "player.retrainInjured": "A reciclagem espera a recuperação ({{weeks}} fora).",
  "st.released": "{{name}} dispensado",
@@ -7115,5 +7115,10 @@
  "stage.ro32Match": "Dezesseis-avos de final · partida {{n}}",
  "stage.ro64Match": "Fase de 64 · partida {{n}}",
  "terms.rivalRefusal": "{{club}} não vai vender ninguém para você antes da partida entre vocês na semana {{week}}. Tente de novo a partir da semana {{next}}.",
- "nego.log.feeOverLimit": "É mais do que você pode oferecer ({{max}})."
+ "nego.log.feeOverLimit": "É mais do que você pode oferecer ({{max}}).",
+ "sl.rs.noBidder": "Nenhum clube consegue pagar o salário de {{name}} agora, então colocá-lo na lista de transferências não traria ofertas.",
+ "player.biddersNone": "Nenhum clube consegue pagar o valor e o salário agora, então nenhuma oferta vai chegar até isso mudar.",
+ "player.bidders.one": "{{count}} clube poderia fazer uma oferta esta semana.",
+ "player.bidders.many": "{{count}} clubes poderiam fazer uma oferta esta semana.",
+ "player.bidders.other": "{{count}} clubes poderiam fazer uma oferta esta semana."
 }

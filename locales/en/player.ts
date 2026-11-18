@@ -379,8 +379,11 @@ export const PLAYER = {
     "attr.note.loyalty": "Leans the personality toward Loyal (high) or Mercenary (low); kept or broken promises and events move it. It does not reach matches.",
     "attr.note.health": "Lowers the weekly injury risk (by up to half at 100); below 50 a veteran is more likely to retire. It does not reach matches.",
     "renew.bodyMarket": "One more year for {{name}}, with a raise of {{pct}}%: his level now earns more on the market (usual raise for {{archetype}}: {{usual}}%).",
-    "player.renewNote": "Renewal adds a year at +{{pct}}% wage (the usual raise for {{archetype}}) and needs 26 weeks of the raise in the bank. Clubs bid on listed players each week; offers sit near market value.",
-    "player.renewNoteMarket": "Renewal adds a year at +{{pct}}% wage because his level now earns more on the market (usual raise for {{archetype}}: {{usual}}%). It needs 26 weeks of the raise in the bank. Clubs bid on listed players each week; offers sit near market value.",
+    "player.renewNote": "Renewal adds a year at +{{pct}}% wage (the usual raise for {{archetype}}) and needs 26 weeks of the raise in the bank. Clubs that can afford a listed player's fee and wage bid each week; offers sit near market value.",
+    "player.renewNoteMarket": "Renewal adds a year at +{{pct}}% wage because his level now earns more on the market (usual raise for {{archetype}}: {{usual}}%). It needs 26 weeks of the raise in the bank. Clubs that can afford a listed player's fee and wage bid each week; offers sit near market value.",
     "player.renewOpens": "Renewal opens in {{weeks}}, in the final year of the contract.",
     "player.retrainInjured": "Retraining waits until he is fit ({{weeks}} out).",
+    "player.biddersNone": "No club can afford his fee and wage right now, so no bids will come until that changes.",
+    "player.bidders.one": "{{count}} club could bid for him this week.",
+    "player.bidders.other": "{{count}} clubs could bid for him this week.",
 } as const

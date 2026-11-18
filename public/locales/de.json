@@ -6697,8 +6697,8 @@
  "attr.note.loyalty": "Prägt die Persönlichkeit Richtung Loyal (hoch) oder Söldner (niedrig); gehaltene oder gebrochene Versprechen und Ereignisse verändern den Wert. Wirkt nicht im Match.",
  "attr.note.health": "Senkt das wöchentliche Verletzungsrisiko (bei 100 um bis zur Hälfte); unter 50 tritt ein Veteran eher zurück. Wirkt nicht im Match.",
  "renew.bodyMarket": "Ein weiteres Jahr für {{name}}, mit {{pct}}% Gehaltserhöhung: Sein Niveau bringt jetzt mehr auf dem Markt (übliche Erhöhung für {{archetype}}: {{usual}}%).",
- "player.renewNote": "Eine Verlängerung bringt ein Jahr mit +{{pct}}% Gehalt (die übliche Erhöhung für {{archetype}}) und braucht 26 Wochen der Erhöhung auf dem Konto. Vereine bieten jede Woche auf gelistete Spieler; die Angebote liegen nahe am Marktwert.",
- "player.renewNoteMarket": "Eine Verlängerung bringt ein Jahr mit +{{pct}}% Gehalt, weil sein Niveau jetzt mehr auf dem Markt bringt (übliche Erhöhung für {{archetype}}: {{usual}}%). Dafür müssen 26 Wochen der Erhöhung auf dem Konto sein. Vereine bieten jede Woche auf gelistete Spieler; die Angebote liegen nahe am Marktwert.",
+ "player.renewNote": "Eine Verlängerung bringt ein Jahr mit +{{pct}}% Gehalt (die übliche Erhöhung für {{archetype}}) und braucht 26 Wochen der Erhöhung auf dem Konto. Vereine, die sich Ablöse und Gehalt eines gelisteten Spielers leisten können, bieten jede Woche; die Angebote liegen nahe am Marktwert.",
+ "player.renewNoteMarket": "Eine Verlängerung bringt ein Jahr mit +{{pct}}% Gehalt, weil sein Niveau jetzt mehr auf dem Markt bringt (übliche Erhöhung für {{archetype}}: {{usual}}%). Dafür müssen 26 Wochen der Erhöhung auf dem Konto sein. Vereine, die sich Ablöse und Gehalt eines gelisteten Spielers leisten können, bieten jede Woche; die Angebote liegen nahe am Marktwert.",
  "player.renewOpens": "Verlängerung möglich in {{weeks}}, im letzten Vertragsjahr.",
  "player.retrainInjured": "Die Umschulung wartet, bis er fit ist (noch {{weeks}}).",
  "st.released": "{{name}} entlassen",
@@ -6888,5 +6888,9 @@
  "stage.ro32Match": "Sechzehntelfinale · Spiel {{n}}",
  "stage.ro64Match": "Runde der letzten 64 · Spiel {{n}}",
  "terms.rivalRefusal": "{{club}} verkauft dir vor eurem Match in Woche {{week}} niemanden. Versuch es ab Woche {{next}} wieder.",
- "nego.log.feeOverLimit": "Das ist mehr, als du bieten kannst ({{max}})."
+ "nego.log.feeOverLimit": "Das ist mehr, als du bieten kannst ({{max}}).",
+ "sl.rs.noBidder": "Gerade kann kein Verein das Gehalt von {{name}} stemmen, ein Transferlisting brächte also keine Angebote.",
+ "player.biddersNone": "Gerade kann sich kein Verein Ablöse und Gehalt leisten, Angebote kommen also erst, wenn sich das ändert.",
+ "player.bidders.one": "{{count}} Verein könnte diese Woche ein Angebot machen.",
+ "player.bidders.other": "{{count}} Vereine könnten diese Woche ein Angebot machen."
 }

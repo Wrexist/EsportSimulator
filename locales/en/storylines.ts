@@ -249,4 +249,5 @@ export const STORYLINES = {
     "sl.bp.hangsOn": "{{manager}} is still in post at {{club}}, board confidence {{confidence}}/100.",
     "sl.bp.hangsOnNotice": "{{manager}} is still in post at {{club}}, board confidence {{confidence}}/100, on notice.",
     "sl.bp.hangsOnTitle": "{{manager}} hangs on at {{club}}",
+    "sl.rs.noBidder": "No club can fit {{name}}'s wage right now, so a listing would bring no bids.",
 }
