@@ -55,10 +55,10 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     const { board, contracts, staff, players, academy } = state
     const budgetFacts = useMemo(() => {
         if (!budgetStep || !team) return undefined
-        const weeklyNet = EconomyEngine.processWeeklyFinances(team, players, contracts, staff, state.week + 1, academy.length).net
+        const weeklyNet = EconomyEngine.processWeeklyFinances(team, players, contracts, staff, state.week + 1, academy?.length ?? 0).net
         const cashTarget = board?.objectives?.find(o => o.id === "finance")?.target ?? null
         return { maxFee: getBoardSanctionedFee(board, team.budget).maxFee, weeklyNet, cashTarget }
-    }, [budgetStep, team, players, contracts, staff, state.week, academy.length, board])
+    }, [budgetStep, team, players, contracts, staff, state.week, academy?.length, board])
 
     // START-33: the visible words are the accessible name; where it comes back is said after skipping.
     const skip = () => {
