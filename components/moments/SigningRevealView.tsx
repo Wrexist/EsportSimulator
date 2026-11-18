@@ -21,6 +21,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { colors, tokens } from "@/src/design/tokens"
 import { rivalLine } from "@/engine/transfer-hype"
 import { StandingBadge, STANDING_FRAME } from "@/components/transfer/StandingBadge"
+import { startingSwapFor } from "@/lib/lineup-upgrade"
 import { MomentFacts, MomentFrame, MomentOverline, MomentRule, useReveal, type MomentFact } from "./MomentFrame"
 
 const EASE = [...tokens.motion.easeOutExpo] as [number, number, number, number]
@@ -84,6 +85,21 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     const reveal = useReveal()
     const reduce = useAppReducedMotion()
     const { player, gameStartDate } = useGameStore(useShallow(s => ({ player: s.players.find(p => p.id === moment.playerId), gameStartDate: s.gameStartDate })))
+    // NEWPLAYER-01: a signing lands on the bench. When he beats a starter
+    // (of his role, else the weakest), offer to start him from the reveal.
+    const startSwap = useGameStore(useShallow(s => {
+        const team = s.teams.find(tm => tm.id === s.playerTeamId)
+        if (!team || s.activeMatchId || (s.proCareer && s.proCareer.retiredWeek == null)) return null
+        const swap = startingSwapFor(team.rosterIds, s.players, moment.playerId, s.currentWeek)
+        if (!swap) return null
+        return { teamId: team.id, from: swap.benchIndex, to: swap.starterIndex, replaced: s.players.find(p => p.id === swap.starterId)?.nickname ?? "" }
+    }))
+    const startHim = () => {
+        if (!startSwap) return
+        const st = useGameStore.getState()
+        st.swapRosterPositions(startSwap.teamId, startSwap.from, startSwap.to)
+        st.addToast({ type: "info", message: t("squad.lineupUpdated") })
+    }
 
     const celebrated = moment.big || moment.standing === "ICON"
     const shown = useCountUp(moment.rating, 0.55, 0.9, reduce)
@@ -115,7 +131,14 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     const gain = moment.squad ? moment.squad.after - moment.squad.before : 0
 
     return (
-        <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="signing" onDismiss={onDismiss} actionLabel={t("mo.sign.action")}>
+        <MomentFrame
+            momentKey={moment.key}
+            labelledBy={headlineId}
+            sound="signing"
+            onDismiss={onDismiss}
+            actionLabel={t("mo.sign.action")}
+            extraAction={startSwap ? { label: t("mo.sign.start", { name: startSwap.replaced }), onClick: startHim } : undefined}
+        >
             <div className="flex w-full items-center justify-center gap-14 text-left">
                 <motion.div
                     initial={reduce ? false : { opacity: 0, x: -60, rotateY: -12 }}

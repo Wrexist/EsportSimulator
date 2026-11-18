@@ -47,6 +47,7 @@ import { matchEventName } from "@/lib/tournament-instances"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { autoVetoMaps } from "@/lib/auto-veto"
 import { liveMatchInProgress } from "@/app/match/match-centre"
+import { benchedUpgrade } from "@/lib/lineup-upgrade"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -245,6 +246,8 @@ export default function TacticalHQPage() {
     })))
     const league = useGameStore(state => state.league)
     const gameStartDate = useGameStore(state => state.gameStartDate)
+    // C10: in a pro career the coach picks the lineup, so prep offers no swap.
+    const coachPicksLineup = useGameStore(state => !!state.proCareer && state.proCareer.retiredWeek == null)
     // A live match that was started and left: its prep is locked, so the hub
     // offers only "Resume match" (with where it stands), not a new veto.
     const liveProgress = useGameStore(useShallow(state => {
@@ -458,6 +461,13 @@ export default function TacticalHQPage() {
     const threat = theirLineup.reduce<LineupPlayer | null>((best, p) => (!best || p.ovr > best.ovr ? p : best), null)
     const myAvgMorale = myLineup.length ? myLineup.reduce((s, p) => s + (p.morale ?? 50), 0) / myLineup.length : 0
     const myChemistry = Math.round(myTeam.chemistry ?? 0)
+    // NEWPLAYER-01: a fit bench player rated above a starter of his role.
+    const benched = !isCompleted && !liveProgress ? benchedUpgrade(myTeam.rosterIds, players, currentWeek) : null
+    const swapBenched = () => {
+        if (!benched) return
+        useGameStore.getState().swapRosterPositions(myTeam.id, benched.benchIndex, benched.starterIndex)
+        addToast({ message: t("squad.lineupUpdated"), type: "info" })
+    }
 
     // Opponent's last five results, newest first.
     const opponentForm = completedMatches
@@ -606,6 +616,20 @@ export default function TacticalHQPage() {
                             <LineupTable title={t("prep.yourFive")} team={myTeam} players={myLineup} />
                             <LineupTable title={t("prep.theirFive")} team={opponent} players={theirLineup} />
                         </div>
+                        {benched && (
+                            <div role="status" className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line px-4 py-2.5">
+                                <p className="text-sm text-caution">
+                                    <Trans
+                                        k="prep.benchedUpgrade"
+                                        params={{ bench: playersById.get(benched.benchId)?.nickname ?? "", benchOvr: benched.benchOvr, starter: playersById.get(benched.starterId)?.nickname ?? "", starterOvr: benched.starterOvr }}
+                                        tags={{ b: v => <span className="font-semibold">{v}</span> }}
+                                    />
+                                </p>
+                                {!coachPicksLineup && (
+                                    <Button variant="outline" size="sm" className="h-8 shrink-0 px-3 text-xs" onClick={swapBenched}>{t("squad.swapIn")}</Button>
+                                )}
+                            </div>
+                        )}
                     </Panel>
 
                     {/* Game plan */}

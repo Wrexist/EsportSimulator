@@ -645,6 +645,7 @@ export const MATCH = {
 
     "prep.format.map": "map",
     "prep.format.series": "series",
+    "prep.benchedUpgrade": "<b>{{bench}} ({{benchOvr}})</b> is on the bench while {{starter}} ({{starterOvr}}) starts.",
     "block.ownRoster.one": "Your roster has {{count}} active player; you need {{need}} to play. Sign a player, or advance the week and this match is forfeited.",
     "block.ownRoster.other": "Your roster has {{count}} active players; you need {{need}} to play. Sign a player, or advance the week and this match is forfeited.",
     "block.opponent": "Your opponent",

@@ -77,10 +77,11 @@ export const MOMENTS = {
     "mo.sign.beatRivals": "Beat <b>{{rivals}}</b> to the signature.",
     "mo.otherClubs.one": "{{count}} other club",
     "mo.otherClubs.other": "{{count}} other clubs",
-    "mo.sign.bestFive": "Best five OVR",
+    "mo.sign.bestFive": "Best possible five OVR",
     "mo.sign.depth": "squad depth",
     "mo.sign.signatureAlt": "Your signature on the contract",
     "mo.sign.signedBy": "Signed by the manager",
+    "mo.sign.start": "Start him (replaces {{name}})",
 
     "mo.hl.title": "Champions: {{name}}",
     "mo.hl.leagueTitle": "{{division}} champions",
