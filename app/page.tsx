@@ -33,11 +33,11 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
 import { Activity, ArrowUpRight, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatCurrency, formatSignedCurrency, getDynamicTournamentName } from "@/lib/utils-extended"
-import { matchEventName } from "@/lib/tournament-instances"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
+import { instanceName, matchEventName } from "@/lib/tournament-instances"
 import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
-import { weekLabelShort, weekNumberText } from "@/lib/season-week"
+import { seasonOfWeek, weekLabelShort, weekNumberText } from "@/lib/season-week"
 import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
 import { cashRunway, roleTrainingCost } from "@/engine/finance-forecast"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -214,7 +214,8 @@ export default function Page() {
       .slice(0, 2)
       .map(t => {
         const weeksUntil = t.startWeek - currentCalendarWeek
-        return { ...t, weeksUntil, name: getDynamicTournamentName(t.name, currentWeek + weeksUntil, gameStartDate, t.duration) }
+        // SMOKE-A-10: the name the event's saved instance carries (a qualifier takes its event's year).
+        return { ...t, weeksUntil, name: instanceName(t, seasonOfWeek(currentWeek), gameStartDate) }
       })
   }, [nextMatch, tournamentQualifications, playerTeamId, currentWeek, gameStartDate])
 

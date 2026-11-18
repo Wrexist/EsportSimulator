@@ -55,7 +55,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
-import { getDynamicTournamentName, formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency } from "@/lib/utils-extended"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { pressable } from "@/lib/accessibility"
@@ -565,7 +565,7 @@ export default function TournamentDetailPage() {
                                     {status.label}
                                 </span>
                             </div>
-                            <h1 className="page-title mt-1 truncate">{getDynamicTournamentName(displayTournament.name, startWeek, gameStartDate, duration)}</h1>
+                            <h1 className="page-title mt-1 truncate">{definition ? instanceName(definition, displaySeason, gameStartDate) : displayTournament.name}</h1>
                         </div>
                         {!isStarted && (
                             isRegistered ? (
