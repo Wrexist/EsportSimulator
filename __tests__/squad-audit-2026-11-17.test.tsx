@@ -17,6 +17,7 @@ import { t } from "@/lib/i18n"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { benchedUpgrade, startingSwapFor } from "@/lib/lineup-upgrade"
 import { scoutReportTier, STAFF_ROLE_ORDER } from "@/components/staff/staff-effects"
+import { hubForPath } from "@/lib/navigation"
 
 enableMapSet()
 
@@ -151,5 +152,20 @@ describe("NEWPLAYER-04 and SQUAD-59", () => {
         const b = (v: string) => <b>{v}</b>
         expect(renderToStaticMarkup(<Trans k="player.pointsToSpend" count={1} tags={{ b }} />)).toBe("<b>1</b> point to spend")
         expect(renderToStaticMarkup(<Trans k="player.pointsToSpend" count={3} tags={{ b }} />)).toBe("<b>3</b> points to spend")
+    })
+})
+
+test("SQUAD-54: area eyebrows follow Season N · <section>", () => {
+    expect(t("st.eyebrow", { season: 2 })).toBe("Season 2 · Squad")
+    expect(t("ac.eyebrowLevel", { season: 1, n: 3 })).toBe("Season 1 · Academy level 3")
+    expect(t("tr.eyebrowWeek", { season: 1, n: 4 })).toBe("Season 1 · Week 4 · Training")
+})
+
+describe("SQUAD-55: your own club page sits under Squad", () => {
+    test("hubForPath maps /team/<own id> to Squad, other clubs to Competition", () => {
+        expect(hubForPath("/team/team_1", "team_1")?.id).toBe("squad")
+        expect(hubForPath("/team/team%201", "team 1")?.id).toBe("squad")
+        expect(hubForPath("/team/team_2", "team_1")?.id).toBe("competition")
+        expect(hubForPath("/team/team_1")?.id).toBe("competition")
     })
 })
