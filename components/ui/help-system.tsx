@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { WEEKLY_ACTIVITIES, WeeklyActivityType, weeklyActivityXpBonus } from '@/types/activities'
 import { Button } from '@/components/ui/button'
 import { HelpCircle, ChevronRight } from 'lucide-react'
@@ -124,6 +124,9 @@ export const helpTopics: HelpTopic[] = [
     ]),
 ]
 
+/** Window event that opens the help dialog (the Ctrl K search's "Help and game guide"; HOME-28). */
+export const OPEN_HELP_EVENT = "esm:open-help"
+
 /**
  * Help System Component
  * Contextual help and documentation
@@ -140,11 +143,15 @@ export function HelpSystem() {
         } catch { /* localStorage unavailable — just skip the pulse */ }
     }, [])
 
-    const openHelp = () => {
+    const openHelp = useCallback(() => {
         setIsOpen(true)
         setShowPulse(false)
         try { localStorage.setItem("esim_help_opened", "1") } catch { /* ignore */ }
-    }
+    }, [])
+    useEffect(() => {
+        window.addEventListener(OPEN_HELP_EVENT, openHelp)
+        return () => window.removeEventListener(OPEN_HELP_EVENT, openHelp)
+    }, [openHelp])
 
     const categories: Category[] = ['gameplay', 'competition', 'management', 'tactics', 'progression']
 
