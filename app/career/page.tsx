@@ -217,7 +217,7 @@ export default function CareerPage() {
                                             <p className="mt-0.5 text-xs tabular-nums text-ink-3">
                                                 {t("car.kpi.week", { week: slot.currentWeek || 1 })} · {w}–{l}
                                                 {slot.stats?.tournamentsWon ? ` · ${tn("tro.review.titles", slot.stats.tournamentsWon)}` : ""}
-                                                {slot.budget !== undefined ? ` · ${formatCurrency(slot.budget, "$", true)}` : ""}
+                                                {slot.budget !== undefined && !slot.draftCup && !slot.pro ? ` · ${formatCurrency(slot.budget, "$", true)}` : ""}
                                             </p>
                                         </div>
                                         {!active && id && (

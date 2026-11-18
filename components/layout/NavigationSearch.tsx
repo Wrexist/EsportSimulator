@@ -70,6 +70,8 @@ export function NavigationSearch({ compact = false, disabled, pro = false, draft
             await debouncedStorage.flush()
             await state.saveGame()
             soundManager.play("weekAdvance")
+            // The sound alone was easy to miss: confirm on screen too.
+            useGameStore.getState().addToast({ message: t("search.saved"), type: "info", duration: 2500 })
         } catch { /* saveGame reports its own errors */ }
     }
     // macOS keyboards show the Command key; others the localized Ctrl ("Strg" in German).

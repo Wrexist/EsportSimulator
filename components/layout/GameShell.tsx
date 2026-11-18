@@ -356,6 +356,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 await debouncedStorage.flush()
                 await state.saveGame()
                 soundManager.play('weekAdvance')
+                useGameStore.getState().addToast({ message: t("search.saved"), type: "info", duration: 2500 })
             } catch {
                 // Save errors surface via the exit-save path; swallow here so a hotkey
                 // press doesn't throw into the window-level keydown listener.
