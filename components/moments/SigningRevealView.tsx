@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Swords, TrendingUp } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import type { SigningMoment } from "@/engine/moments"
+import { signatureViewBox } from "./signature-box"
 import { useGameStore } from "@/store/game-store"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
@@ -25,6 +26,9 @@ import { MomentFacts, MomentFrame, MomentOverline, MomentRule, useReveal, type M
 
 const EASE = [...tokens.motion.easeOutExpo] as [number, number, number, number]
 const money = (n: number) => formatCurrency(Math.round(n), "$", false)
+/** Signature size on the reveal (px): its height, and the most width it may take. */
+const SIG_HEIGHT = 72
+const SIG_MAX_WIDTH = 300
 
 /** Headline size by name length, so a long tag stays on one line. */
 function nameSize(name: string, big: boolean): string {
@@ -113,6 +117,8 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     const sweep = !reduce && (moment.big || !!moment.standing)
     const rivals = moment.rivalNames ?? []
     const gain = moment.squad ? moment.squad.after - moment.squad.before : 0
+    const sig = moment.signature
+    const sigBox = sig ? signatureViewBox(sig) : null
 
     return (
         <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="signing" onDismiss={onDismiss} actionLabel={t("mo.sign.action")}>
@@ -145,8 +151,10 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                             <StandingBadge standing={moment.standing} size="md" />
                         </div>
                     )}
-                    <div className="absolute bottom-4 left-4">
+                    {/* NEWPLAYER-21 (2026-11-17): the big number is his rating, not a shirt number. */}
+                    <div className="absolute bottom-4 left-4 flex flex-col items-start">
                         <RatingChip value={shown} size="xl" bare className="drop-shadow-lg" />
+                        <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-1 drop-shadow">{t("common.ovr")}</span>
                     </div>
                     <motion.div
                         aria-hidden="true"
@@ -209,14 +217,16 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                             {gain === 0 && <span>· {t("mo.sign.depth")}</span>}
                         </motion.div>
                     )}
-                    {moment.signature && (
-                        <motion.div {...reveal(1.05)} className="mt-5 flex items-end gap-4">
-                            <svg viewBox={`0 0 ${moment.signature.w} ${moment.signature.h}`} className="h-16 w-48 shrink-0" role="img" aria-label={t("mo.sign.signatureAlt")}>
+                    {sig && sigBox && (
+                        // MARKET-11 (2026-11-17): the signature fills its box and the caption sits under it, on the line.
+                        <motion.div {...reveal(1.05)} className="mt-5 inline-flex flex-col items-stretch">
+                            <svg viewBox={`${sigBox.x} ${sigBox.y} ${sigBox.w} ${sigBox.h}`} style={{ height: SIG_HEIGHT, width: Math.min(SIG_MAX_WIDTH, SIG_HEIGHT * sigBox.w / Math.max(1, sigBox.h)) }} className="shrink-0" role="img" aria-label={t("mo.sign.signatureAlt")}>
                                 <motion.path
-                                    d={moment.signature.d}
+                                    d={sig.d}
                                     fill="none"
                                     stroke={colors["ink-1"]}
                                     strokeWidth={2.6}
+                                    vectorEffect="non-scaling-stroke"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     initial={reduce ? false : { pathLength: 0 }}
@@ -224,7 +234,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                                     transition={{ duration: reduce ? 0 : 1.2, delay: reduce ? 0 : 1.1, ease: "easeInOut" }}
                                 />
                             </svg>
-                            <p className="pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-3">{t("mo.sign.signedBy")}</p>
+                            <p className="mt-1 border-t border-line-strong pt-1.5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-3">{t("mo.sign.signedBy")}</p>
                         </motion.div>
                     )}
                 </div>
