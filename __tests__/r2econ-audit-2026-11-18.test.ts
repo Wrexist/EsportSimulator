@@ -5,6 +5,7 @@ import { CAREER_DIFFICULTY } from "@/lib/balance-tuning"
 import { DIFFICULTY_SETTINGS } from "@/types/team-creator"
 import { generateCustomTeamData } from "@/engine/team-creator"
 import { EquipmentManager, EQUIPMENT_CATALOG } from "@/engine/equipment-manager"
+import { WORKLOAD_TUNING, needsWorkloadWarning, workloadOf } from "@/engine/workload"
 
 describe("MODES-18: difficulty carries only the levers the game applies", () => {
     test("career difficulty: cash and recurring income, no unused fans or prize multipliers", () => {
@@ -149,4 +150,25 @@ describe("SQUAD-39: opening wages are an existing deal at OPENING_WAGE_SHARE of 
         const again = loader.createCareerFromSnapshot("SQUAD-39b", loader.getSnapshot()!.teams[0].id, 1, 3917)!
         expect(again.contracts.map(c => c.salaryPerWeek)).toEqual(save.contracts.map(c => c.salaryPerWeek))
     }, 60_000)
+})
+
+describe("HOME-21: the workload warning fires at 0.8% weekly risk, not 0.5%", () => {
+    const p = (fatigue: number, over: Record<string, unknown> = {}) =>
+        ({ id: "a", nickname: "a", fatigue, health: 100, age: 22, ...over }) as never
+    test("threshold is 0.8%", () => {
+        expect(WORKLOAD_TUNING.WARN_RISK).toBe(0.008)
+    })
+    test("a fit 22-year-old is warned from about fatigue 90, not 75-89", () => {
+        expect(needsWorkloadWarning(p(75))).toBe(false)
+        expect(needsWorkloadWarning(p(85))).toBe(false)
+        expect(needsWorkloadWarning(p(88))).toBe(false)
+        expect(needsWorkloadWarning(p(90))).toBe(true)
+        expect(workloadOf(p(80)).band).toBe("HIGH")
+        expect(workloadOf(p(90)).band).toBe("OVERLOADED")
+    })
+    test("age still brings the warning earlier", () => {
+        // age 34: x1.2, so fatigue 80 is 0.62% x 1.2 = 0.744% (no) and 85 is 0.864% (yes)
+        expect(needsWorkloadWarning(p(80, { age: 34 }))).toBe(false)
+        expect(needsWorkloadWarning(p(85, { age: 34 }))).toBe(true)
+    })
 })

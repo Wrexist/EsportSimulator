@@ -28,8 +28,12 @@ export const WORKLOAD_TUNING = {
     /** Age past which the chance rises by AGE_STEP per year. */
     AGE_FROM: 30,
     AGE_STEP: 0.05,
-    /** A workload warning is raised once the weekly injury chance reaches this (about fatigue 75 at full health). */
-    WARN_RISK: 0.005,
+    /**
+     * A workload warning is raised once the weekly injury chance reaches this
+     * (about fatigue 90 at full health, age 22). HOME-21: at 0.5% it fired from
+     * fatigue 75, so most of a played squad was flagged every week.
+     */
+    WARN_RISK: 0.008,
     /** Fatigue a rest week takes off at once (on top of the weekly recovery). */
     REST_FATIGUE: 25,
     /** Morale a rested player gains. */
