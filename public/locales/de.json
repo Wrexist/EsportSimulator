@@ -5915,7 +5915,6 @@
  "mo.sign.beatRivals": "Unterschrift vor <b>{{rivals}}</b> gesichert.",
  "mo.otherClubs.one": "{{count}} weiterem Verein",
  "mo.otherClubs.other": "{{count}} weiteren Vereinen",
- "mo.sign.bestFive": "OVR der bestmöglichen Fünf",
  "mo.sign.depth": "Kadertiefe",
  "mo.sign.signatureAlt": "Deine Unterschrift auf dem Vertrag",
  "mo.sign.signedBy": "Unterschrieben vom Manager",
