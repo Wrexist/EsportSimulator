@@ -11,6 +11,8 @@ import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { FOCUS_OPTIONS, focusLabel, statLabel, TEAM_TRAINING_INTENSITY, type WeeklyPreview } from "@/components/training/weekly-training"
 import type { PlayerProjection } from "./week-preview"
+import { useGameStore } from "@/store/game-store"
+import { potentialOvr } from "@/lib/potential-ovr"
 
 /** "Rifle, AWP +0.42 · Aim +0.21 · Pistol at potential" — stats grouped by equal weekly gain. */
 export function GainSummary({ preview }: { preview: WeeklyPreview }) {
@@ -65,6 +67,7 @@ interface WeekTrainingPlanProps {
  * morale now → after the update from the full week projection.
  */
 export function WeekTrainingPlan({ roster, projections, retrainingTarget, onSetFocus }: WeekTrainingPlanProps) {
+    const currentWeek = useGameStore(s => s.currentWeek)
     return (
         <Panel
             title={t("tr.wp.title")}
@@ -102,8 +105,9 @@ export function WeekTrainingPlan({ roster, projections, retrainingTarget, onSetF
                                             </span>
                                             <span className="min-w-0">
                                                 <span className="block truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{p.nickname}</span>
-                                                {/* The potential note drops below the role tag whole rather than breaking mid-phrase (I18N-16). */}
-                                                <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-3"><RoleTag role={p.role} /> <span className="whitespace-nowrap">{t("tr.wp.potential", { n: p.potential })}</span></span>
+                                                {/* The potential note drops below the role tag whole rather than breaking mid-phrase (I18N-16).
+                                                    NEWPLAYER-05: on the OVR scale, as the profile shows it, so it never reads below his OVR. */}
+                                                <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-3"><RoleTag role={p.role} /> <span className="whitespace-nowrap">{t("tr.wp.potential", { n: potentialOvr(p, currentWeek) })}</span></span>
                                             </span>
                                         </Link>
                                     </td>
