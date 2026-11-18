@@ -78,6 +78,8 @@ import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import { divisionRef, eventText, newsText } from "@/lib/news-ref"
 import { eventDisplayName } from "@/lib/tournament-instances"
 import { sideScore } from "@/lib/week-changes"
+import { firstWinMilestone, FIRST_WIN_MILESTONE, type MilestoneHit } from "@/engine/milestone-checker"
+import { claimMilestoneToast } from "@/lib/celebration-toasts"
 const NEWS_FEED_CAP = 50
 /** Pre-match odds under which the own result gets the upset headline (NEWPLAYER-15). */
 const UPSET_NEWS_EXPECTED = 0.25
@@ -92,6 +94,8 @@ export interface MatchSimulationActions {
 
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
     saveMatchResult: (matchId, result) => {
+        // NEWPLAYER-12: the first official win, toasted once the result is stored.
+        let firstWin: MilestoneHit | null = null
         set((state) => {
             if (state.completedMatches.some(m => m.id === matchId)) return
             if (!result || result.engineVersion && !isEngineVersion(result.engineVersion)) return
@@ -514,6 +518,24 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     underdogWin: achievementFlags.underdogWin,
                 })
 
+                // NEWPLAYER-12: the first official win gets its moment now (the week
+                // tick's milestone check skips it once recorded here). The match id
+                // lets the result screen say so.
+                if (pWon && isOfficialMatch(match)) {
+                    const fired = new Set<string>([...state.acknowledgedEventIds, ...state.eventsLog.map(e => e.id)].filter(id => id === FIRST_WIN_MILESTONE))
+                    firstWin = firstWinMilestone(state as unknown as GameSave, fired)
+                    if (firstWin) {
+                        state.eventsLog.unshift({
+                            id: firstWin.id,
+                            week: state.currentWeek,
+                            type: "MILESTONE",
+                            data: { description: firstWin.message, messageRef: firstWin.ref, importance: "MEDIUM", matchId: match.id },
+                            acknowledged: true,
+                        })
+                        if (!state.acknowledgedEventIds.includes(firstWin.id)) state.acknowledgedEventIds.push(firstWin.id)
+                    }
+                }
+
                 // Same base and analyst talent bonus as a match the week auto-plays.
                 const xpMultiplier = state.playerTeamId ? getAnalystXpMultiplier(state as unknown as GameSave, state.playerTeamId) : 1
                 ManagerProgression.gainXP(state, Math.round((pWon ? WIN_XP_BASE : LOSS_XP_BASE) * xpMultiplier))
@@ -609,6 +631,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
             }
         })
+        const hit = firstWin as MilestoneHit | null
+        if (hit && claimMilestoneToast(hit.id)) get().addToast({ message: liveText(hit.ref), type: "achievement" })
     },
 
     prepAndSimMatch: async (matchId: string) => {

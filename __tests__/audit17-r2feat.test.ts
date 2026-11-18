@@ -115,3 +115,63 @@ describe("MODES-19: a pro trial offer names the starter to beat", () => {
         expect(proRival(five.filter(p => p.role !== "IGL"), "IGL" as never, 20)).toBeNull()
     })
 })
+
+describe("NEWPLAYER-12: the first official win is celebrated when it is recorded", () => {
+    /* eslint-disable @typescript-eslint/no-require-imports */
+    const { produce, enableMapSet } = require("immer") as typeof import("immer")
+    const { createLaunchFixture } = require("@/scripts/launch/fixtures") as typeof import("@/scripts/launch/fixtures")
+    const { createMatchSimulationSlice } = require("@/store/slices/match-simulation-slice") as typeof import("@/store/slices/match-simulation-slice")
+    const { getActivePlayersByRosterOrder } = require("@/lib/live-match-builders") as typeof import("@/lib/live-match-builders")
+    const { prepareLegacySeries } = require("@/engine/match/legacy-prepare") as typeof import("@/engine/match/legacy-prepare")
+    const { runLegacySeries, finalizeLegacySeries } = require("@/engine/match/legacy-series") as typeof import("@/engine/match/legacy-series")
+    const { createDefaultTactics } = require("@/engine/default-tactics") as typeof import("@/engine/default-tactics")
+    const { checkMilestones } = require("@/engine/milestone-checker") as typeof import("@/engine/milestone-checker")
+    const { resetCelebrationToasts } = require("@/lib/celebration-toasts") as typeof import("@/lib/celebration-toasts")
+    /* eslint-enable @typescript-eslint/no-require-imports */
+    enableMapSet()
+    type Save = import("@/engine/save-types").GameSave
+    type Store = import("@/store/types").StoreState
+
+    function harness(tournamentId: string | null) {
+        const save = createLaunchFixture("first-week", 3921) as Save
+        const m = save.scheduledMatches[0]
+        m.tournamentId = tournamentId as never
+        m.maps = ["Sandstone"] as never
+        const own = save.teams.find(t => t.id === save.playerTeamId)!
+        own.rosterIds.forEach(id => Object.assign(save.players.find(p => p.id === id)!, { skill: 95, rifle: 95, awp: 95, pistol: 95, tactic: 95, reaction: 95, eyesight: 95 }))
+        let state = { ...save, customTactics: createDefaultTactics(), newsFeed: [], acknowledgedEventIds: [], addToast: jest.fn() } as unknown as Store
+        const set = (fn: Partial<Store> | ((s: Store) => void)) => { state = typeof fn === "function" ? produce(state, fn) : { ...state, ...fn } }
+        const slice = createMatchSimulationSlice(set as never, () => state)
+        state = { ...state, ...slice }
+        const home = save.teams.find(t => t.id === m.homeTeamId)!, away = save.teams.find(t => t.id === m.awayTeamId)!
+        const ctx = prepareLegacySeries({
+            match: m, homeTeam: home, awayTeam: away,
+            homePlayers: getActivePlayersByRosterOrder(home, save.players), awayPlayers: getActivePlayersByRosterOrder(away, save.players),
+            staff: save.staff as never, customTactics: createDefaultTactics(), managedTeamId: save.playerTeamId,
+        })
+        const result = finalizeLegacySeries(ctx, runLegacySeries(ctx).state)
+        return { read: () => state, slice, match: m, result }
+    }
+    beforeEach(() => resetCelebrationToasts())
+
+    test("an official win records ms_win_1 with the match id and toasts at once; the week tick does not repeat it", () => {
+        const h = harness("league_eu_test")
+        expect(h.result.winnerId).toBe(h.read().playerTeamId)
+        h.slice.saveMatchResult(h.match.id, h.result)
+        const s = h.read()
+        const ev = s.eventsLog.find(e => e.id === "ms_win_1")
+        expect(ev).toBeDefined()
+        expect((ev!.data as { matchId?: string }).matchId).toBe(h.match.id)
+        expect(s.acknowledgedEventIds).toContain("ms_win_1")
+        expect((s as unknown as { addToast: jest.Mock }).addToast).toHaveBeenCalledWith({ message: "Your first win!", type: "achievement" })
+        const fired = new Set([...s.acknowledgedEventIds, ...s.eventsLog.map(e => e.id)])
+        expect(checkMilestones(s as unknown as Save, fired).map(x => x.id)).not.toContain("ms_win_1")
+    })
+
+    test("a friendly win is not the first win", () => {
+        const h = harness(null)
+        h.slice.saveMatchResult(h.match.id, h.result)
+        expect(h.read().completedMatches).toHaveLength(1)
+        expect(h.read().eventsLog.some(e => e.id === "ms_win_1")).toBe(false)
+    })
+})
